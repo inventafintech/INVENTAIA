@@ -164,6 +164,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/api/dashboard/inventario/export/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/inventario/export">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/inventario/export/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/dashboard/inventario/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/inventario">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/inventario/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/api/dashboard/ordenes/[id]/approve/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/ordenes/[id]/approve">> = Specific

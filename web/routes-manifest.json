@@ -77,6 +77,18 @@
       "namedRegex": "^/api/dashboard/financiamiento/desembolso(?:/)?$"
     },
     {
+      "page": "/api/dashboard/inventario",
+      "regex": "^/api/dashboard/inventario(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/inventario(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard/inventario/export",
+      "regex": "^/api/dashboard/inventario/export(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/inventario/export(?:/)?$"
+    },
+    {
       "page": "/api/dashboard/ordenes",
       "regex": "^/api/dashboard/ordenes(?:/)?$",
       "routeKeys": {},

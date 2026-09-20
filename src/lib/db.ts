@@ -55,6 +55,33 @@ export interface IntegrationLogRecord {
   created_at: string;
 }
 
+export interface CategoryRecord {
+  id: string;
+  name: string;
+  description?: string;
+}
+
+export interface ProductRecord {
+  id: string;
+  sku_code: string;
+  name: string;
+  category_id: string;
+  category_name: string;
+  unit_cost: number;
+  unit_price: number;
+  status: 'active' | 'inactive' | 'archived';
+  created_at: string;
+  updated_at: string;
+}
+
+export interface InventoryLevelRecord {
+  id: string;
+  product_id: string;
+  physical_stock: number;
+  safety_stock: number;
+  last_synced_at: string;
+}
+
 export interface SupplierRecord {
   id: string;
   name: string;
@@ -126,6 +153,9 @@ interface DatabaseStore {
   sync_jobs: SyncJobRecord[];
   sync_results: SyncResultRecord[];
   integration_logs: IntegrationLogRecord[];
+  categories: Record<string, CategoryRecord>;
+  products: Record<string, ProductRecord>;
+  inventory_levels: Record<string, InventoryLevelRecord>;
   suppliers: Record<string, SupplierRecord>;
   purchase_orders: Record<string, PurchaseOrderRecord>;
   purchase_order_lines: PurchaseOrderLineRecord[];
@@ -134,6 +164,97 @@ interface DatabaseStore {
 }
 
 function initDb(): DatabaseStore {
+  const defaultCategories: Record<string, CategoryRecord> = {
+    'cat-abarrotes': { id: 'cat-abarrotes', name: 'Abarrotes', description: 'Alimentos básicos y consumo masivo' },
+    'cat-lacteos': { id: 'cat-lacteos', name: 'Lácteos', description: 'Leches, yogures y derivados lácteos' },
+    'cat-construccion': { id: 'cat-construccion', name: 'Construcción', description: 'Materiales pesados y acabados' },
+    'cat-bebidas': { id: 'cat-bebidas', name: 'Bebidas', description: 'Aguas, cervezas y gaseosas' },
+  };
+
+  const defaultProducts: Record<string, ProductRecord> = {
+    'prod-1': {
+      id: 'prod-1',
+      sku_code: 'SKU-ALI-001',
+      name: 'Aceite Primor Premium 1L',
+      category_id: 'cat-abarrotes',
+      category_name: 'Abarrotes',
+      unit_cost: 8.50,
+      unit_price: 11.22,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+    'prod-2': {
+      id: 'prod-2',
+      sku_code: 'SKU-GLO-002',
+      name: 'Leche Evaporada Gloria Azul 400g',
+      category_id: 'cat-lacteos',
+      category_name: 'Lácteos',
+      unit_cost: 3.80,
+      unit_price: 4.75,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+    'prod-3': {
+      id: 'prod-3',
+      sku_code: 'SKU-COS-003',
+      name: 'Arroz Costeño Extra 5kg',
+      category_id: 'cat-abarrotes',
+      category_name: 'Abarrotes',
+      unit_cost: 21.00,
+      unit_price: 26.88,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+    'prod-4': {
+      id: 'prod-4',
+      sku_code: 'SKU-SOL-004',
+      name: 'Cemento Sol Tipo I 42.5kg',
+      category_id: 'cat-construccion',
+      category_name: 'Construcción',
+      unit_cost: 29.50,
+      unit_price: 35.105,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+    'prod-5': {
+      id: 'prod-5',
+      sku_code: 'SKU-DON-005',
+      name: 'Fideos Don Vittorio Spaghetti 500g',
+      category_id: 'cat-abarrotes',
+      category_name: 'Abarrotes',
+      unit_cost: 3.20,
+      unit_price: 3.904,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+    'prod-6': {
+      id: 'prod-6',
+      sku_code: 'SKU-BAC-006',
+      name: 'Cerveza Pilsen Callao 330ml Sixpack',
+      category_id: 'cat-bebidas',
+      category_name: 'Bebidas',
+      unit_cost: 24.00,
+      unit_price: 33.12,
+      status: 'active',
+      created_at: '2026-09-10T08:00:00Z',
+      updated_at: '2026-09-10T08:00:00Z',
+    },
+  };
+
+  const defaultInventory: Record<string, InventoryLevelRecord> = {
+    'inv-1': { id: 'inv-1', product_id: 'prod-1', physical_stock: 180, safety_stock: 56, last_synced_at: '2026-09-20T00:00:00Z' },
+    'inv-2': { id: 'inv-2', product_id: 'prod-2', physical_stock: 340, safety_stock: 120, last_synced_at: '2026-09-20T00:00:00Z' },
+    'inv-3': { id: 'inv-3', product_id: 'prod-3', physical_stock: 520, safety_stock: 200, last_synced_at: '2026-09-20T00:00:00Z' },
+    'inv-4': { id: 'inv-4', product_id: 'prod-4', physical_stock: 850, safety_stock: 300, last_synced_at: '2026-09-20T00:00:00Z' },
+    'inv-5': { id: 'inv-5', product_id: 'prod-5', physical_stock: 410, safety_stock: 150, last_synced_at: '2026-09-20T00:00:00Z' },
+    'inv-6': { id: 'inv-6', product_id: 'prod-6', physical_stock: 620, safety_stock: 180, last_synced_at: '2026-09-20T00:00:00Z' },
+  };
+
   const defaultSuppliers: Record<string, SupplierRecord> = {
     'sup-alicorp': {
       id: 'sup-alicorp',
@@ -355,6 +476,9 @@ function initDb(): DatabaseStore {
     sync_jobs: [],
     sync_results: [],
     integration_logs: [],
+    categories: defaultCategories,
+    products: defaultProducts,
+    inventory_levels: defaultInventory,
     suppliers: defaultSuppliers,
     purchase_orders: defaultOrders,
     purchase_order_lines: defaultLines,
@@ -372,6 +496,9 @@ function initDb(): DatabaseStore {
       return {
         ...defaultStore,
         ...parsed,
+        categories: { ...defaultCategories, ...(parsed.categories || {}) },
+        products: { ...defaultProducts, ...(parsed.products || {}) },
+        inventory_levels: { ...defaultInventory, ...(parsed.inventory_levels || {}) },
         suppliers: { ...defaultSuppliers, ...(parsed.suppliers || {}) },
         purchase_orders: { ...defaultOrders, ...(parsed.purchase_orders || {}) },
         purchase_order_lines: parsed.purchase_order_lines?.length ? parsed.purchase_order_lines : defaultLines,
@@ -527,30 +654,90 @@ export const db = {
     return store.integration_logs.slice(0, limit);
   },
 
+  // --- Categories & Products (Inventory) ---
+  getCategories: (): CategoryRecord[] => {
+    return Object.values(store.categories || {});
+  },
+
+  getCategory: (idOrName: string): CategoryRecord | undefined => {
+    return store.categories?.[idOrName] || Object.values(store.categories || {}).find(c => c.name === idOrName);
+  },
+
+  getProductsWithInventory: (): Array<ProductRecord & { physical_stock: number; safety_stock: number; last_synced_at: string }> => {
+    const products = Object.values(store.products || {});
+    return products.map(p => {
+      const inv = Object.values(store.inventory_levels || {}).find(i => i.product_id === p.id);
+      return {
+        ...p,
+        physical_stock: inv?.physical_stock ?? 0,
+        safety_stock: inv?.safety_stock ?? 0,
+        last_synced_at: inv?.last_synced_at || new Date().toISOString(),
+      };
+    });
+  },
+
+  createProduct: (
+    productData: Omit<ProductRecord, 'id' | 'created_at' | 'updated_at'>,
+    physicalStock: number,
+    safetyStock: number
+  ): ProductRecord & { physical_stock: number; safety_stock: number } => {
+    const id = `prod-${Date.now()}`;
+    const now = new Date().toISOString();
+
+    const product: ProductRecord = {
+      ...productData,
+      id,
+      created_at: now,
+      updated_at: now,
+    };
+
+    const invId = `inv-${Date.now()}`;
+    const inv: InventoryLevelRecord = {
+      id: invId,
+      product_id: id,
+      physical_stock: physicalStock,
+      safety_stock: safetyStock,
+      last_synced_at: now,
+    };
+
+    if (!store.products) store.products = {};
+    if (!store.inventory_levels) store.inventory_levels = {};
+
+    store.products[id] = product;
+    store.inventory_levels[invId] = inv;
+    persistStore();
+
+    return {
+      ...product,
+      physical_stock: physicalStock,
+      safety_stock: safetyStock,
+    };
+  },
+
   // --- Purchase Orders Methods ---
   getSuppliers: (): SupplierRecord[] => {
-    return Object.values(store.suppliers);
+    return Object.values(store.suppliers || {});
   },
 
   getSupplier: (id: string): SupplierRecord | undefined => {
-    return store.suppliers[id] || Object.values(store.suppliers).find(s => s.name === id);
+    return store.suppliers?.[id] || Object.values(store.suppliers || {}).find(s => s.name === id);
   },
 
   getPurchaseOrders: (): PurchaseOrderRecord[] => {
-    return Object.values(store.purchase_orders);
+    return Object.values(store.purchase_orders || {});
   },
 
   getPurchaseOrder: (idOrNumber: string): PurchaseOrderRecord | undefined => {
     return (
-      store.purchase_orders[idOrNumber] ||
-      Object.values(store.purchase_orders).find(
+      store.purchase_orders?.[idOrNumber] ||
+      Object.values(store.purchase_orders || {}).find(
         (po) => po.id === idOrNumber || po.order_number === idOrNumber
       )
     );
   },
 
   getPurchaseOrderLines: (poId: string): PurchaseOrderLineRecord[] => {
-    return store.purchase_order_lines.filter((l) => l.po_id === poId);
+    return (store.purchase_order_lines || []).filter((l) => l.po_id === poId);
   },
 
   updatePurchaseOrderStatus: (
@@ -558,7 +745,7 @@ export const db = {
     status: PurchaseOrderRecord['status']
   ): PurchaseOrderRecord | undefined => {
     const po = db.getPurchaseOrder(idOrNumber);
-    if (po) {
+    if (po && store.purchase_orders) {
       po.status = status;
       po.updated_at = new Date().toISOString();
       store.purchase_orders[po.id] = po;
@@ -588,6 +775,9 @@ export const db = {
       po_id: id,
     }));
 
+    if (!store.purchase_orders) store.purchase_orders = {};
+    if (!store.purchase_order_lines) store.purchase_order_lines = [];
+
     store.purchase_orders[id] = po;
     store.purchase_order_lines.push(...createdLines);
     persistStore();
@@ -597,15 +787,15 @@ export const db = {
 
   // --- Credit Lines & Financing Methods ---
   getCreditLine: (id: string = 'cl-pichincha'): CreditLineRecord | undefined => {
-    return store.credit_lines[id] || Object.values(store.credit_lines)[0];
+    return store.credit_lines?.[id] || Object.values(store.credit_lines || {})[0];
   },
 
   updateCreditLine: (
     id: string,
     updates: Partial<CreditLineRecord>
   ): CreditLineRecord | undefined => {
-    const cl = store.credit_lines[id] || Object.values(store.credit_lines)[0];
-    if (cl) {
+    const cl = store.credit_lines?.[id] || Object.values(store.credit_lines || {})[0];
+    if (cl && store.credit_lines) {
       const updated = { ...cl, ...updates };
       store.credit_lines[cl.id] = updated;
       persistStore();
@@ -623,12 +813,13 @@ export const db = {
       id,
       created_at: new Date().toISOString(),
     };
+    if (!store.disbursement_requests) store.disbursement_requests = [];
     store.disbursement_requests.unshift(record);
     persistStore();
     return record;
   },
 
   getDisbursementRequests: (): DisbursementRequestRecord[] => {
-    return store.disbursement_requests;
+    return store.disbursement_requests || [];
   },
 };
