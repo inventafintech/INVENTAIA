@@ -14,6 +14,7 @@
   "/api/integraciones/shopify/sync/route": "app/api/integraciones/shopify/sync/route.js",
   "/api/integraciones/sunat/sync/route": "app/api/integraciones/sunat/sync/route.js",
   "/api/integraciones/whatsapp/send/route": "app/api/integraciones/whatsapp/send/route.js",
+  "/api/dashboard/reabastecimiento/oc/route": "app/api/dashboard/reabastecimiento/oc/route.js",
   "/page": "app/page.js",
   "/dashboard/ajustes/page": "app/dashboard/ajustes/page.js",
   "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
@@ -23,5 +24,6 @@
   "/dashboard/ordenes/page": "app/dashboard/ordenes/page.js",
   "/dashboard/page": "app/dashboard/page.js",
   "/dashboard/predictiva/page": "app/dashboard/predictiva/page.js",
-  "/dashboard/reabastecimiento/page": "app/dashboard/reabastecimiento/page.js"
+  "/dashboard/reabastecimiento/page": "app/dashboard/reabastecimiento/page.js",
+  "/api/dashboard/reabastecimiento/route": "app/api/dashboard/reabastecimiento/route.js"
 }

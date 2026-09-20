@@ -146,6 +146,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/api/dashboard/reabastecimiento/oc/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/reabastecimiento/oc">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/reabastecimiento/oc/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/dashboard/reabastecimiento/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/reabastecimiento">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/reabastecimiento/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/api/integraciones/amazon/sync/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/integraciones/amazon/sync">> = Specific

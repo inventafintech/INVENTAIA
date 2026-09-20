@@ -48,6 +48,18 @@
       "namedRegex": "^/api/dashboard/cerebro(?:/)?$"
     },
     {
+      "page": "/api/dashboard/reabastecimiento",
+      "regex": "^/api/dashboard/reabastecimiento(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/reabastecimiento(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard/reabastecimiento/oc",
+      "regex": "^/api/dashboard/reabastecimiento/oc(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/reabastecimiento/oc(?:/)?$"
+    },
+    {
       "page": "/api/integraciones",
       "regex": "^/api/integraciones(?:/)?$",
       "routeKeys": {},

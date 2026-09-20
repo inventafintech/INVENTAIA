@@ -1,109 +1,160 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import styles from './page.module.css';
 
-interface ReplenishmentItem {
+interface RestockItem {
   id: string;
   sku: string;
   name: string;
   provider: string;
+  providerType: 'corporate' | 'traditional';
+  providerPhone?: string;
   currentStock: number;
+  dailyVelocity: number;
+  leadTimeDays: number;
+  safetyStock: number;
   rop: number;
-  daysRemaining: number;
+  coverageDays: number;
   suggestedQty: number;
   unitCost: number;
+  investment: number;
   status: 'critical' | 'warning' | 'optimal';
 }
 
-const initialItems: ReplenishmentItem[] = [
-  {
-    id: '1',
-    sku: 'SKU-ALI-001',
-    name: 'Aceite Primor Premium 1L',
-    provider: 'Alicorp S.A.',
-    currentStock: 180,
-    rop: 432,
-    daysRemaining: 1.9,
-    suggestedQty: 2500,
-    unitCost: 8.50,
-    status: 'critical',
-  },
-  {
-    id: '2',
-    sku: 'SKU-GLO-002',
-    name: 'Leche Evaporada Gloria Azul 400g',
-    provider: 'Leche Gloria S.A.',
-    currentStock: 340,
-    rop: 650,
-    daysRemaining: 3.2,
-    suggestedQty: 1800,
-    unitCost: 3.80,
-    status: 'critical',
-  },
-  {
-    id: '3',
-    sku: 'SKU-COS-003',
-    name: 'Arroz Costeño Extra 5kg',
-    provider: 'Costeño Alimentos',
-    currentStock: 520,
-    rop: 780,
-    daysRemaining: 5.4,
-    suggestedQty: 1200,
-    unitCost: 21.00,
-    status: 'warning',
-  },
-  {
-    id: '4',
-    sku: 'SKU-SOL-004',
-    name: 'Cemento Sol Tipo I 42.5kg',
-    provider: 'UNACEM',
-    currentStock: 850,
-    rop: 900,
-    daysRemaining: 8.1,
-    suggestedQty: 3000,
-    unitCost: 29.50,
-    status: 'optimal',
-  },
-  {
-    id: '5',
-    sku: 'SKU-DON-005',
-    name: 'Fideos Don Vittorio Spaghetti 500g',
-    provider: 'Alicorp S.A.',
-    currentStock: 410,
-    rop: 550,
-    daysRemaining: 4.0,
-    suggestedQty: 1500,
-    unitCost: 3.20,
-    status: 'warning',
-  },
-];
+interface OCExecutionResult {
+  sku: string;
+  product: string;
+  provider: string;
+  integration: 'sap' | 'whatsapp';
+  status: 'sent' | 'pending_configuration' | 'failed';
+  message: string;
+  poNumber: string;
+  jobId: string;
+}
 
 export default function ReabastecimientoPage() {
-  const [items, setItems] = useState<ReplenishmentItem[]>(initialItems);
-  const [filter, setFilter] = useState('all');
-  const [approvedId, setApprovedId] = useState<string | null>(null);
+  const [items, setItems] = useState<RestockItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // Execution states
+  const [processingId, setProcessingId] = useState<string | null>(null);
+  const [approvingAll, setApprovingAll] = useState<boolean>(false);
+  const [resultsModal, setResultsModal] = useState<{
+    open: boolean;
+    title: string;
+    results: OCExecutionResult[];
+    summary: string;
+  } | null>(null);
 
-  const filteredItems = items.filter(item => {
-    if (filter === 'all') return true;
-    return item.status === filter;
-  });
+  // Fetch real data from backend
+  const fetchRestockData = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/dashboard/reabastecimiento', { cache: 'no-store' });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.items) {
+          setItems(data.items);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching restock items:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const totalCapitalRequired = filteredItems.reduce(
-    (acc, curr) => acc + curr.suggestedQty * curr.unitCost, 
-    0
-  );
+  useEffect(() => {
+    fetchRestockData();
+  }, []);
 
-  const handleApprove = (id: string) => {
-    setApprovedId(id);
-    setTimeout(() => {
-      setApprovedId(null);
-      alert('Orden de compra generada exitosamente en estado Borrador para revisión de Finanzas.');
-    }, 500);
+  // Filtered items
+  const filteredItems = useMemo(() => {
+    return items.filter((item) => {
+      const matchesSearch =
+        item.sku.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.provider.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesStatus =
+        statusFilter === 'all' || item.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [items, searchQuery, statusFilter]);
+
+  // Dynamic KPIs
+  const totalCapitalRequired = useMemo(() => {
+    return filteredItems.reduce((acc, curr) => acc + curr.investment, 0);
+  }, [filteredItems]);
+
+  const criticalCount = useMemo(() => {
+    return filteredItems.filter((i) => i.status === 'critical').length;
+  }, [filteredItems]);
+
+  // Handle single PO generation
+  const handleGenerateOC = async (item: RestockItem) => {
+    try {
+      setProcessingId(item.id);
+      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ itemId: item.id }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResultsModal({
+          open: true,
+          title: `Orden de Compra Generada: ${item.sku}`,
+          results: data.results,
+          summary: data.summary,
+        });
+      } else {
+        alert(data.error || 'Error al procesar la orden de compra.');
+      }
+    } catch (err: any) {
+      alert(`Error de conexión: ${err.message}`);
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  // Handle Approve All (1-Click)
+  const handleApproveAll = async () => {
+    if (filteredItems.length === 0) return;
+    try {
+      setApprovingAll(true);
+      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ approveAll: true }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResultsModal({
+          open: true,
+          title: 'Aprobación Masiva de Órdenes de Compra (1-Clic)',
+          results: data.results,
+          summary: data.summary,
+        });
+      } else {
+        alert(data.error || 'Error al procesar las órdenes masivas.');
+      }
+    } catch (err: any) {
+      alert(`Error de conexión: ${err.message}`);
+    } finally {
+      setApprovingAll(false);
+    }
   };
 
   return (
     <div className={styles.container}>
+      {/* Header y KPIs */}
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Reabastecimiento Inteligente</h1>
@@ -113,42 +164,51 @@ export default function ReabastecimientoPage() {
         </div>
         <div className={styles.headerStats}>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>S/ {totalCapitalRequired.toLocaleString('es-PE', { minimumFractionDigits: 2 })}</span>
+            <span className={styles.statValue}>
+              S/ {totalCapitalRequired.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
             <span className={styles.statLabel}>Capital Requerido Sugerido</span>
           </div>
           <div className={styles.statCard}>
-            <span className={styles.statValue}>{items.filter(i => i.status === 'critical').length} SKUs</span>
+            <span className={styles.statValue}>{criticalCount} SKUs</span>
             <span className={styles.statLabel}>En Quiebre Inminente (&lt;3d)</span>
           </div>
         </div>
       </header>
 
+      {/* Barra de Herramientas */}
       <div className={styles.actionsBar}>
         <div className={styles.searchFilter}>
-          <input 
-            type="text" 
-            placeholder="Buscar por SKU, producto o proveedor..." 
-            className={styles.input}
-          />
-          <select 
-            className={styles.select} 
-            value={filter} 
-            onChange={(e) => setFilter(e.target.value)}
+          <div className={styles.searchWrapper}>
+            <input
+              type="text"
+              placeholder="Buscar por SKU, producto o proveedor..."
+              className={styles.input}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <select
+            className={styles.select}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">Todos los Estados</option>
-            <option value="critical">Críticos (&lt; 3 días)</option>
+            <option value="critical">Crítico (&lt; 3 días)</option>
             <option value="warning">Alerta (3 - 7 días)</option>
             <option value="optimal">Normal (&gt; 7 días)</option>
           </select>
         </div>
-        <button 
+        <button
           className={styles.btnPrimary}
-          onClick={() => alert('Generando 5 órdenes agrupadas por proveedor para Alicorp, Gloria y UNACEM...')}
+          onClick={handleApproveAll}
+          disabled={approvingAll || filteredItems.length === 0}
         >
-          Aprobar Todo (1-Clic)
+          {approvingAll ? 'Transmitiendo Órdenes...' : 'Aprobar Todo (1-Clic)'}
         </button>
       </div>
 
+      {/* Tabla de Datos (Data Grid) */}
       <div className={styles.tableCard}>
         <table className={styles.table}>
           <thead>
@@ -165,47 +225,129 @@ export default function ReabastecimientoPage() {
             </tr>
           </thead>
           <tbody>
-            {filteredItems.map((item) => (
-              <tr key={item.id}>
-                <td>
-                  <div className={styles.skuInfo}>
-                    <span className={styles.skuName}>{item.name}</span>
-                    <span className={styles.skuCode}>{item.sku}</span>
-                  </div>
-                </td>
-                <td>{item.provider}</td>
-                <td><strong>{item.currentStock.toLocaleString()} u</strong></td>
-                <td>{item.rop.toLocaleString()} u</td>
-                <td>
-                  <strong style={{ color: item.daysRemaining < 3 ? '#dc2626' : 'inherit' }}>
-                    {item.daysRemaining} días
-                  </strong>
-                </td>
-                <td>
-                  <strong>{item.suggestedQty.toLocaleString()} u</strong>
-                </td>
-                <td>
-                  S/ {(item.suggestedQty * item.unitCost).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
-                </td>
-                <td>
-                  {item.status === 'critical' && <span className={styles.badgeCritical}>Crítico</span>}
-                  {item.status === 'warning' && <span className={styles.badgeWarning}>Alerta</span>}
-                  {item.status === 'optimal' && <span className={styles.badgeOptimal}>Normal</span>}
-                </td>
-                <td>
-                  <button 
-                    className={styles.btnTableAction}
-                    onClick={() => handleApprove(item.id)}
-                    disabled={approvedId === item.id}
-                  >
-                    {approvedId === item.id ? 'Generando...' : 'Generar OC'}
-                  </button>
+            {loading ? (
+              <tr>
+                <td colSpan={9} className={styles.emptyState}>
+                  Calculando algoritmo de Punto de Reorden (ROP) y cobertura...
                 </td>
               </tr>
-            ))}
+            ) : filteredItems.length === 0 ? (
+              <tr>
+                <td colSpan={9} className={styles.emptyState}>
+                  No se encontraron productos coincidentes con los criterios de búsqueda.
+                </td>
+              </tr>
+            ) : (
+              filteredItems.map((item) => (
+                <tr key={item.id}>
+                  <td>
+                    <div className={styles.skuInfo}>
+                      <span className={styles.skuName}>{item.name}</span>
+                      <span className={styles.skuCode}>{item.sku}</span>
+                    </div>
+                  </td>
+                  <td className={styles.providerText}>{item.provider}</td>
+                  <td>
+                    <span className={styles.stockNumber}>
+                      {item.currentStock.toLocaleString()} u
+                    </span>
+                  </td>
+                  <td className={styles.ropNumber}>
+                    {item.rop.toLocaleString()} u
+                  </td>
+                  <td>
+                    <span
+                      className={
+                        item.coverageDays < 3.0
+                          ? styles.coverageCritical
+                          : styles.coverageNormal
+                      }
+                    >
+                      {item.coverageDays.toFixed(1).replace('.0', '')} días
+                    </span>
+                  </td>
+                  <td>
+                    <span className={styles.suggestedQty}>
+                      {item.suggestedQty.toLocaleString()} u
+                    </span>
+                  </td>
+                  <td>
+                    <span className={styles.investmentAmount}>
+                      S/ {item.investment.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                  </td>
+                  <td>
+                    {item.status === 'critical' && (
+                      <span className={styles.badgeCritical}>Crítico</span>
+                    )}
+                    {item.status === 'warning' && (
+                      <span className={styles.badgeWarning}>Alerta</span>
+                    )}
+                    {item.status === 'optimal' && (
+                      <span className={styles.badgeOptimal}>Normal</span>
+                    )}
+                  </td>
+                  <td>
+                    <button
+                      className={styles.btnTableAction}
+                      onClick={() => handleGenerateOC(item)}
+                      disabled={processingId === item.id || approvingAll}
+                    >
+                      {processingId === item.id ? 'Generando...' : 'Generar OC'}
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
+
+      {/* Modal de Auditoría y Transmisión de Órdenes */}
+      {resultsModal && resultsModal.open && (
+        <div className={styles.modalOverlay} onClick={() => setResultsModal(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3 className={styles.modalTitle}>{resultsModal.title}</h3>
+              <button
+                className={styles.modalClose}
+                onClick={() => setResultsModal(null)}
+              >
+                ✕
+              </button>
+            </div>
+            <div className={styles.modalBody}>
+              <p style={{ fontSize: '13px', color: '#475569', marginBottom: '8px' }}>
+                {resultsModal.summary}
+              </p>
+              {resultsModal.results.map((res, idx) => (
+                <div key={idx} className={styles.resultCard}>
+                  <div className={styles.resultCardHeader}>
+                    <span className={styles.resultProduct}>
+                      {res.product} ({res.sku})
+                    </span>
+                    <span className={styles.resultPoNumber}>{res.poNumber}</span>
+                  </div>
+                  <div className={styles.resultMessage}>{res.message}</div>
+                  <div className={styles.resultMeta}>
+                    <span>Proveedor: <strong>{res.provider}</strong></span>
+                    <span>Conector: <strong>{res.integration === 'sap' ? 'SAP S/4HANA OData' : 'Meta WhatsApp Cloud API'}</strong></span>
+                    <span>Job ID: <code>{res.jobId}</code></span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className={styles.modalFooter}>
+              <button
+                className={styles.btnPrimary}
+                onClick={() => setResultsModal(null)}
+              >
+                Cerrar y Ver Auditoría
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
