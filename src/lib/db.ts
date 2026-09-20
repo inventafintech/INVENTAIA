@@ -180,10 +180,21 @@ export interface UserRecord {
   updated_at: string;
 }
 
+export interface WorkspaceSettingsRecord {
+  ruc?: string;
+  leadTime?: number;
+  sla?: string;
+  currency?: string;
+  horizon?: string;
+  notifyWhatsApp?: boolean;
+  notifyEmail?: boolean;
+}
+
 export interface WorkspaceRecord {
   id: string;
   name: string;
   slug_url: string;
+  settings?: WorkspaceSettingsRecord;
   created_at: string;
   updated_at: string;
 }

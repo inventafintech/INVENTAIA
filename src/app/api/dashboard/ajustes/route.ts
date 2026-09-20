@@ -21,20 +21,32 @@ export async function GET() {
       workspace?.name ||
       customSession?.workspaceName ||
       (nextAuthSession?.user as any)?.workspace?.name ||
-      'Distribuidora San Martín S.A.C.';
+      'Distribuidora San Martín';
+
+    const savedSettings = workspace?.settings || {};
+
+    const settings = {
+      // Claves canónicas
+      razonSocial: companyName,
+      ruc: savedSettings.ruc || '20601234567',
+      leadTime: savedSettings.leadTime ?? 5,
+      sla: savedSettings.sla || '95',
+      moneda: savedSettings.currency || 'PEN',
+      horizonteProyeccion: savedSettings.horizon || '30',
+      alertasWhatsapp: savedSettings.notifyWhatsApp ?? true,
+      resumenCorreo: savedSettings.notifyEmail ?? true,
+
+      // Alias retrocompatibles
+      companyName,
+      currency: savedSettings.currency || 'PEN',
+      horizon: savedSettings.horizon || '30',
+      notifyWhatsApp: savedSettings.notifyWhatsApp ?? true,
+      notifyEmail: savedSettings.notifyEmail ?? true,
+    };
 
     return NextResponse.json({
       success: true,
-      settings: {
-        companyName,
-        ruc: '20601234567',
-        leadTime: 5,
-        sla: '95',
-        currency: 'PEN',
-        horizon: '30',
-        notifyWhatsApp: true,
-        notifyEmail: true,
-      },
+      settings,
     });
   } catch (error: any) {
     console.error('Error fetching settings:', error);
@@ -51,47 +63,90 @@ export async function PUT(req: NextRequest) {
     const nextAuthSession = await getServerSession(authOptions);
 
     const body = await req.json().catch(() => ({}));
-    const { companyName, ruc, leadTime, sla, currency, horizon, notifyWhatsApp, notifyEmail } = body;
+    const {
+      razonSocial,
+      companyName,
+      ruc,
+      leadTime,
+      sla,
+      moneda,
+      currency,
+      horizonteProyeccion,
+      horizon,
+      alertasWhatsapp,
+      notifyWhatsApp,
+      resumenCorreo,
+      notifyEmail,
+    } = body;
 
-    const trimmedName = typeof companyName === 'string' ? companyName.trim() : '';
-    if (!trimmedName || trimmedName.length < 2) {
+    const targetName = (razonSocial || companyName || '').trim();
+    if (!targetName || targetName.length < 2) {
       return NextResponse.json(
         { success: false, error: 'La Razón Social debe tener al menos 2 caracteres.' },
         { status: 400 }
       );
     }
 
+    const targetMoneda = moneda || currency || 'PEN';
+    const targetHorizon = horizonteProyeccion || horizon || '30';
+    const targetWhatsapp = typeof alertasWhatsapp === 'boolean' ? alertasWhatsapp : (notifyWhatsApp ?? true);
+    const targetEmail = typeof resumenCorreo === 'boolean' ? resumenCorreo : (notifyEmail ?? true);
+    const targetLeadTime = typeof leadTime === 'number' ? leadTime : Number(leadTime) || 5;
+    const targetSla = sla || '95';
+    const targetRuc = (ruc || '').trim();
+
     const workspaceId =
       customSession?.workspaceId ||
       (nextAuthSession?.user as any)?.workspace?.id ||
       'ws-default';
 
-    // Persistir en base de datos
+    // Persistir en base de datos real
     const updated = db.updateWorkspace(workspaceId, {
-      name: trimmedName,
+      name: targetName,
+      settings: {
+        ruc: targetRuc,
+        leadTime: targetLeadTime,
+        sla: targetSla,
+        currency: targetMoneda,
+        horizon: targetHorizon,
+        notifyWhatsApp: targetWhatsapp,
+        notifyEmail: targetEmail,
+      },
     });
 
     // Actualizar sesión activa
     if (customSession) {
       await SessionManager.createSession({
         ...customSession,
-        workspaceName: trimmedName,
+        workspaceName: targetName,
       });
     }
 
     db.addLog(
       'system',
       'INFO',
-      'WORKSPACE_UPDATED',
+      'WORKSPACE_SETTINGS_UPDATED',
       'EXITOSO',
-      `Razón Social actualizada a "${trimmedName}" en base de datos.`,
+      `Configuración actualizada para "${targetName}" en base de datos.`,
       customSession?.email || 'admin@inventa.ai'
     );
 
+    const normalizedSettings = {
+      razonSocial: targetName,
+      ruc: targetRuc,
+      leadTime: targetLeadTime,
+      sla: targetSla,
+      moneda: targetMoneda,
+      horizonteProyeccion: targetHorizon,
+      alertasWhatsapp: targetWhatsapp,
+      resumenCorreo: targetEmail,
+    };
+
     return NextResponse.json({
       success: true,
-      workspaceName: trimmedName,
-      workspace: updated || { id: workspaceId, name: trimmedName },
+      workspaceName: targetName,
+      settings: normalizedSettings,
+      workspace: updated || { id: workspaceId, name: targetName },
       message: 'Configuración guardada exitosamente en la base de datos.',
     });
   } catch (error: any) {
