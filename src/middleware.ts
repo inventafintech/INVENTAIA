@@ -5,7 +5,15 @@ export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Rutas que requieren autenticación obligatoria
-  const isProtected = pathname.startsWith('/onboarding') || pathname.startsWith('/dashboard');
+  const isProtected =
+    pathname.startsWith('/onboarding') ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/inventario') ||
+    pathname.startsWith('/entidades') ||
+    pathname.startsWith('/configuracion') ||
+    pathname.startsWith('/complementos') ||
+    pathname.startsWith('/ayuda') ||
+    pathname.startsWith('/panel');
 
   if (!isProtected) {
     return NextResponse.next();
@@ -61,5 +69,14 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/onboarding', '/dashboard/:path*'],
+  matcher: [
+    '/onboarding',
+    '/dashboard/:path*',
+    '/inventario/:path*',
+    '/entidades/:path*',
+    '/configuracion/:path*',
+    '/complementos/:path*',
+    '/ayuda/:path*',
+    '/panel/:path*',
+  ],
 };
