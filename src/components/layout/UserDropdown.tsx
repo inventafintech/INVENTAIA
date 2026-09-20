@@ -225,7 +225,7 @@ export function UserDropdown() {
           <ul className={styles.menuList} role="none">
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile"
                 className={styles.menuItem}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -236,7 +236,7 @@ export function UserDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile?tab=security"
                 className={styles.menuItem}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -247,7 +247,7 @@ export function UserDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile?tab=roles"
                 className={styles.menuItem}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -258,7 +258,7 @@ export function UserDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/settings/general-settings"
                 className={styles.menuItem}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}

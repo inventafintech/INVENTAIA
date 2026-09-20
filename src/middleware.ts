@@ -13,7 +13,12 @@ export async function middleware(req: NextRequest) {
     pathname.startsWith('/configuracion') ||
     pathname.startsWith('/complementos') ||
     pathname.startsWith('/ayuda') ||
-    pathname.startsWith('/panel');
+    pathname.startsWith('/panel') ||
+    pathname.startsWith('/users') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/estrategia') ||
+    pathname.startsWith('/finanzas') ||
+    pathname.startsWith('/abastecimiento');
 
   if (!isProtected) {
     return NextResponse.next();
@@ -78,5 +83,10 @@ export const config = {
     '/complementos/:path*',
     '/ayuda/:path*',
     '/panel/:path*',
+    '/users/:path*',
+    '/settings/:path*',
+    '/estrategia/:path*',
+    '/finanzas/:path*',
+    '/abastecimiento/:path*',
   ],
 };

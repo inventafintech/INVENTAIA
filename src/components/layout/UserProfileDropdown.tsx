@@ -233,7 +233,7 @@ export function UserProfileDropdown() {
           <ul className={`${styles.menuList} list-none p-1.5 m-0 flex flex-col gap-0.5`} role="none">
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile"
                 className={`${styles.menuItem} flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors`}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -244,7 +244,7 @@ export function UserProfileDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile?tab=security"
                 className={`${styles.menuItem} flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors`}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -255,7 +255,7 @@ export function UserProfileDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/users/user-profile?tab=roles"
                 className={`${styles.menuItem} flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors`}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
@@ -266,7 +266,7 @@ export function UserProfileDropdown() {
             </li>
             <li role="none">
               <Link
-                href="/configuracion/general"
+                href="/settings/general-settings"
                 className={`${styles.menuItem} flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-slate-900 transition-colors`}
                 role="menuitem"
                 onClick={() => setIsOpen(false)}
