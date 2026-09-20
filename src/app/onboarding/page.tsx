@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSession, signOut } from 'next-auth/react';
 import styles from './page.module.css';
 
 interface UserSession {
@@ -14,6 +15,7 @@ interface UserSession {
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
 
   // Estados de sesión
   const [user, setUser] = useState<UserSession | null>(null);
@@ -34,36 +36,55 @@ export default function OnboardingPage() {
 
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // 1. Cargar sesión activa
+  // 1. Cargar sesión activa (NextAuth o sesión institucional)
   useEffect(() => {
     async function loadSession() {
-      try {
-        const res = await fetch('/api/auth/session', { cache: 'no-store' });
-        if (res.ok) {
-          const data = await res.json();
-          if (!data.authenticated || !data.user) {
-            router.push('/login');
-            return;
-          }
-          if (data.workspace) {
-            // Ya cuenta con espacio asignado
-            router.push('/dashboard');
-            return;
-          }
-          setUser(data.user);
-        } else {
-          router.push('/login');
+      // Si NextAuth ya tiene sesión cargada
+      if (nextAuthSession?.user) {
+        const u = nextAuthSession.user as any;
+        if (u.hasWorkspace) {
+          router.push('/dashboard');
+          return;
         }
-      } catch (err) {
-        console.error('Error al cargar sesión:', err);
-        router.push('/login');
-      } finally {
+        setUser({
+          id: u.id || 'usr-nextauth',
+          name: u.name || 'Usuario',
+          email: u.email || '',
+          avatar_url: u.image || undefined,
+          role: u.workspace?.role || undefined,
+        });
         setLoadingSession(false);
+        return;
+      }
+
+      // Si NextAuth terminó de cargar y no hay sesión, o como fallback
+      if (nextAuthStatus === 'unauthenticated') {
+        try {
+          const res = await fetch('/api/auth/session', { cache: 'no-store' });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.authenticated && data.user) {
+              if (data.workspace) {
+                router.push('/dashboard');
+                return;
+              }
+              setUser(data.user);
+              setLoadingSession(false);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error('Error al cargar sesión:', err);
+        }
+        router.push('/login');
+        return;
       }
     }
 
-    loadSession();
-  }, [router]);
+    if (nextAuthStatus !== 'loading') {
+      loadSession();
+    }
+  }, [nextAuthSession, nextAuthStatus, router]);
 
   // 2. Validación de slug en tiempo real contra el backend
   const validateSlugOnServer = useCallback(async (slugToTest: string) => {
@@ -130,10 +151,12 @@ export default function OnboardingPage() {
   // 5. Cerrar sesión
   const handleLogout = async () => {
     try {
+      await signOut({ redirect: false });
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/login');
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
+      router.push('/login');
     }
   };
 
