@@ -139,30 +139,7 @@ CREATE TABLE IF NOT EXISTS purchase_order_lines (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- 10. Tabla de Líneas de Crédito (Credit Lines)
-CREATE TABLE IF NOT EXISTS credit_lines (
-    id TEXT PRIMARY KEY,
-    partner_bank_id TEXT NOT NULL,
-    total_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    available_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    monthly_interest_rate NUMERIC(6, 4) NOT NULL DEFAULT 0.0145,
-    status TEXT NOT NULL DEFAULT 'active',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 11. Tabla de Solicitudes de Desembolso (Disbursement Requests)
-CREATE TABLE IF NOT EXISTS disbursement_requests (
-    id TEXT PRIMARY KEY,
-    credit_line_id TEXT NOT NULL REFERENCES credit_lines(id) ON DELETE RESTRICT,
-    requested_amount NUMERIC(14, 2) NOT NULL,
-    term_days INT NOT NULL,
-    financial_cost NUMERIC(12, 2) NOT NULL,
-    status TEXT NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
--- 12. Tabla de Logs de Integraciones
+-- 10. Tabla de Logs de Integraciones
 CREATE TABLE IF NOT EXISTS integration_logs (
     id TEXT PRIMARY KEY,
     fecha TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
@@ -171,3 +148,26 @@ CREATE TABLE IF NOT EXISTS integration_logs (
     resultado TEXT NOT NULL,
     errores TEXT
 );
+
+-- ==============================================================================
+-- DESHABILITAR ROW-LEVEL SECURITY (RLS) / PERMITIR ACCESO TOTAL A TABLAS
+-- ==============================================================================
+ALTER TABLE workspaces DISABLE ROW LEVEL SECURITY;
+ALTER TABLE users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE workspace_users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE categories DISABLE ROW LEVEL SECURITY;
+ALTER TABLE products DISABLE ROW LEVEL SECURITY;
+ALTER TABLE inventory_levels DISABLE ROW LEVEL SECURITY;
+ALTER TABLE suppliers DISABLE ROW LEVEL SECURITY;
+ALTER TABLE purchase_orders DISABLE ROW LEVEL SECURITY;
+ALTER TABLE purchase_order_lines DISABLE ROW LEVEL SECURITY;
+ALTER TABLE integration_logs DISABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Allow all workspaces" ON workspaces;
+CREATE POLICY "Allow all workspaces" ON workspaces FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow all users" ON users;
+CREATE POLICY "Allow all users" ON users FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow all workspace_users" ON workspace_users;
+CREATE POLICY "Allow all workspace_users" ON workspace_users FOR ALL USING (true) WITH CHECK (true);
