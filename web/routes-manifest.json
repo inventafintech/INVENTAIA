@@ -42,6 +42,12 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/api/dashboard/cerebro",
+      "regex": "^/api/dashboard/cerebro(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/cerebro(?:/)?$"
+    },
+    {
       "page": "/api/integraciones",
       "regex": "^/api/integraciones(?:/)?$",
       "routeKeys": {},

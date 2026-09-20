@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "app/_global-error/page.js",
   "/_not-found/page": "app/_not-found/page.js",
+  "/api/dashboard/cerebro/route": "app/api/dashboard/cerebro/route.js",
   "/api/integraciones/amazon/sync/route": "app/api/integraciones/amazon/sync/route.js",
   "/api/integraciones/logs/route": "app/api/integraciones/logs/route.js",
   "/api/integraciones/mercadolibre/auth/route": "app/api/integraciones/mercadolibre/auth/route.js",

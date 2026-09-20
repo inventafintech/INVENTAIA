@@ -1,10 +1,10 @@
 [
   {
     "route": "/dashboard/integraciones",
-    "firstLoadUncompressedJsBytes": 500441,
+    "firstLoadUncompressedJsBytes": 500991,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\0b8q5fc6ubxs4.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -28,11 +28,25 @@
     ]
   },
   {
-    "route": "/dashboard/reabastecimiento",
-    "firstLoadUncompressedJsBytes": 476077,
+    "route": "/dashboard",
+    "firstLoadUncompressedJsBytes": 481430,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\1e3vgkc-wpx6s.js",
+      "web\\static\\chunks\\310vm2bl3xxpt.js",
+      "web\\static\\chunks\\19mx3mg6lkumu.js",
+      "web\\static\\chunks\\27t_qfc-3_lzs.js",
+      "web\\static\\chunks\\2-rtuqsgzmno4.js",
+      "web\\static\\chunks\\turbopack-1b6uko1cu_h42.js"
+    ]
+  },
+  {
+    "route": "/dashboard/reabastecimiento",
+    "firstLoadUncompressedJsBytes": 476627,
+    "firstLoadChunkPaths": [
+      "web\\static\\chunks\\3fntmmi971322.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\17r6tr27srm4q.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -43,10 +57,10 @@
   },
   {
     "route": "/dashboard/inventario",
-    "firstLoadUncompressedJsBytes": 476066,
+    "firstLoadUncompressedJsBytes": 476616,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\1slyi6etd4hv3.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -57,10 +71,10 @@
   },
   {
     "route": "/dashboard/ordenes",
-    "firstLoadUncompressedJsBytes": 475094,
+    "firstLoadUncompressedJsBytes": 475644,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\2gbe8dkc7gg9v.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -71,10 +85,10 @@
   },
   {
     "route": "/dashboard/ajustes",
-    "firstLoadUncompressedJsBytes": 474427,
+    "firstLoadUncompressedJsBytes": 474977,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\0phhh23muwa3x.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -85,10 +99,10 @@
   },
   {
     "route": "/dashboard/financiamiento",
-    "firstLoadUncompressedJsBytes": 474388,
+    "firstLoadUncompressedJsBytes": 474938,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\2aie5j9anq_1-.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -98,24 +112,11 @@
     ]
   },
   {
-    "route": "/dashboard",
-    "firstLoadUncompressedJsBytes": 470064,
-    "firstLoadChunkPaths": [
-      "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
-      "web\\static\\chunks\\310vm2bl3xxpt.js",
-      "web\\static\\chunks\\19mx3mg6lkumu.js",
-      "web\\static\\chunks\\27t_qfc-3_lzs.js",
-      "web\\static\\chunks\\2-rtuqsgzmno4.js",
-      "web\\static\\chunks\\turbopack-1b6uko1cu_h42.js"
-    ]
-  },
-  {
     "route": "/dashboard/analytics",
-    "firstLoadUncompressedJsBytes": 470064,
+    "firstLoadUncompressedJsBytes": 470614,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",
@@ -125,10 +126,10 @@
   },
   {
     "route": "/dashboard/predictiva",
-    "firstLoadUncompressedJsBytes": 470064,
+    "firstLoadUncompressedJsBytes": 470614,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\3e2hsmpswrj24.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",

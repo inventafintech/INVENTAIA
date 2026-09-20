@@ -4,12 +4,34 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import styles from './layout.module.css';
 
+import { useState, useEffect } from 'react';
+
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname() || '';
+  const [statusText, setStatusText] = useState<string>('Pendiente de configuración');
+  const [hasActive, setHasActive] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function checkStatus() {
+      try {
+        const res = await fetch('/api/dashboard/cerebro', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.summary) {
+            setHasActive(data.summary.hasActiveIntegrations);
+            setStatusText(data.summary.statusText);
+          }
+        }
+      } catch {
+        // Default to pending
+      }
+    }
+    checkStatus();
+  }, [pathname]);
 
   const isActive = (path: string) => {
     if (path === '/dashboard') {
@@ -107,10 +129,17 @@ export default function DashboardLayout({
         <header className={styles.topbar}>
           <div className={styles.pageTitle}>Cerebro de Compras</div>
           <div className={styles.userMenu}>
-            <span className={styles.status}>
-              <span className={styles.statusDot}></span>
-              Sincronizado hace 1m (Shopify & SAP)
-            </span>
+            {hasActive ? (
+              <span className={styles.status}>
+                <span className={styles.statusDot}></span>
+                {statusText}
+              </span>
+            ) : (
+              <span className={styles.statusPending}>
+                <span className={styles.statusDotPending}></span>
+                Pendiente de configuración
+              </span>
+            )}
           </div>
         </header>
         <div className={styles.content}>

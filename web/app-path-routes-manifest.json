@@ -1,6 +1,7 @@
 {
   "/_global-error/page": "/_global-error",
   "/_not-found/page": "/_not-found",
+  "/api/dashboard/cerebro/route": "/api/dashboard/cerebro",
   "/api/integraciones/amazon/sync/route": "/api/integraciones/amazon/sync",
   "/api/integraciones/logs/route": "/api/integraciones/logs",
   "/api/integraciones/mercadolibre/auth/route": "/api/integraciones/mercadolibre/auth",

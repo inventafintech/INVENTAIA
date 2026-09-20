@@ -152,6 +152,26 @@
   border-radius: 50%;
 }
 
+.statusPending {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #d97706;
+  font-weight: 600;
+  background: rgba(245, 158, 11, 0.08);
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.statusDotPending {
+  width: 6px;
+  height: 6px;
+  background: #d97706;
+  border-radius: 50%;
+}
+
 .content {
   flex: 1;
   overflow-y: auto;
