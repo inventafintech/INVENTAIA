@@ -52,10 +52,9 @@ export function Sidebar({ className = '' }: SidebarProps) {
       aria-label="Navegación lateral"
     >
       {/* Contenedor scrolleable idéntico al diseño */}
-      <nav className="flex-1 overflow-y-auto px-2 py-2.5 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+      <nav className="flex-1 overflow-y-auto px-2.5 py-3 space-y-2 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {SIDEBAR_CONFIG.map((group: SidebarGroupConfig) => {
           const isOpen = openGroups[group.id] ?? true;
-          const isPanel = group.id === 'panel';
 
           return (
             <div key={group.id} className="flex flex-col">
@@ -64,25 +63,16 @@ export function Sidebar({ className = '' }: SidebarProps) {
                 type="button"
                 onClick={() => toggleGroup(group.id)}
                 aria-expanded={isOpen}
-                className={`
-                  w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-left transition-colors duration-150 outline-none cursor-pointer
-                  ${
-                    isOpen && isPanel
-                      ? 'bg-[#f4f6fa] text-slate-800'
-                      : 'text-slate-700 hover:bg-slate-50'
-                  }
-                `}
+                className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-left transition-colors duration-150 outline-none cursor-pointer text-slate-700 hover:text-slate-900 hover:bg-slate-50/60"
               >
-                <span className="text-[11.5px] font-semibold tracking-wider uppercase">
+                <span className="text-[11.5px] font-semibold tracking-wider uppercase text-slate-700">
                   {group.title}
                 </span>
                 {isOpen ? (
                   <ChevronUp
                     size={15}
                     strokeWidth={1.8}
-                    className={`shrink-0 transition-transform ${
-                      isPanel ? 'text-blue-600' : 'text-slate-600'
-                    }`}
+                    className="shrink-0 text-slate-500 transition-transform"
                   />
                 ) : (
                   <ChevronDown
@@ -109,7 +99,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
                             flex items-center gap-3 px-2.5 py-1.5 rounded-md text-[13px] transition-colors duration-150 outline-none
                             ${
                               active
-                                ? 'bg-blue-50 text-blue-700 font-medium'
+                                ? 'text-slate-900 font-medium bg-slate-50'
                                 : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-normal'
                             }
                           `}
@@ -118,7 +108,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
                             size={18}
                             strokeWidth={1.6}
                             className={`shrink-0 ${
-                              active ? 'text-blue-600' : 'text-slate-600'
+                              active ? 'text-slate-800' : 'text-slate-600'
                             }`}
                           />
                           <span className="truncate">{item.label}</span>
