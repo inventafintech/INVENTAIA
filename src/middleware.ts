@@ -21,14 +21,40 @@ export async function middleware(req: NextRequest) {
   });
 
   // 2. Verificar cookie de sesión institucional (inventa_session)
-  const inventaSession = req.cookies.get('inventa_session')?.value;
+  const inventaSessionCookie = req.cookies.get('inventa_session')?.value;
+  let inventaWorkspaceId: string | null = null;
+  if (inventaSessionCookie) {
+    try {
+      const parts = inventaSessionCookie.split('.');
+      if (parts[0]) {
+        const decoded = JSON.parse(Buffer.from(parts[0], 'base64').toString('utf-8'));
+        inventaWorkspaceId = decoded.workspaceId || null;
+      }
+    } catch {}
+  }
 
-  const isAuthenticated = Boolean(nextAuthToken || inventaSession);
+  const isAuthenticated = Boolean(nextAuthToken || inventaSessionCookie);
 
   if (!isAuthenticated) {
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
     return NextResponse.redirect(loginUrl);
+  }
+
+  const workspaceId =
+    (nextAuthToken as any)?.workspace_id ||
+    (nextAuthToken as any)?.workspace?.id ||
+    (nextAuthToken as any)?.hasWorkspace ||
+    inventaWorkspaceId;
+
+  // Si intenta entrar al dashboard pero aún no tiene workspace registrado, redirigir a onboarding
+  if (pathname.startsWith('/dashboard') && !workspaceId) {
+    return NextResponse.redirect(new URL('/onboarding', req.url));
+  }
+
+  // Si ya tiene workspace registrado e intenta entrar a onboarding, redirigir directo al dashboard
+  if (pathname.startsWith('/onboarding') && workspaceId) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
   return NextResponse.next();

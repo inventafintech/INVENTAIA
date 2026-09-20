@@ -32,7 +32,7 @@ export class WorkspaceService {
   /**
    * Valida en tiempo real que el slug sea seguro, válido y único en la base de datos
    */
-  public static validateSlug(rawSlug: string): SlugValidationResult {
+  public static async validateSlug(rawSlug: string): Promise<SlugValidationResult> {
     const slug = (rawSlug || '').toLowerCase().trim();
 
     if (!slug) {
@@ -91,8 +91,11 @@ export class WorkspaceService {
       };
     }
 
-    // Comprobar unicidad en base de datos
-    const existing = db.getWorkspaceBySlug(slug);
+    // Comprobar unicidad en base de datos (Supabase)
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const { data: existing } = await supabase.from('workspaces').select('id').eq('slug_url', slug).maybeSingle();
+    
     if (existing) {
       return {
         valid: true,
@@ -112,13 +115,13 @@ export class WorkspaceService {
   /**
    * Ejecuta la transacción de creación de espacio de trabajo y asignación como OWNER
    */
-  public static createWorkspace(
+  public static async createWorkspace(
     userId: string,
     name: string,
     rawSlug: string,
     userFallback?: { email?: string; name?: string; avatar_url?: string }
-  ): { workspace: WorkspaceRecord; membership: WorkspaceUserRecord } {
-    const validation = this.validateSlug(rawSlug);
+  ): Promise<{ workspace: any; membership: any }> {
+    const validation = await this.validateSlug(rawSlug);
     if (!validation.valid || !validation.available) {
       throw new Error(validation.error || 'Slug de espacio de trabajo no válido.');
     }
@@ -129,33 +132,68 @@ export class WorkspaceService {
     }
 
     // Buscar por ID, luego por email o crear si proviene de una sesión OAuth válida
-    let user = userId ? db.getUser(userId) : undefined;
-    if (!user && userFallback?.email) {
-      user = db.getUserByEmail(userFallback.email);
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    
+    let dbUser;
+    if (userId) {
+      const { data } = await supabase.from('users').select('*').eq('id', userId).single();
+      dbUser = data;
     }
-    if (!user && userFallback?.email) {
-      user = db.upsertUser({
+    
+    if (!dbUser && userFallback?.email) {
+      const { data } = await supabase.from('users').select('*').eq('email', userFallback.email).single();
+      dbUser = data;
+    }
+    
+    if (!dbUser && userFallback?.email) {
+      const id = `usr-${Date.now()}`;
+      const { data: inserted } = await supabase.from('users').insert({
+        id,
         name: userFallback.name || 'Usuario',
         email: userFallback.email,
         avatar_url: userFallback.avatar_url,
-      });
+      }).select().single();
+      dbUser = inserted;
     }
 
-    if (!user) {
+    if (!dbUser) {
       throw new Error(`Usuario con ID ${userId} no encontrado en la base de datos.`);
     }
 
-    const result = db.createWorkspaceWithTransaction(user.id, trimmedName, validation.slug);
+    const wsId = `ws-${Date.now()}`;
+    const workspace = {
+      id: wsId,
+      name: trimmedName,
+      slug_url: validation.slug,
+      settings: {}
+    };
 
+    const membership = {
+      id: `wu-${Date.now()}`,
+      user_id: dbUser.id,
+      workspace_id: wsId,
+      role: 'OWNER'
+    };
+
+    const { error: wsError } = await supabase.from('workspaces').insert(workspace);
+    if (wsError) throw new Error(wsError.message);
+    
+    const { error: memError } = await supabase.from('workspace_users').insert(membership);
+    if (memError) throw new Error(memError.message);
+
+    // Actualizar el registro del usuario inyectándole el workspace_id transaccionalmente
+    await supabase.from('users').update({ workspace_id: wsId }).eq('id', dbUser.id);
+    
     db.addLog(
       'system',
       'INFO',
       'WORKSPACE_CREATED',
       'EXITOSO',
-      `Espacio de trabajo "${result.workspace.name}" (${result.workspace.slug_url}.inventa.ai) creado para usuario ${user.email} con rol OWNER.`,
-      user.email
+      `Espacio de trabajo "${workspace.name}" (${workspace.slug_url}.inventa.ai) creado para usuario ${dbUser.email} con rol OWNER.`,
+      dbUser.email
     );
 
-    return result;
+    return { workspace, membership };
   }
 }

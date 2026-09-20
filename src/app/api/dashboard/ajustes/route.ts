@@ -13,10 +13,22 @@ export async function GET() {
 
     const workspaceId =
       customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
       (nextAuthSession?.user as any)?.workspace?.id ||
       'ws-default';
 
-    const workspace = db.getWorkspace(workspaceId);
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+
+    let workspace;
+    if (workspaceId !== 'ws-default') {
+      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).single();
+      workspace = data;
+      if (workspace && typeof workspace.settings === 'string') {
+        try { workspace.settings = JSON.parse(workspace.settings); } catch(e){}
+      }
+    }
+
     const sessionSettings = customSession?.settings || {};
     const savedSettings = workspace?.settings || sessionSettings;
 
@@ -100,22 +112,43 @@ export async function PUT(req: NextRequest) {
 
     const workspaceId =
       customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
       (nextAuthSession?.user as any)?.workspace?.id ||
       'ws-default';
 
-    // Persistir en base de datos real
-    const updated = db.updateWorkspace(workspaceId, {
-      name: targetName,
-      settings: {
-        ruc: targetRuc,
-        leadTime: targetLeadTime,
-        sla: targetSla,
-        currency: targetMoneda,
-        horizon: targetHorizon,
-        notifyWhatsApp: targetWhatsapp,
-        notifyEmail: targetEmail,
-      },
-    });
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+
+    // Persistir en base de datos real (Supabase)
+    let updated;
+    if (workspaceId !== 'ws-default') {
+      const { data, error } = await supabase.from('workspaces').update({
+        name: targetName,
+        settings: {
+          ruc: targetRuc,
+          leadTime: targetLeadTime,
+          sla: targetSla,
+          currency: targetMoneda,
+          horizon: targetHorizon,
+          notifyWhatsApp: targetWhatsapp,
+          notifyEmail: targetEmail,
+        },
+      }).eq('id', workspaceId).select().single();
+      
+      if (error) {
+        console.error('Supabase Error en update de ajustes:', error);
+        return NextResponse.json(
+          { success: false, error: 'Error al actualizar base de datos: ' + error.message },
+          { status: 500 }
+        );
+      }
+      updated = data;
+    } else {
+      return NextResponse.json(
+        { success: false, error: 'No se identificó un espacio de trabajo válido (ws-default).' },
+        { status: 400 }
+      );
+    }
 
     // Actualizar o crear sesión activa con cookie segura para persistencia entre lambdas serverless
     const baseSession = customSession || {

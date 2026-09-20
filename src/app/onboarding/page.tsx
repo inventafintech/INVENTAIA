@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
+import { useWorkspaceStore } from '@/hooks/useWorkspaceStore';
 import styles from './page.module.css';
 
 interface UserSession {
@@ -26,7 +27,7 @@ const generateSlug = (name: string): string => {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { data: nextAuthSession, status: nextAuthStatus } = useSession();
+  const { data: nextAuthSession, status: nextAuthStatus, update: updateSession } = useSession();
 
   // 1. Manejo de Estado (React Hooks)
   const [user, setUser] = useState<UserSession | null>(null);
@@ -44,7 +45,7 @@ export default function OnboardingPage() {
     async function loadSession() {
       if (nextAuthSession?.user) {
         const u = nextAuthSession.user as any;
-        if (u.hasWorkspace) {
+        if (u.hasWorkspace || u.workspace_id || u.workspace) {
           router.push('/dashboard');
           return;
         }
@@ -61,7 +62,7 @@ export default function OnboardingPage() {
 
       if (nextAuthStatus === 'unauthenticated') {
         try {
-          const res = await fetch('/api/auth/session', { cache: 'no-store' });
+          const res = await fetch('/api/session', { cache: 'no-store' });
           if (res.ok) {
             const data = await res.json();
             if (data.authenticated && data.user) {
@@ -145,7 +146,25 @@ export default function OnboardingPage() {
 
       const data = await res.json();
       if (res.ok && (data.success || res.status === 200 || res.status === 201)) {
-        // Redirige automáticamente al usuario a la vista principal del dashboard
+        // 1. Paso Crítico: Actualizar la sesión en el cliente (NextAuth JWT) con el nuevo workspace_id
+        if (updateSession) {
+          await updateSession({
+            workspace_id: data.workspace.id,
+            workspace: data.workspace,
+            hasWorkspace: true,
+          });
+        }
+
+        // 2. Inyectar en el store global para reactividad inmediata
+        useWorkspaceStore.getState().setWorkspace({
+          name: data.workspace.name,
+          slug: data.workspace.slug_url,
+        });
+
+        // 3. Invalidar la caché de servidor para que el middleware reconozca el nuevo workspace_id
+        router.refresh();
+
+        // 4. Redirigir al dashboard
         router.push('/dashboard');
       } else {
         setSubmitError(data.error || 'No se pudo crear el espacio de trabajo.');

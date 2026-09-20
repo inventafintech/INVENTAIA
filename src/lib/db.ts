@@ -176,6 +176,7 @@ export interface UserRecord {
   email: string;
   avatar_url?: string;
   google_id?: string;
+  workspace_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -1163,9 +1164,37 @@ export const db = {
 
     store.workspaces[wsId] = workspace;
     store.workspace_users.push(membership);
+
+    // Actualizar el registro del usuario inyectándole el workspace_id transaccionalmente
+    if (store.users) {
+      const user = store.users[userId] || Object.values(store.users).find((u) => u.email.toLowerCase() === userId.toLowerCase());
+      if (user) {
+        user.workspace_id = wsId;
+        user.updated_at = now;
+      }
+    }
+
     persistStore();
 
     return { workspace, membership };
+  },
+
+  updateUser: (id: string, updates: Partial<UserRecord>): UserRecord | undefined => {
+    if (!store.users) store.users = {};
+    let user: UserRecord | undefined = store.users[id];
+    if (!user) {
+      user = Object.values(store.users).find((u) => u.email.toLowerCase() === id.toLowerCase());
+    }
+    if (!user) return undefined;
+
+    const updated: UserRecord = {
+      ...user,
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+    store.users[user.id] = updated;
+    persistStore();
+    return updated;
   },
 
   updateWorkspace: (

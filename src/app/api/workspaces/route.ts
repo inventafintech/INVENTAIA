@@ -49,17 +49,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    
     // 2. Garantizar que el usuario exista en la tabla users
-    let user = authenticatedId ? db.getUser(authenticatedId) : undefined;
-    if (!user && authenticatedEmail) {
-      user = db.getUserByEmail(authenticatedEmail);
+    let user;
+    if (authenticatedId) {
+      const { data } = await supabase.from('users').select('*').eq('id', authenticatedId).single();
+      user = data;
     }
     if (!user && authenticatedEmail) {
-      user = db.upsertUser({
+      const { data } = await supabase.from('users').select('*').eq('email', authenticatedEmail).single();
+      user = data;
+    }
+    if (!user && authenticatedEmail) {
+      const id = `usr-${Date.now()}`;
+      const { data: inserted } = await supabase.from('users').insert({
+        id,
         name: authenticatedName,
         email: authenticatedEmail,
         avatar_url: authenticatedAvatar,
-      });
+      }).select().single();
+      user = inserted;
     }
 
     if (!user) {
@@ -73,7 +84,7 @@ export async function POST(req: NextRequest) {
     }
 
     // 3. Ejecutar creación transaccional del espacio de trabajo
-    const { workspace, membership } = WorkspaceService.createWorkspace(
+    const { workspace, membership } = await WorkspaceService.createWorkspace(
       user.id,
       name,
       slug,
@@ -84,7 +95,10 @@ export async function POST(req: NextRequest) {
       }
     );
 
-    // 4. Actualizar la sesión activa con el nuevo espacio
+    // 4. El usuario ya se actualizó dentro de createWorkspace, no es necesario llamar update aquí
+
+
+    // 5. Actualizar la sesión activa con el nuevo espacio
     await SessionManager.createSession({
       userId: user.id,
       email: user.email,
@@ -101,6 +115,7 @@ export async function POST(req: NextRequest) {
       success: true,
       workspace,
       membership,
+      workspace_id: workspace.id,
       redirectUrl: '/dashboard',
     });
   } catch (error: any) {
@@ -136,10 +151,12 @@ export async function PUT(req: NextRequest) {
       (nextAuthSession?.user as any)?.workspace?.id ||
       'ws-default';
 
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    
     // Actualizar en base de datos
-    const updated = db.updateWorkspace(workspaceId, {
-      name: targetName,
-    });
+    const { data: updated } = await supabase.from('workspaces').update({ name: targetName }).eq('id', workspaceId).select().single();
+
 
     // Actualizar sesión activa
     if (customSession) {

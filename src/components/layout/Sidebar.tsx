@@ -30,7 +30,7 @@ export function Sidebar({ pendingOrdersCount }: SidebarProps) {
           }
         }
 
-        const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
+        const sessionRes = await fetch('/api/session', { cache: 'no-store' });
         if (sessionRes.ok) {
           const sessionData = await sessionRes.json();
           if (sessionData.workspace?.name) {

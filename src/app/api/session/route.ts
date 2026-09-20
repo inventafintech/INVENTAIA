@@ -22,7 +22,11 @@ export async function GET() {
     const userId = session?.userId || (nextAuthSession?.user as any)?.id || 'usr-default';
     const email = session?.email || nextAuthSession?.user?.email || '';
     const name = session?.name || nextAuthSession?.user?.name || 'Usuario';
-    const user = db.getUser(userId);
+    
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    
+    const { data: user } = await supabase.from('users').select('*').eq('id', userId).single();
     const avatarUrl = session?.avatarUrl || nextAuthSession?.user?.image || user?.avatar_url || null;
 
     const workspaceId =
@@ -30,7 +34,13 @@ export async function GET() {
       (nextAuthSession?.user as any)?.workspace?.id ||
       'ws-default';
 
-    const workspace = db.getWorkspace(workspaceId) || {
+    let workspace;
+    if (workspaceId !== 'ws-default') {
+      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).single();
+      workspace = data;
+    }
+    
+    workspace = workspace || {
       id: workspaceId,
       name: session?.workspaceName || (nextAuthSession?.user as any)?.workspace?.name || '',
       slug_url: session?.workspaceSlug || '',
