@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/dashboard/ajustes/page": "/dashboard/ajustes",
+  "/dashboard/analytics/page": "/dashboard/analytics",
+  "/dashboard/financiamiento/page": "/dashboard/financiamiento",
+  "/dashboard/integraciones/page": "/dashboard/integraciones",
+  "/dashboard/inventario/page": "/dashboard/inventario",
+  "/dashboard/ordenes/page": "/dashboard/ordenes",
+  "/dashboard/page": "/dashboard",
+  "/dashboard/predictiva/page": "/dashboard/predictiva",
+  "/dashboard/reabastecimiento/page": "/dashboard/reabastecimiento",
+  "/page": "/"
+}

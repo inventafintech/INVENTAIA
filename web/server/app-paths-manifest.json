@@ -1,0 +1,14 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/dashboard/ajustes/page": "app/dashboard/ajustes/page.js",
+  "/dashboard/analytics/page": "app/dashboard/analytics/page.js",
+  "/dashboard/financiamiento/page": "app/dashboard/financiamiento/page.js",
+  "/dashboard/integraciones/page": "app/dashboard/integraciones/page.js",
+  "/dashboard/inventario/page": "app/dashboard/inventario/page.js",
+  "/dashboard/ordenes/page": "app/dashboard/ordenes/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/dashboard/predictiva/page": "app/dashboard/predictiva/page.js",
+  "/dashboard/reabastecimiento/page": "app/dashboard/reabastecimiento/page.js",
+  "/page": "app/page.js"
+}
