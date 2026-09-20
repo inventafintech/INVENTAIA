@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import styles from './page.module.css';
+import { BatchApprovalModal } from '@/components/forms/BatchApprovalModal';
+import { BatchItemExecutionResult } from '@/services/BatchOrderApprovalService';
 
 interface RestockItem {
   id: string;
@@ -22,17 +24,6 @@ interface RestockItem {
   status: 'critical' | 'warning' | 'optimal';
 }
 
-interface OCExecutionResult {
-  sku: string;
-  product: string;
-  provider: string;
-  integration: 'sap' | 'whatsapp';
-  status: 'sent' | 'pending_configuration' | 'failed';
-  message: string;
-  poNumber: string;
-  jobId: string;
-}
-
 export default function ReabastecimientoPage() {
   const [items, setItems] = useState<RestockItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,9 +35,9 @@ export default function ReabastecimientoPage() {
   const [approvingAll, setApprovingAll] = useState<boolean>(false);
   const [resultsModal, setResultsModal] = useState<{
     open: boolean;
-    title: string;
-    results: OCExecutionResult[];
+    count: number;
     summary: string;
+    results: BatchItemExecutionResult[];
   } | null>(null);
 
   // Fetch real data from backend
@@ -109,9 +100,9 @@ export default function ReabastecimientoPage() {
       if (res.ok && data.success) {
         setResultsModal({
           open: true,
-          title: `Orden de Compra Generada: ${item.sku}`,
-          results: data.results,
+          count: data.count,
           summary: data.summary,
+          results: data.results,
         });
       } else {
         alert(data.error || 'Error al procesar la orden de compra.');
@@ -138,9 +129,9 @@ export default function ReabastecimientoPage() {
       if (res.ok && data.success) {
         setResultsModal({
           open: true,
-          title: 'Aprobación Masiva de Órdenes de Compra (1-Clic)',
-          results: data.results,
+          count: data.count,
           summary: data.summary,
+          results: data.results,
         });
       } else {
         alert(data.error || 'Error al procesar las órdenes masivas.');
@@ -303,50 +294,15 @@ export default function ReabastecimientoPage() {
         </table>
       </div>
 
-      {/* Modal de Auditoría y Transmisión de Órdenes */}
-      {resultsModal && resultsModal.open && (
-        <div className={styles.modalOverlay} onClick={() => setResultsModal(null)}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.modalHeader}>
-              <h3 className={styles.modalTitle}>{resultsModal.title}</h3>
-              <button
-                className={styles.modalClose}
-                onClick={() => setResultsModal(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className={styles.modalBody}>
-              <p style={{ fontSize: '13px', color: '#475569', marginBottom: '8px' }}>
-                {resultsModal.summary}
-              </p>
-              {resultsModal.results.map((res, idx) => (
-                <div key={idx} className={styles.resultCard}>
-                  <div className={styles.resultCardHeader}>
-                    <span className={styles.resultProduct}>
-                      {res.product} ({res.sku})
-                    </span>
-                    <span className={styles.resultPoNumber}>{res.poNumber}</span>
-                  </div>
-                  <div className={styles.resultMessage}>{res.message}</div>
-                  <div className={styles.resultMeta}>
-                    <span>Proveedor: <strong>{res.provider}</strong></span>
-                    <span>Conector: <strong>{res.integration === 'sap' ? 'SAP S/4HANA OData' : 'Meta WhatsApp Cloud API'}</strong></span>
-                    <span>Job ID: <code>{res.jobId}</code></span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className={styles.modalFooter}>
-              <button
-                className={styles.btnPrimary}
-                onClick={() => setResultsModal(null)}
-              >
-                Cerrar y Ver Auditoría
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Modal de Feedback Visual y Auditoría */}
+      {resultsModal && (
+        <BatchApprovalModal
+          open={resultsModal.open}
+          onClose={() => setResultsModal(null)}
+          count={resultsModal.count}
+          summary={resultsModal.summary}
+          results={resultsModal.results}
+        />
       )}
     </div>
   );
