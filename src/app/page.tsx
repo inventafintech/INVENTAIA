@@ -6,6 +6,7 @@ import styles from './page.module.css';
 
 export default function LandingPage() {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [forecastHorizon, setForecastHorizon] = useState<'30d' | '60d' | '180d'>('60d');
   
   // Demo Form State
@@ -25,14 +26,17 @@ export default function LandingPage() {
 
   return (
     <div className={styles.container}>
-      {/* 1. Navigation Bar */}
+      {/* 1. Navigation Bar - Refactorizado con jerarquía clara y limpia */}
       <header className={styles.nav}>
         <div className={styles.navContent}>
           <div className={styles.logoGroup}>
-            <span className={styles.logo}>INVENTA<span className={styles.logoAccent}>.AI</span></span>
+            <Link href="/" className={styles.logo}>
+              INVENTA<span className={styles.logoAccent}>.AI</span>
+            </Link>
             <span className={styles.tagEnterprise}>Enterprise B2B</span>
           </div>
 
+          {/* Enlaces de navegación centrados/izquierdos */}
           <nav className={styles.links}>
             <a href="#problema">El Desafío</a>
             <a href="#soluciones">Solución</a>
@@ -41,12 +45,10 @@ export default function LandingPage() {
             <a href="#casos">Casos de Éxito</a>
           </nav>
 
+          {/* Extremo derecho: EXACTAMENTE DOS ELEMENTOS */}
           <div className={styles.actions}>
-            <Link href="/login" className={styles.btnSecondaryNav}>
+            <Link href="/login" className={styles.navLoginLink}>
               Iniciar Sesión
-            </Link>
-            <Link href="/dashboard" className={styles.btnSecondaryNav}>
-              Ver cómo funciona
             </Link>
             <button 
               className={styles.btnPrimaryNav} 
@@ -55,11 +57,58 @@ export default function LandingPage() {
               Solicitar Demo
             </button>
           </div>
+
+          {/* Botón menú hamburguesa en móvil */}
+          <button 
+            className={styles.hamburgerBtn}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Menú principal"
+            aria-expanded={mobileMenuOpen}
+          >
+            {mobileMenuOpen ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            )}
+          </button>
         </div>
+
+        {/* Menú desplegable en móvil */}
+        {mobileMenuOpen && (
+          <div className={styles.mobileMenu}>
+            <nav className={styles.mobileNavLinks}>
+              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>El Desafío</a>
+              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>Solución</a>
+              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>Prueba de ROI</a>
+              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>Infraestructura</a>
+              <a href="#casos" onClick={() => setMobileMenuOpen(false)}>Casos de Éxito</a>
+            </nav>
+            <div className={styles.mobileMenuDivider} />
+            <div className={styles.mobileMenuActions}>
+              <Link href="/login" className={styles.mobileLoginLink} onClick={() => setMobileMenuOpen(false)}>
+                Iniciar Sesión
+              </Link>
+              <button 
+                className={styles.btnPrimaryNav} 
+                onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }}
+                style={{ width: '100%', justifyContent: 'center' }}
+              >
+                Solicitar Demo
+              </button>
+            </div>
+          </div>
+        )}
       </header>
 
       <main className={styles.main}>
-        {/* 2. Hero Section (Primer Pantallazo) */}
+        {/* 2. Hero Section (Primer Pantallazo con Alta Jerarquía) */}
         <section className={styles.hero}>
           <div className={styles.heroBadge}>
             <span className={styles.badgeDotPulse} />
@@ -90,6 +139,44 @@ export default function LandingPage() {
             <p className={styles.microCopy}>
               ✓ Sin compromiso · Agenda tu demo personalizada en 15 min · Implementación en 14 días
             </p>
+          </div>
+
+          {/* 3. Señales de Confianza Inmediatas (Intercalada antes del mockup) */}
+          <div className={styles.heroTrustBar}>
+            <span className={styles.heroTrustLabel}>
+              CONECTIVIDAD EMPRESARIAL VERIFICADA CON LÍDERES EN COMERCIO, ERP Y NUBE B2B:
+            </span>
+            <div className={styles.heroTrustLogos}>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>SAP</span>
+                <span className={styles.trustLogoLight}>S/4HANA</span>
+              </div>
+              <span className={styles.heroTrustDivider}>·</span>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>Mercado</span>
+                <span className={styles.trustLogoLight}>Libre</span>
+              </div>
+              <span className={styles.heroTrustDivider}>·</span>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>Shopify</span>
+                <span className={styles.trustLogoTag}>Plus</span>
+              </div>
+              <span className={styles.heroTrustDivider}>·</span>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>Amazon</span>
+                <span className={styles.trustLogoLight}>Business</span>
+              </div>
+              <span className={styles.heroTrustDivider}>·</span>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>AWS</span>
+                <span className={styles.trustLogoLight}>Cloud</span>
+              </div>
+              <span className={styles.heroTrustDivider}>·</span>
+              <div className={styles.heroTrustItem}>
+                <span className={styles.trustLogoBold}>Banco</span>
+                <span className={styles.trustLogoLight}>Pichincha B2B</span>
+              </div>
+            </div>
           </div>
 
           {/* Real AI Dashboard Preview (Visual IA en Acción) */}
