@@ -6,35 +6,61 @@ import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import styles from './page.module.css';
 
+// Diccionario empresarial de traducción de errores OAuth y NextAuth
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  AccessDenied: 'El acceso fue denegado. Por favor, autoriza los permisos de Google.',
+  Configuration: 'Error de configuración en el servidor. Contacta a soporte.',
+  Verification: 'El token de verificación ha expirado o ya fue utilizado.',
+  OAuthSignin: 'Hubo un problema al conectar con Google. Inténtalo de nuevo.',
+  OAuthCallback: 'Hubo un problema al iniciar sesión con Google. Inténtalo de nuevo.',
+  OAuthCreateAccount: 'No se pudo crear la cuenta con este proveedor.',
+  EmailCreateAccount: 'No se pudo crear la cuenta con el correo proporcionado.',
+  Callback: 'Error durante la redirección de autenticación. Inténtalo de nuevo.',
+  OAuthAccountNotLinked: 'Este correo ya está registrado con otro método de acceso.',
+  Default: 'Hubo un problema al iniciar sesión con Google. Inténtalo de nuevo.',
+};
+
 function LoginContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [devLoading, setDevLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Captura de errores desde la URL (ej. ?error=OAuthCallback o el usuario cierra la ventana)
+  // 1. Captura de errores de la URL y mapeo a mensajes claros
   useEffect(() => {
-    const error = searchParams ? searchParams.get('error') : null;
-    if (error) {
-      setErrorMessage('Hubo un problema al iniciar sesión con Google. Inténtalo de nuevo.');
+    const errorParam = searchParams ? searchParams.get('error') : null;
+    if (errorParam) {
+      const message = AUTH_ERROR_MESSAGES[errorParam] || AUTH_ERROR_MESSAGES.Default;
+      setErrorMessage(message);
+
+      // Limpieza automática de la URL para que no reaparezca en un reload
+      if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('error');
+        const cleanUrl =
+          url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '');
+        window.history.replaceState({}, '', cleanUrl);
+      }
     }
   }, [searchParams]);
 
-  // Manejo de inicio de sesión real con Google OAuth 2.0
+  // 2. Manejo de inicio de sesión real con Google OAuth 2.0 y rate-limiting en UI
   const handleGoogleLogin = async () => {
+    if (loading || devLoading) return; // Prevención de doble clic
     try {
       setLoading(true);
       setErrorMessage(null);
       await signIn('google', { callbackUrl: '/onboarding' });
     } catch (err) {
       console.error('Error al iniciar sesión con Google:', err);
-      setErrorMessage('Hubo un problema al iniciar sesión con Google. Inténtalo de nuevo.');
+      setErrorMessage(AUTH_ERROR_MESSAGES.Default);
       setLoading(false);
     }
   };
 
-  // Inicio de sesión de desarrollo local (Credentials Provider)
+  // 3. Inicio de sesión de desarrollo local (Credentials Provider)
   const handleDevLogin = async () => {
+    if (loading || devLoading) return;
     try {
       setDevLoading(true);
       setErrorMessage(null);
@@ -54,22 +80,36 @@ function LoginContent() {
 
   return (
     <>
-      {/* Toast flotante para errores de autenticación */}
+      {/* Banner de alerta de error - Renderizado condicional idéntico al diseño */}
       {errorMessage && (
-        <div className={styles.toast} role="alert">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="12" />
-            <line x1="12" y1="16" x2="12.01" y2="16" />
-          </svg>
-          <span>{errorMessage}</span>
+        <div className={styles.errorBanner} role="alert" aria-live="assertive">
+          <div className={styles.errorContent}>
+            <svg
+              className={styles.errorIcon}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span className={styles.errorText}>{errorMessage}</span>
+          </div>
           <button
             type="button"
             onClick={() => setErrorMessage(null)}
-            className={styles.toastClose}
-            aria-label="Cerrar notificación"
+            className={styles.errorClose}
+            aria-label="Cerrar alerta"
           >
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </button>
         </div>
       )}
@@ -88,16 +128,31 @@ function LoginContent() {
           Accede al Cerebro de Compras para gestionar tu inventario, predicción y financiamiento.
         </p>
 
-        {/* Botón interactivo oficial de Google OAuth 2.0 */}
+        {/* Botón oficial de Google OAuth 2.0 con protección de múltiples clics y spinner SVG */}
         <button
           type="button"
           onClick={handleGoogleLogin}
           disabled={loading || devLoading}
           className={styles.btnGoogle}
+          aria-busy={loading}
         >
           {loading ? (
             <>
-              <div className={styles.spinner} />
+              <svg className={styles.spinnerSvg} viewBox="0 0 24 24" fill="none">
+                <circle
+                  className={styles.spinnerTrack}
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="3"
+                />
+                <path
+                  className={styles.spinnerHead}
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                />
+              </svg>
               <span>Conectando con Google...</span>
             </>
           ) : (
@@ -162,7 +217,7 @@ function LoginContent() {
 export default function LoginPage() {
   return (
     <div className={styles.container}>
-      <Suspense fallback={<div>Cargando...</div>}>
+      <Suspense fallback={<div className={styles.loadingFallback}>Cargando...</div>}>
         <LoginContent />
       </Suspense>
     </div>
