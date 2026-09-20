@@ -189,7 +189,7 @@ TOTAL: S/ ${order.total_amount.toLocaleString('es-PE', { minimumFractionDigits: 
 LLEGADA ESTIMADA: ${order.estimated_arrival}
 LÍNEAS: ${order.lines_count} SKUs
 
-📄 Descargar PDF Oficial de la Orden:
+Descargar PDF Oficial de la Orden:
 ${pdfUrl}
 
 _Mensaje automatizado emitido por INVENTA.AI_`;

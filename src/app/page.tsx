@@ -3,6 +3,16 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import styles from './page.module.css';
+import {
+  IconGlobe,
+  IconShieldCheck,
+  IconLock,
+  IconZap,
+  IconCloud,
+  IconBuilding,
+  IconCode,
+  IconHelpCircle
+} from '@/components/ui/icons';
 
 export default function LandingPage() {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
@@ -111,7 +121,7 @@ export default function LandingPage() {
 
           {/* Extremo derecho: Selector de idioma, login, outline demo, botón primario y link empezar gratis */}
           <div className={styles.actionsDark}>
-            {/* Selector de idioma con ícono */}
+            {/* Selector de idioma con ícono vectorial */}
             <div className={styles.langSelectorWrapper}>
               <button 
                 type="button"
@@ -119,8 +129,8 @@ export default function LandingPage() {
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
                 aria-label="Seleccionar idioma"
               >
-                <span className={styles.langGlobeIcon}>🌐</span>
-                <span>{selectedLang === 'es' ? '🇪🇸 Español' : '🇺🇸 English'}</span>
+                <IconGlobe size={14} className={styles.langGlobeIcon} />
+                <span>{selectedLang === 'es' ? 'Español' : 'English'}</span>
                 <span className={styles.chevronIcon}>⌄</span>
               </button>
               {langDropdownOpen && (
@@ -130,14 +140,14 @@ export default function LandingPage() {
                     className={`${styles.langOption} ${selectedLang === 'es' ? styles.langActive : ''}`}
                     onClick={() => { setSelectedLang('es'); setLangDropdownOpen(false); }}
                   >
-                    🇪🇸 Español
+                    Español
                   </button>
                   <button 
                     type="button"
                     className={`${styles.langOption} ${selectedLang === 'en' ? styles.langActive : ''}`}
                     onClick={() => { setSelectedLang('en'); setLangDropdownOpen(false); }}
                   >
-                    🇺🇸 English
+                    English
                   </button>
                 </div>
               )}
@@ -425,7 +435,7 @@ export default function LandingPage() {
           onClick={() => setIsDemoModalOpen(true)}
           aria-label="Consultar si encaja con mi negocio"
         >
-          <span className={styles.sparkleIcon}>✨</span>
+          <IconHelpCircle size={16} className={styles.sparkleIcon} />
           <span>¿Encaja con mi negocio?</span>
         </button>
 
@@ -459,10 +469,10 @@ export default function LandingPage() {
           </div>
 
           <div className={styles.securityBadges}>
-            <span className={styles.securityPill}>🛡️ SOC 2 Type II Compliant</span>
-            <span className={styles.securityPill}>🔒 Cifrado AES-256 en Reposo</span>
-            <span className={styles.securityPill}>⚡ 99.99% Uptime SLA</span>
-            <span className={styles.securityPill}>☁️ Multi-Cloud AWS & GCP</span>
+            <span className={styles.securityPill}><IconShieldCheck size={14} /> SOC 2 Type II Compliant</span>
+            <span className={styles.securityPill}><IconLock size={14} /> Cifrado AES-256 en Reposo</span>
+            <span className={styles.securityPill}><IconZap size={14} /> 99.99% Uptime SLA</span>
+            <span className={styles.securityPill}><IconCloud size={14} /> Multi-Cloud AWS & GCP</span>
           </div>
         </section>
 
@@ -669,25 +679,25 @@ export default function LandingPage() {
 
           <div className={styles.techSpecsGrid}>
             <div className={styles.techSpecCard}>
-              <div className={styles.techSpecIcon}>⚡</div>
+              <div className={styles.techSpecIcon}><IconZap size={22} strokeWidth={2} /></div>
               <h4>99.99% Uptime SLA</h4>
               <p>Infraestructura redundante multi-región en AWS y Google Cloud con failover automático y balanceo de carga.</p>
             </div>
 
             <div className={styles.techSpecCard}>
-              <div className={styles.techSpecIcon}>🔒</div>
+              <div className={styles.techSpecIcon}><IconLock size={22} strokeWidth={2} /></div>
               <h4>Seguridad de Grado Bancario</h4>
               <p>Cifrado AES-256 en reposo, TLS 1.3 en tránsito, autenticación OAuth 2.0 y compatibilidad con Single Sign-On (SSO).</p>
             </div>
 
             <div className={styles.techSpecCard}>
-              <div className={styles.techSpecIcon}>🔌</div>
+              <div className={styles.techSpecIcon}><IconCode size={22} strokeWidth={2} /></div>
               <h4>APIs REST & Webhooks</h4>
               <p>Endpoints documentados con OpenAPI 3.0, webhooks firmados criptográficamente (HMAC-SHA256) y sincronización cada 5 min.</p>
             </div>
 
             <div className={styles.techSpecCard}>
-              <div className={styles.techSpecIcon}>🏛️</div>
+              <div className={styles.techSpecIcon}><IconBuilding size={22} strokeWidth={2} /></div>
               <h4>Cumplimiento Fiscal SUNAT</h4>
               <p>Integración directa con los Web Services de SUNAT y OSE para consulta de RUC, validación de CPEs y emisión de GRE.</p>
             </div>
@@ -831,8 +841,8 @@ export default function LandingPage() {
                   <button type="submit" className={styles.btnSubmitDemo}>
                     Confirmar y Agendar Demo 1:1
                   </button>
-                  <span className={styles.formDisclaimer}>
-                    🔒 Respetamos tu privacidad. Tus datos están protegidos con cifrado y nunca serán compartidos con terceros.
+                  <span className={styles.formDisclaimer} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                    <IconLock size={13} /> Respetamos tu privacidad. Tus datos están protegidos con cifrado y nunca serán compartidos con terceros.
                   </span>
                 </form>
               </>
