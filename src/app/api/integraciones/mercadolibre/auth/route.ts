@@ -1,11 +1,13 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import { MercadoLibreService } from '@/services/MercadoLibreService';
 
-export async function GET() {
-  const appId = process.env.MERCADOLIBRE_APP_ID || 'meli_app_id_placeholder';
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'https://inventa-ai-nine.vercel.app'}/api/integraciones/mercadolibre/callback`;
+export const dynamic = 'force-dynamic';
 
-  // Official Mercado Libre OAuth URL
-  const authUrl = `https://auth.mercadolibre.com.pe/authorization?response_type=code&client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}`;
+export async function GET(req: NextRequest) {
+  const host = req.headers.get('host') || 'inventa-ai.vercel.app';
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const redirectUri = `${protocol}://${host}/api/integraciones/mercadolibre/callback`;
 
+  const authUrl = MercadoLibreService.getAuthUrl(redirectUri);
   return NextResponse.redirect(authUrl);
 }

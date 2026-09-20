@@ -1,168 +1,95 @@
-import { db } from '@/lib/db';
-import { SyncResult } from '@/types';
+import { createClient } from '@/utils/supabase/server';
+import { IntegrationService } from './IntegrationService';
 
 export class ShopifyService {
-  private static readonly API_VERSION = '2024-01';
-
   /**
-   * Generates official Shopify OAuth authorization URL
+   * Genera la URL oficial de autorización OAuth 2.0 para una tienda de Shopify.
    */
-  public static getAuthorizationUrl(shopDomain: string, redirectUri: string, state: string): string {
-    const cleanDomain = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
-    const scopes = 'read_products,read_orders,read_inventory,write_inventory';
-    const clientId = process.env.SHOPIFY_CLIENT_ID || 'shopify_client_id_placeholder';
-    return `https://${cleanDomain}/admin/oauth/authorize?client_id=${clientId}&scope=${scopes}&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+  static getAuthUrl(shopDomain: string, redirectUri: string): string {
+    const apiKey = process.env.SHOPIFY_API_KEY || 'fake-shopify-key';
+    const scopes = 'read_products,write_products,read_orders,read_inventory';
+    const cleanShop = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return `https://${cleanShop}/admin/oauth/authorize?client_id=${apiKey}&scope=${scopes}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}`;
   }
 
   /**
-   * Exchanges OAuth authorization code for permanent access token
+   * Intercambia el código de autorización temporal por un Access Token permanente de Shopify.
    */
-  public static async exchangeCodeForToken(shopDomain: string, code: string): Promise<string> {
-    const cleanDomain = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
-    const clientId = process.env.SHOPIFY_CLIENT_ID;
-    const clientSecret = process.env.SHOPIFY_CLIENT_SECRET;
+  static async exchangeCodeForToken(shopDomain: string, code: string): Promise<string> {
+    const apiKey = process.env.SHOPIFY_API_KEY;
+    const apiSecret = process.env.SHOPIFY_API_SECRET;
+    const cleanShop = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
-    if (!clientId || !clientSecret) {
-      throw new Error('SHOPIFY_CLIENT_ID o SHOPIFY_CLIENT_SECRET no configurados en las variables de entorno.');
+    if (!apiKey || !apiSecret) {
+      throw new Error('Configuración de credenciales de Shopify incompletas en variables de entorno.');
     }
 
-    const response = await fetch(`https://${cleanDomain}/admin/oauth/access_token`, {
+    const res = await fetch(`https://${cleanShop}/admin/oauth/access_token`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        client_id: clientId,
-        client_secret: clientSecret,
+        client_id: apiKey,
+        client_secret: apiSecret,
         code,
       }),
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Error en intercambio de token Shopify (${response.status}): ${errorText}`);
+    if (!res.ok) {
+      const errorText = await res.text();
+      throw new Error(`Falló el intercambio de token con Shopify: ${errorText}`);
     }
 
-    const data = await response.json();
-    const accessToken = data.access_token;
-
-    // Save token in DB repository
-    db.saveOAuthToken('shopify', {
-      shop_domain: cleanDomain,
-      access_token: accessToken,
-      scope: data.scope,
-    });
-
-    db.addLog(
-      'shopify',
-      'SUCCESS',
-      'OAUTH_TOKEN_EXCHANGED',
-      'EXITOSO',
-      `Token de acceso OAuth obtenido exitosamente para tienda ${cleanDomain}.`
-    );
-
-    return accessToken;
+    const data = await res.json();
+    return data.access_token;
   }
 
   /**
-   * Performs real API synchronization of /products, /orders, /inventory
+   * Sincroniza catálogo de productos reales desde Shopify hacia Supabase.
    */
-  public static async syncAll(): Promise<{
-    success: boolean;
-    products_synced: number;
-    orders_synced: number;
-    inventory_synced: number;
-    job_id: string;
-  }> {
-    const tokenRecord = db.getOAuthToken('shopify');
-    const integration = db.getIntegration('shopify');
+  static async syncProducts(workspaceId: string, shopDomain: string, accessToken: string) {
+    const cleanShop = shopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    const res = await fetch(`https://${cleanShop}/admin/api/2026-01/products.json?limit=50`, {
+      headers: {
+        'X-Shopify-Access-Token': accessToken,
+        'Content-Type': 'application/json',
+      },
+    });
 
-    const accessToken = tokenRecord?.access_token || integration?.config?.access_token;
-    const shopDomain = tokenRecord?.shop_domain || integration?.config?.shop_domain;
-
-    if (!accessToken || !shopDomain) {
-      db.addLog(
-        'shopify',
-        'WARN',
-        'SYNC_REJECTED',
-        'FALLIDO',
-        'Sincronización rechazada: No existen credenciales activas para Shopify. Estado: Pendiente de configuración.'
-      );
-      throw new Error('No existen credenciales activas para Shopify. Inicie el flujo OAuth o ingrese credenciales en Ajustes.');
+    if (!res.ok) {
+      throw new Error(`Error HTTP al consultar productos de Shopify: ${res.statusText}`);
     }
 
-    const job = db.createSyncJob(integration?.id || 'int-shopify', 'SHOPIFY_FULL_SYNC');
+    const data = await res.json();
+    const products = data.products || [];
+    const supabase = await createClient();
 
-    try {
-      // 1. Fetch Products
-      const prodRes = await fetch(`https://${shopDomain}/admin/api/${this.API_VERSION}/products.json?limit=50`, {
-        headers: {
-          'X-Shopify-Access-Token': accessToken,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!prodRes.ok) {
-        const errText = await prodRes.text();
-        throw new Error(`Fallo al consultar /products.json (${prodRes.status}): ${errText}`);
-      }
-
-      const prodData = await prodRes.json();
-      const products = prodData.products || [];
-      const productsCount = products.length;
-
-      // 2. Fetch Orders
-      const ordersRes = await fetch(`https://${shopDomain}/admin/api/${this.API_VERSION}/orders.json?status=any&limit=50`, {
-        headers: {
-          'X-Shopify-Access-Token': accessToken,
-          'Content-Type': 'application/json',
-        },
-      });
-      const ordersData = ordersRes.ok ? await ordersRes.json() : { orders: [] };
-      const orders = ordersData.orders || [];
-      const ordersCount = orders.length;
-
-      // 3. Fetch Inventory Levels
-      let inventoryCount = 0;
-      try {
-        const invRes = await fetch(`https://${shopDomain}/admin/api/${this.API_VERSION}/inventory_levels.json?limit=50`, {
-          headers: {
-            'X-Shopify-Access-Token': accessToken,
-            'Content-Type': 'application/json',
-          },
+    let count = 0;
+    for (const p of products) {
+      const variant = p.variants?.[0];
+      if (variant) {
+        await supabase.from('products').upsert({
+          id: `shp-${p.id}`,
+          sku_code: variant.sku || `SKU-SHP-${p.id}`,
+          name: p.title,
+          unit_cost: Number(variant.price) * 0.6, // Costo estimado o de lista
+          unit_price: Number(variant.price),
+          status: 'active',
+          updated_at: new Date().toISOString(),
         });
-        if (invRes.ok) {
-          const invData = await invRes.json();
-          inventoryCount = invData.inventory_levels?.length || 0;
-        }
-      } catch {
-        // Continue if inventory levels scope is restricted
+        count++;
       }
-
-      // Persist results into database
-      db.saveSyncResult(job.id, 'products', productsCount, 0, { sample: products.slice(0, 5) });
-      db.saveSyncResult(job.id, 'orders', ordersCount, 0, { sample: orders.slice(0, 5) });
-      db.saveSyncResult(job.id, 'inventory', inventoryCount, 0);
-      db.updateSyncJob(job.id, 'completed');
-
-      db.addLog(
-        'shopify',
-        'SUCCESS',
-        'SYNC_COMPLETED',
-        'EXITOSO',
-        `Sincronización real completada: ${productsCount} productos, ${ordersCount} órdenes, ${inventoryCount} registros de inventario conciliados desde ${shopDomain}.`
-      );
-
-      return {
-        success: true,
-        products_synced: productsCount,
-        orders_synced: ordersCount,
-        inventory_synced: inventoryCount,
-        job_id: job.id,
-      };
-
-    } catch (error: any) {
-      db.updateSyncJob(job.id, 'failed', error.message);
-      db.addLog('shopify', 'ERROR', 'SYNC_ERROR', 'FALLIDO', error.message);
-      throw error;
     }
+
+    await IntegrationService.logIntegrationEvent(
+      workspaceId,
+      'sistema@inventa.ai',
+      'Shopify',
+      'EXITOSO',
+      `Sincronizados ${count} productos correctamente desde ${cleanShop}.`
+    );
+
+    return count;
   }
 }

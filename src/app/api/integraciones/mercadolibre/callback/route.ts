@@ -1,81 +1,47 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { SessionManager } from '@/lib/session';
+import { MercadoLibreService } from '@/services/MercadoLibreService';
+import { IntegrationService } from '@/services/IntegrationService';
 
-export async function GET(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const code = searchParams.get('code');
+export const dynamic = 'force-dynamic';
+
+export async function GET(req: NextRequest) {
+  const code = req.nextUrl.searchParams.get('code');
 
   if (!code) {
-    return NextResponse.json(
-      { error: 'Falta el parámetro "code" para completar la autorización con Mercado Libre' },
-      { status: 400 }
-    );
-  }
-
-  const appId = process.env.MERCADOLIBRE_APP_ID;
-  const clientSecret = process.env.MERCADOLIBRE_CLIENT_SECRET;
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL || 'https://inventa-ai-nine.vercel.app'}/api/integraciones/mercadolibre/callback`;
-
-  if (!appId || !clientSecret) {
-    db.addLog(
-      'MERCADOLIBRE',
-      'ERROR',
-      'OAUTH_EXCHANGE_FAILED',
-      'Variables MERCADOLIBRE_APP_ID o MERCADOLIBRE_CLIENT_SECRET no configuradas.'
-    );
-    return NextResponse.json(
-      { error: 'Servidor no configurado con credenciales de Mercado Libre' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Parámetro code ausente.' }, { status: 400 });
   }
 
   try {
-    const response = await fetch('https://api.mercadolibre.com/oauth/token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        client_id: appId,
-        client_secret: clientSecret,
-        code,
-        redirect_uri: redirectUri,
-      }),
+    const customSession = await SessionManager.getSession();
+    const nextAuthSession = await getServerSession(authOptions);
+
+    const workspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
+      'ws-default';
+
+    const host = req.headers.get('host') || 'inventa-ai.vercel.app';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const redirectUri = `${protocol}://${host}/api/integraciones/mercadolibre/callback`;
+
+    const tokenData = await MercadoLibreService.exchangeCodeForToken(code, redirectUri);
+    await IntegrationService.storeOAuthToken(workspaceId, 'mercadolibre', {
+      accessToken: tokenData.access_token,
+      refreshToken: tokenData.refresh_token,
+      expiresIn: tokenData.expires_in,
+      scope: tokenData.scope,
     });
 
-    const data = await response.json();
-
-    if (!response.ok || !data.access_token) {
-      db.addLog(
-        'MERCADOLIBRE',
-        'ERROR',
-        'OAUTH_EXCHANGE_FAILED',
-        `Error intercambiando código con Mercado Libre: ${JSON.stringify(data)}`
-      );
-      return NextResponse.json(
-        { error: 'Error al obtener token de Mercado Libre', details: data },
-        { status: 400 }
-      );
+    if (tokenData.user_id) {
+      await MercadoLibreService.syncItems(workspaceId, String(tokenData.user_id), tokenData.access_token);
     }
 
-    db.saveOAuthToken('mercadolibre', {
-      access_token: data.access_token,
-      refresh_token: data.refresh_token,
-      expires_at: new Date(Date.now() + data.expires_in * 1000).toISOString(),
-      scope: data.scope,
-    });
-
-    db.saveIntegration('mercadolibre', { user_id: data.user_id }, 'configured');
-
-    db.addLog(
-      'MERCADOLIBRE',
-      'SUCCESS',
-      'OAUTH_TOKEN_ACQUIRED',
-      `Cuenta Mercado Libre (User ID: ${data.user_id}) conectada con éxito.`
-    );
-
-    return NextResponse.redirect(new URL('/dashboard/integraciones?success=meli_connected', req.url));
+    return NextResponse.redirect(`${protocol}://${host}/dashboard/integraciones?success=mercadolibre`);
   } catch (err: any) {
-    db.addLog('MERCADOLIBRE', 'ERROR', 'OAUTH_EXCEPTION', err.message);
-    return NextResponse.json({ error: err.message }, { status: 500 });
+    console.error('Error en callback de Mercado Libre:', err);
+    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }

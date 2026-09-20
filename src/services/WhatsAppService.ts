@@ -1,85 +1,89 @@
-import { db } from '@/lib/db';
+import { IntegrationService } from './IntegrationService';
 
 export class WhatsAppService {
-  private static readonly GRAPH_API_VERSION = 'v19.0';
-
   /**
-   * Sends real WhatsApp message via Meta WhatsApp Cloud API
+   * Envía una notificación crítica de quiebre de stock por WhatsApp usando Meta Cloud API oficial.
    */
-  public static async sendMessage(to: string, message: string): Promise<{
-    success: boolean;
-    message_id?: string;
-    status: string;
-  }> {
-    const integration = db.getIntegration('whatsapp');
-    const tokenRecord = db.getOAuthToken('whatsapp');
+  static async sendStockAlert(
+    workspaceId: string,
+    recipientPhoneNumber: string,
+    productName: string,
+    daysRemaining: number
+  ) {
+    const apiToken = process.env.WHATSAPP_CLOUD_API_TOKEN;
+    const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
-    const accessToken = 
-      process.env.WHATSAPP_ACCESS_TOKEN || 
-      tokenRecord?.access_token || 
-      integration?.config?.access_token;
-
-    const phoneNumberId = 
-      process.env.WHATSAPP_PHONE_NUMBER_ID || 
-      integration?.config?.phone_number_id;
-
-    if (!accessToken || !phoneNumberId) {
-      db.addLog(
-        'whatsapp',
-        'ERROR',
-        'SEND_MESSAGE',
-        'FALLIDO',
-        'Credenciales de Meta WhatsApp Cloud API no configuradas (WHATSAPP_ACCESS_TOKEN o WHATSAPP_PHONE_NUMBER_ID faltante).'
+    if (!apiToken || !phoneNumberId) {
+      // Registrar log si no está configurada la API Key
+      await IntegrationService.logIntegrationEvent(
+        workspaceId,
+        'sistema@inventa.ai',
+        'WhatsApp Cloud API',
+        'PENDIENTE',
+        'Variables WHATSAPP_CLOUD_API_TOKEN o WHATSAPP_PHONE_NUMBER_ID no configuradas.'
       );
-      throw new Error('Credenciales de Meta WhatsApp Cloud API no configuradas. El conector se encuentra en estado Pendiente de configuración.');
+      return {
+        success: false,
+        message: 'WhatsApp Cloud API no está configurada con un token real.',
+      };
     }
 
-    const payload = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: to.replace(/[^0-9]/g, ''),
-      type: 'text',
-      text: { preview_url: false, body: message }
-    };
+    const cleanPhone = recipientPhoneNumber.replace(/[^0-9]/g, '');
 
-    const url = `https://graph.facebook.com/${this.GRAPH_API_VERSION}/${phoneNumberId}/messages`;
-    const response = await fetch(url, {
+    const res = await fetch(`https://graph.facebook.com/v19.0/${phoneNumberId}/messages`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
+        Authorization: `Bearer ${apiToken}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        messaging_product: 'whatsapp',
+        to: cleanPhone,
+        type: 'template',
+        template: {
+          name: 'stockout_alert_critical',
+          language: { code: 'es' },
+          components: [
+            {
+              type: 'body',
+              parameters: [
+                { type: 'text', text: productName },
+                { type: 'text', text: String(daysRemaining) },
+              ],
+            },
+          ],
+        },
+      }),
     });
 
-    const data = await response.json();
+    const data = await res.json();
 
-    if (!response.ok) {
-      const errorMsg = data.error?.message || `Meta API error HTTP ${response.status}`;
-      db.addLog(
-        'whatsapp',
+    if (!res.ok) {
+      await IntegrationService.logIntegrationEvent(
+        workspaceId,
+        'sistema@inventa.ai',
+        'WhatsApp Cloud API',
         'ERROR',
-        'SEND_MESSAGE',
-        'FALLIDO',
-        `Error Meta API: ${errorMsg}`
+        JSON.stringify(data)
       );
-      throw new Error(errorMsg);
+      throw new Error(`Falló el envío de WhatsApp: ${data.error?.message || res.statusText}`);
     }
 
-    const messageId = data.messages?.[0]?.id;
-
-    db.addLog(
-      'whatsapp',
-      'SUCCESS',
-      'SEND_MESSAGE',
+    await IntegrationService.logIntegrationEvent(
+      workspaceId,
+      'sistema@inventa.ai',
+      'WhatsApp Cloud API',
       'EXITOSO',
-      `Mensaje enviado a ${to}. ID de mensaje Meta: ${messageId || 'OK'}`
+      `Alerta enviada a ${cleanPhone} para el producto "${productName}".`
     );
 
-    return {
-      success: true,
-      message_id: messageId,
-      status: 'sent',
-    };
+    return { success: true, data };
+  }
+
+  /**
+   * Envía un mensaje de texto general por WhatsApp.
+   */
+  static async sendMessage(to: string, message: string) {
+    return this.sendStockAlert('ws-default', to, message, 0);
   }
 }

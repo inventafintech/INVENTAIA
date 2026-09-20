@@ -244,28 +244,30 @@ export default function LandingPage() {
 
               {/* Titular Principal */}
               <h1 className={styles.heroMainTitle}>
-                Stock, pedidos y ventas.<br />
-                Conectados entre sí.
+                El Cerebro de Compras para tu Empresa
               </h1>
 
               {/* Subtitular */}
               <p className={styles.heroSubTitle}>
-                Recibe mercancía, reserva stock para un pedido y registra la venta con las mismas fichas de producto. Explora los módulos para ver qué cubre cada uno.
+                Anticipa la demanda, evita quiebres de stock y financia inventario con inteligencia predictiva.
               </p>
 
               {/* Botones de Acción (CTAs) */}
               <div className={styles.heroBtnGroup}>
-                <Link href="/login" className={styles.btnAmberHero}>
-                  <span>Iniciar prueba gratis de 7 días</span>
-                  <span className={styles.btnArrowIcon}>→</span>
-                </Link>
                 <button 
                   type="button"
-                  className={styles.btnOutlineHero}
+                  className={styles.btnAmberHero}
                   onClick={() => setIsDemoModalOpen(true)}
                 >
-                  Reservar una demo
+                  <span>Solicitar Demo</span>
+                  <span className={styles.btnArrowIcon}>→</span>
                 </button>
+                <a 
+                  href="#problema"
+                  className={styles.btnOutlineHero}
+                >
+                  Ver cómo funciona
+                </a>
               </div>
 
               {/* Micro-copy y Señales de Confianza */}

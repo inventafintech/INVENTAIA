@@ -1,32 +1,70 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { SessionManager } from '@/lib/session';
+import { IntegrationService } from '@/services/IntegrationService';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  const integrations = db.getIntegrations();
-  return NextResponse.json({ integrations });
+  try {
+    const customSession = await SessionManager.getSession();
+    const nextAuthSession = await getServerSession(authOptions);
+
+    const workspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
+      'ws-default';
+
+    const integrations = await IntegrationService.getAllIntegrations(workspaceId);
+
+    return NextResponse.json({
+      success: true,
+      integrations,
+    });
+  } catch (error: any) {
+    console.error('Error fetching integrations:', error);
+    return NextResponse.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
+  }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const customSession = await SessionManager.getSession();
+    const nextAuthSession = await getServerSession(authOptions);
+
+    const workspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
+      'ws-default';
+
+    const userEmail = nextAuthSession?.user?.email || customSession?.email || 'admin@inventa.ai';
+
     const body = await req.json();
-    const { provider, config, status } = body;
+    const { provider, status, config } = body;
 
     if (!provider) {
-      return NextResponse.json({ error: 'Proveedor es requerido' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Provider es requerido' }, { status: 400 });
     }
 
-    const updated = db.saveIntegration(provider, config || {}, status);
-    db.addLog(
+    await IntegrationService.logIntegrationEvent(
+      workspaceId,
+      userEmail,
       provider.toUpperCase(),
-      'INFO',
-      'CONFIG_UPDATED',
-      'Configuración guardada exitosamente',
-      undefined,
-      'admin@inventa.ai'
+      status === 'ACTIVE' ? 'EXITOSO' : 'PENDIENTE',
+      `Configuración de canal ${provider} actualizada.`
     );
 
-    return NextResponse.json({ success: true, integration: updated });
+    const integrations = await IntegrationService.getAllIntegrations(workspaceId);
+
+    return NextResponse.json({
+      success: true,
+      integrations,
+    });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

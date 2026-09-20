@@ -149,6 +149,57 @@ CREATE TABLE IF NOT EXISTS integration_logs (
     errores TEXT
 );
 
+-- 11. Tabla de Integraciones Empresariales (Integrations)
+CREATE TABLE IF NOT EXISTS integrations (
+    id TEXT PRIMARY KEY,
+    workspace_id TEXT REFERENCES workspaces(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL, -- shopify, mercadolibre, whatsapp, sap, sunat
+    name TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'PENDING_CONFIG', -- PENDING_CONFIG, ACTIVE, ERROR, DISCONNECTED
+    config JSONB DEFAULT '{}'::jsonb,
+    last_synced_at TIMESTAMP WITH TIME ZONE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_workspace_provider UNIQUE (workspace_id, provider)
+);
+
+-- 12. Tabla de Tokens OAuth Encritados (OAuth Tokens)
+CREATE TABLE IF NOT EXISTS oauth_tokens (
+    id TEXT PRIMARY KEY,
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL,
+    access_token TEXT NOT NULL,
+    refresh_token TEXT,
+    token_type TEXT DEFAULT 'Bearer',
+    expires_at TIMESTAMP WITH TIME ZONE,
+    scope TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_oauth_workspace_provider UNIQUE (workspace_id, provider)
+);
+
+-- 13. Tabla de Trabajos de Sincronización (Sync Jobs)
+CREATE TABLE IF NOT EXISTS sync_jobs (
+    id TEXT PRIMARY KEY,
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL,
+    job_type TEXT NOT NULL, -- PRODUCTS, ORDERS, INVENTORY, FULL
+    status TEXT NOT NULL DEFAULT 'PENDING', -- PENDING, RUNNING, COMPLETED, FAILED
+    started_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    finished_at TIMESTAMP WITH TIME ZONE,
+    error_message TEXT
+);
+
+-- 14. Tabla de Resultados de Sincronización (Sync Results)
+CREATE TABLE IF NOT EXISTS sync_results (
+    id TEXT PRIMARY KEY,
+    job_id TEXT NOT NULL REFERENCES sync_jobs(id) ON DELETE CASCADE,
+    items_processed INT DEFAULT 0,
+    items_failed INT DEFAULT 0,
+    details JSONB DEFAULT '{}'::jsonb,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- ==============================================================================
 -- DESHABILITAR ROW-LEVEL SECURITY (RLS) / PERMITIR ACCESO TOTAL A TABLAS
 -- ==============================================================================
@@ -162,6 +213,10 @@ ALTER TABLE suppliers DISABLE ROW LEVEL SECURITY;
 ALTER TABLE purchase_orders DISABLE ROW LEVEL SECURITY;
 ALTER TABLE purchase_order_lines DISABLE ROW LEVEL SECURITY;
 ALTER TABLE integration_logs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE integrations DISABLE ROW LEVEL SECURITY;
+ALTER TABLE oauth_tokens DISABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_jobs DISABLE ROW LEVEL SECURITY;
+ALTER TABLE sync_results DISABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "Allow all workspaces" ON workspaces;
 CREATE POLICY "Allow all workspaces" ON workspaces FOR ALL USING (true) WITH CHECK (true);
