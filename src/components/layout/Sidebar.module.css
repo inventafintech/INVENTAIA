@@ -1,34 +1,181 @@
+/* ==========================================================================
+   SIDEBAR & OFF-CANVAS DRAWER RESPONSIVE STYLES
+   - Ergonomía visual SaaS B2B Enterprise (Stripe / Vercel / Shopify Plus)
+   - Touch targets de 44px (desktop) a 48px (móvil) según WCAG 2.1 AAA
+   - Off-canvas drawer fluido para Mobile & Tablet (< 1024px)
+   ========================================================================== */
+
+/* Fondo Oscuro Superpuesto (Overlay con desenfoque para Mobile/Tablet) */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 45;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease-in-out;
+}
+
+.overlayVisible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Contenedor Principal del Sidebar */
 .sidebar {
-  width: 240px;
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  height: 100vh;
-  position: sticky;
-  top: 0;
   box-sizing: border-box;
-  z-index: 40;
   user-select: none;
   overflow: hidden;
   font-family: inherit;
 }
 
-/* Contenedor con Scroll Suave */
+/* Estado Mobile & Tablet (< 1024px): Off-canvas Drawer */
+@media (max-width: 1023px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    width: min(82vw, 320px);
+    height: 100vh;
+    height: 100dvh;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transform: translateX(-100%);
+    transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebarOpen {
+    transform: translateX(0);
+  }
+}
+
+/* Estado Desktop (>= 1024px): Acoplado a la izquierda, ancho fijo amplio (w-68 / 272px) */
+@media (min-width: 1024px) {
+  .sidebar {
+    position: sticky;
+    top: 0;
+    width: 272px;
+    height: 100vh;
+    transform: translateX(0) !important;
+    z-index: 30;
+  }
+
+  .overlay {
+    display: none !important;
+  }
+}
+
+/* Header Corporativo del Sidebar */
+.brandHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 18px 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.brandLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.logoIcon {
+  width: 34px;
+  height: 34px;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9px;
+  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.15);
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+}
+
+.brandInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.brandName {
+  font-size: 14.5px;
+  font-weight: 750;
+  color: #0f172a;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+}
+
+.brandSub {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #64748b;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botón de Cierre Táctil en Móvil (Touch target 44px) */
+.closeButton {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  margin-right: -6px;
+}
+
+.closeButton:hover {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+@media (max-width: 1023px) {
+  .closeButton {
+    display: flex;
+  }
+}
+
+/* Contenedor de Navegación con Scroll Suave */
 .navContainer {
   display: flex;
   flex-direction: column;
-  gap: 6px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 14px 10px;
+  padding: 14px 12px 28px 12px;
   box-sizing: border-box;
+  gap: 2px;
 }
 
 .navContainer::-webkit-scrollbar {
-  width: 4px;
+  width: 5px;
 }
 
 .navContainer::-webkit-scrollbar-track {
@@ -37,28 +184,32 @@
 
 .navContainer::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 
 .navContainer::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
-/* Grupo / Acordeón */
+/* Grupo de Navegación / Acordeón */
 .navGroup {
   display: flex;
   flex-direction: column;
-  margin-bottom: 4px;
+  margin-top: 16px;
 }
 
-/* Encabezado de Categoría (Sin bordes de botón por defecto) */
+.navGroup:first-child {
+  margin-top: 2px;
+}
+
+/* Encabezado del Grupo (Acordeón sin cajas ni bordes divisores) */
 .groupHeader {
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 8px 12px;
+  border-radius: 8px;
   border: none;
   outline: none;
   background: transparent;
@@ -66,45 +217,60 @@
   appearance: none;
   -webkit-appearance: none;
   text-align: left;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition: background-color 0.15s ease;
   box-sizing: border-box;
+  min-height: 38px;
 }
 
 .groupHeader:hover {
   background-color: #f8fafc;
 }
 
+.groupHeader:focus-visible {
+  outline: 2px solid #94a3b8;
+  outline-offset: 1px;
+}
+
+/* Título de Categoría: Tipografía micro limpia y con suficiente aire */
 .groupTitle {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.07em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #475569;
+  color: #64748b;
   line-height: 1;
+  transition: color 0.15s ease;
 }
 
 .groupHeader:hover .groupTitle {
   color: #0f172a;
 }
 
+/* Indicador de Flecha (Chevron) con Rotación Fluida */
 .chevron {
-  color: #64748b;
+  color: #94a3b8;
   flex-shrink: 0;
-  transition: transform 0.2s ease, color 0.15s ease;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s ease;
+  transform: rotate(-90deg);
+}
+
+.chevronExpanded {
+  transform: rotate(0deg);
+  color: #475569;
 }
 
 .groupHeader:hover .chevron {
   color: #0f172a;
 }
 
-/* Lista de Enlaces (Sin viñetas ni márgenes de navegador) */
+/* Lista de Ítems del Acordeón */
 .itemList {
   list-style: none;
   padding: 0;
-  margin: 2px 0 2px 0;
+  margin: 4px 0 0 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .itemListItem {
@@ -113,17 +279,18 @@
   margin: 0;
 }
 
-/* Ítem de Navegación */
+/* Ítem de Enlace / Navegación: Touch target ergonómico de 44px a 48px */
 .navItem {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 6.5px 10px;
-  border-radius: 6px;
-  font-size: 13.5px;
+  gap: 12px;
+  padding: 10px 12px;
+  min-height: 44px;
+  border-radius: 8px;
+  font-size: 14.5px;
   color: #475569;
   text-decoration: none;
-  font-weight: 450;
+  font-weight: 500;
   transition: background-color 0.15s ease, color 0.15s ease;
   cursor: pointer;
   outline: none;
@@ -132,20 +299,46 @@
   position: relative;
 }
 
+@media (max-width: 1023px) {
+  .navItem {
+    padding: 12px 14px;
+    min-height: 48px;
+    font-size: 15px;
+  }
+}
+
 .navItem:hover {
-  background-color: #f8fafc;
+  background-color: #f1f5f9;
   color: #0f172a;
 }
 
-/* Estado Activo: Resalte visual claro con fondo azul claro y texto oscuro/mayor peso */
+.navItem:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+/* Estado Activo: Resalte visual claro de grado Enterprise */
 .navItem.active {
   background-color: #eff6ff;
   color: #1d4ed8;
   font-weight: 600;
 }
 
+.navItem.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 3.5px;
+  background-color: #2563eb;
+  border-radius: 0 4px 4px 0;
+}
+
 .itemIcon {
   flex-shrink: 0;
+  width: 22px;
+  height: 22px;
   color: #64748b;
   display: flex;
   align-items: center;
@@ -165,27 +358,27 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.35;
+  line-height: 1.4;
   flex: 1;
   min-width: 0;
 }
 
-/* Badges Dinámicos de Notificaciones */
+/* Badges Dinámicos de Notificación Escalar */
 .badge {
   margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   line-height: 1;
-  padding: 2px 6px;
+  padding: 3px 7px;
   border-radius: 9999px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 18px;
-  height: 18px;
+  min-width: 22px;
+  height: 20px;
   box-sizing: border-box;
   flex-shrink: 0;
-  transition: transform 0.15s ease;
+  letter-spacing: -0.02em;
 }
 
 .badgeAlert {
@@ -193,18 +386,17 @@
   color: #b91c1c;
 }
 
+.badgeWarning {
+  background-color: #fef3c7;
+  color: #b45309;
+}
+
 .badgeInfo {
   background-color: #e0f2fe;
   color: #0369a1;
 }
 
-/* Responsividad para pantallas móviles */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 100%;
-    height: auto;
-    position: relative;
-    border-right: none;
-    border-bottom: 1px solid #e2e8f0;
-  }
+.badgePurple {
+  background-color: #f3e8ff;
+  color: #7e22ce;
 }

@@ -164,8 +164,8 @@ export default function OnboardingPage() {
         // 3. Invalidar la caché de servidor para que el middleware reconozca el nuevo workspace_id
         router.refresh();
 
-        // 4. Redirigir al dashboard
-        router.push('/dashboard');
+        // 4. Redirigir al Setup Wizard completo
+        router.push('/setup/wizard');
       } else {
         setSubmitError(data.error || 'No se pudo crear el espacio de trabajo.');
       }

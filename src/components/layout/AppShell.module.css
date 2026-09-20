@@ -1,9 +1,13 @@
 .layout {
   display: flex;
   min-height: 100vh;
+  min-height: 100dvh;
   background-color: #f8fafc;
   color: #0f172a;
   font-family: inherit;
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
 }
 
 .mainWrapper {
@@ -12,6 +16,7 @@
   flex-direction: column;
   min-width: 0;
   background-color: #f8fafc;
+  overflow-x: hidden;
 }
 
 .contentArea {
@@ -23,12 +28,8 @@
   margin: 0 auto;
 }
 
-@media (max-width: 768px) {
-  .layout {
-    flex-direction: column;
-  }
-
+@media (max-width: 1023px) {
   .contentArea {
-    padding: 16px;
+    padding: 20px 16px;
   }
 }
