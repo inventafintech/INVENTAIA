@@ -175,23 +175,31 @@ function LoginContent() {
           )}
         </button>
 
-        {/* Sección de desarrollo local (exclusivo para NODE_ENV === 'development') */}
-        {isDevelopment && (
-          <div className={styles.noticeBox}>
-            <div className={styles.noticeTitle}>Modo de Desarrollo Local (Credentials)</div>
-            <p style={{ margin: 0, fontSize: '12px' }}>
-              Entorno local detectado. Puedes iniciar sesión de prueba con CredentialsProvider:
-            </p>
-            <button
-              type="button"
-              onClick={handleDevLogin}
-              disabled={loading || devLoading}
-              className={styles.btnDemo}
-            >
-              {devLoading ? 'Autenticando...' : 'Acceder como José González (Local)'}
-            </button>
+        {/* Botón de Acceso Rápido / Demo Enterprise */}
+        <div className={styles.noticeBox} style={{ marginTop: '16px' }}>
+          <div className={styles.noticeTitle} style={{ color: '#0f172a', fontWeight: 700 }}>
+            Acceso Rápido de Demostración
           </div>
-        )}
+          <p style={{ margin: '4px 0 10px 0', fontSize: '12px', color: '#64748b' }}>
+            Ingresa directamente con el perfil de Director de Operaciones para explorar todas las funcionalidades:
+          </p>
+          <a
+            href="/api/auth/demo?callbackUrl=/panel/resumen"
+            className={styles.btnDemo}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              width: '100%',
+              boxSizing: 'border-box',
+            }}
+          >
+            Acceder como José González (Director de Operaciones)
+          </a>
+        </div>
 
         <div className={styles.footerText}>
           Al continuar, aceptas nuestros{' '}

@@ -19,36 +19,32 @@ export const authOptions: NextAuthOptions = {
       },
     }),
 
-    // 2. Proveedor de credenciales para desarrollo local sin conexión obligatoria a GCP
-    ...(process.env.NODE_ENV === 'development'
-      ? [
-          CredentialsProvider({
-            id: 'credentials',
-            name: 'Desarrollo Local',
-            credentials: {
-              email: { label: 'Email', type: 'text' },
-              name: { label: 'Nombre', type: 'text' },
-            },
-            async authorize(credentials) {
-              const email = credentials?.email || 'jmgonzalez.contact@gmail.com';
-              const name = credentials?.name || 'José González';
-              const user = db.upsertUser({
-                email,
-                name,
-                avatar_url:
-                  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-                google_id: `dev-${Date.now()}`,
-              });
-              return {
-                id: user.id,
-                email: user.email,
-                name: user.name,
-                image: user.avatar_url,
-              };
-            },
-          }),
-        ]
-      : []),
+    // 2. Proveedor de credenciales para acceso demo / corporativo
+    CredentialsProvider({
+      id: 'credentials',
+      name: 'Acceso Corporativo Demo',
+      credentials: {
+        email: { label: 'Email', type: 'text' },
+        name: { label: 'Nombre', type: 'text' },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email || 'jmgonzalez.contact@gmail.com';
+        const name = credentials?.name || 'José González';
+        const user = db.upsertUser({
+          email,
+          name,
+          avatar_url:
+            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          google_id: `demo-${Date.now()}`,
+        });
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.avatar_url,
+        };
+      },
+    }),
   ],
   pages: {
     signIn: '/login',

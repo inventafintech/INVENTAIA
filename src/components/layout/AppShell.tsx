@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import { SIDEBAR_CONFIG } from '@/config/sidebarConfig';
+import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { useAppShell } from '@/hooks/useAppShell';
@@ -24,7 +24,7 @@ export function AppShell({ children }: AppShellProps) {
   }, [pathname]);
 
   const currentItem = React.useMemo(() => {
-    for (const group of SIDEBAR_CONFIG) {
+    for (const group of NAVIGATION_CONFIG) {
       for (const item of group.items) {
         if (pathname === item.href) return item;
         if (

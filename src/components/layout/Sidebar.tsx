@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { NAVIGATION_CONFIG, NavGroupConfig, NavItemConfig } from '@/config/navigationConfig';
 import { useSafeNotificationStore } from '@/context/NotificationContext';
 
@@ -24,31 +24,33 @@ export function Sidebar({
   const pathname = usePathname() || '';
   const { counts } = useSafeNotificationStore();
 
-  // Estado colapsable para desktop con persistencia en localStorage
+  // Estado de colapso en escritorio (modo icono de 72px) con persistencia en localStorage
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('inventa:sidebar-collapsed');
+      const saved = localStorage.getItem('inventa_sidebar_collapsed');
       if (saved !== null) {
         setIsCollapsed(saved === 'true');
       }
     } catch {
-      // Manejo seguro en caso de restricciones de almacenamiento del navegador
+      // Fallback seguro para SSR
     }
   }, []);
 
   const toggleCollapse = () => {
     setIsCollapsed((prev) => {
-      const nextState = !prev;
+      const next = !prev;
       try {
-        localStorage.setItem('inventa:sidebar-collapsed', String(nextState));
-      } catch {}
-      return nextState;
+        localStorage.setItem('inventa_sidebar_collapsed', String(next));
+      } catch {
+        // Fallback seguro
+      }
+      return next;
     });
   };
 
-  // Estado de los acordeones: todos abiertos por defecto
+  // Estado de los acordeones: todas las categorías abiertas por defecto
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     NAVIGATION_CONFIG.reduce((acc, group) => {
       acc[group.id] = true;
@@ -110,17 +112,18 @@ export function Sidebar({
     return false;
   };
 
-  const getBadgeClass = (badgeType?: string): string => {
+  const getBadgeClass = (badgeType?: 'alert' | 'warning' | 'info' | 'purple'): string => {
     switch (badgeType) {
       case 'alert':
         return styles.badgeAlert;
       case 'warning':
         return styles.badgeWarning;
+      case 'info':
+        return styles.badgeInfo;
       case 'purple':
         return styles.badgePurple;
-      case 'info':
       default:
-        return styles.badgeInfo;
+        return styles.badgeAlert;
     }
   };
 
@@ -133,16 +136,19 @@ export function Sidebar({
         aria-hidden={!isMobileOpen}
       />
 
-      {/* Contenedor Principal / Drawer Deslizante */}
+      {/* Contenedor Principal / Drawer Deslizante / Barra Colapsable */}
       <aside
-        className={`${styles.sidebar} ${isMobileOpen ? styles.sidebarOpen : ''} ${
-          isCollapsed ? styles.sidebarCollapsed : ''
-        } ${className}`}
+        className={`
+          ${styles.sidebar}
+          ${isMobileOpen ? styles.sidebarOpen : ''}
+          ${isCollapsed ? styles.sidebarCollapsed : ''}
+          ${className}
+        `}
         aria-label="Navegación lateral de la plataforma"
         aria-modal={isMobileOpen ? 'true' : undefined}
         role={isMobileOpen ? 'dialog' : undefined}
       >
-        {/* Encabezado Corporativo Enterprise con botón de cierre móvil */}
+        {/* Encabezado Corporativo Enterprise */}
         <div className={styles.brandHeader}>
           <div className={styles.brandLeft}>
             <div className={styles.logoIcon} aria-hidden="true" title="INVENTA.AI">
@@ -172,14 +178,13 @@ export function Sidebar({
 
             return (
               <div key={group.id} className={styles.navGroup}>
-                {/* Encabezado de Categoría */}
+                {/* Encabezado de Categoría (Acordeón sin cajas) */}
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
                   aria-expanded={isOpen}
                   aria-controls={`group-${group.id}`}
                   className={styles.groupHeader}
-                  title={group.title}
                 >
                   <span className={styles.groupTitle}>{group.title}</span>
                   <ChevronDown
@@ -206,9 +211,10 @@ export function Sidebar({
                         <li key={item.id} className={styles.itemListItem}>
                           <Link
                             href={item.href}
-                            title={item.label}
+                            title={isCollapsed ? item.label : undefined}
                             aria-current={active ? 'page' : undefined}
                             onClick={() => {
+                              // Cerrar automáticamente el drawer móvil al seleccionar una opción
                               if (onCloseMobile) {
                                 onCloseMobile();
                               }
@@ -216,8 +222,11 @@ export function Sidebar({
                             className={`${styles.navItem} ${active ? styles.active : ''}`}
                           >
                             <span className={styles.itemIcon} aria-hidden="true">
-                              <Icon size={18} strokeWidth={1.5} />
-                              {badgeCount > 0 && <span className={styles.collapsedBadgeDot} />}
+                              <Icon size={20} strokeWidth={active ? 2 : 1.75} />
+                              {/* Punto indicador de alerta cuando el sidebar está colapsado a modo icono */}
+                              {badgeCount > 0 && (
+                                <span className={styles.collapsedBadgeDot} aria-hidden="true" />
+                              )}
                             </span>
 
                             <span className={styles.navLabel}>{item.label}</span>
@@ -242,7 +251,7 @@ export function Sidebar({
           })}
         </nav>
 
-        {/* Footer con Botón Ergonómico para Colapsar/Expandir la Barra Lateral */}
+        {/* Footer del Sidebar con Botón de Colapso B2B (Solo Desktop) */}
         <div className={styles.sidebarFooter}>
           <button
             type="button"
@@ -252,13 +261,11 @@ export function Sidebar({
             title={isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
           >
             {isCollapsed ? (
-              <PanelLeftOpen size={18} strokeWidth={1.5} />
+              <ChevronRight size={18} strokeWidth={2} />
             ) : (
-              <>
-                <PanelLeftClose size={18} strokeWidth={1.5} />
-                <span className={styles.collapseLabel}>Colapsar menú</span>
-              </>
+              <ChevronLeft size={18} strokeWidth={2} />
             )}
+            <span className={styles.collapseLabel}>Colapsar menú</span>
           </button>
         </div>
       </aside>
