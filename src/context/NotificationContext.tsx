@@ -15,6 +15,9 @@ const defaultCounts: NotificationSummary = {
   ordenes: 0,
   inventario: 0,
   integraciones: 0,
+  riesgoQuiebre: 0,
+  proveedoresCriticos: 0,
+  inventarioInmovilizado: 0,
 };
 
 const NotificationContext = createContext<NotificationStoreState>({

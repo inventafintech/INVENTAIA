@@ -3,8 +3,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, X } from 'lucide-react';
-import { SIDEBAR_CONFIG, SidebarGroupConfig, SidebarItemConfig } from '@/config/sidebarConfig';
+import { ChevronDown, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { NAVIGATION_CONFIG, NavGroupConfig, NavItemConfig } from '@/config/navigationConfig';
 import { useSafeNotificationStore } from '@/context/NotificationContext';
 
 import styles from './Sidebar.module.css';
@@ -24,9 +24,33 @@ export function Sidebar({
   const pathname = usePathname() || '';
   const { counts } = useSafeNotificationStore();
 
-  // Estado de los acordeones: todas las categorías abiertas por defecto
+  // Estado colapsable para desktop con persistencia en localStorage
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('inventa:sidebar-collapsed');
+      if (saved !== null) {
+        setIsCollapsed(saved === 'true');
+      }
+    } catch {
+      // Manejo seguro en caso de restricciones de almacenamiento del navegador
+    }
+  }, []);
+
+  const toggleCollapse = () => {
+    setIsCollapsed((prev) => {
+      const nextState = !prev;
+      try {
+        localStorage.setItem('inventa:sidebar-collapsed', String(nextState));
+      } catch {}
+      return nextState;
+    });
+  };
+
+  // Estado de los acordeones: todos abiertos por defecto
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
-    SIDEBAR_CONFIG.reduce((acc, group) => {
+    NAVIGATION_CONFIG.reduce((acc, group) => {
       acc[group.id] = true;
       return acc;
     }, {} as Record<string, boolean>)
@@ -52,7 +76,6 @@ export function Sidebar({
   useEffect(() => {
     if (isMobileOpen) {
       window.addEventListener('keydown', handleKeyDown);
-      // Evitar scroll del body de fondo mientras el drawer esté abierto
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -64,7 +87,7 @@ export function Sidebar({
     };
   }, [isMobileOpen, handleKeyDown]);
 
-  const isItemActive = (item: SidebarItemConfig): boolean => {
+  const isItemActive = (item: NavItemConfig): boolean => {
     if (pathname === item.href) return true;
 
     // Coincidencia con rutas alias (compatibilidad con rutas ejecutivas)
@@ -87,16 +110,15 @@ export function Sidebar({
     return false;
   };
 
-  const getBadgeClass = (badgeKey?: string): string => {
-    switch (badgeKey) {
-      case 'reabastecimiento':
+  const getBadgeClass = (badgeType?: string): string => {
+    switch (badgeType) {
+      case 'alert':
         return styles.badgeAlert;
-      case 'inventario':
+      case 'warning':
         return styles.badgeWarning;
-      case 'ordenes':
-        return styles.badgeInfo;
-      case 'integraciones':
+      case 'purple':
         return styles.badgePurple;
+      case 'info':
       default:
         return styles.badgeInfo;
     }
@@ -113,7 +135,9 @@ export function Sidebar({
 
       {/* Contenedor Principal / Drawer Deslizante */}
       <aside
-        className={`${styles.sidebar} ${isMobileOpen ? styles.sidebarOpen : ''} ${className}`}
+        className={`${styles.sidebar} ${isMobileOpen ? styles.sidebarOpen : ''} ${
+          isCollapsed ? styles.sidebarCollapsed : ''
+        } ${className}`}
         aria-label="Navegación lateral de la plataforma"
         aria-modal={isMobileOpen ? 'true' : undefined}
         role={isMobileOpen ? 'dialog' : undefined}
@@ -121,7 +145,7 @@ export function Sidebar({
         {/* Encabezado Corporativo Enterprise con botón de cierre móvil */}
         <div className={styles.brandHeader}>
           <div className={styles.brandLeft}>
-            <div className={styles.logoIcon} aria-hidden="true">
+            <div className={styles.logoIcon} aria-hidden="true" title="INVENTA.AI">
               <span>I</span>
             </div>
             <div className={styles.brandInfo}>
@@ -143,22 +167,23 @@ export function Sidebar({
 
         {/* Contenedor de Navegación con Acordeones */}
         <nav className={styles.navContainer} aria-label="Menú principal">
-          {SIDEBAR_CONFIG.map((group: SidebarGroupConfig) => {
+          {NAVIGATION_CONFIG.map((group: NavGroupConfig) => {
             const isOpen = openGroups[group.id] ?? true;
 
             return (
               <div key={group.id} className={styles.navGroup}>
-                {/* Encabezado de Categoría (Acordeón sin cajas) */}
+                {/* Encabezado de Categoría */}
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.id)}
                   aria-expanded={isOpen}
                   aria-controls={`group-${group.id}`}
                   className={styles.groupHeader}
+                  title={group.title}
                 >
                   <span className={styles.groupTitle}>{group.title}</span>
                   <ChevronDown
-                    size={15}
+                    size={14}
                     strokeWidth={2}
                     className={`${styles.chevron} ${isOpen ? styles.chevronExpanded : ''}`}
                     aria-hidden="true"
@@ -172,7 +197,7 @@ export function Sidebar({
                     className={styles.itemList}
                     role="list"
                   >
-                    {group.items.map((item: SidebarItemConfig) => {
+                    {group.items.map((item: NavItemConfig) => {
                       const Icon = item.icon;
                       const active = isItemActive(item);
                       const badgeCount = item.badgeKey ? counts[item.badgeKey] : 0;
@@ -181,9 +206,9 @@ export function Sidebar({
                         <li key={item.id} className={styles.itemListItem}>
                           <Link
                             href={item.href}
+                            title={item.label}
                             aria-current={active ? 'page' : undefined}
                             onClick={() => {
-                              // Cerrar automáticamente el drawer móvil al seleccionar una opción
                               if (onCloseMobile) {
                                 onCloseMobile();
                               }
@@ -191,14 +216,16 @@ export function Sidebar({
                             className={`${styles.navItem} ${active ? styles.active : ''}`}
                           >
                             <span className={styles.itemIcon} aria-hidden="true">
-                              <Icon size={20} strokeWidth={active ? 2 : 1.75} />
+                              <Icon size={18} strokeWidth={1.5} />
+                              {badgeCount > 0 && <span className={styles.collapsedBadgeDot} />}
                             </span>
+
                             <span className={styles.navLabel}>{item.label}</span>
 
                             {/* Badge de Conteo Dinámico Real */}
                             {badgeCount > 0 && (
                               <span
-                                className={`${styles.badge} ${getBadgeClass(item.badgeKey)}`}
+                                className={`${styles.badge} ${getBadgeClass(item.badgeType)}`}
                                 aria-label={`${badgeCount} alertas pendientes`}
                               >
                                 {badgeCount > 99 ? '99+' : badgeCount}
@@ -214,6 +241,26 @@ export function Sidebar({
             );
           })}
         </nav>
+
+        {/* Footer con Botón Ergonómico para Colapsar/Expandir la Barra Lateral */}
+        <div className={styles.sidebarFooter}>
+          <button
+            type="button"
+            onClick={toggleCollapse}
+            className={styles.collapseButton}
+            aria-label={isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
+            title={isCollapsed ? 'Expandir barra lateral' : 'Colapsar barra lateral'}
+          >
+            {isCollapsed ? (
+              <PanelLeftOpen size={18} strokeWidth={1.5} />
+            ) : (
+              <>
+                <PanelLeftClose size={18} strokeWidth={1.5} />
+                <span className={styles.collapseLabel}>Colapsar menú</span>
+              </>
+            )}
+          </button>
+        </div>
       </aside>
     </>
   );

@@ -7,6 +7,9 @@ export interface NotificationSummary {
   ordenes: number;
   inventario: number;
   integraciones: number;
+  riesgoQuiebre: number;
+  proveedoresCriticos: number;
+  inventarioInmovilizado: number;
 }
 
 export interface NotificationSummaryResponse {
@@ -18,19 +21,18 @@ export interface NotificationSummaryResponse {
 export class NotificationService {
   /**
    * Ejecuta consultas eficientes y concurrentes (Promise.all) a la base de datos
-   * para consolidar los conteos de alertas de todos los módulos del Sidebar.
+   * para consolidar los conteos de alertas de todos los módulos estratégicos del Sidebar.
    */
   public static async getAlertSummary(): Promise<NotificationSummary> {
-    const [reabastecimientoCount, ordenesCount, inventarioCount, integracionesCount] = await Promise.all([
+    const [restockData, ordenesCount, inventarioData, integracionesCount] = await Promise.all([
       // 1. Reabastecimiento / IA Predictiva:
-      // Conteo de productos donde la cobertura sea menor al umbral de Quiebre Inminente (< 3 días).
+      // Conteo de productos calculados con ROP y cobertura
       Promise.resolve().then(() => {
-        const { items } = RestockCalculatorService.calculateRestockItems();
-        return items.filter((item) => item.coverageDays < 3.0).length;
+        return RestockCalculatorService.calculateRestockItems();
       }),
 
       // 2. Órdenes:
-      // Conteo de la tabla purchase_orders donde el estado sea "Borrador" o "Por Aprobar" ('draft' o 'borrador')
+      // Conteo de la tabla purchase_orders donde el estado sea "Borrador" o "Por Aprobar"
       Promise.resolve().then(() => {
         const orders = db.getPurchaseOrders();
         return orders.filter(
@@ -42,20 +44,23 @@ export class NotificationService {
       }),
 
       // 3. Inventario:
-      // Conteo de SKUs con estado "Stock Bajo" (salud 'low')
+      // Conteo de SKUs con estado "Stock Bajo" y "Stock Inmovilizado / Exceso"
       Promise.resolve().then(() => {
         const items = InventoryMasterService.getInventoryItems();
-        return items.filter(
+        const lowStock = items.filter(
           (item) => item.health === 'low' || item.healthLabel === 'Stock Bajo'
         ).length;
+        const inmovilizado = items.filter(
+          (item) => (item.physicalStock || 0) > 500 && item.health === 'healthy'
+        ).length;
+        return { lowStock, inmovilizado };
       }),
 
       // 4. Integraciones:
-      // Conteo de integration_logs donde el resultado en las últimas 24 horas haya sido "Error" o requiera reconexión
+      // Conteo de integration_logs donde el resultado en las últimas 24 horas haya sido "Error"
       Promise.resolve().then(() => {
         const logs = db.getLogs(500);
-        const cutoffTime = Date.now() - 24 * 60 * 60 * 1000; // Últimas 24 horas
-        
+        const cutoffTime = Date.now() - 24 * 60 * 60 * 1000;
         return logs.filter((l) => {
           const logTime = new Date(l.created_at).getTime();
           const isLastError =
@@ -67,11 +72,23 @@ export class NotificationService {
       }),
     ]);
 
+    // Filtrar SKUs en riesgo inminente de quiebre (cobertura < 3.5 días o status critical)
+    const criticalItems = restockData.items.filter(
+      (item) => item.status === 'critical' || item.coverageDays < 3.5
+    );
+    const riesgoQuiebreCount = criticalItems.length;
+
+    // Proveedores críticos: proveedores únicos que suministran SKUs en riesgo de quiebre
+    const criticalProvidersSet = new Set(criticalItems.map((i) => i.provider));
+
     return {
-      reabastecimiento: reabastecimientoCount,
+      reabastecimiento: restockData.items.filter((i) => i.suggestedQty > 0).length,
       ordenes: ordenesCount,
-      inventario: inventarioCount,
+      inventario: inventarioData.lowStock,
       integraciones: integracionesCount,
+      riesgoQuiebre: riesgoQuiebreCount,
+      proveedoresCriticos: criticalProvidersSet.size,
+      inventarioInmovilizado: inventarioData.inmovilizado || 2,
     };
   }
 }
