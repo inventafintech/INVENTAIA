@@ -26,25 +26,20 @@ function LoginContent() {
   const [devLoading, setDevLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // 1. Captura de errores de la URL y mapeo a mensajes claros
+  // 1. Intercepción y limpieza inmediata de URL (?error=)
   useEffect(() => {
-    const errorParam = searchParams ? searchParams.get('error') : null;
-    if (errorParam) {
-      const message = AUTH_ERROR_MESSAGES[errorParam] || AUTH_ERROR_MESSAGES.Default;
-      setErrorMessage(message);
+    const error = searchParams?.get('error');
+    if (error) {
+      setErrorMessage('Hubo un problema al conectar con Google. Inténtalo de nuevo.');
 
-      // Limpieza automática de la URL para que no reaparezca en un reload
+      // Limpieza estricta e inmediata de la barra de direcciones para evitar persistencia al recargar
       if (typeof window !== 'undefined') {
-        const url = new URL(window.location.href);
-        url.searchParams.delete('error');
-        const cleanUrl =
-          url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '');
-        window.history.replaceState({}, '', cleanUrl);
+        window.history.replaceState(null, '', '/login');
       }
     }
   }, [searchParams]);
 
-  // 2. Manejo de inicio de sesión real con Google OAuth 2.0 y rate-limiting en UI
+  // 2. Manejo de inicio de sesión real con Google OAuth 2.0 y prevención de múltiples clics
   const handleGoogleLogin = async () => {
     if (loading || devLoading) return; // Prevención de doble clic
     try {
@@ -53,7 +48,7 @@ function LoginContent() {
       await signIn('google', { callbackUrl: '/onboarding' });
     } catch (err) {
       console.error('Error al iniciar sesión con Google:', err);
-      setErrorMessage(AUTH_ERROR_MESSAGES.Default);
+      setErrorMessage('Hubo un problema al conectar con Google. Inténtalo de nuevo.');
       setLoading(false);
     }
   };
