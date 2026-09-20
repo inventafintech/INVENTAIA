@@ -25,6 +25,7 @@ import {
   FileQuestion,
   LucideProps,
 } from 'lucide-react';
+import { NotificationSummary } from '@/services/NotificationService';
 
 export interface SidebarItemConfig {
   id: string;
@@ -32,6 +33,7 @@ export interface SidebarItemConfig {
   href: string;
   aliases?: string[];
   icon: ComponentType<LucideProps>;
+  badgeKey?: keyof NotificationSummary;
 }
 
 export interface SidebarGroupConfig {
@@ -46,7 +48,7 @@ export const SIDEBAR_CONFIG: SidebarGroupConfig[] = [
     title: 'PANEL',
     items: [
       { id: 'resumen', label: 'Resumen', href: '/panel/resumen', aliases: ['/dashboard', '/'], icon: LayoutGrid },
-      { id: 'alertas', label: 'Alertas de stock', href: '/panel/alertas', aliases: ['/reabastecimiento', '/dashboard/reabastecimiento', '/restock'], icon: Bell },
+      { id: 'alertas', label: 'Alertas de stock', href: '/panel/alertas', aliases: ['/reabastecimiento', '/dashboard/reabastecimiento', '/restock'], icon: Bell, badgeKey: 'reabastecimiento' },
       { id: 'actividad', label: 'Actividad reciente', href: '/panel/actividad', aliases: ['/ordenes', '/dashboard/ordenes', '/orders'], icon: History },
     ],
   },
@@ -65,9 +67,9 @@ export const SIDEBAR_CONFIG: SidebarGroupConfig[] = [
     id: 'inventario',
     title: 'INVENTARIO',
     items: [
-      { id: 'actual', label: 'Inventario actual', href: '/inventario/actual', aliases: ['/inventario', '/dashboard/inventario'], icon: Boxes },
+      { id: 'actual', label: 'Inventario actual', href: '/inventario/actual', aliases: ['/inventario', '/dashboard/inventario'], icon: Boxes, badgeKey: 'inventario' },
       { id: 'ajustes', label: 'Ajustes de stock', href: '/inventario/ajustes', icon: ArrowLeftRight },
-      { id: 'recibos', label: 'Recibos', href: '/inventario/recibos', icon: ArrowDownLeft },
+      { id: 'recibos', label: 'Recibos', href: '/inventario/recibos', icon: ArrowDownLeft, badgeKey: 'ordenes' },
       { id: 'despachos', label: 'Despachos', href: '/inventario/despachos', icon: ArrowUpRight },
       { id: 'importaciones', label: 'Importaciones', href: '/inventario/importaciones', icon: Download },
     ],
@@ -76,7 +78,7 @@ export const SIDEBAR_CONFIG: SidebarGroupConfig[] = [
     id: 'complementos',
     title: 'COMPLEMENTOS',
     items: [
-      { id: 'disponibles', label: 'Complementos Disponibles', href: '/complementos/disponibles', aliases: ['/integraciones', '/dashboard/integraciones', '/integrations'], icon: ShoppingBag },
+      { id: 'disponibles', label: 'Complementos Disponibles', href: '/complementos/disponibles', aliases: ['/integraciones', '/dashboard/integraciones', '/integrations'], icon: ShoppingBag, badgeKey: 'integraciones' },
       { id: 'planes', label: 'Comparar Planes', href: '/complementos/planes', aliases: ['/financiamiento', '/dashboard/financiamiento', '/financing'], icon: ArrowRightLeft },
     ],
   },

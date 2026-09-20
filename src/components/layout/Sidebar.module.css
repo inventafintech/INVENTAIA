@@ -1,5 +1,5 @@
 .sidebar {
-  width: 230px;
+  width: 240px;
   background: #ffffff;
   border-right: 1px solid #e2e8f0;
   display: flex;
@@ -15,15 +15,15 @@
   font-family: inherit;
 }
 
-/* Nav Area */
+/* Contenedor con Scroll Suave */
 .navContainer {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 12px 10px;
+  padding: 14px 10px;
   box-sizing: border-box;
 }
 
@@ -44,12 +44,14 @@
   background: #94a3b8;
 }
 
-/* Group / Accordion */
+/* Grupo / Acordeón */
 .navGroup {
   display: flex;
   flex-direction: column;
+  margin-bottom: 4px;
 }
 
+/* Encabezado de Categoría (Sin bordes de botón por defecto) */
 .groupHeader {
   width: 100%;
   display: flex;
@@ -58,47 +60,51 @@
   padding: 6px 10px;
   border-radius: 6px;
   border: none;
+  outline: none;
   background: transparent;
   cursor: pointer;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: #334155;
+  appearance: none;
+  -webkit-appearance: none;
   text-align: left;
   transition: background-color 0.15s ease, color 0.15s ease;
-  outline: none;
   box-sizing: border-box;
 }
 
 .groupHeader:hover {
   background-color: #f8fafc;
-  color: #0f172a;
 }
 
 .groupTitle {
   font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
-  color: #334155;
+  color: #475569;
   line-height: 1;
+}
+
+.groupHeader:hover .groupTitle {
+  color: #0f172a;
 }
 
 .chevron {
   color: #64748b;
   flex-shrink: 0;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s ease, color 0.15s ease;
 }
 
-/* Item List */
+.groupHeader:hover .chevron {
+  color: #0f172a;
+}
+
+/* Lista de Enlaces (Sin viñetas ni márgenes de navegador) */
 .itemList {
   list-style: none;
   padding: 0;
-  margin: 2px 0 4px 0;
+  margin: 2px 0 2px 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
 }
 
 .itemListItem {
@@ -107,21 +113,23 @@
   margin: 0;
 }
 
-/* Nav Item */
+/* Ítem de Navegación */
 .navItem {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 6px 10px;
+  gap: 11px;
+  padding: 6.5px 10px;
   border-radius: 6px;
-  font-size: 13px;
-  color: #334155;
+  font-size: 13.5px;
+  color: #475569;
   text-decoration: none;
-  font-weight: 400;
+  font-weight: 450;
   transition: background-color 0.15s ease, color 0.15s ease;
   cursor: pointer;
   outline: none;
+  border: none;
   box-sizing: border-box;
+  position: relative;
 }
 
 .navItem:hover {
@@ -129,30 +137,74 @@
   color: #0f172a;
 }
 
+/* Estado Activo: Resalte visual claro con fondo azul claro y texto oscuro/mayor peso */
 .navItem.active {
-  background-color: #f1f5f9;
-  color: #0f172a;
-  font-weight: 500;
+  background-color: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
 }
 
 .itemIcon {
   flex-shrink: 0;
-  color: #475569;
+  color: #64748b;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: color 0.15s ease;
 }
 
-.navItem:hover .itemIcon,
-.navItem.active .itemIcon {
+.navItem:hover .itemIcon {
   color: #0f172a;
+}
+
+.navItem.active .itemIcon {
+  color: #2563eb;
 }
 
 .navLabel {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.3;
+  line-height: 1.35;
   flex: 1;
   min-width: 0;
+}
+
+/* Badges Dinámicos de Notificaciones */
+.badge {
+  margin-left: auto;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+
+.badgeAlert {
+  background-color: #fee2e2;
+  color: #b91c1c;
+}
+
+.badgeInfo {
+  background-color: #e0f2fe;
+  color: #0369a1;
+}
+
+/* Responsividad para pantallas móviles */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: relative;
+    border-right: none;
+    border-bottom: 1px solid #e2e8f0;
+  }
 }

@@ -105,6 +105,24 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
   );
 }
 
+export { NotificationContext };
+
+/**
+ * Hook seguro que nunca lanza excepción si se renderiza fuera de NotificationProvider.
+ */
+export function useSafeNotificationStore(): NotificationStoreState {
+  const context = useContext(NotificationContext);
+  if (!context) {
+    return {
+      counts: defaultCounts,
+      loading: false,
+      lastUpdated: null,
+      refreshNotifications: async () => {},
+    };
+  }
+  return context;
+}
+
 /**
  * Hook global NotificationStore para acceder a los conteos de alertas reactivos
  */

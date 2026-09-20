@@ -5,16 +5,18 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { SIDEBAR_CONFIG, SidebarGroupConfig, SidebarItemConfig } from '@/config/sidebarConfig';
+import { useSafeNotificationStore } from '@/context/NotificationContext';
 
 import styles from './Sidebar.module.css';
 
-interface SidebarProps {
+export interface SidebarProps {
   className?: string;
   pendingOrdersCount?: number;
 }
 
 export function Sidebar({ className = '' }: SidebarProps) {
   const pathname = usePathname() || '';
+  const { counts } = useSafeNotificationStore();
 
   // Estado del acordeón: todas las secciones abiertas por defecto
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
@@ -48,45 +50,52 @@ export function Sidebar({ className = '' }: SidebarProps) {
   return (
     <aside
       className={`${styles.sidebar} ${className}`}
-      aria-label="Navegación lateral"
+      aria-label="Navegación lateral de la plataforma"
     >
-      <nav className={styles.navContainer}>
+      <nav className={styles.navContainer} aria-label="Menú principal">
         {SIDEBAR_CONFIG.map((group: SidebarGroupConfig) => {
           const isOpen = openGroups[group.id] ?? true;
 
           return (
             <div key={group.id} className={styles.navGroup}>
-              {/* Encabezado del Grupo (Acordeón) */}
+              {/* Encabezado del Grupo (Acordeón sin bordes) */}
               <button
                 type="button"
                 onClick={() => toggleGroup(group.id)}
                 aria-expanded={isOpen}
+                aria-controls={`group-${group.id}`}
                 className={styles.groupHeader}
               >
-                <span className={styles.groupTitle}>
-                  {group.title}
-                </span>
+                <span className={styles.groupTitle}>{group.title}</span>
                 {isOpen ? (
                   <ChevronUp
-                    size={15}
-                    strokeWidth={1.8}
+                    size={14}
+                    strokeWidth={1.5}
                     className={styles.chevron}
+                    aria-hidden="true"
                   />
                 ) : (
                   <ChevronDown
-                    size={15}
-                    strokeWidth={1.8}
+                    size={14}
+                    strokeWidth={1.5}
                     className={styles.chevron}
+                    aria-hidden="true"
                   />
                 )}
               </button>
 
               {/* Lista de Enlaces */}
               {isOpen && (
-                <ul className={styles.itemList}>
+                <ul
+                  id={`group-${group.id}`}
+                  className={styles.itemList}
+                  role="list"
+                >
                   {group.items.map((item: SidebarItemConfig) => {
                     const Icon = item.icon;
                     const active = isItemActive(item);
+                    const badgeCount = item.badgeKey ? counts[item.badgeKey] : 0;
+                    const isAlert = item.badgeKey === 'reabastecimiento';
 
                     return (
                       <li key={item.id} className={styles.itemListItem}>
@@ -95,13 +104,22 @@ export function Sidebar({ className = '' }: SidebarProps) {
                           aria-current={active ? 'page' : undefined}
                           className={`${styles.navItem} ${active ? styles.active : ''}`}
                         >
-                          <span className={styles.itemIcon}>
-                            <Icon
-                              size={18}
-                              strokeWidth={1.6}
-                            />
+                          <span className={styles.itemIcon} aria-hidden="true">
+                            <Icon size={18} strokeWidth={1.5} />
                           </span>
                           <span className={styles.navLabel}>{item.label}</span>
+
+                          {/* Badge de Notificación Dinámica */}
+                          {badgeCount > 0 && (
+                            <span
+                              className={`${styles.badge} ${
+                                isAlert ? styles.badgeAlert : styles.badgeInfo
+                              }`}
+                              aria-label={`${badgeCount} pendientes`}
+                            >
+                              {badgeCount > 99 ? '99+' : badgeCount}
+                            </span>
+                          )}
                         </Link>
                       </li>
                     );
