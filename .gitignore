@@ -25,3 +25,4 @@ Thumbs.db
 .next/
 web/
 .data
+*.tsbuildinfo
