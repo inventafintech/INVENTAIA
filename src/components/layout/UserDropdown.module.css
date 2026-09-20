@@ -1,0 +1,255 @@
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Botón disparador en el Header */
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 4px 6px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+}
+
+.trigger:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.trigger:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.trigger[aria-expanded="true"] {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+}
+
+/* Avatar de iniciales en el disparador */
+.triggerAvatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+}
+
+.avatarImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Nombre visible en el disparador */
+.triggerName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.triggerChevron {
+  color: #64748b;
+  transition: transform 0.2s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+  color: #0f172a;
+}
+
+/* Menú Desplegable Flotante */
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 250px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1), 0 8px 10px -6px rgba(15, 23, 42, 0.05);
+  z-index: 1000;
+  overflow: hidden;
+  animation: dropdownEnter 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: top right;
+}
+
+@keyframes dropdownEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Bloque de Identidad Superior */
+.identityBlock {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #ffffff;
+}
+
+.identityAvatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background-color: #eff6ff;
+  color: #2563eb;
+  font-weight: 700;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+}
+
+.identityDetails {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.identityName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.identityEmail {
+  font-size: 12px;
+  font-weight: 400;
+  color: #64748b;
+  line-height: 1.3;
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Lista de Enlaces de Navegación */
+.menuList {
+  list-style: none;
+  padding: 4px 8px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  cursor: pointer;
+}
+
+.menuItem:hover {
+  background-color: #f8fafc;
+  color: #0f172a;
+}
+
+.menuItem:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
+.itemIcon {
+  color: #64748b;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.menuItem:hover .itemIcon {
+  color: #0f172a;
+}
+
+/* Separador visual */
+.divider {
+  height: 1px;
+  background-color: #f1f5f9;
+  margin: 4px 8px;
+}
+
+/* Acción Destructiva: Cerrar Sesión */
+.logoutButton {
+  width: calc(100% - 16px);
+  margin: 4px 8px 8px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  color: #dc2626;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.logoutButton:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}
+
+.logoutButton:focus-visible {
+  outline: 2px solid #dc2626;
+  outline-offset: 1px;
+}
+
+.logoutIcon {
+  color: #dc2626;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.logoutButton:hover .logoutIcon {
+  color: #b91c1c;
+}
+
+.logoutButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
