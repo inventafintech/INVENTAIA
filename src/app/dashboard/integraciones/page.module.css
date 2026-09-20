@@ -2,6 +2,7 @@
   display: flex;
   flex-direction: column;
   gap: 24px;
+  position: relative;
 }
 
 .header {
@@ -33,12 +34,114 @@
   font-weight: 600;
   cursor: pointer;
   transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .btnPrimary:hover {
   opacity: 0.9;
 }
 
+/* 1. Header KPIs Monitor */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+.kpiCard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 14px 18px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpiLabel {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpiValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+
+.kpiStatus {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.statusGreen {
+  color: #059669;
+}
+
+.statusBlue {
+  color: #2563eb;
+}
+
+/* 2. Tabs Navigation */
+.tabsNav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+}
+
+.tabBtn {
+  background: transparent;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabBtn:hover {
+  color: var(--ink);
+  background: var(--bg2);
+}
+
+.tabBtnActive {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--line);
+}
+
+.tabBadge {
+  background: var(--bg2);
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+.tabBadgeAlert {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+}
+
+/* 3. Connectors Grid */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -48,12 +151,17 @@
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  padding: 24px;
+  padding: 22px;
   border-radius: 10px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 20px;
+  gap: 16px;
+  transition: border-color 0.2s;
+}
+
+.card:hover {
+  border-color: rgba(0, 0, 0, 0.2);
 }
 
 .cardTop {
@@ -69,7 +177,7 @@
 }
 
 .appName {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--ink);
 }
@@ -77,7 +185,19 @@
 .badgeConnected {
   background: rgba(16, 185, 129, 0.1);
   color: #059669;
-  padding: 4px 10px;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgeSyncing {
+  background: rgba(37, 99, 235, 0.1);
+  color: #2563eb;
+  padding: 3px 8px;
   border-radius: 99px;
   font-size: 11px;
   font-weight: 700;
@@ -93,18 +213,83 @@
   background: #059669;
 }
 
+.badgeDotPulse {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2563eb;
+  animation: pulseDot 1s infinite;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
 .appDesc {
   font-size: 13px;
   color: var(--muted);
   line-height: 1.5;
 }
 
+/* Metrics Box inside Card */
+.metricsBox {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 10px 14px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+
+.metricLine {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+}
+
+.metricLine strong {
+  color: var(--ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
 .syncInfo {
   font-size: 12px;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
-  border-top: 1px solid var(--line);
-  padding-top: 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Progress bar during sync */
+.syncProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progressBar {
+  width: 100%;
+  height: 6px;
+  background: var(--bg2);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
 }
 
 .cardActions {
@@ -126,6 +311,351 @@
   transition: all 0.2s;
 }
 
-.btnAction:hover {
+.btnAction:hover:not(:disabled) {
   background: var(--line);
+}
+
+.btnAction:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 4. Drawer Lateral Deslizante */
+.drawerBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 999;
+  backdrop-filter: blur(2px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 520px;
+  background: var(--card);
+  border-left: 1px solid var(--line);
+  z-index: 1000;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  animation: slideLeft 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
+.drawerHeader {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.drawerTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.drawerClose {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px;
+}
+
+.drawerTabs {
+  display: flex;
+  background: var(--bg2);
+  padding: 6px 12px;
+  border-bottom: 1px solid var(--line);
+  gap: 6px;
+}
+
+.drawerTabItem {
+  background: transparent;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.drawerTabActive {
+  background: var(--card);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+}
+
+.drawerBody {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.formInput {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink);
+  font-family: inherit;
+}
+
+.formSelect {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 9px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.drawerFooter {
+  padding: 18px 24px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  background: var(--bg2);
+}
+
+.btnTestConn {
+  background: var(--bg2);
+  border: 1px solid var(--line);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.testConnResult {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.testSuccess {
+  background: rgba(16, 185, 129, 0.1);
+  color: #059669;
+}
+
+/* 5. Logs Viewer */
+.logsCard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.logsToolbar {
+  padding: 14px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logsFilters {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.logsSearch {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  width: 220px;
+}
+
+.logsConsole {
+  background: #0f172a;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  padding: 16px;
+  height: 480px;
+  overflow-y: auto;
+  line-height: 1.6;
+}
+
+.logLine {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.logTimestamp {
+  color: #64748b;
+  min-width: 80px;
+}
+
+.logLevelInfo {
+  color: #38bdf8;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.logLevelWarn {
+  color: #fbbf24;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.logLevelError {
+  color: #f87171;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.logLevelSuccess {
+  color: #4ade80;
+  font-weight: 700;
+  min-width: 50px;
+}
+
+.logSystem {
+  color: #a855f7;
+  min-width: 110px;
+  font-weight: 600;
+}
+
+.logMessage {
+  flex: 1;
+}
+
+/* 6. Audit Trail Table */
+.auditTableCard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.auditTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.auditTable th {
+  background: var(--bg2);
+  padding: 12px 16px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.auditTable td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+}
+
+.auditTable tr:last-child td {
+  border-bottom: none;
+}
+
+.codePill {
+  background: var(--bg2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+}
+
+/* 7. Alerts View */
+.alertsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alertCard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid #059669;
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alertCardWarn {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-left: 4px solid #f59e0b;
+  padding: 16px 20px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alertInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alertTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.alertDesc {
+  font-size: 13px;
+  color: var(--muted);
 }
