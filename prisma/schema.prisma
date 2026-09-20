@@ -1,0 +1,67 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum IntegrationType {
+  corporate
+  traditional
+}
+
+enum POStatus {
+  draft
+  approved
+  transit
+  received
+}
+
+model Supplier {
+  id               String          @id @default(uuid())
+  name             String
+  contact_info     Json            @default("{}")
+  integration_type IntegrationType @default(traditional)
+  lead_time_days   Int             @default(5)
+  created_at       DateTime        @default(now())
+  updated_at       DateTime        @updatedAt
+
+  purchase_orders  PurchaseOrder[]
+
+  @@map("suppliers")
+}
+
+model PurchaseOrder {
+  id                String              @id @default(uuid())
+  order_number      String              @unique
+  supplier_id       String
+  supplier          Supplier            @relation(fields: [supplier_id], references: [id])
+  condition         String
+  total_amount      Decimal             @db.Decimal(14, 2)
+  estimated_arrival DateTime
+  status            POStatus            @default(draft)
+  created_at        DateTime            @default(now())
+  updated_at        DateTime            @updatedAt
+
+  lines             PurchaseOrderLine[]
+
+  @@index([status])
+  @@index([supplier_id])
+  @@map("purchase_orders")
+}
+
+model PurchaseOrderLine {
+  id         String        @id @default(uuid())
+  po_id      String
+  po         PurchaseOrder @relation(fields: [po_id], references: [id], onDelete: Cascade)
+  sku        String
+  quantity   Int
+  unit_price Decimal       @db.Decimal(12, 2)
+  created_at DateTime      @default(now())
+
+  @@index([po_id])
+  @@index([sku])
+  @@map("purchase_order_lines")
+}

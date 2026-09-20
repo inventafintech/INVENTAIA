@@ -21,7 +21,24 @@
     "afterFiles": [],
     "fallback": []
   },
-  "dynamicRoutes": [],
+  "dynamicRoutes": [
+    {
+      "page": "/api/dashboard/ordenes/[id]/approve",
+      "regex": "^/api/dashboard/ordenes/([^/]+?)/approve(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/dashboard/ordenes/(?<nxtPid>[^/]+?)/approve(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard/ordenes/[id]/pdf",
+      "regex": "^/api/dashboard/ordenes/([^/]+?)/pdf(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/dashboard/ordenes/(?<nxtPid>[^/]+?)/pdf(?:/)?$"
+    }
+  ],
   "staticRoutes": [
     {
       "page": "/",
@@ -46,6 +63,12 @@
       "regex": "^/api/dashboard/cerebro(?:/)?$",
       "routeKeys": {},
       "namedRegex": "^/api/dashboard/cerebro(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard/ordenes",
+      "regex": "^/api/dashboard/ordenes(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/ordenes(?:/)?$"
     },
     {
       "page": "/api/dashboard/reabastecimiento",

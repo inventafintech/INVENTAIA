@@ -55,6 +55,43 @@ export interface IntegrationLogRecord {
   created_at: string;
 }
 
+export interface SupplierRecord {
+  id: string;
+  name: string;
+  contact_info: {
+    email?: string;
+    phone?: string;
+    address?: string;
+    tax_id?: string; // RUC
+  };
+  integration_type: 'corporate' | 'traditional';
+  lead_time_days: number;
+}
+
+export interface PurchaseOrderRecord {
+  id: string;
+  order_number: string;
+  supplier_id: string;
+  supplier_name: string;
+  condition: string;
+  total_amount: number;
+  estimated_arrival: string;
+  status: 'draft' | 'approved' | 'transit' | 'received';
+  created_at: string;
+  updated_at: string;
+  lines_count: number;
+}
+
+export interface PurchaseOrderLineRecord {
+  id: string;
+  po_id: string;
+  sku: string;
+  product_name: string;
+  quantity: number;
+  unit_price: number;
+  subtotal: number;
+}
+
 // In-memory + persistent storage
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'integrations_store.json');
@@ -65,9 +102,156 @@ interface DatabaseStore {
   sync_jobs: SyncJobRecord[];
   sync_results: SyncResultRecord[];
   integration_logs: IntegrationLogRecord[];
+  suppliers: Record<string, SupplierRecord>;
+  purchase_orders: Record<string, PurchaseOrderRecord>;
+  purchase_order_lines: PurchaseOrderLineRecord[];
 }
 
 function initDb(): DatabaseStore {
+  const defaultSuppliers: Record<string, SupplierRecord> = {
+    'sup-alicorp': {
+      id: 'sup-alicorp',
+      name: 'Alicorp S.A.',
+      contact_info: {
+        email: 'ventas.corporativas@alicorp.com.pe',
+        phone: '+51987654321',
+        address: 'Av. Argentina 4793, Callao',
+        tax_id: '20100055237',
+      },
+      integration_type: 'traditional',
+      lead_time_days: 4,
+    },
+    'sup-gloria': {
+      id: 'sup-gloria',
+      name: 'Leche Gloria S.A.',
+      contact_info: {
+        email: 'pedidos@gloria.com.pe',
+        phone: '+51987654322',
+        address: 'Av. República de Panamá 2461, Lima',
+        tax_id: '20100190797',
+      },
+      integration_type: 'traditional',
+      lead_time_days: 5,
+    },
+    'sup-unacem': {
+      id: 'sup-unacem',
+      name: 'UNACEM S.A.A.',
+      contact_info: {
+        email: 'atencion.sap@unacem.pe',
+        phone: '+51987654324',
+        address: 'Carretera Atocongo Km. 11, Villa María del Triunfo',
+        tax_id: '20100138281',
+      },
+      integration_type: 'corporate', // SAP S/4HANA OData
+      lead_time_days: 7,
+    },
+    'sup-costeno': {
+      id: 'sup-costeno',
+      name: 'Costeño Alimentos S.A.C.',
+      contact_info: {
+        email: 'ventas@costeno.com.pe',
+        phone: '+51987654323',
+        address: 'Av. Elmer Faucett 450, Callao',
+        tax_id: '20504143285',
+      },
+      integration_type: 'traditional',
+      lead_time_days: 6,
+    },
+    'sup-backus': {
+      id: 'sup-backus',
+      name: 'Backus & Johnston',
+      contact_info: {
+        email: 'pedidos@backus.com.pe',
+        phone: '+51987654325',
+        address: 'Av. Nicolás Ayllón 3986, Ate',
+        tax_id: '20100113610',
+      },
+      integration_type: 'traditional',
+      lead_time_days: 3,
+    },
+  };
+
+  const defaultOrders: Record<string, PurchaseOrderRecord> = {
+    'po-1': {
+      id: 'po-1',
+      order_number: 'OC-2026-089',
+      supplier_id: 'sup-alicorp',
+      supplier_name: 'Alicorp S.A.',
+      condition: 'Crédito 30d',
+      total_amount: 38450.00,
+      estimated_arrival: '24 Sep 2026',
+      status: 'draft',
+      created_at: '2026-09-18T10:00:00Z',
+      updated_at: '2026-09-18T10:00:00Z',
+      lines_count: 4,
+    },
+    'po-2': {
+      id: 'po-2',
+      order_number: 'OC-2026-088',
+      supplier_id: 'sup-gloria',
+      supplier_name: 'Leche Gloria S.A.',
+      condition: 'Factoring Pichincha',
+      total_amount: 19800.00,
+      estimated_arrival: '22 Sep 2026',
+      status: 'draft',
+      created_at: '2026-09-17T14:30:00Z',
+      updated_at: '2026-09-17T14:30:00Z',
+      lines_count: 2,
+    },
+    'po-3': {
+      id: 'po-3',
+      order_number: 'OC-2026-087',
+      supplier_id: 'sup-unacem',
+      supplier_name: 'UNACEM S.A.A.',
+      condition: 'Contado Anticipado',
+      total_amount: 88500.00,
+      estimated_arrival: '21 Sep 2026',
+      status: 'approved',
+      created_at: '2026-09-16T09:15:00Z',
+      updated_at: '2026-09-16T11:00:00Z',
+      lines_count: 1,
+    },
+    'po-4': {
+      id: 'po-4',
+      order_number: 'OC-2026-086',
+      supplier_id: 'sup-costeno',
+      supplier_name: 'Costeño Alimentos S.A.C.',
+      condition: 'Crédito 45d',
+      total_amount: 25200.00,
+      estimated_arrival: '20 Sep 2026',
+      status: 'transit',
+      created_at: '2026-09-15T16:00:00Z',
+      updated_at: '2026-09-16T08:30:00Z',
+      lines_count: 3,
+    },
+    'po-5': {
+      id: 'po-5',
+      order_number: 'OC-2026-085',
+      supplier_id: 'sup-backus',
+      supplier_name: 'Backus & Johnston',
+      condition: 'Crédito 15d',
+      total_amount: 54100.00,
+      estimated_arrival: '18 Sep 2026',
+      status: 'received',
+      created_at: '2026-09-12T11:20:00Z',
+      updated_at: '2026-09-18T17:45:00Z',
+      lines_count: 6,
+    },
+  };
+
+  const defaultLines: PurchaseOrderLineRecord[] = [
+    { id: 'pol-1', po_id: 'po-1', sku: 'SKU-ALI-001', product_name: 'Aceite Primor Premium 1L', quantity: 2500, unit_price: 8.50, subtotal: 21250.00 },
+    { id: 'pol-2', po_id: 'po-1', sku: 'SKU-DON-005', product_name: 'Fideos Don Vittorio Spaghetti 500g', quantity: 1500, unit_price: 3.20, subtotal: 4800.00 },
+    { id: 'pol-3', po_id: 'po-1', sku: 'SKU-ALI-010', product_name: 'Harina Blanca Flor 1kg', quantity: 2000, unit_price: 4.20, subtotal: 8400.00 },
+    { id: 'pol-4', po_id: 'po-1', sku: 'SKU-ALI-012', product_name: 'Detergente Bolívar 800g', quantity: 800, unit_price: 5.00, subtotal: 4000.00 },
+    { id: 'pol-5', po_id: 'po-2', sku: 'SKU-GLO-002', product_name: 'Leche Evaporada Gloria Azul 400g', quantity: 1800, unit_price: 3.80, subtotal: 6840.00 },
+    { id: 'pol-6', po_id: 'po-2', sku: 'SKU-GLO-004', product_name: 'Yogurt Gloria Fresa 1kg', quantity: 2500, unit_price: 5.184, subtotal: 12960.00 },
+    { id: 'pol-7', po_id: 'po-3', sku: 'SKU-SOL-004', product_name: 'Cemento Sol Tipo I 42.5kg', quantity: 3000, unit_price: 29.50, subtotal: 88500.00 },
+    { id: 'pol-8', po_id: 'po-4', sku: 'SKU-COS-003', product_name: 'Arroz Costeño Extra 5kg', quantity: 1200, unit_price: 21.00, subtotal: 25200.00 },
+    { id: 'pol-9', po_id: 'po-5', sku: 'SKU-BAC-001', product_name: 'Cerveza Cristal 330ml Pack 24', quantity: 800, unit_price: 52.00, subtotal: 41600.00 },
+    { id: 'pol-10', po_id: 'po-5', sku: 'SKU-BAC-002', product_name: 'Agua San Mateo 500ml Pack 12', quantity: 1000, unit_price: 12.50, subtotal: 12500.00 },
+  ];
+
   const defaultStore: DatabaseStore = {
     integrations: {
       shopify: {
@@ -123,6 +307,9 @@ function initDb(): DatabaseStore {
     sync_jobs: [],
     sync_results: [],
     integration_logs: [],
+    suppliers: defaultSuppliers,
+    purchase_orders: defaultOrders,
+    purchase_order_lines: defaultLines,
   };
 
   try {
@@ -131,7 +318,14 @@ function initDb(): DatabaseStore {
     }
     if (fs.existsSync(DB_FILE)) {
       const data = fs.readFileSync(DB_FILE, 'utf-8');
-      return JSON.parse(data);
+      const parsed = JSON.parse(data);
+      return {
+        ...defaultStore,
+        ...parsed,
+        suppliers: { ...defaultSuppliers, ...(parsed.suppliers || {}) },
+        purchase_orders: { ...defaultOrders, ...(parsed.purchase_orders || {}) },
+        purchase_order_lines: parsed.purchase_order_lines?.length ? parsed.purchase_order_lines : defaultLines,
+      };
     }
   } catch (err) {
     console.warn('Using memory store for integrations:', err);
@@ -279,5 +473,73 @@ export const db = {
 
   getLogs: (limit: number = 100): IntegrationLogRecord[] => {
     return store.integration_logs.slice(0, limit);
-  }
+  },
+
+  // --- Purchase Orders Methods ---
+  getSuppliers: (): SupplierRecord[] => {
+    return Object.values(store.suppliers);
+  },
+
+  getSupplier: (id: string): SupplierRecord | undefined => {
+    return store.suppliers[id] || Object.values(store.suppliers).find(s => s.name === id);
+  },
+
+  getPurchaseOrders: (): PurchaseOrderRecord[] => {
+    return Object.values(store.purchase_orders);
+  },
+
+  getPurchaseOrder: (idOrNumber: string): PurchaseOrderRecord | undefined => {
+    return (
+      store.purchase_orders[idOrNumber] ||
+      Object.values(store.purchase_orders).find(
+        (po) => po.id === idOrNumber || po.order_number === idOrNumber
+      )
+    );
+  },
+
+  getPurchaseOrderLines: (poId: string): PurchaseOrderLineRecord[] => {
+    return store.purchase_order_lines.filter((l) => l.po_id === poId);
+  },
+
+  updatePurchaseOrderStatus: (
+    idOrNumber: string,
+    status: PurchaseOrderRecord['status']
+  ): PurchaseOrderRecord | undefined => {
+    const po = db.getPurchaseOrder(idOrNumber);
+    if (po) {
+      po.status = status;
+      po.updated_at = new Date().toISOString();
+      store.purchase_orders[po.id] = po;
+      persistStore();
+      return po;
+    }
+    return undefined;
+  },
+
+  createPurchaseOrder: (
+    poData: Omit<PurchaseOrderRecord, 'id' | 'created_at' | 'updated_at'>,
+    lines: Omit<PurchaseOrderLineRecord, 'id' | 'po_id'>[]
+  ): { po: PurchaseOrderRecord; lines: PurchaseOrderLineRecord[] } => {
+    const id = `po-${Date.now()}`;
+    const now = new Date().toISOString();
+
+    const po: PurchaseOrderRecord = {
+      ...poData,
+      id,
+      created_at: now,
+      updated_at: now,
+    };
+
+    const createdLines: PurchaseOrderLineRecord[] = lines.map((l, idx) => ({
+      ...l,
+      id: `pol-${Date.now()}-${idx}`,
+      po_id: id,
+    }));
+
+    store.purchase_orders[id] = po;
+    store.purchase_order_lines.push(...createdLines);
+    persistStore();
+
+    return { po, lines: createdLines };
+  },
 };
