@@ -324,7 +324,8 @@ self.__SERVER_FILES_MANIFEST={
     "turbopack": {
       "root": "C:\\Users\\josem\\OneDrive\\Escritorio\\InventaAI"
     },
-    "distDirRoot": "web"
+    "distDirRoot": "web",
+    "supportsImmutableAssets": false
   },
   "appDir": "C:\\Users\\josem\\OneDrive\\Escritorio\\InventaAI",
   "relativeAppDir": "",
@@ -337,11 +338,15 @@ self.__SERVER_FILES_MANIFEST={
     "web\\server\\functions-config-manifest.json",
     "web\\server\\middleware-manifest.json",
     "web\\server\\middleware-build-manifest.js",
+    "web\\server\\middleware-react-loadable-manifest.js",
+    "web\\react-loadable-manifest.json",
     "web\\server\\app-paths-manifest.json",
     "web\\app-path-routes-manifest.json",
     "web\\server\\server-reference-manifest.js",
     "web\\server\\server-reference-manifest.json",
     "web\\server\\prefetch-hints.json",
+    "web\\dynamic-css-manifest.json",
+    "web\\server\\dynamic-css-manifest.js",
     "web\\BUILD_ID",
     "web\\server\\next-font-manifest.js",
     "web\\server\\next-font-manifest.json",
