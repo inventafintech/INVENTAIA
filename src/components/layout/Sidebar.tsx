@@ -29,9 +29,17 @@ export function Sidebar({ className = '' }: SidebarProps) {
     }));
   };
 
-  const isItemActive = (href: string): boolean => {
-    if (pathname === href) return true;
-    if (href !== '/' && pathname.startsWith(href)) return true;
+  const isItemActive = (item: SidebarItemConfig): boolean => {
+    if (pathname === item.href) return true;
+    if (
+      item.aliases &&
+      item.aliases.some(
+        (alias) => pathname === alias || (alias !== '/' && pathname.startsWith(alias))
+      )
+    ) {
+      return true;
+    }
+    if (item.href !== '/' && pathname.startsWith(item.href)) return true;
     return false;
   };
 
@@ -90,7 +98,7 @@ export function Sidebar({ className = '' }: SidebarProps) {
                 <ul className="mt-0.5 mb-1 space-y-0.5">
                   {group.items.map((item: SidebarItemConfig) => {
                     const Icon = item.icon;
-                    const active = isItemActive(item.href);
+                    const active = isItemActive(item);
 
                     return (
                       <li key={item.id}>
