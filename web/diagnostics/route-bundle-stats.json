@@ -1,5 +1,19 @@
 [
   {
+    "route": "/dashboard/integraciones",
+    "firstLoadUncompressedJsBytes": 500441,
+    "firstLoadChunkPaths": [
+      "web\\static\\chunks\\3fntmmi971322.js",
+      "web\\static\\chunks\\2l1w0y3z0f4af.js",
+      "web\\static\\chunks\\0b8q5fc6ubxs4.js",
+      "web\\static\\chunks\\310vm2bl3xxpt.js",
+      "web\\static\\chunks\\19mx3mg6lkumu.js",
+      "web\\static\\chunks\\27t_qfc-3_lzs.js",
+      "web\\static\\chunks\\2-rtuqsgzmno4.js",
+      "web\\static\\chunks\\turbopack-1b6uko1cu_h42.js"
+    ]
+  },
+  {
     "route": "/dashboard/reabastecimiento",
     "firstLoadUncompressedJsBytes": 476077,
     "firstLoadChunkPaths": [
@@ -62,20 +76,6 @@
       "web\\static\\chunks\\3fntmmi971322.js",
       "web\\static\\chunks\\2l1w0y3z0f4af.js",
       "web\\static\\chunks\\2aie5j9anq_1-.js",
-      "web\\static\\chunks\\310vm2bl3xxpt.js",
-      "web\\static\\chunks\\19mx3mg6lkumu.js",
-      "web\\static\\chunks\\27t_qfc-3_lzs.js",
-      "web\\static\\chunks\\2-rtuqsgzmno4.js",
-      "web\\static\\chunks\\turbopack-1b6uko1cu_h42.js"
-    ]
-  },
-  {
-    "route": "/dashboard/integraciones",
-    "firstLoadUncompressedJsBytes": 473731,
-    "firstLoadChunkPaths": [
-      "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\2l1w0y3z0f4af.js",
-      "web\\static\\chunks\\1jmw7o6-ku0xy.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",

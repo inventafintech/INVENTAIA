@@ -1,0 +1,3 @@
+{
+  "/api/integraciones/amazon/sync/route": "app/api/integraciones/amazon/sync/route.js"
+}

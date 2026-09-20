@@ -1,0 +1,3 @@
+{
+  "/api/integraciones/mercadolibre/callback/route": "app/api/integraciones/mercadolibre/callback/route.js"
+}

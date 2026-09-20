@@ -110,3 +110,65 @@ create table audit_log (
 -- RLS: cada tenant solo ve lo suyo (Supabase: setear app.company_id por JWT)
 alter table skus enable row level security;
 create policy tenant_isolation on skus using (company_id = current_setting('app.company_id', true)::uuid);
+
+-- ============================================================================
+-- INTEGRACIONES ENTERPRISE: Conectores, Tokens OAuth, Jobs y Auditoría de Sincronización
+-- ============================================================================
+
+create table integrations (
+  id uuid primary key default gen_random_uuid(),
+  company_id uuid references companies(id) on delete cascade,
+  provider text not null, -- shopify | mercadolibre | whatsapp | sap | amazon | sunat
+  status text default 'pending_configuration', -- pending_configuration | configured | active | error
+  config jsonb default '{}'::jsonb,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique(company_id, provider)
+);
+
+create table oauth_tokens (
+  id uuid primary key default gen_random_uuid(),
+  integration_id uuid references integrations(id) on delete cascade,
+  provider text not null,
+  shop_domain text,
+  access_token text not null,
+  refresh_token text,
+  scope text,
+  token_type text default 'Bearer',
+  expires_at timestamptz,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+create table sync_jobs (
+  id uuid primary key default gen_random_uuid(),
+  integration_id uuid references integrations(id) on delete cascade,
+  job_type text not null, -- products | orders | inventory | full
+  status text default 'pending', -- pending | running | completed | failed
+  started_at timestamptz default now(),
+  completed_at timestamptz,
+  error_message text
+);
+
+create table sync_results (
+  id uuid primary key default gen_random_uuid(),
+  sync_job_id uuid references sync_jobs(id) on delete cascade,
+  entity_type text not null, -- products | orders | inventory | sales
+  items_synced int default 0,
+  items_failed int default 0,
+  details jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+create table integration_logs (
+  id uuid primary key default gen_random_uuid(),
+  integration_id uuid references integrations(id) on delete set null,
+  provider text not null,
+  user_email text,
+  level text not null, -- INFO | WARN | ERROR | SUCCESS
+  action text not null,
+  result text not null,
+  error_details text,
+  ip_address text,
+  created_at timestamptz default now()
+);

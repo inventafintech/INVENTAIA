@@ -1,0 +1,3 @@
+{
+  "/api/integraciones/sap/sync/route": "app/api/integraciones/sap/sync/route.js"
+}

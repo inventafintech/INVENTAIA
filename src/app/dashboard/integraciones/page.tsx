@@ -1,325 +1,371 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import styles from './page.module.css';
+
+interface IntegrationData {
+  id: string;
+  provider: string;
+  status: 'pending_configuration' | 'configured' | 'active' | 'error';
+  config: Record<string, any>;
+  created_at: string;
+  updated_at: string;
+  has_token?: boolean;
+  shop_domain?: string;
+}
 
 interface LogEntry {
   id: string;
-  timestamp: string;
-  level: 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
-  system: string;
-  message: string;
+  fecha: string;
+  usuario: string;
+  integracion: string;
+  nivel: 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS';
+  accion: string;
+  resultado: string;
+  errores?: string | null;
+  ip?: string;
 }
 
-interface AuditEntry {
-  id: string;
-  user: string;
-  date: string;
-  action: string;
-  system: string;
-  result: string;
-  ip: string;
-}
-
-interface Connector {
+interface ConnectorDef {
   id: string;
   name: string;
   category: string;
   desc: string;
-  status: 'connected' | 'syncing' | 'error';
-  lastSync: string;
-  syncProgress?: number;
-  syncStatusText?: string;
-  metrics: { [key: string]: string };
-  config: {
-    endpoint: string;
-    authType: string;
-    syncFreq: string;
-    webhookUrl: string;
-    webhookSecret: string;
-    events: string[];
-    autoPauseStock: boolean;
-    safetyBuffer: number;
-  };
+  oauthSupported: boolean;
+  syncEndpoint: string;
+  defaultEndpoint: string;
+  authType: string;
 }
 
-const initialConnectors: Connector[] = [
+const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
   {
     id: 'shopify',
     name: 'Shopify Plus',
     category: 'E-commerce B2B',
-    desc: 'Sincronización de pedidos en tiempo real, inventario multialmacén y precios por volumen.',
-    status: 'connected',
-    lastSync: 'Hace 1 minuto',
-    metrics: {
-      'Pedidos Sincronizados': '1,420',
-      'Inventario Mapeado': '540 SKUs',
-      'Errores API': '0 (0.00%)',
-      'Modo': 'REST Admin 2026-04'
-    },
-    config: {
-      endpoint: 'https://distribuidora-sanmartin.myshopify.com/admin/api/2026-04',
-      authType: 'Admin Access Token (shpat_***)',
-      syncFreq: '5m',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/shopify/orders_create',
-      webhookSecret: 'shsec_8f93a0d78b19284',
-      events: ['orders/create', 'orders/cancelled', 'inventory_levels/update'],
-      autoPauseStock: true,
-      safetyBuffer: 5
-    }
+    desc: 'OAuth 2.0 real con Shopify Admin API (/products.json, /orders.json, /inventory_levels.json). Persistencia directa en base de datos.',
+    oauthSupported: true,
+    syncEndpoint: '/api/integraciones/shopify/sync',
+    defaultEndpoint: 'https://{shop}.myshopify.com/admin/api/2026-04',
+    authType: 'OAuth 2.0 Admin Access Token'
   },
   {
-    id: 'amazon',
-    name: 'Amazon Business',
-    category: 'Marketplace',
-    desc: 'Integración de órdenes FBA y cumplimiento multicanal con actualización de stock cada 5m.',
-    status: 'connected',
-    lastSync: 'Hace 3 minutos',
-    metrics: {
-      'SKUs Sincronizados': '320 SKUs',
-      'Buy Box Activa': '98.4%',
-      'Stock FBA': '4,820 u',
-      'Stock FBM': '1,250 u'
-    },
-    config: {
-      endpoint: 'https://sellingpartnerapi-na.amazon.com',
-      authType: 'LWA OAuth 2.0 (SP-API v2)',
-      syncFreq: '5m',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/amazon/sqs-feed',
-      webhookSecret: 'amzsec_44129b8c9d120a',
-      events: ['ORDER_CHANGE', 'PRICING_HEALTH', 'FBA_INVENTORY_REPORT'],
-      autoPauseStock: true,
-      safetyBuffer: 10
-    }
-  },
-  {
-    id: 'sap',
-    name: 'SAP S/4HANA',
-    category: 'ERP Empresarial',
-    desc: 'Conciliación de módulos MM (Material Management) y SD (Sales & Distribution) vía RFC/REST.',
-    status: 'connected',
-    lastSync: 'Hace 8 minutos',
-    metrics: {
-      'Materiales MM': '840 ítems',
-      'OCs Procesadas': '12 hoy',
-      'Protocolo': 'OData v4 / RFC',
-      'Latencia Conexión': '142 ms'
-    },
-    config: {
-      endpoint: 'https://s4hana.sanmartin.pe:44300/sap/opu/odata4/sap/api_purchaseorder',
-      authType: 'X.509 Client Certificate + Basic Auth',
-      syncFreq: '15m',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/sap/idoc-receiver',
-      webhookSecret: 'sapsec_99182390aefd',
-      events: ['BUS2012_CREATED', 'BUS2032_MODIFIED', 'MATMAS_SAVE'],
-      autoPauseStock: false,
-      safetyBuffer: 0
-    }
-  },
-  {
-    id: 'meli',
+    id: 'mercadolibre',
     name: 'Mercado Libre',
-    category: 'Marketplace',
-    desc: 'Monitoreo de publicaciones Full y actualización automática de stock de seguridad.',
-    status: 'connected',
-    lastSync: 'Hace 12 minutos',
-    metrics: {
-      'Publicaciones Activas': '180 activas',
-      'Ventas del Día': '42 ventas',
-      'Pausadas por Stock': '2 SKUs',
-      'Estado OAuth': 'Token Válido (28d)'
-    },
-    config: {
-      endpoint: 'https://api.mercadolibre.com',
-      authType: 'OAuth 2.0 Bearer Token (APP_ID 74819)',
-      syncFreq: '5m',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/meli/notifications',
-      webhookSecret: 'mlsec_109284bfaec',
-      events: ['orders_v2', 'items', 'questions'],
-      autoPauseStock: true,
-      safetyBuffer: 3
-    }
-  },
-  {
-    id: 'sunat',
-    name: 'SUNAT Facturación',
-    category: 'Fiscal / OSE',
-    desc: 'Emisión automática de Guías de Remisión Electrónicas (GRE) y Facturas comerciales.',
-    status: 'connected',
-    lastSync: 'Hace 2 minutos',
-    metrics: {
-      'Facturas Emitidas Hoy': '154 CPEs',
-      'Guías Remisión (GRE)': '38 remitidas',
-      'Operador OSE': 'Digiflow (Activo)',
-      'Consulta RUC': 'En línea (200 OK)'
-    },
-    config: {
-      endpoint: 'https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService',
-      authType: 'Clave SOL + Certificado Digital X.509',
-      syncFreq: 'En tiempo real',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/sunat/cdr-listener',
-      webhookSecret: 'sunat_sig_391848',
-      events: ['CDR_RECEIVED', 'GRE_STATUS_CHANGE', 'ANULACION_CPE'],
-      autoPauseStock: false,
-      safetyBuffer: 0
-    }
+    category: 'Marketplace Oficial',
+    desc: 'OAuth 2.0 oficial de Mercado Libre. Sincronización de publicaciones (/users/me/items/search), ventas (/orders/search) y stock.',
+    oauthSupported: true,
+    syncEndpoint: '/api/integraciones/mercadolibre/sync',
+    defaultEndpoint: 'https://api.mercadolibre.com',
+    authType: 'OAuth 2.0 Bearer Token'
   },
   {
     id: 'whatsapp',
     name: 'WhatsApp Business API',
-    category: 'Notificaciones',
-    desc: 'Alertas inmediatas a Jefes de Almacén y Compradores cuando un SKU entra en estado crítico.',
-    status: 'connected',
-    lastSync: 'En tiempo real',
-    metrics: {
-      'Meta Cloud API': 'v19.0 (Activa)',
-      'Plantillas Aprobadas': '4 templates',
-      'Destinatarios': '3 teléfonos',
-      'Alertas Enviadas': '28 hoy'
-    },
-    config: {
-      endpoint: 'https://graph.facebook.com/v19.0/1084920491823/messages',
-      authType: 'System User Permanent Access Token',
-      syncFreq: 'Instantáneo',
-      webhookUrl: 'https://api.inventa.ai/v1/webhooks/meta/whatsapp-status',
-      webhookSecret: 'wasec_091824a87c',
-      events: ['message_delivered', 'message_read', 'template_status_update'],
-      autoPauseStock: false,
-      safetyBuffer: 0
-    }
+    category: 'Meta Cloud API',
+    desc: 'Meta WhatsApp Cloud API oficial (v19.0) para envío de notificaciones y alertas operacionales a almacenes y compradores.',
+    oauthSupported: false,
+    syncEndpoint: '/api/integraciones/whatsapp/send',
+    defaultEndpoint: 'https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages',
+    authType: 'Meta Permanent System User Token'
   },
-];
-
-const initialLogs: LogEntry[] = [
-  { id: '1', timestamp: '15:32:04', level: 'SUCCESS', system: 'SHOPIFY', message: 'Sync completado: 32 productos actualizados, 5 pedidos nuevos, 0 errores.' },
-  { id: '2', timestamp: '15:31:40', level: 'INFO', system: 'SAP S/4HANA', message: 'RFC BAPI_PO_CREATE ejecutado para OC-2026-089. Doc SAP #4500019283.' },
-  { id: '3', timestamp: '15:30:12', level: 'SUCCESS', system: 'SUNAT', message: 'CDR recibido con éxito para Factura F001-0004928. Hash validado.' },
-  { id: '4', timestamp: '15:28:55', level: 'WARN', system: 'MELI', message: 'Publicación MLA-8491 pausada automáticamente: Stock disponible (2) < Buffer (3).' },
-  { id: '5', timestamp: '15:27:01', level: 'INFO', system: 'AMAZON', message: 'Descargado reporte FBA Inventory. 4,820 unidades conciliadas en almacén Callao.' },
-  { id: '6', timestamp: '15:25:20', level: 'SUCCESS', system: 'WHATSAPP', message: 'Alerta de Quiebre enviada a +51 987 654 321 (Jefe Almacén) para SKU-ALI-001.' },
-];
-
-const initialAudit: AuditEntry[] = [
-  { id: '1', user: 'j.gonzalez@sanmartin.pe', date: '2026-09-19 15:32:04', action: 'MANUAL_SYNC_TRIGGER', system: 'Shopify Plus', result: '200 OK (32 items)', ip: '190.234.12.88' },
-  { id: '2', user: 'sistema_daemon', date: '2026-09-19 15:31:40', action: 'EXPORT_PURCHASE_ORDER', system: 'SAP S/4HANA', result: '201 Created (#4500019283)', ip: '10.0.4.12' },
-  { id: '3', user: 'sistema_daemon', date: '2026-09-19 15:30:12', action: 'EMIT_CPE_FACTURA', system: 'SUNAT / OSE', result: '200 OK (CDR Aceptado)', ip: '10.0.4.12' },
-  { id: '4', user: 'm.ramirez@sanmartin.pe', date: '2026-09-19 15:22:10', action: 'UPDATE_WEBHOOK_CONFIG', system: 'Mercado Libre', result: '200 OK', ip: '190.234.12.92' },
-  { id: '5', user: 'j.gonzalez@sanmartin.pe', date: '2026-09-19 15:10:05', action: 'TEST_API_CONNECTION', system: 'Amazon Business', result: '200 OK (Latency: 92ms)', ip: '190.234.12.88' },
+  {
+    id: 'sap',
+    name: 'SAP S/4HANA',
+    category: 'ERP Empresarial OData',
+    desc: 'Conectores REST/OData v4 para sincronización de Catálogo de Productos (API_PRODUCT_SRV) y Socios Comerciales (API_BUSINESS_PARTNER).',
+    oauthSupported: false,
+    syncEndpoint: '/api/integraciones/sap/sync',
+    defaultEndpoint: 'https://{SAP_HOST}/sap/opu/odata/sap/API_PRODUCT_SRV',
+    authType: 'Basic Auth / SAP API Key'
+  },
+  {
+    id: 'amazon',
+    name: 'Amazon Business',
+    category: 'Marketplace SP-API',
+    desc: 'Conexión Selling Partner API para conciliación de reportes de inventario FBA y órdenes multicanal.',
+    oauthSupported: false,
+    syncEndpoint: '/api/integraciones/amazon/sync',
+    defaultEndpoint: 'https://sellingpartnerapi-na.amazon.com',
+    authType: 'LWA OAuth 2.0 (SP-API)'
+  },
+  {
+    id: 'sunat',
+    name: 'SUNAT Facturación & GRE',
+    category: 'Fiscal / OSE',
+    desc: 'Conexión Web Services SUNAT para emisión de Guías de Remisión Electrónicas (GRE) y Facturación Comercial.',
+    oauthSupported: false,
+    syncEndpoint: '/api/integraciones/sunat/sync',
+    defaultEndpoint: 'https://e-factura.sunat.gob.pe/ol-ti-itcpfegem/billService',
+    authType: 'Clave SOL + Certificado Digital X.509'
+  }
 ];
 
 export default function IntegracionesPage() {
   const [activeTab, setActiveTab] = useState<'conectores' | 'alertas' | 'logs' | 'auditoria'>('conectores');
-  const [connectors, setConnectors] = useState<Connector[]>(initialConnectors);
-  const [logs, setLogs] = useState<LogEntry[]>(initialLogs);
-  const [audit, setAudit] = useState<AuditEntry[]>(initialAudit);
-  
+  const [integrations, setIntegrations] = useState<Record<string, IntegrationData>>({});
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Sync state per connector: status and message
+  const [syncState, setSyncState] = useState<Record<string, { loading: boolean; error?: string; success?: string }>>({});
+
   // Drawer state
-  const [selectedConnector, setSelectedConnector] = useState<Connector | null>(null);
-  const [drawerTab, setDrawerTab] = useState<'credenciales' | 'sincronizacion' | 'webhooks' | 'reglas'>('credenciales');
-  const [testResult, setTestResult] = useState<string | null>(null);
-  const [isTesting, setIsTesting] = useState(false);
+  const [selectedConnector, setSelectedConnector] = useState<ConnectorDef | null>(null);
+  const [drawerTab, setDrawerTab] = useState<'credenciales' | 'sincronizacion' | 'webhooks'>('credenciales');
+  const [configForm, setConfigForm] = useState<Record<string, any>>({});
+  const [saveStatus, setSaveStatus] = useState<string | null>(null);
+
+  // OAuth Modal state
+  const [shopifyShopDomain, setShopifyShopDomain] = useState('');
+  const [showShopifyModal, setShowShopifyModal] = useState(false);
+
+  // WhatsApp send test state
+  const [waTo, setWaTo] = useState('+51');
+  const [waMessage, setWaMessage] = useState('ALERTA INVENTA.AI: Quiebre inminente en SKU-ALI-001 (1.9 días de stock restante).');
+  const [waSending, setWaSending] = useState(false);
+  const [waResult, setWaResult] = useState<{ success: boolean; text: string } | null>(null);
 
   // Filters for logs
   const [logFilter, setLogFilter] = useState<'ALL' | 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS'>('ALL');
   const [logSearch, setLogSearch] = useState('');
 
-  // RUC search state for SUNAT
-  const [rucInput, setRucInput] = useState('20601234567');
-  const [rucResult, setRucResult] = useState<string | null>(null);
+  // 1. Fetch real integrations and logs
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [resInt, resLogs] = await Promise.all([
+        fetch('/api/integraciones', { cache: 'no-store' }),
+        fetch('/api/integraciones/logs', { cache: 'no-store' })
+      ]);
 
-  // WhatsApp test alert
-  const [waSending, setWaSending] = useState(false);
-
-  // Functional Sychronization
-  const handleSync = (id: string) => {
-    setConnectors(prev => prev.map(c => {
-      if (c.id === id) {
-        return { ...c, status: 'syncing', syncProgress: 15, syncStatusText: 'Conectando con endpoint API...' };
+      if (resInt.ok) {
+        const data = await resInt.json();
+        const map: Record<string, IntegrationData> = {};
+        (data.integrations || []).forEach((item: IntegrationData) => {
+          map[item.provider] = item;
+        });
+        setIntegrations(map);
       }
-      return c;
+
+      if (resLogs.ok) {
+        const logsData = await resLogs.json();
+        setLogs(logsData.logs || []);
+      }
+    } catch (err) {
+      console.error('Error fetching integration data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // 2. Real Sync Trigger
+  const handleSync = async (connector: ConnectorDef) => {
+    setSyncState(prev => ({
+      ...prev,
+      [connector.id]: { loading: true, error: undefined, success: undefined }
     }));
 
-    setTimeout(() => {
-      setConnectors(prev => prev.map(c => {
-        if (c.id === id) {
-          return { ...c, syncProgress: 60, syncStatusText: 'Descargando eventos y conciliando inventario...' };
-        }
-        return c;
+    try {
+      let res: Response;
+      if (connector.id === 'whatsapp') {
+        res = await fetch('/api/integraciones/whatsapp/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: waTo || '+51987654321',
+            message: 'Prueba de sincronización y conectividad de WhatsApp Cloud API.'
+          })
+        });
+      } else {
+        res = await fetch(connector.syncEndpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ connector_id: connector.id })
+        });
+      }
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        const errorMsg = data.message || data.error || `Error HTTP ${res.status}`;
+        setSyncState(prev => ({
+          ...prev,
+          [connector.id]: { loading: false, error: errorMsg }
+        }));
+      } else {
+        const successMsg = data.message || 
+          (data.products_synced !== undefined ? `✓ Sincronizado: ${data.products_synced} productos, ${data.orders_synced || 0} órdenes.` : '✓ Conexión y sincronización completada exitosamente.');
+        
+        setSyncState(prev => ({
+          ...prev,
+          [connector.id]: { loading: false, success: successMsg }
+        }));
+      }
+
+      // Re-fetch data and logs to show real database update
+      await loadData();
+    } catch (err: any) {
+      setSyncState(prev => ({
+        ...prev,
+        [connector.id]: { loading: false, error: err.message || 'Error de red al sincronizar' }
       }));
-    }, 800);
-
-    setTimeout(() => {
-      const now = new Date();
-      const timeStr = now.toTimeString().split(' ')[0];
-
-      setConnectors(prev => prev.map(c => {
-        if (c.id === id) {
-          return { 
-            ...c, 
-            status: 'connected', 
-            syncProgress: 100, 
-            lastSync: 'Hace unos segundos',
-            syncStatusText: undefined 
-          };
-        }
-        return c;
-      }));
-
-      const connName = connectors.find(c => c.id === id)?.name || id;
-      const newLog: LogEntry = {
-        id: Date.now().toString(),
-        timestamp: timeStr,
-        level: 'SUCCESS',
-        system: connName.toUpperCase(),
-        message: `Sincronización manual completada con éxito. 32 registros actualizados, 0 errores.`
-      };
-      setLogs(prev => [newLog, ...prev]);
-
-      const newAudit: AuditEntry = {
-        id: Date.now().toString(),
-        user: 'j.gonzalez@sanmartin.pe',
-        date: `${now.toISOString().split('T')[0]} ${timeStr}`,
-        action: 'MANUAL_SYNC_TRIGGER',
-        system: connName,
-        result: '200 OK (32 items)',
-        ip: '190.234.12.88'
-      };
-      setAudit(prev => [newAudit, ...prev]);
-
-    }, 1800);
+      await loadData();
+    }
   };
 
-  // Test Connection
-  const handleTestConnection = () => {
-    setIsTesting(true);
-    setTestResult(null);
-    setTimeout(() => {
-      setIsTesting(false);
-      setTestResult('✓ Conexión exitosa (HTTP 200 OK · Latencia: 118 ms · TLS 1.3 verificado)');
-    }, 900);
-  };
-
-  // Test SUNAT RUC
-  const handleQueryRuc = () => {
-    setRucResult('Consultando OSE / SUNAT...');
-    setTimeout(() => {
-      setRucResult(`✓ RUC ${rucInput}: ALICORP S.A.A. · Estado: ACTIVO · Condición: HABIDO · Agente de Retención: SÍ`);
-    }, 600);
-  };
-
-  // Test WhatsApp
-  const handleSendWaTest = () => {
+  // 3. Real WhatsApp Message Send
+  const handleSendWhatsApp = async () => {
     setWaSending(true);
-    setTimeout(() => {
+    setWaResult(null);
+
+    try {
+      const res = await fetch('/api/integraciones/whatsapp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: waTo,
+          message: waMessage
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setWaResult({
+          success: false,
+          text: data.error || `Error HTTP ${res.status}: Fallo al enviar mensaje.`
+        });
+      } else {
+        setWaResult({
+          success: true,
+          text: `✓ Mensaje enviado exitosamente vía Meta Cloud API. ID: ${data.message_id || 'OK'}`
+        });
+      }
+      await loadData();
+    } catch (err: any) {
+      setWaResult({
+        success: false,
+        text: `Error de red: ${err.message}`
+      });
+    } finally {
       setWaSending(false);
-      alert('✓ Alerta de prueba enviada a +51 987 654 321 (Jefe Almacén): "ALERTA INVENTA.AI: SKU-ALI-001 Aceite Primor 1L en quiebre inminente (1.9 días de stock restante)".');
-    }, 700);
+    }
   };
+
+  // 4. Save Connector Configuration in Database
+  const handleSaveConfig = async () => {
+    if (!selectedConnector) return;
+    setSaveStatus('Guardando...');
+
+    try {
+      const res = await fetch('/api/integraciones', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          provider: selectedConnector.id,
+          config: configForm
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setSaveStatus('✓ Configuración guardada en base de datos.');
+        await loadData();
+        setTimeout(() => {
+          setSelectedConnector(null);
+          setSaveStatus(null);
+        }, 1200);
+      } else {
+        setSaveStatus(`Error: ${data.error || 'No se pudo guardar'}`);
+      }
+    } catch (err: any) {
+      setSaveStatus(`Error: ${err.message}`);
+    }
+  };
+
+  // Start Shopify OAuth
+  const handleStartShopifyOAuth = () => {
+    if (!shopifyShopDomain.trim()) {
+      alert('Por favor ingrese el dominio de su tienda Shopify (ej: mi-tienda.myshopify.com)');
+      return;
+    }
+    const cleanDomain = shopifyShopDomain.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    window.location.href = `/api/integraciones/shopify/auth?shop=${encodeURIComponent(cleanDomain)}`;
+  };
+
+  // Start Mercado Libre OAuth
+  const handleStartMercadoLibreOAuth = () => {
+    window.location.href = '/api/integraciones/mercadolibre/auth';
+  };
+
+  // Status badge computation
+  const renderStatusBadge = (connector: ConnectorDef) => {
+    const data = integrations[connector.id];
+    const isSyncing = syncState[connector.id]?.loading;
+
+    if (isSyncing) {
+      return (
+        <span className={styles.badgeSyncing}>
+          <span className={styles.badgeDotPulse}></span>
+          Sincronizando...
+        </span>
+      );
+    }
+
+    if (connector.id === 'sap') {
+      if (!data || data.status === 'pending_configuration') {
+        return (
+          <span className={styles.badgeSapUnconfigured}>
+            <span className={styles.badgeDotPending}></span>
+            Conector disponible. Instancia SAP no configurada.
+          </span>
+        );
+      }
+    }
+
+    if (!data || data.status === 'pending_configuration') {
+      return (
+        <span className={styles.badgePending}>
+          <span className={styles.badgeDotPending}></span>
+          Pendiente de configuración
+        </span>
+      );
+    }
+
+    if (data.status === 'configured' || data.status === 'active') {
+      return (
+        <span className={styles.badgeConnected}>
+          <span className={styles.badgeDot}></span>
+          Configurado
+        </span>
+      );
+    }
+
+    return (
+      <span className={styles.badgeError}>
+        <span className={styles.badgeDotError}></span>
+        Error de Conexión
+      </span>
+    );
+  };
+
+  // Count active/configured integrations
+  const activeCount = Object.values(integrations).filter(
+    i => i.status === 'configured' || i.status === 'active'
+  ).length;
+
+  const pendingCount = CONNECTOR_DEFINITIONS.length - activeCount;
 
   const filteredLogs = logs.filter(l => {
-    const matchesLevel = logFilter === 'ALL' || l.level === logFilter;
-    const matchesSearch = l.message.toLowerCase().includes(logSearch.toLowerCase()) || 
-                          l.system.toLowerCase().includes(logSearch.toLowerCase());
+    const matchesLevel = logFilter === 'ALL' || l.nivel === logFilter;
+    const matchesSearch = 
+      (l.accion || '').toLowerCase().includes(logSearch.toLowerCase()) || 
+      (l.integracion || '').toLowerCase().includes(logSearch.toLowerCase()) ||
+      (l.resultado || '').toLowerCase().includes(logSearch.toLowerCase()) ||
+      (l.errores || '').toLowerCase().includes(logSearch.toLowerCase());
     return matchesLevel && matchesSearch;
   });
 
@@ -330,44 +376,43 @@ export default function IntegracionesPage() {
         <div>
           <h1 className={styles.title}>Integraciones & Conectores ERP</h1>
           <p className={styles.subtitle}>
-            Hub operacional de sincronización bidireccional de pedidos, inventario, catálogos y sistemas fiscales.
+            Hub operacional de integraciones reales con APIs oficiales, persistencia en base de datos y auditoría de sincronización.
           </p>
         </div>
-        <button 
-          className={styles.btnPrimary}
-          onClick={() => alert('Asistente de Integración Enterprise: Permite conectar Oracle NetSuite, VTEX, WooCommerce y SAP.')}
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-          Conectar Nueva App
-        </button>
       </header>
 
-      {/* 1. Header KPIs Monitor */}
+      {/* 1. Header KPIs Monitor (REAL DATA ONLY) */}
       <div className={styles.kpiGrid}>
         <div className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Integraciones Activas</span>
-          <span className={styles.kpiValue}>6 / 6</span>
-          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>● 100% Operativas</span>
+          <span className={styles.kpiValue}>{activeCount} / {CONNECTOR_DEFINITIONS.length}</span>
+          <span className={`${styles.kpiStatus} ${activeCount > 0 ? styles.statusGreen : styles.statusBlue}`}>
+            {activeCount === 0 ? '● Pendientes de configuración' : `● ${activeCount} Conectada(s)`}
+          </span>
         </div>
         <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Conexiones con Error</span>
-          <span className={styles.kpiValue}>0</span>
-          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Cero interrupciones</span>
+          <span className={styles.kpiLabel}>Pendientes de Configuración</span>
+          <span className={styles.kpiValue}>{pendingCount}</span>
+          <span className={`${styles.kpiStatus} ${styles.statusBlue}`}>Credenciales requeridas</span>
         </div>
         <div className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Última Sincronización</span>
-          <span className={styles.kpiValue}>Hace 1m</span>
-          <span className={`${styles.kpiStatus} ${styles.statusBlue}`}>Global programada (5m)</span>
+          <span className={styles.kpiValue} style={{ fontSize: '15px', marginTop: '4px' }}>
+            {logs.length > 0 ? new Date(logs[0].fecha).toLocaleTimeString() : 'Sin registros'}
+          </span>
+          <span className={`${styles.kpiStatus} ${styles.statusBlue}`}>
+            {logs.length > 0 ? new Date(logs[0].fecha).toLocaleDateString() : 'A la espera de ejecución'}
+          </span>
         </div>
         <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Latencia Media (p95)</span>
-          <span className={styles.kpiValue}>128 ms</span>
-          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Rendimiento óptimo</span>
+          <span className={styles.kpiLabel}>Logs de Auditoría</span>
+          <span className={styles.kpiValue}>{logs.length}</span>
+          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Persistidos en BD</span>
         </div>
         <div className={styles.kpiCard}>
-          <span className={styles.kpiLabel}>Disponibilidad (SLA)</span>
-          <span className={styles.kpiValue}>99.98%</span>
-          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Enterprise Ready</span>
+          <span className={styles.kpiLabel}>Modo de Operación</span>
+          <span className={styles.kpiValue} style={{ fontSize: '16px', color: '#059669' }}>API Real</span>
+          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Cero mocks · Enterprise</span>
         </div>
       </div>
 
@@ -377,15 +422,15 @@ export default function IntegracionesPage() {
           className={`${styles.tabBtn} ${activeTab === 'conectores' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('conectores')}
         >
-          Conectores Activos
-          <span className={styles.tabBadge}>6</span>
+          Conectores Oficiales
+          <span className={styles.tabBadge}>{CONNECTOR_DEFINITIONS.length}</span>
         </button>
         <button 
           className={`${styles.tabBtn} ${activeTab === 'alertas' ? styles.tabBtnActive : ''}`}
           onClick={() => setActiveTab('alertas')}
         >
-          Monitor de Alertas
-          <span className={styles.tabBadgeAlert}>0</span>
+          Monitor de Estado
+          <span className={styles.tabBadgeAlert}>{pendingCount}</span>
         </button>
         <button 
           className={`${styles.tabBtn} ${activeTab === 'logs' ? styles.tabBtnActive : ''}`}
@@ -399,143 +444,192 @@ export default function IntegracionesPage() {
           onClick={() => setActiveTab('auditoria')}
         >
           Registro de Auditoría
-          <span className={styles.tabBadge}>{audit.length}</span>
+          <span className={styles.tabBadge}>{logs.length}</span>
         </button>
       </div>
 
       {/* TAB 1: CONECTORES */}
       {activeTab === 'conectores' && (
         <div className={styles.grid}>
-          {connectors.map((app) => (
-            <div key={app.id} className={styles.card}>
-              <div className={styles.cardTop}>
-                <div className={styles.logoRow}>
-                  <span className={styles.appName}>{app.name}</span>
-                  {app.status === 'syncing' ? (
-                    <span className={styles.badgeSyncing}>
-                      <span className={styles.badgeDotPulse}></span>
-                      Sincronizando
-                    </span>
-                  ) : (
-                    <span className={styles.badgeConnected}>
-                      <span className={styles.badgeDot}></span>
-                      Activo
-                    </span>
+          {CONNECTOR_DEFINITIONS.map((connector) => {
+            const intData = integrations[connector.id];
+            const syncInfo = syncState[connector.id];
+
+            return (
+              <div key={connector.id} className={styles.card}>
+                <div className={styles.cardTop}>
+                  <div className={styles.logoRow}>
+                    <span className={styles.appName}>{connector.name}</span>
+                    {renderStatusBadge(connector)}
+                  </div>
+
+                  <p className={styles.appDesc}>{connector.desc}</p>
+
+                  {/* Real Status / Details */}
+                  <div className={styles.metricsBox}>
+                    <div className={styles.metricLine}>
+                      <span>Categoría:</span>
+                      <strong>{connector.category}</strong>
+                    </div>
+                    <div className={styles.metricLine}>
+                      <span>Autenticación:</span>
+                      <strong>{connector.authType}</strong>
+                    </div>
+                    <div className={styles.metricLine}>
+                      <span>Estado BD:</span>
+                      <strong>{intData?.status || 'pending_configuration'}</strong>
+                    </div>
+                    {intData?.updated_at && (
+                      <div className={styles.metricLine}>
+                        <span>Actualizado:</span>
+                        <strong>{new Date(intData.updated_at).toLocaleString()}</strong>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Specific OAuth Trigger Buttons */}
+                  {connector.id === 'shopify' && (
+                    <button 
+                      className={styles.btnOAuth}
+                      onClick={() => setShowShopifyModal(true)}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M15.33 3.67c-.17-.11-.38-.13-.56-.05L12 4.97 9.23 3.62c-.18-.08-.39-.06-.56.05-.18.11-.28.3-.28.51v15.64c0 .21.1.4.28.51.1.06.21.09.32.09.08 0 .16-.02.24-.06L12 19.03l2.77 1.33c.08.04.16.06.24.06.11 0 .22-.03.32-.09.18-.11.28-.3.28-.51V4.18c0-.21-.1-.4-.28-.51z"/>
+                      </svg>
+                      Iniciar OAuth Real Shopify
+                    </button>
+                  )}
+
+                  {connector.id === 'mercadolibre' && (
+                    <button 
+                      className={styles.btnOAuth}
+                      onClick={handleStartMercadoLibreOAuth}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14.5v-9l6 4.5-6 4.5z"/>
+                      </svg>
+                      Iniciar OAuth Real Mercado Libre
+                    </button>
+                  )}
+
+                  {/* WhatsApp Message Dispatcher */}
+                  {connector.id === 'whatsapp' && (
+                    <div style={{ background: 'var(--bg2)', padding: '10px', borderRadius: '6px', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '8px', border: '1px solid var(--line)' }}>
+                      <span style={{ fontWeight: 600, color: 'var(--ink)' }}>Despacho Meta Cloud API:</span>
+                      <input 
+                        type="text" 
+                        value={waTo} 
+                        onChange={(e) => setWaTo(e.target.value)}
+                        placeholder="Número (+51 987654321)" 
+                        style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '5px 8px', borderRadius: '4px', fontSize: '11px' }}
+                      />
+                      <textarea 
+                        value={waMessage} 
+                        onChange={(e) => setWaMessage(e.target.value)}
+                        rows={2}
+                        placeholder="Mensaje de alerta..." 
+                        style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '5px 8px', borderRadius: '4px', fontSize: '11px', resize: 'none' }}
+                      />
+                      <button 
+                        onClick={handleSendWhatsApp}
+                        disabled={waSending}
+                        style={{ background: '#059669', color: '#fff', border: 'none', padding: '6px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                      >
+                        {waSending ? 'Enviando a Meta...' : 'Enviar Alerta Real'}
+                      </button>
+                      {waResult && (
+                        <div className={waResult.success ? styles.syncSuccessBox : styles.syncErrorBox}>
+                          {waResult.text}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Real Sync Feedback Message */}
+                  {syncInfo?.error && (
+                    <div className={styles.syncErrorBox}>
+                      {syncInfo.error}
+                    </div>
+                  )}
+                  {syncInfo?.success && (
+                    <div className={styles.syncSuccessBox}>
+                      {syncInfo.success}
+                    </div>
                   )}
                 </div>
 
-                <p className={styles.appDesc}>{app.desc}</p>
-
-                {/* Specific Metrics */}
-                <div className={styles.metricsBox}>
-                  {Object.entries(app.metrics).map(([key, val]) => (
-                    <div key={key} className={styles.metricLine}>
-                      <span>{key}:</span>
-                      <strong>{val}</strong>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Progress bar during sync */}
-                {app.status === 'syncing' ? (
-                  <div className={styles.syncProgress}>
-                    <span className={styles.progressText}>{app.syncStatusText}</span>
-                    <div className={styles.progressBar}>
-                      <div className={styles.progressFill} style={{ width: `${app.syncProgress}%` }}></div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className={styles.syncInfo}>
-                    <span>Frecuencia: <strong>{app.config.syncFreq}</strong></span>
-                    <span>Última: <strong>{app.lastSync}</strong></span>
-                  </div>
-                )}
-              </div>
-
-              {/* Extra Tools for SUNAT & WhatsApp */}
-              {app.id === 'sunat' && (
-                <div style={{ background: 'var(--bg2)', padding: '10px', borderRadius: '6px', fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <input 
-                      type="text" 
-                      value={rucInput} 
-                      onChange={(e) => setRucInput(e.target.value)}
-                      placeholder="Consultar RUC..." 
-                      style={{ background: 'var(--card)', border: '1px solid var(--line)', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', flex: 1 }}
-                    />
-                    <button 
-                      onClick={handleQueryRuc}
-                      style={{ background: 'var(--primary)', color: 'var(--bg)', border: 'none', padding: '4px 8px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
-                    >
-                      Consultar
-                    </button>
-                  </div>
-                  {rucResult && <span style={{ color: '#059669', fontSize: '11px' }}>{rucResult}</span>}
-                </div>
-              )}
-
-              {app.id === 'whatsapp' && (
-                <div style={{ background: 'var(--bg2)', padding: '10px', borderRadius: '6px', fontSize: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>Disparador de Alertas:</span>
+                <div className={styles.cardActions}>
                   <button 
-                    onClick={handleSendWaTest}
-                    disabled={waSending}
-                    style={{ background: '#059669', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', cursor: 'pointer', fontWeight: 600 }}
+                    className={styles.btnAction} 
+                    onClick={() => handleSync(connector)}
+                    disabled={syncInfo?.loading}
                   >
-                    {waSending ? 'Enviando...' : 'Probar Alerta'}
+                    {syncInfo?.loading ? 'Llamando API...' : 'Sincronizar'}
+                  </button>
+                  <button 
+                    className={styles.btnAction} 
+                    onClick={() => {
+                      setSelectedConnector(connector);
+                      setConfigForm(integrations[connector.id]?.config || {});
+                      setSaveStatus(null);
+                    }}
+                  >
+                    Ajustes
                   </button>
                 </div>
-              )}
-
-              <div className={styles.cardActions}>
-                <button 
-                  className={styles.btnAction} 
-                  onClick={() => handleSync(app.id)}
-                  disabled={app.status === 'syncing'}
-                >
-                  {app.status === 'syncing' ? 'Procesando...' : 'Sincronizar'}
-                </button>
-                <button 
-                  className={styles.btnAction} 
-                  onClick={() => {
-                    setSelectedConnector(app);
-                    setTestResult(null);
-                  }}
-                >
-                  Ajustes
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      {/* TAB 2: ALERTAS */}
+      {/* TAB 2: MONITOR DE ESTADO */}
       {activeTab === 'alertas' && (
         <div className={styles.alertsGrid}>
+          {pendingCount > 0 && (
+            <div className={styles.alertCardWarn}>
+              <div className={styles.alertInfo}>
+                <span className={styles.alertTitle}>Conectores Pendientes de Configuración ({pendingCount})</span>
+                <span className={styles.alertDesc}>
+                  Las siguientes integraciones no tienen credenciales ni tokens activos en base de datos: {
+                    CONNECTOR_DEFINITIONS
+                      .filter(c => !integrations[c.id] || integrations[c.id].status === 'pending_configuration')
+                      .map(c => c.name)
+                      .join(', ')
+                  }. Configure sus credenciales o inicie el flujo OAuth para habilitar la sincronización.
+                </span>
+              </div>
+              <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 700 }}>CONFIGURACIÓN REQUERIDA</span>
+            </div>
+          )}
+
           <div className={styles.alertCard}>
             <div className={styles.alertInfo}>
-              <span className={styles.alertTitle}>Todas las conexiones en estado óptimo</span>
+              <span className={styles.alertTitle}>Conector SAP S/4HANA OData</span>
               <span className={styles.alertDesc}>
-                No se registran tokens expirados, webhooks caídos ni demoras de sincronización en las últimas 24 horas.
+                {!integrations.sap || integrations.sap.status === 'pending_configuration'
+                  ? 'Conector disponible. Instancia SAP no configurada. Ingrese el SAP_HOST y credenciales en Ajustes para iniciar la conciliación OData.'
+                  : 'Instancia SAP configurada y disponible para llamadas OData.'}
               </span>
             </div>
-            <span style={{ fontSize: '12px', color: '#059669', fontWeight: 700 }}>100% HEALTHY</span>
+            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 700 }}>ODATA v4</span>
           </div>
 
-          <div className={styles.alertCardWarn}>
+          <div className={styles.alertCard}>
             <div className={styles.alertInfo}>
-              <span className={styles.alertTitle}>Mantenimiento Programado SAP S/4HANA</span>
+              <span className={styles.alertTitle}>Meta WhatsApp Cloud API</span>
               <span className={styles.alertDesc}>
-                Ventana de actualización de certificados TLS por parte del equipo de TI: Domingo 27 Sep 02:00 - 03:00 UTC.
+                {!integrations.whatsapp || integrations.whatsapp.status === 'pending_configuration'
+                  ? 'WhatsApp Business requiere WHATSAPP_ACCESS_TOKEN y WHATSAPP_PHONE_NUMBER_ID para despacho de mensajes.'
+                  : 'Conector WhatsApp listo para despacho.'}
               </span>
             </div>
-            <span style={{ fontSize: '12px', color: '#d97706', fontWeight: 700 }}>PROGRAMADO</span>
+            <span style={{ fontSize: '12px', color: '#059669', fontWeight: 700 }}>META CLOUD</span>
           </div>
         </div>
       )}
 
-      {/* TAB 3: LIVE EVENT LOGS */}
+      {/* TAB 3: LIVE EVENT LOGS (REAL BD LOGS) */}
       {activeTab === 'logs' && (
         <div className={styles.logsCard}>
           <div className={styles.logsToolbar}>
@@ -555,67 +649,140 @@ export default function IntegracionesPage() {
 
               <input 
                 type="text" 
-                placeholder="Filtrar eventos o palabras clave..." 
+                placeholder="Filtrar por acción, integración, resultado..." 
                 className={styles.logsSearch}
                 value={logSearch}
                 onChange={(e) => setLogSearch(e.target.value)}
               />
             </div>
             <span style={{ fontSize: '12px', color: 'var(--muted)' }}>
-              Mostrando <strong>{filteredLogs.length}</strong> eventos en vivo
+              Mostrando <strong>{filteredLogs.length}</strong> logs reales registrados en BD
             </span>
           </div>
 
           <div className={styles.logsConsole}>
-            {filteredLogs.map((log) => (
-              <div key={log.id} className={styles.logLine}>
-                <span className={styles.logTimestamp}>{log.timestamp}</span>
-                <span className={
-                  log.level === 'SUCCESS' ? styles.logLevelSuccess :
-                  log.level === 'INFO' ? styles.logLevelInfo :
-                  log.level === 'WARN' ? styles.logLevelWarn : styles.logLevelError
-                }>
-                  [{log.level}]
-                </span>
-                <span className={styles.logSystem}>{log.system}</span>
-                <span className={styles.logMessage}>{log.message}</span>
+            {filteredLogs.length === 0 ? (
+              <div style={{ color: '#64748b', padding: '20px', textAlign: 'center' }}>
+                No hay eventos registrados en la base de datos todavía. Haga clic en "Sincronizar" en cualquier conector para registrar eventos reales.
               </div>
-            ))}
+            ) : (
+              filteredLogs.map((log) => (
+                <div key={log.id} className={styles.logLine}>
+                  <span className={styles.logTimestamp}>{new Date(log.fecha).toLocaleTimeString()}</span>
+                  <span className={
+                    log.nivel === 'SUCCESS' ? styles.logLevelSuccess :
+                    log.nivel === 'INFO' ? styles.logLevelInfo :
+                    log.nivel === 'WARN' ? styles.logLevelWarn : styles.logLevelError
+                  }>
+                    [{log.nivel}]
+                  </span>
+                  <span className={styles.logSystem}>{log.integracion.toUpperCase()}</span>
+                  <span className={styles.logMessage}>
+                    <strong>{log.accion}:</strong> {log.resultado}
+                    {log.errores && <span style={{ color: '#f87171', display: 'block', fontSize: '11px', marginTop: '2px' }}>Detalle: {log.errores}</span>}
+                  </span>
+                </div>
+              ))
+            )}
           </div>
         </div>
       )}
 
-      {/* TAB 4: AUDITORÍA */}
+      {/* TAB 4: AUDITORÍA (REAL BD RECORDS) */}
       {activeTab === 'auditoria' && (
         <div className={styles.auditTableCard}>
           <table className={styles.auditTable}>
             <thead>
               <tr>
-                <th>USUARIO</th>
                 <th>FECHA / HORA</th>
+                <th>USUARIO</th>
+                <th>INTEGRACIÓN</th>
                 <th>ACCIÓN</th>
-                <th>SISTEMA</th>
                 <th>RESULTADO</th>
-                <th>IP ORIGEN</th>
+                <th>ERRORES</th>
               </tr>
             </thead>
             <tbody>
-              {audit.map((row) => (
-                <tr key={row.id}>
-                  <td><strong>{row.user}</strong></td>
-                  <td>{row.date}</td>
-                  <td><span className={styles.codePill}>{row.action}</span></td>
-                  <td>{row.system}</td>
-                  <td><span style={{ color: '#059669', fontWeight: 600 }}>{row.result}</span></td>
-                  <td><code>{row.ip}</code></td>
+              {logs.length === 0 ? (
+                <tr>
+                  <td colSpan={6} style={{ textAlign: 'center', color: 'var(--muted)', padding: '24px' }}>
+                    No hay registros de auditoría en la base de datos.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                logs.map((row) => (
+                  <tr key={row.id}>
+                    <td>{new Date(row.fecha).toLocaleString()}</td>
+                    <td><strong>{row.usuario}</strong></td>
+                    <td>{row.integracion.toUpperCase()}</td>
+                    <td><span className={styles.codePill}>{row.accion}</span></td>
+                    <td>
+                      <span style={{ 
+                        color: row.nivel === 'SUCCESS' ? '#059669' : row.nivel === 'ERROR' ? '#dc2626' : '#d97706',
+                        fontWeight: 600 
+                      }}>
+                        {row.resultado}
+                      </span>
+                    </td>
+                    <td>
+                      {row.errores ? (
+                        <span style={{ color: '#dc2626', fontSize: '11px' }}>{row.errores}</span>
+                      ) : (
+                        <span style={{ color: 'var(--muted)', fontSize: '11px' }}>Ninguno</span>
+                      )}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* 4. DRAWER LATERAL DE AJUSTES */}
+      {/* MODAL SHOPIFY OAUTH */}
+      {showShopifyModal && (
+        <>
+          <div className={styles.drawerBackdrop} onClick={() => setShowShopifyModal(false)} />
+          <div style={{
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            background: 'var(--card)',
+            border: '1px solid var(--line)',
+            borderRadius: '10px',
+            padding: '24px',
+            zIndex: 1001,
+            width: '440px',
+            maxWidth: '90vw',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '16px'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--ink)' }}>Conectar Shopify Plus con OAuth</h3>
+            <p style={{ fontSize: '13px', color: 'var(--muted)', lineHeight: 1.5 }}>
+              Ingrese la URL de su tienda Shopify para iniciar la autorización OAuth 2.0 y obtener tokens de acceso a /products, /orders e /inventory.
+            </p>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Dominio de la Tienda (myshopify.com)</label>
+              <input 
+                type="text" 
+                placeholder="mi-tienda.myshopify.com" 
+                value={shopifyShopDomain}
+                onChange={(e) => setShopifyShopDomain(e.target.value)}
+                className={styles.formInput} 
+              />
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
+              <button className={styles.btnAction} onClick={() => setShowShopifyModal(false)}>Cancelar</button>
+              <button className={styles.btnPrimary} onClick={handleStartShopifyOAuth}>Continuar a Shopify</button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* DRAWER LATERAL DE AJUSTES */}
       {selectedConnector && (
         <>
           <div className={styles.drawerBackdrop} onClick={() => setSelectedConnector(null)} />
@@ -623,7 +790,7 @@ export default function IntegracionesPage() {
             <div className={styles.drawerHeader}>
               <div>
                 <h2 className={styles.drawerTitle}>{selectedConnector.name}</h2>
-                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Ajustes de Conexión & Webhooks</span>
+                <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Configuración Real y Credenciales</span>
               </div>
               <button className={styles.drawerClose} onClick={() => setSelectedConnector(null)}>✕</button>
             </div>
@@ -639,7 +806,7 @@ export default function IntegracionesPage() {
                 className={`${styles.drawerTabItem} ${drawerTab === 'sincronizacion' ? styles.drawerTabActive : ''}`}
                 onClick={() => setDrawerTab('sincronizacion')}
               >
-                Sincronización
+                Endpoints
               </button>
               <button 
                 className={`${styles.drawerTabItem} ${drawerTab === 'webhooks' ? styles.drawerTabActive : ''}`}
@@ -647,55 +814,144 @@ export default function IntegracionesPage() {
               >
                 Webhooks
               </button>
-              <button 
-                className={`${styles.drawerTabItem} ${drawerTab === 'reglas' ? styles.drawerTabActive : ''}`}
-                onClick={() => setDrawerTab('reglas')}
-              >
-                Reglas
-              </button>
             </div>
 
             <div className={styles.drawerBody}>
               {drawerTab === 'credenciales' && (
                 <>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>API Endpoint URL</label>
-                    <input 
-                      type="text" 
-                      defaultValue={selectedConnector.config.endpoint}
-                      className={styles.formInput} 
-                    />
-                  </div>
+                  {selectedConnector.id === 'shopify' && (
+                    <>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Shop Domain (.myshopify.com)</label>
+                        <input 
+                          type="text" 
+                          placeholder="mi-tienda.myshopify.com"
+                          value={configForm.shop_domain || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, shop_domain: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Admin API Access Token (shpat_...)</label>
+                        <input 
+                          type="password" 
+                          placeholder="shpat_xxxxxxxxxxxxxxxxxxxx"
+                          value={configForm.access_token || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, access_token: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Método de Autenticación</label>
-                    <input 
-                      type="text" 
-                      defaultValue={selectedConnector.config.authType}
-                      className={styles.formInput} 
-                    />
-                  </div>
+                  {selectedConnector.id === 'mercadolibre' && (
+                    <>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Mercado Libre Access Token (APP_USR-...)</label>
+                        <input 
+                          type="password" 
+                          placeholder="APP_USR-xxxxxxxx"
+                          value={configForm.access_token || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, access_token: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <button 
+                        className={styles.btnOAuth} 
+                        onClick={handleStartMercadoLibreOAuth}
+                        style={{ marginTop: '4px' }}
+                      >
+                        Autorizar mediante OAuth Oficial de Mercado Libre
+                      </button>
+                    </>
+                  )}
 
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Access Token / API Secret</label>
-                    <input 
-                      type="password" 
-                      defaultValue="shpat_892837492837498273492837492"
-                      className={styles.formInput} 
-                    />
-                  </div>
+                  {selectedConnector.id === 'whatsapp' && (
+                    <>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Meta Phone Number ID</label>
+                        <input 
+                          type="text" 
+                          placeholder="Ej: 1084920491823"
+                          value={configForm.phone_number_id || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, phone_number_id: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>Meta Permanent User Token (Bearer)</label>
+                        <input 
+                          type="password" 
+                          placeholder="EAA..."
+                          value={configForm.access_token || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, access_token: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  <button 
-                    className={styles.btnTestConn} 
-                    onClick={handleTestConnection}
-                    disabled={isTesting}
-                  >
-                    {isTesting ? 'Verificando con servidor remoto...' : 'Probar Conexión API'}
-                  </button>
+                  {selectedConnector.id === 'sap' && (
+                    <>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>SAP Host / Endpoint URL</label>
+                        <input 
+                          type="text" 
+                          placeholder="https://s4hana.empresa.com:44300"
+                          value={configForm.host || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, host: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>SAP Client (Mandante)</label>
+                        <input 
+                          type="text" 
+                          placeholder="100"
+                          value={configForm.client || '100'}
+                          onChange={(e) => setConfigForm({ ...configForm, client: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>SAP API Key o Usuario</label>
+                        <input 
+                          type="text" 
+                          placeholder="Usuario SAP o APIKey"
+                          value={configForm.username || configForm.api_key || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, username: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>SAP Password (para Basic Auth)</label>
+                        <input 
+                          type="password" 
+                          placeholder="••••••••••••"
+                          value={configForm.password || ''}
+                          onChange={(e) => setConfigForm({ ...configForm, password: e.target.value })}
+                          className={styles.formInput} 
+                        />
+                      </div>
+                    </>
+                  )}
 
-                  {testResult && (
-                    <div className={`${styles.testConnResult} ${styles.testSuccess}`}>
-                      {testResult}
+                  {selectedConnector.id !== 'shopify' && selectedConnector.id !== 'mercadolibre' && selectedConnector.id !== 'whatsapp' && selectedConnector.id !== 'sap' && (
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>Access Key / Token</label>
+                      <input 
+                        type="password" 
+                        placeholder="Credencial de acceso..."
+                        value={configForm.access_token || ''}
+                        onChange={(e) => setConfigForm({ ...configForm, access_token: e.target.value })}
+                        className={styles.formInput} 
+                      />
+                    </div>
+                  )}
+
+                  {saveStatus && (
+                    <div className={saveStatus.startsWith('✓') ? styles.syncSuccessBox : styles.syncErrorBox}>
+                      {saveStatus}
                     </div>
                   )}
                 </>
@@ -704,23 +960,22 @@ export default function IntegracionesPage() {
               {drawerTab === 'sincronizacion' && (
                 <>
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Frecuencia de Refresco Automático</label>
-                    <select className={styles.formSelect} defaultValue={selectedConnector.config.syncFreq}>
-                      <option value="1m">Cada 1 minuto (Tiempo Real)</option>
-                      <option value="5m">Cada 5 minutos (Recomendado)</option>
-                      <option value="15m">Cada 15 minutos</option>
-                      <option value="1h">Cada 1 hora</option>
-                    </select>
+                    <label className={styles.formLabel}>Endpoint Base</label>
+                    <input 
+                      type="text" 
+                      value={selectedConnector.defaultEndpoint} 
+                      readOnly 
+                      className={styles.formInput} 
+                    />
                   </div>
-
                   <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Entidades Habilitadas para Conciliar</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', fontSize: '13px', marginTop: '6px' }}>
-                      <label><input type="checkbox" defaultChecked /> Catálogo de Productos y SKUs</label>
-                      <label><input type="checkbox" defaultChecked /> Niveles de Inventario Físico</label>
-                      <label><input type="checkbox" defaultChecked /> Pedidos y Órdenes de Compra</label>
-                      <label><input type="checkbox" defaultChecked /> Clientes y Facturas Comerciales</label>
-                    </div>
+                    <label className={styles.formLabel}>Ruta de Sincronización Inventa.AI</label>
+                    <input 
+                      type="text" 
+                      value={selectedConnector.syncEndpoint} 
+                      readOnly 
+                      className={styles.formInput} 
+                    />
                   </div>
                 </>
               )}
@@ -731,54 +986,10 @@ export default function IntegracionesPage() {
                     <label className={styles.formLabel}>Webhook Ingest Listener (Inventa.AI)</label>
                     <input 
                       type="text" 
-                      defaultValue={selectedConnector.config.webhookUrl}
-                      className={styles.formInput} 
+                      value={`https://inventa-ai-nine.vercel.app/api/webhooks/${selectedConnector.id}`} 
                       readOnly 
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>HMAC Signature Secret</label>
-                    <input 
-                      type="password" 
-                      defaultValue={selectedConnector.config.webhookSecret}
-                      className={styles.formInput} 
-                      readOnly 
-                    />
-                  </div>
-
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Tópicos Suscritos</label>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px' }}>
-                      {selectedConnector.config.events.map((ev) => (
-                        <div key={ev} style={{ background: 'var(--bg2)', padding: '6px 10px', borderRadius: '4px', fontFamily: 'monospace' }}>
-                          ✓ {ev}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {drawerTab === 'reglas' && (
-                <>
-                  <div className={styles.formGroup}>
-                    <label className={styles.formLabel}>Buffer de Seguridad para Evitar Quiebre (unidades)</label>
-                    <input 
-                      type="number" 
-                      defaultValue={selectedConnector.config.safetyBuffer}
                       className={styles.formInput} 
                     />
-                    <span style={{ fontSize: '11px', color: 'var(--muted)' }}>
-                      Si el stock cae por debajo de este valor, se reserva stock en otros canales.
-                    </span>
-                  </div>
-
-                  <div className={styles.formGroup} style={{ marginTop: '12px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-                      <input type="checkbox" defaultChecked={selectedConnector.config.autoPauseStock} />
-                      Pausar automáticamente publicaciones si el stock disponible es menor al buffer.
-                    </label>
                   </div>
                 </>
               )}
@@ -789,16 +1000,13 @@ export default function IntegracionesPage() {
                 className={styles.btnAction} 
                 onClick={() => setSelectedConnector(null)}
               >
-                Cancelar
+                Cerrar
               </button>
               <button 
                 className={styles.btnPrimary}
-                onClick={() => {
-                  alert(`Ajustes guardados para ${selectedConnector.name}. Sincronización actualizada.`);
-                  setSelectedConnector(null);
-                }}
+                onClick={handleSaveConfig}
               >
-                Guardar Ajustes
+                Guardar en Base de Datos
               </button>
             </div>
           </div>

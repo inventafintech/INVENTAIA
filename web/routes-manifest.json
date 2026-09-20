@@ -42,6 +42,78 @@
       "namedRegex": "^/_not\\-found(?:/)?$"
     },
     {
+      "page": "/api/integraciones",
+      "regex": "^/api/integraciones(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/amazon/sync",
+      "regex": "^/api/integraciones/amazon/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/amazon/sync(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/logs",
+      "regex": "^/api/integraciones/logs(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/logs(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/mercadolibre/auth",
+      "regex": "^/api/integraciones/mercadolibre/auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/mercadolibre/auth(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/mercadolibre/callback",
+      "regex": "^/api/integraciones/mercadolibre/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/mercadolibre/callback(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/mercadolibre/sync",
+      "regex": "^/api/integraciones/mercadolibre/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/mercadolibre/sync(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/sap/sync",
+      "regex": "^/api/integraciones/sap/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/sap/sync(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/shopify/auth",
+      "regex": "^/api/integraciones/shopify/auth(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/shopify/auth(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/shopify/callback",
+      "regex": "^/api/integraciones/shopify/callback(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/shopify/callback(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/shopify/sync",
+      "regex": "^/api/integraciones/shopify/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/shopify/sync(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/sunat/sync",
+      "regex": "^/api/integraciones/sunat/sync(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/sunat/sync(?:/)?$"
+    },
+    {
+      "page": "/api/integraciones/whatsapp/send",
+      "regex": "^/api/integraciones/whatsapp/send(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/integraciones/whatsapp/send(?:/)?$"
+    },
+    {
       "page": "/dashboard",
       "regex": "^/dashboard(?:/)?$",
       "routeKeys": {},

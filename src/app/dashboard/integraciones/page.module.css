@@ -194,6 +194,48 @@
   gap: 6px;
 }
 
+.badgePending {
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #d97706;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.badgeSapUnconfigured {
+  background: rgba(100, 116, 139, 0.1);
+  border: 1px solid rgba(100, 116, 139, 0.25);
+  color: #475569;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-align: right;
+  max-width: 240px;
+  line-height: 1.2;
+}
+
+.badgeError {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #dc2626;
+  padding: 3px 8px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .badgeSyncing {
   background: rgba(37, 99, 235, 0.1);
   color: #2563eb;
@@ -213,12 +255,70 @@
   background: #059669;
 }
 
+.badgeDotPending {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #d97706;
+}
+
+.badgeDotError {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #dc2626;
+}
+
 .badgeDotPulse {
   width: 6px;
   height: 6px;
   border-radius: 50%;
   background: #2563eb;
   animation: pulseDot 1s infinite;
+}
+
+.btnOAuth {
+  background: #0f172a;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.btnOAuth:hover {
+  background: #1e293b;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.syncErrorBox {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #dc2626;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.syncSuccessBox {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 11px;
+  color: #059669;
+  line-height: 1.4;
 }
 
 @keyframes pulseDot {
