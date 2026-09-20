@@ -22,7 +22,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
     }, {} as Record<string, boolean>)
   );
 
-  // Conmutar apertura/cierre de grupo
   const toggleGroup = (groupId: string) => {
     setOpenGroups((prev) => ({
       ...prev,
@@ -30,7 +29,6 @@ export function Sidebar({ className = '' }: SidebarProps) {
     }));
   };
 
-  // Comprobación de ruta activa
   const isItemActive = (href: string): boolean => {
     if (pathname === href) return true;
     if (href !== '/' && pathname.startsWith(href)) return true;
@@ -40,42 +38,56 @@ export function Sidebar({ className = '' }: SidebarProps) {
   return (
     <aside
       className={`
-        w-64 h-screen sticky top-0 flex flex-col bg-slate-50 border-r border-slate-200
+        w-[230px] h-screen sticky top-0 flex flex-col bg-white border-r border-slate-200
         select-none overflow-hidden shrink-0 z-40 ${className}
       `}
       aria-label="Navegación lateral"
     >
-      {/* Contenedor scrolleable de navegación */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-5 custom-scrollbar">
+      {/* Contenedor scrolleable idéntico al diseño */}
+      <nav className="flex-1 overflow-y-auto px-2 py-2.5 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
         {SIDEBAR_CONFIG.map((group: SidebarGroupConfig) => {
           const isOpen = openGroups[group.id] ?? true;
+          const isPanel = group.id === 'panel';
 
           return (
             <div key={group.id} className="flex flex-col">
-              {/* Encabezado del Grupo (Botón Acordeón) */}
+              {/* Encabezado del Grupo (Acordeón) */}
               <button
                 type="button"
                 onClick={() => toggleGroup(group.id)}
                 aria-expanded={isOpen}
-                className="w-full flex items-center justify-between px-2.5 py-1.5 text-xs font-semibold text-slate-500 uppercase tracking-wider hover:text-slate-900 transition-colors rounded-md group outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                className={`
+                  w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-left transition-colors duration-150 outline-none cursor-pointer
+                  ${
+                    isOpen && isPanel
+                      ? 'bg-[#f4f6fa] text-slate-800'
+                      : 'text-slate-700 hover:bg-slate-50'
+                  }
+                `}
               >
-                <span>{group.title}</span>
+                <span className="text-[11.5px] font-semibold tracking-wider uppercase">
+                  {group.title}
+                </span>
                 {isOpen ? (
                   <ChevronUp
-                    className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform"
-                    strokeWidth={1.5}
+                    size={15}
+                    strokeWidth={1.8}
+                    className={`shrink-0 transition-transform ${
+                      isPanel ? 'text-blue-600' : 'text-slate-600'
+                    }`}
                   />
                 ) : (
                   <ChevronDown
-                    className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-transform"
-                    strokeWidth={1.5}
+                    size={15}
+                    strokeWidth={1.8}
+                    className="shrink-0 text-slate-500 transition-transform"
                   />
                 )}
               </button>
 
-              {/* Lista de Enlaces (Colapsable) */}
+              {/* Lista de Enlaces */}
               {isOpen && (
-                <ul className="mt-1 space-y-0.5">
+                <ul className="mt-0.5 mb-1 space-y-0.5">
                   {group.items.map((item: SidebarItemConfig) => {
                     const Icon = item.icon;
                     const active = isItemActive(item.href);
@@ -86,22 +98,20 @@ export function Sidebar({ className = '' }: SidebarProps) {
                           href={item.href}
                           aria-current={active ? 'page' : undefined}
                           className={`
-                            group flex items-center gap-3 px-3 py-2 min-h-[40px] rounded-lg text-sm
-                            transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-blue-500
+                            flex items-center gap-3 px-2.5 py-1.5 rounded-md text-[13px] transition-colors duration-150 outline-none
                             ${
                               active
                                 ? 'bg-blue-50 text-blue-700 font-medium'
-                                : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900 font-normal'
+                                : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900 font-normal'
                             }
                           `}
                         >
                           <Icon
-                            className={`w-5 h-5 shrink-0 transition-colors duration-150 ${
-                              active
-                                ? 'text-blue-600'
-                                : 'text-slate-400 group-hover:text-slate-600'
+                            size={18}
+                            strokeWidth={1.6}
+                            className={`shrink-0 ${
+                              active ? 'text-blue-600' : 'text-slate-600'
                             }`}
-                            strokeWidth={1.5}
                           />
                           <span className="truncate">{item.label}</span>
                         </Link>

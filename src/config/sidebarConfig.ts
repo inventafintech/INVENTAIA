@@ -8,7 +8,7 @@ import {
   MapPin,
   Store,
   User,
-  Package,
+  Boxes,
   ArrowLeftRight,
   ArrowDownLeft,
   ArrowUpRight,
@@ -64,7 +64,7 @@ export const SIDEBAR_CONFIG: SidebarGroupConfig[] = [
     id: 'inventario',
     title: 'INVENTARIO',
     items: [
-      { id: 'actual', label: 'Inventario actual', href: '/inventario/actual', icon: Package },
+      { id: 'actual', label: 'Inventario actual', href: '/inventario/actual', icon: Boxes },
       { id: 'ajustes', label: 'Ajustes de stock', href: '/inventario/ajustes', icon: ArrowLeftRight },
       { id: 'recibos', label: 'Recibos', href: '/inventario/recibos', icon: ArrowDownLeft },
       { id: 'despachos', label: 'Despachos', href: '/inventario/despachos', icon: ArrowUpRight },
