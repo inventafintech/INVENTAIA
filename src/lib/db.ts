@@ -470,7 +470,7 @@ function initDb(): DatabaseStore {
     // Materiales Construcción: 93.1%
     { id: 'flog-oct-4', product_id: 'prod-4', sku_code: 'SKU-SOL-004', category_name: 'Materiales Construcción', forecasted_demand: 3500, actual_demand: 3760, mape_score: 6.91, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
     // Lácteos & Refrigerados: 91.4%
-    { id: 'flog-oct-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', category_name: 'Lácteos & Refrigerados', forecasted_demand: 1720, actual_demand: 1880, mape_score: 8.51, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    { id: 'flog-oct-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', category_name: 'Lácteos & Refrigerados', forecasted_demand: 1720, actual_demand: 1880, mape_score: 8.60, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
   ];
 
   const defaultSavingsLogs: InventorySavingsLogRecord[] = [
