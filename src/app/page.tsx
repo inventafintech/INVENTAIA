@@ -7,6 +7,10 @@ import styles from './page.module.css';
 export default function LandingPage() {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
+  const [solutionsDropdownOpen, setSolutionsDropdownOpen] = useState(false);
+  const [selectedLang, setSelectedLang] = useState<'es' | 'en'>('es');
   const [forecastHorizon, setForecastHorizon] = useState<'30d' | '60d' | '180d'>('60d');
   
   // Demo Form State
@@ -25,53 +29,160 @@ export default function LandingPage() {
   };
 
   return (
-    <div className={styles.container}>
-      {/* 1. Navigation Bar - Refactorizado con jerarquía clara y limpia */}
-      <header className={styles.nav}>
+    <div className={styles.containerDark}>
+      {/* 1. Navigation Bar - Estilo Enterprise B2B Panthor/Vercel */}
+      <header className={styles.navDark}>
         <div className={styles.navContent}>
+          {/* Logo a la izquierda */}
           <div className={styles.logoGroup}>
-            <Link href="/" className={styles.logo}>
+            <Link href="/" className={styles.logoDark}>
               INVENTA<span className={styles.logoAccent}>.AI</span>
             </Link>
-            <span className={styles.tagEnterprise}>Enterprise B2B</span>
+            <span className={styles.tagEnterpriseDark}>Enterprise B2B</span>
           </div>
 
-          {/* Enlaces de navegación centrados/izquierdos */}
-          <nav className={styles.links}>
-            <a href="#problema">El Desafío</a>
-            <a href="#soluciones">Solución</a>
-            <a href="#roi">Prueba de ROI</a>
-            <a href="#tecnologia">Infraestructura</a>
-            <a href="#casos">Casos de Éxito</a>
+          {/* Enlaces de navegación centrales con dropdowns */}
+          <nav className={styles.linksDark}>
+            {/* Plataforma */}
+            <div className={styles.navDropdownWrapper}>
+              <button 
+                type="button"
+                className={styles.navDropdownTrigger}
+                onClick={() => {
+                  setPlatformDropdownOpen(!platformDropdownOpen);
+                  setSolutionsDropdownOpen(false);
+                }}
+              >
+                <span>Plataforma</span>
+                <span className={styles.chevronIcon}>⌄</span>
+              </button>
+              {platformDropdownOpen && (
+                <div className={styles.dropdownMenuDark}>
+                  <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
+                    <strong>Motor Predictivo IA</strong>
+                    <span>Pronóstico a 30, 60 y 180 días</span>
+                  </a>
+                  <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
+                    <strong>Reabastecimiento JIT</strong>
+                    <span>Generación de OC en 1 clic</span>
+                  </a>
+                  <a href="#tecnologia" onClick={() => setPlatformDropdownOpen(false)}>
+                    <strong>Conectores ERP & APIs</strong>
+                    <span>SAP, Shopify, Amazon & SUNAT</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* Soluciones */}
+            <div className={styles.navDropdownWrapper}>
+              <button 
+                type="button"
+                className={styles.navDropdownTrigger}
+                onClick={() => {
+                  setSolutionsDropdownOpen(!solutionsDropdownOpen);
+                  setPlatformDropdownOpen(false);
+                }}
+              >
+                <span>Soluciones</span>
+                <span className={styles.chevronIcon}>⌄</span>
+              </button>
+              {solutionsDropdownOpen && (
+                <div className={styles.dropdownMenuDark}>
+                  <a href="#problema" onClick={() => setSolutionsDropdownOpen(false)}>
+                    <strong>Para Distribuidores & Mayoristas</strong>
+                    <span>Eliminación de quiebres de stock</span>
+                  </a>
+                  <a href="#roi" onClick={() => setSolutionsDropdownOpen(false)}>
+                    <strong>Financiamiento de Inventario</strong>
+                    <span>Líneas de crédito rotativas B2B</span>
+                  </a>
+                  <a href="#casos" onClick={() => setSolutionsDropdownOpen(false)}>
+                    <strong>Consorcios de Compra</strong>
+                    <span>Descuentos por volumen agrupado</span>
+                  </a>
+                </div>
+              )}
+            </div>
+
+            <a href="#roi" className={styles.navLinkDark}>Precios</a>
+            <a href="#tecnologia" className={styles.navLinkDark}>Recursos</a>
           </nav>
 
-          {/* Extremo derecho: EXACTAMENTE DOS ELEMENTOS */}
-          <div className={styles.actions}>
-            <Link href="/login" className={styles.navLoginLink}>
-              Iniciar Sesión
+          {/* Extremo derecho: Selector de idioma, login, outline demo, botón primario y link empezar gratis */}
+          <div className={styles.actionsDark}>
+            {/* Selector de idioma con ícono */}
+            <div className={styles.langSelectorWrapper}>
+              <button 
+                type="button"
+                className={styles.langSelectorBtn}
+                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+                aria-label="Seleccionar idioma"
+              >
+                <span className={styles.langGlobeIcon}>🌐</span>
+                <span>{selectedLang === 'es' ? '🇪🇸 Español' : '🇺🇸 English'}</span>
+                <span className={styles.chevronIcon}>⌄</span>
+              </button>
+              {langDropdownOpen && (
+                <div className={styles.langDropdownMenu}>
+                  <button 
+                    type="button"
+                    className={`${styles.langOption} ${selectedLang === 'es' ? styles.langActive : ''}`}
+                    onClick={() => { setSelectedLang('es'); setLangDropdownOpen(false); }}
+                  >
+                    🇪🇸 Español
+                  </button>
+                  <button 
+                    type="button"
+                    className={`${styles.langOption} ${selectedLang === 'en' ? styles.langActive : ''}`}
+                    onClick={() => { setSelectedLang('en'); setLangDropdownOpen(false); }}
+                  >
+                    🇺🇸 English
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Iniciar sesión */}
+            <Link href="/login" className={styles.navLoginLinkDark}>
+              Iniciar sesión
             </Link>
+
+            {/* Reservar una demo */}
             <button 
-              className={styles.btnPrimaryNav} 
+              type="button"
+              className={styles.btnOutlineNav} 
               onClick={() => setIsDemoModalOpen(true)}
             >
-              Solicitar Demo
+              Reservar una demo
             </button>
+
+            {/* Iniciar prueba gratis de 7 días (Botón principal destacado) */}
+            <Link href="/login" className={styles.btnAmberNav}>
+              Iniciar prueba gratis de 7 días
+            </Link>
+
+            {/* Empezar gratis (Enlace sutil) */}
+            <Link href="/login" className={styles.linkEmpezarGratis}>
+              Empezar gratis
+            </Link>
           </div>
 
           {/* Botón menú hamburguesa en móvil */}
           <button 
-            className={styles.hamburgerBtn}
+            type="button"
+            className={styles.hamburgerBtnDark}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Menú principal"
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
                 <line x1="4" y1="7" x2="20" y2="7" />
                 <line x1="4" y1="12" x2="20" y2="12" />
                 <line x1="4" y1="17" x2="20" y2="17" />
@@ -80,231 +191,244 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* Menú desplegable en móvil */}
+        {/* Menú móvil desplegable */}
         {mobileMenuOpen && (
-          <div className={styles.mobileMenu}>
-            <nav className={styles.mobileNavLinks}>
-              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>El Desafío</a>
-              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>Solución</a>
-              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>Prueba de ROI</a>
-              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>Infraestructura</a>
-              <a href="#casos" onClick={() => setMobileMenuOpen(false)}>Casos de Éxito</a>
+          <div className={styles.mobileMenuDark}>
+            <nav className={styles.mobileNavLinksDark}>
+              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>Plataforma</a>
+              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>Soluciones</a>
+              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>Precios</a>
+              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>Recursos</a>
             </nav>
-            <div className={styles.mobileMenuDivider} />
-            <div className={styles.mobileMenuActions}>
-              <Link href="/login" className={styles.mobileLoginLink} onClick={() => setMobileMenuOpen(false)}>
-                Iniciar Sesión
+            <div className={styles.mobileMenuDividerDark} />
+            <div className={styles.mobileMenuActionsDark}>
+              <Link href="/login" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
+                Iniciar prueba gratis de 7 días
               </Link>
               <button 
-                className={styles.btnPrimaryNav} 
+                type="button"
+                className={styles.btnOutlineNav} 
                 onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }}
                 style={{ width: '100%', justifyContent: 'center' }}
               >
-                Solicitar Demo
+                Reservar una demo
               </button>
+              <Link href="/login" className={styles.navLoginLinkDark} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
+                Iniciar sesión
+              </Link>
             </div>
           </div>
         )}
       </header>
 
       <main className={styles.main}>
-        {/* 2. Hero Section (Primer Pantallazo con Alta Jerarquía) */}
-        <section className={styles.hero}>
-          <div className={styles.heroBadge}>
-            <span className={styles.badgeDotPulse} />
-            <span>Motor Predictivo 180 días · Compras B2B · Financiamiento Activo</span>
-          </div>
+        {/* 2. Hero Section - Layout de 2 Columnas Exacto al Diseño Panthor */}
+        <section className={styles.heroTwoColsSection}>
+          <div className={styles.heroTwoColsContainer}>
+            {/* Columna Izquierda: Contenido y Conversión */}
+            <div className={styles.heroLeftCol}>
+              {/* Eyebrow Text */}
+              <div className={styles.eyebrowAmber}>
+                PLATAFORMA
+              </div>
 
-          <h1 className={styles.title}>
-            El Cerebro de Compras para tu Empresa
-          </h1>
+              {/* Titular Principal */}
+              <h1 className={styles.heroMainTitle}>
+                Stock, pedidos y ventas.<br />
+                Conectados entre sí.
+              </h1>
 
-          <p className={styles.subtitle}>
-            Anticipa la demanda con <strong>94.5% de precisión</strong>, automatiza órdenes de reabastecimiento antes del quiebre y financia inventario sin inmovilizar capital de trabajo.
-          </p>
+              {/* Subtitular */}
+              <p className={styles.heroSubTitle}>
+                Recibe mercancía, reserva stock para un pedido y registra la venta con las mismas fichas de producto. Explora los módulos para ver qué cubre cada uno.
+              </p>
 
-          <div className={styles.heroCtaBlock}>
-            <div className={styles.heroActions}>
-              <button 
-                className={styles.btnPrimaryCta} 
-                onClick={() => setIsDemoModalOpen(true)}
-              >
-                Solicitar Demo 1:1
-              </button>
-              <Link href="/dashboard" className={styles.btnSecondaryCta}>
-                Explorar Dashboard en Vivo
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-              </Link>
-            </div>
-            <p className={styles.microCopy}>
-              ✓ Sin compromiso · Agenda tu demo personalizada en 15 min · Implementación en 14 días
-            </p>
-          </div>
+              {/* Botones de Acción (CTAs) */}
+              <div className={styles.heroBtnGroup}>
+                <Link href="/login" className={styles.btnAmberHero}>
+                  <span>Iniciar prueba gratis de 7 días</span>
+                  <span className={styles.btnArrowIcon}>→</span>
+                </Link>
+                <button 
+                  type="button"
+                  className={styles.btnOutlineHero}
+                  onClick={() => setIsDemoModalOpen(true)}
+                >
+                  Reservar una demo
+                </button>
+              </div>
 
-          {/* 3. Señales de Confianza Inmediatas (Intercalada antes del mockup) */}
-          <div className={styles.heroTrustBar}>
-            <span className={styles.heroTrustLabel}>
-              CONECTIVIDAD EMPRESARIAL VERIFICADA CON LÍDERES EN COMERCIO, ERP Y NUBE B2B:
-            </span>
-            <div className={styles.heroTrustLogos}>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>SAP</span>
-                <span className={styles.trustLogoLight}>S/4HANA</span>
-              </div>
-              <span className={styles.heroTrustDivider}>·</span>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>Mercado</span>
-                <span className={styles.trustLogoLight}>Libre</span>
-              </div>
-              <span className={styles.heroTrustDivider}>·</span>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>Shopify</span>
-                <span className={styles.trustLogoTag}>Plus</span>
-              </div>
-              <span className={styles.heroTrustDivider}>·</span>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>Amazon</span>
-                <span className={styles.trustLogoLight}>Business</span>
-              </div>
-              <span className={styles.heroTrustDivider}>·</span>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>AWS</span>
-                <span className={styles.trustLogoLight}>Cloud</span>
-              </div>
-              <span className={styles.heroTrustDivider}>·</span>
-              <div className={styles.heroTrustItem}>
-                <span className={styles.trustLogoBold}>Banco</span>
-                <span className={styles.trustLogoLight}>Pichincha B2B</span>
+              {/* Micro-copy y Señales de Confianza */}
+              <div className={styles.heroMicroTrust}>
+                <Link href="/login" className={styles.planLightLink}>
+                  o empieza gratis con el plan Light
+                </Link>
+
+                <div className={styles.trustBulletsList}>
+                  <div className={styles.trustBulletItem}>
+                    <span className={styles.checkCircleAmber}>✓</span>
+                    <span>Plan Light gratuito</span>
+                  </div>
+                  <div className={styles.trustBulletItem}>
+                    <span className={styles.checkCircleAmber}>✓</span>
+                    <span>Facturación Essential mensual o anual</span>
+                  </div>
+                  <div className={styles.trustBulletItem}>
+                    <span className={styles.checkCircleAmber}>✓</span>
+                    <span>14 días de gracia al bajar de plan</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Real AI Dashboard Preview (Visual IA en Acción) */}
-          <div className={styles.dashboardVisualWrapper}>
-            <div className={styles.dashboardCard}>
-              <div className={styles.dashboardHeader}>
-                <div className={styles.dashboardHeaderLeft}>
-                  <div className={styles.liveIndicator}>
-                    <span className={styles.liveDot}></span>
-                    <span>MOTOR PREDICTIVO EN VIVO</span>
+            {/* Columna Derecha: Visualización del Producto (Ventana macOS con Dashboard) */}
+            <div className={styles.heroRightCol}>
+              <div className={styles.macWindow}>
+                {/* Barra de control macOS */}
+                <div className={styles.macTitlebar}>
+                  <div className={styles.macControls}>
+                    <span className={styles.macDotRed} />
+                    <span className={styles.macDotYellow} />
+                    <span className={styles.macDotGreen} />
                   </div>
-                  <h3 className={styles.skuTitle}>Aceite Vegetal Primor 1L · SKU-ALI-001</h3>
-                  <span className={styles.skuSub}>Almacén Central Callao · Proveedor: Alicorp S.A.A.</span>
-                </div>
-
-                <div className={styles.dashboardHeaderRight}>
-                  <div className={styles.horizonSelector}>
-                    <button 
-                      className={`${styles.horizonBtn} ${forecastHorizon === '30d' ? styles.horizonBtnActive : ''}`}
-                      onClick={() => setForecastHorizon('30d')}
-                    >
-                      30 días
-                    </button>
-                    <button 
-                      className={`${styles.horizonBtn} ${forecastHorizon === '60d' ? styles.horizonBtnActive : ''}`}
-                      onClick={() => setForecastHorizon('60d')}
-                    >
-                      60 días
-                    </button>
-                    <button 
-                      className={`${styles.horizonBtn} ${forecastHorizon === '180d' ? styles.horizonBtnActive : ''}`}
-                      onClick={() => setForecastHorizon('180d')}
-                    >
-                      180 días
-                    </button>
+                  <div className={styles.macSearchBar}>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <span>Buscar productos, stock, almacenes, órdenes...</span>
                   </div>
-                  <div className={styles.accuracyTag}>
-                    <span>Exactitud Forecast:</span>
-                    <strong>94.8%</strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* Chart SVG Graphic */}
-              <div className={styles.chartContainer}>
-                <div className={styles.chartTelemetry}>
-                  <div className={styles.telemetryItem}>
-                    <span className={styles.telemetryLabel}>Stock Disponible</span>
-                    <span className={styles.telemetryVal}>450 uds <small>(3.8 días)</small></span>
-                    <span className={styles.telemetryStatusBad}>● Quiebre en 4 días</span>
-                  </div>
-                  <div className={styles.telemetryItem}>
-                    <span className={styles.telemetryLabel}>Demanda Proyectada ({forecastHorizon})</span>
-                    <span className={styles.telemetryVal}>
-                      {forecastHorizon === '30d' ? '1,840 uds' : forecastHorizon === '60d' ? '3,620 uds' : '10,800 uds'}
-                    </span>
-                    <span className={styles.telemetryStatusOk}>+14% vs mes anterior</span>
-                  </div>
-                  <div className={styles.telemetryItem}>
-                    <span className={styles.telemetryLabel}>Reorden Sugerido</span>
-                    <span className={styles.telemetryVal}>1,200 uds</span>
-                    <span className={styles.telemetryStatusBlue}>Ahorro PO: S/ 14,200</span>
+                  <div className={styles.macLiveStatus}>
+                    <span className={styles.macLiveDot} />
+                    <span>INVENTA Core</span>
                   </div>
                 </div>
 
-                {/* SVG Forecast Curve */}
-                <div className={styles.svgWrapper}>
-                  <svg viewBox="0 0 800 220" className={styles.forecastSvg} preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="forecastAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#2563eb" stopOpacity="0.25" />
-                        <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0" />
-                      </linearGradient>
-                      <linearGradient id="actualAreaGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#059669" stopOpacity="0.2" />
-                        <stop offset="100%" stopColor="#059669" stopOpacity="0.0" />
-                      </linearGradient>
-                    </defs>
+                {/* Interior de la ventana: Mockup de Alta Fidelidad */}
+                <div className={styles.macMockupContent}>
+                  {/* Encabezado del Dashboard */}
+                  <div className={styles.mockupHeaderRow}>
+                    <div>
+                      <div className={styles.mockupBreadcrumb}>INVENTA.AI › Overview</div>
+                      <h3 className={styles.mockupHeading}>Overview</h3>
+                      <p className={styles.mockupSubtext}>El algoritmo operó los últimos 30 días</p>
+                    </div>
+                    <div className={styles.mockupHeaderTools}>
+                      <span className={styles.mockupDateTag}>30d · 90d · 180d</span>
+                      <button type="button" className={styles.mockupToolBtn}>Filtrar</button>
+                    </div>
+                  </div>
 
-                    {/* Grid Lines */}
-                    <line x1="0" y1="40" x2="800" y2="40" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-                    <line x1="0" y1="100" x2="800" y2="100" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
-                    <line x1="0" y1="160" x2="800" y2="160" stroke="rgba(255,255,255,0.06)" strokeDasharray="4 4" />
+                  <p className={styles.mockupInsightText}>
+                    Inventory is in good shape overall, with a health score of 85. Moving well below stock-out rate of 1.2% (target &lt;3%). Forecast demand for next 30 days is 12,847 units across 4 warehouses.
+                  </p>
 
-                    {/* Historical Curve */}
-                    <path 
-                      d="M 0 170 Q 100 160 200 140 T 400 110 L 400 220 L 0 220 Z" 
-                      fill="url(#actualAreaGrad)" 
-                    />
-                    <path 
-                      d="M 0 170 Q 100 160 200 140 T 400 110" 
-                      fill="none" 
-                      stroke="#059669" 
-                      strokeWidth="3" 
-                    />
+                  {/* Tarjetas de Resumen KPI */}
+                  <div className={styles.mockupKpiGrid}>
+                    <div className={styles.mockupKpiItem}>
+                      <span className={styles.mockupKpiLabel}>Stock Valorizado</span>
+                      <div className={styles.mockupKpiValue}>$812,450</div>
+                      <span className={styles.mockupKpiBadgeUp}>↑ +4.2%</span>
+                    </div>
+                    <div className={styles.mockupKpiItem}>
+                      <span className={styles.mockupKpiLabel}>Pedidos Sincronizados</span>
+                      <div className={styles.mockupKpiValue}>12,847</div>
+                      <span className={styles.mockupKpiBadgeUp}>↑ 99.8% a tiempo</span>
+                    </div>
+                    <div className={styles.mockupKpiItem}>
+                      <span className={styles.mockupKpiLabel}>Salud de Inventario</span>
+                      <div className={styles.mockupKpiValue}>85%</div>
+                      <span className={styles.mockupKpiBadgeNeutral}>Óptimo</span>
+                    </div>
+                    <div className={styles.mockupKpiItem}>
+                      <span className={styles.mockupKpiLabel}>Sedes Conectadas</span>
+                      <div className={styles.mockupKpiValue}>8</div>
+                      <span className={styles.mockupKpiBadgeUp}>100% online</span>
+                    </div>
+                  </div>
 
-                    {/* Future Prediction Curve (with confidence cone) */}
-                    <path 
-                      d="M 400 110 Q 500 80 600 70 T 800 45 L 800 220 L 400 220 Z" 
-                      fill="url(#forecastAreaGrad)" 
-                    />
-                    <path 
-                      d="M 400 110 Q 500 80 600 70 T 800 45" 
-                      fill="none" 
-                      stroke="#2563eb" 
-                      strokeWidth="3" 
-                      strokeDasharray="6 4"
-                    />
+                  {/* Gráficos del Mockup */}
+                  <div className={styles.mockupVisualsSplit}>
+                    {/* Gráfico de Forecast y Demanda */}
+                    <div className={styles.mockupChartCard}>
+                      <div className={styles.mockupChartHeader}>
+                        <span>Demanda Real vs Pronóstico IA</span>
+                        <div className={styles.mockupLegend}>
+                          <span style={{ color: '#10b981' }}>―</span> Real
+                          <span style={{ color: '#3b82f6' }}>┄</span> Forecast
+                        </div>
+                      </div>
+                      <div className={styles.mockupSvgWrap}>
+                        <svg viewBox="0 0 380 130" className={styles.mockupSvg} preserveAspectRatio="none">
+                          <defs>
+                            <linearGradient id="mockupBlueGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.3" />
+                              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
+                            </linearGradient>
+                            <linearGradient id="mockupGreenGrad" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#10b981" stopOpacity="0.25" />
+                              <stop offset="100%" stopColor="#10b981" stopOpacity="0.0" />
+                            </linearGradient>
+                          </defs>
+                          <line x1="0" y1="30" x2="380" y2="30" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+                          <line x1="0" y1="65" x2="380" y2="65" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+                          <line x1="0" y1="100" x2="380" y2="100" stroke="rgba(255,255,255,0.07)" strokeDasharray="3 3" />
+                          <path d="M 0 95 Q 45 85 90 75 T 190 60 L 190 130 L 0 130 Z" fill="url(#mockupGreenGrad)" />
+                          <path d="M 0 95 Q 45 85 90 75 T 190 60" fill="none" stroke="#10b981" strokeWidth="2.5" />
+                          <path d="M 190 60 Q 240 45 290 38 T 380 20 L 380 130 L 190 130 Z" fill="url(#mockupBlueGrad)" />
+                          <path d="M 190 60 Q 240 45 290 38 T 380 20" fill="none" stroke="#3b82f6" strokeWidth="2.5" strokeDasharray="4 3" />
+                          <circle cx="190" cy="60" r="4" fill="#3b82f6" stroke="#ffffff" strokeWidth="1.5" />
+                        </svg>
+                      </div>
+                    </div>
 
-                    {/* Threshold Line (Safety Stock) */}
-                    <line x1="0" y1="180" x2="800" y2="180" stroke="#dc2626" strokeWidth="2" strokeDasharray="4 4" />
-
-                    {/* Event Marker */}
-                    <circle cx="400" cy="110" r="6" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
-                    <rect x="340" y="80" width="120" height="24" rx="4" fill="#0f172a" stroke="#334155" />
-                    <text x="400" y="96" fill="#38bdf8" fontSize="11" textAnchor="middle" fontWeight="bold">HOY · Reordenar</text>
-                  </svg>
-                </div>
-
-                <div className={styles.chartFoot}>
-                  <span className={styles.chartLegend}><span style={{ color: '#059669' }}>―</span> Demanda Real Conciliada</span>
-                  <span className={styles.chartLegend}><span style={{ color: '#2563eb' }}>┄</span> Forecast Predictivo IA (94.8% conf.)</span>
-                  <span className={styles.chartLegend}><span style={{ color: '#dc2626' }}>┄</span> Stock Mínimo de Seguridad (Buffer)</span>
+                    {/* Gráfico Radial de Salud */}
+                    <div className={styles.mockupGaugeCard}>
+                      <div className={styles.mockupChartHeader}>
+                        <span>Disponibilidad</span>
+                      </div>
+                      <div className={styles.mockupGaugeCircle}>
+                        <svg viewBox="0 0 90 90" className={styles.mockupDonut}>
+                          <circle cx="45" cy="45" r="34" fill="none" stroke="#1e293b" strokeWidth="7" />
+                          <circle 
+                            cx="45" 
+                            cy="45" 
+                            r="34" 
+                            fill="none" 
+                            stroke="#10b981" 
+                            strokeWidth="7" 
+                            strokeDasharray="213.6" 
+                            strokeDashoffset="32" 
+                            strokeLinecap="round"
+                            transform="rotate(-90 45 45)" 
+                          />
+                          <text x="45" y="47" fill="#ffffff" fontSize="15" fontWeight="bold" textAnchor="middle" dominantBaseline="middle">85%</text>
+                          <text x="45" y="60" fill="#94a3b8" fontSize="7" textAnchor="middle">ÓPTIMO</text>
+                        </svg>
+                      </div>
+                      <div className={styles.mockupGaugeLegend}>
+                        <div><span style={{ color: '#10b981' }}>●</span> En Stock</div>
+                        <div><span style={{ color: '#f59e0b' }}>●</span> Bajo Stock</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
+
+        {/* Floating Action Button (Esquina inferior derecha) */}
+        <button 
+          type="button"
+          className={styles.floatingBusinessFitBtn}
+          onClick={() => setIsDemoModalOpen(true)}
+          aria-label="Consultar si encaja con mi negocio"
+        >
+          <span className={styles.sparkleIcon}>✨</span>
+          <span>¿Encaja con mi negocio?</span>
+        </button>
+
 
         {/* 3. Confianza Inmediata & Partners */}
         <section className={styles.trustSection}>
