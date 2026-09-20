@@ -11,18 +11,35 @@ export async function GET() {
     const customSession = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 
-    const workspaceId =
-      customSession?.workspaceId ||
-      (nextAuthSession?.user as any)?.workspace_id ||
-      (nextAuthSession?.user as any)?.workspace?.id ||
-      'ws-default';
-
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
 
+    let targetWorkspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
+      (nextAuthSession?.user as any)?.workspace?.id;
+
+    const userEmail = nextAuthSession?.user?.email || customSession?.email;
+    const userId = (nextAuthSession?.user as any)?.id || customSession?.userId;
+
+    if ((!targetWorkspaceId || targetWorkspaceId === 'ws-default') && (userEmail || userId)) {
+      let dbUser;
+      if (userId) {
+        const { data } = await supabase.from('users').select('workspace_id').eq('id', userId).maybeSingle();
+        dbUser = data;
+      }
+      if (!dbUser && userEmail) {
+        const { data } = await supabase.from('users').select('workspace_id').eq('email', userEmail).maybeSingle();
+        dbUser = data;
+      }
+      if (dbUser?.workspace_id) {
+        targetWorkspaceId = dbUser.workspace_id;
+      }
+    }
+
     let workspace;
-    if (workspaceId !== 'ws-default') {
-      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).maybeSingle();
+    if (targetWorkspaceId && targetWorkspaceId !== 'ws-default') {
+      const { data } = await supabase.from('workspaces').select('*').eq('id', targetWorkspaceId).maybeSingle();
       workspace = data;
       if (workspace && typeof workspace.settings === 'string') {
         try { workspace.settings = JSON.parse(workspace.settings); } catch(e){}
@@ -40,23 +57,30 @@ export async function GET() {
 
     const ruc = savedSettings.ruc || sessionSettings.ruc || customSession?.workspaceRuc || '';
 
+    const leadTime = savedSettings.leadTime ?? sessionSettings.leadTime ?? 5;
+    const sla = String(savedSettings.sla || sessionSettings.sla || '95');
+    const moneda = savedSettings.moneda || savedSettings.currency || sessionSettings.currency || 'PEN';
+    const horizonteProyeccion = String(savedSettings.horizonteProyeccion || savedSettings.horizon || sessionSettings.horizon || '30');
+    const alertasWhatsapp = savedSettings.alertasWhatsapp ?? savedSettings.notifyWhatsApp ?? sessionSettings.notifyWhatsApp ?? true;
+    const resumenCorreo = savedSettings.resumenCorreo ?? savedSettings.notifyEmail ?? sessionSettings.notifyEmail ?? true;
+
     const settings = {
       // Claves canónicas
       razonSocial: companyName,
       ruc,
-      leadTime: savedSettings.leadTime ?? sessionSettings.leadTime ?? 5,
-      sla: savedSettings.sla || sessionSettings.sla || '95',
-      moneda: savedSettings.currency || sessionSettings.currency || 'PEN',
-      horizonteProyeccion: savedSettings.horizon || sessionSettings.horizon || '30',
-      alertasWhatsapp: savedSettings.notifyWhatsApp ?? sessionSettings.notifyWhatsApp ?? true,
-      resumenCorreo: savedSettings.notifyEmail ?? sessionSettings.notifyEmail ?? true,
+      leadTime,
+      sla,
+      moneda,
+      horizonteProyeccion,
+      alertasWhatsapp,
+      resumenCorreo,
 
       // Alias retrocompatibles
       companyName,
-      currency: savedSettings.currency || sessionSettings.currency || 'PEN',
-      horizon: savedSettings.horizon || sessionSettings.horizon || '30',
-      notifyWhatsApp: savedSettings.notifyWhatsApp ?? sessionSettings.notifyWhatsApp ?? true,
-      notifyEmail: savedSettings.notifyEmail ?? sessionSettings.notifyEmail ?? true,
+      currency: moneda,
+      horizon: horizonteProyeccion,
+      notifyWhatsApp: alertasWhatsapp,
+      notifyEmail: resumenCorreo,
     };
 
     return NextResponse.json({
@@ -110,18 +134,36 @@ export async function PUT(req: NextRequest) {
     const targetSla = sla || '95';
     const targetRuc = (ruc || '').trim();
 
-    const workspaceId =
-      customSession?.workspaceId ||
-      (nextAuthSession?.user as any)?.workspace_id ||
-      (nextAuthSession?.user as any)?.workspace?.id ||
-      'ws-default';
-
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
 
-    // Persistir en base de datos real (Supabase)
-    let updated;
-    const targetWorkspaceId = workspaceId !== 'ws-default' ? workspaceId : `ws-${Date.now()}`;
+    const userEmail = nextAuthSession?.user?.email || customSession?.email;
+    const userId = (nextAuthSession?.user as any)?.id || customSession?.userId;
+
+    let targetWorkspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace_id ||
+      (nextAuthSession?.user as any)?.workspace?.id;
+
+    if ((!targetWorkspaceId || targetWorkspaceId === 'ws-default') && (userEmail || userId)) {
+      let dbUser;
+      if (userId) {
+        const { data } = await supabase.from('users').select('workspace_id').eq('id', userId).maybeSingle();
+        dbUser = data;
+      }
+      if (!dbUser && userEmail) {
+        const { data } = await supabase.from('users').select('workspace_id').eq('email', userEmail).maybeSingle();
+        dbUser = data;
+      }
+      if (dbUser?.workspace_id) {
+        targetWorkspaceId = dbUser.workspace_id;
+      }
+    }
+
+    if (!targetWorkspaceId || targetWorkspaceId === 'ws-default') {
+      targetWorkspaceId = `ws-${Date.now()}`;
+    }
+
     const slugUrl = customSession?.workspaceSlug || (nextAuthSession?.user as any)?.workspace?.slug || `ws-${targetWorkspaceId}`;
 
     const { data, error } = await supabase.from('workspaces').upsert({
@@ -132,9 +174,13 @@ export async function PUT(req: NextRequest) {
         ruc: targetRuc,
         leadTime: targetLeadTime,
         sla: targetSla,
+        moneda: targetMoneda,
         currency: targetMoneda,
+        horizonteProyeccion: targetHorizon,
         horizon: targetHorizon,
+        alertasWhatsapp: targetWhatsapp,
         notifyWhatsApp: targetWhatsapp,
+        resumenCorreo: targetEmail,
         notifyEmail: targetEmail,
       },
       updated_at: new Date().toISOString(),
@@ -147,10 +193,9 @@ export async function PUT(req: NextRequest) {
         { status: 500 }
       );
     }
-    updated = data;
+    const updated = data;
 
     // Asegurar vinculación del usuario en la tabla users
-    const userEmail = nextAuthSession?.user?.email || customSession?.email;
     if (userEmail) {
       await supabase.from('users').update({ workspace_id: targetWorkspaceId }).eq('email', userEmail);
     }
@@ -206,7 +251,7 @@ export async function PUT(req: NextRequest) {
       success: true,
       workspaceName: targetName,
       settings: normalizedSettings,
-      workspace: updated || { id: workspaceId, name: targetName },
+      workspace: updated || { id: targetWorkspaceId, name: targetName },
       message: 'Configuración guardada exitosamente en la base de datos.',
     });
   } catch (error: any) {
