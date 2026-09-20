@@ -28,8 +28,8 @@ export interface WorkspaceState {
 }
 
 const DEFAULT_SETTINGS: WorkspaceSettings = {
-  razonSocial: 'Distribuidora San Martín',
-  ruc: '20601234567',
+  razonSocial: '',
+  ruc: '',
   leadTime: 5,
   sla: '95',
   moneda: 'PEN',
@@ -42,8 +42,8 @@ export const useWorkspaceStore = create<WorkspaceState>()(
   persist(
     (set) => ({
       settings: DEFAULT_SETTINGS,
-      workspaceName: DEFAULT_SETTINGS.razonSocial,
-      workspaceSlug: 'distribuidora-san-martin',
+      workspaceName: '',
+      workspaceSlug: '',
 
       updateWorkspaceSettings: (newSettings) =>
         set((state) => {

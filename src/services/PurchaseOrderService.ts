@@ -293,14 +293,18 @@ _Mensaje automatizado emitido por INVENTA.AI_`;
     const total = order.total_amount.toFixed(2);
     const dateStr = new Date().toLocaleDateString('es-PE');
 
+    const ws = db.getWorkspace('ws-default');
+    const companyHeader = (ws?.name || 'ORDEN DE COMPRA').toUpperCase();
+    const rucHeader = ws?.settings?.ruc ? `RUC: ${ws.settings.ruc} - ` : '';
+
     // Build PostScript text stream for PDF
     const textLines: string[] = [
       `BT`,
       `/F1 18 Tf`,
-      `50 780 Td (DISTRIBUIDORA SAN MARTIN S.A.C.) Tj`,
+      `50 780 Td (${companyHeader}) Tj`,
       `/F1 10 Tf`,
-      `0 -16 Td (RUC: 20459812401 - Av. Materiales 3045, Lima, Peru) Tj`,
-      `0 -14 Td (Telefono: +51 1 614-8000 | Web: https://inventa-ia.vercel.app) Tj`,
+      `0 -16 Td (${rucHeader}Lima, Peru) Tj`,
+      `0 -14 Td (Web: https://inventa-ia.vercel.app) Tj`,
       `/F1 14 Tf`,
       `0 -30 Td (ORDEN DE COMPRA: ${order.order_number}) Tj`,
       `/F1 10 Tf`,

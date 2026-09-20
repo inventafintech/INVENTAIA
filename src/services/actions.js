@@ -105,7 +105,7 @@ function ocPDF(i) {
   const o = PURCHASE_ORDERS[i];
   const w = window.open("", "_blank");
   w.document.write(`<html><head><title>${o.id}</title><style>body{font-family:Arial;padding:40px;color:#111}h1{font-size:22px}table{width:100%;border-collapse:collapse;margin:20px 0}td,th{border:1px solid #999;padding:8px;text-align:left}.r{text-align:right}.muted{color:#555}</style></head><body>
-    <h1>INVENTA.AI — Orden de Compra ${o.id}</h1><p class="muted">Distribuidora San Martín · Lima · ${o.created || ""}</p>
+    <h1>INVENTA.AI — Orden de Compra ${o.id}</h1><p class="muted">Lima · ${o.created || ""}</p>
     <p><b>Proveedor:</b> ${o.supplier}<br><b>Entrega esperada:</b> ${o.eta}<br><b>Estado:</b> ${o.status}</p>
     <table><tr><th>Detalle</th><th class="r">Total</th></tr><tr><td>${o.items}</td><td class="r"><b>${PEN(o.total)}</b></td></tr></table>
     <p class="muted">✦ ${o.ai}</p><p class="muted">Generado por INVENTA.AI · ${(o.hist || []).map(h => h.t + ": " + h.e).join(" → ")}</p>
@@ -114,7 +114,7 @@ function ocPDF(i) {
 }
 function ocEmail(i) {
   const o = PURCHASE_ORDERS[i]; const sup = SUPPLIERS[o.supKey] || {};
-  location.href = `mailto:${sup.email || ""}?subject=${encodeURIComponent("Orden de compra " + o.id + " — Distribuidora San Martín")}&body=${encodeURIComponent("Estimados " + o.supplier + ":\n\nConfirmamos la orden " + o.id + " por " + PEN(o.total) + ":\n" + o.items + "\n\nEntrega esperada: " + o.eta + "\n\nSaludos,\n" + ME)}`;
+  location.href = `mailto:${sup.email || ""}?subject=${encodeURIComponent("Orden de compra " + o.id)}&body=${encodeURIComponent("Estimados " + o.supplier + ":\n\nConfirmamos la orden " + o.id + " por " + PEN(o.total) + ":\n" + o.items + "\n\nEntrega esperada: " + o.eta + "\n\nSaludos,\n" + ME)}`;
   audit("Envía email de " + o.id); save();
 }
 function ocWA(i) {

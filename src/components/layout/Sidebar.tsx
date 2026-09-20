@@ -59,8 +59,8 @@ export function Sidebar({ pendingOrdersCount }: SidebarProps) {
       {/* Encabezado de Marca */}
       <div className={styles.brand}>
         <div className={styles.logo}>I.AI</div>
-        <span className={styles.company} title={workspaceName}>
-          {workspaceName}
+        <span className={styles.company} title={workspaceName || 'Mi Empresa'}>
+          {workspaceName || 'Mi Empresa'}
         </span>
       </div>
 

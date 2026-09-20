@@ -32,8 +32,8 @@ export async function GET() {
 
     const workspace = db.getWorkspace(workspaceId) || {
       id: workspaceId,
-      name: session?.workspaceName || (nextAuthSession?.user as any)?.workspace?.name || 'Distribuidora San Martín',
-      slug_url: session?.workspaceSlug || 'distribuidora-san-martin',
+      name: session?.workspaceName || (nextAuthSession?.user as any)?.workspace?.name || '',
+      slug_url: session?.workspaceSlug || '',
     };
 
     return NextResponse.json({

@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AppShellState } from '@/types/appShell';
 
 const defaultState: AppShellState = {
-  companyName: 'Distribuidora San Martín',
+  companyName: '',
   companyInitials: 'I.AI',
   pageTitle: 'Cerebro de Compras',
   hasActiveIntegrations: false,

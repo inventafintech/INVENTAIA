@@ -16,8 +16,9 @@ export class AppShellService {
     const logs = db.getLogs(5);
     const lastSuccess = logs.find((l) => l.level === 'SUCCESS');
 
+    const ws = db.getWorkspace('ws-default');
     return {
-      companyName: 'Distribuidora San Martín',
+      companyName: ws?.name || '',
       companyInitials: 'I.AI',
       pageTitle: 'Cerebro de Compras',
       hasActiveIntegrations: health.hasActive,

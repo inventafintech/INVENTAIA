@@ -24,8 +24,8 @@ export default function AjustesPage() {
           const data = await res.json();
           if (data.settings) {
             const serverSettings: WorkspaceSettings = {
-              razonSocial: data.settings.razonSocial || data.settings.companyName || 'Distribuidora San Martín',
-              ruc: data.settings.ruc || '20601234567',
+              razonSocial: data.settings.razonSocial || data.settings.companyName || '',
+              ruc: data.settings.ruc || '',
               leadTime: Number(data.settings.leadTime) || 5,
               sla: String(data.settings.sla || '95'),
               moneda: data.settings.moneda || data.settings.currency || 'PEN',
@@ -157,7 +157,7 @@ export default function AjustesPage() {
               value={formData.ruc}
               onChange={(e) => handleChange('ruc', e.target.value)}
               className={styles.input} 
-              placeholder="ej. 20601234567"
+              placeholder="20XXXXXXXXX"
             />
           </div>
         </div>

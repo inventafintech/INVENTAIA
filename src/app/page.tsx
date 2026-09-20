@@ -638,7 +638,7 @@ export default function LandingPage() {
           <div id="casos" className={styles.caseStudyBox}>
             <div className={styles.caseStudyContent}>
               <span className={styles.caseStudyTag}>CASO DE ÉXITO VERIFICADO</span>
-              <h3 className={styles.caseStudyCompany}>Distribuidora San Martín S.A.C.</h3>
+              <h3 className={styles.caseStudyCompany}>Grupo Logístico Nacional S.A.C.</h3>
               <p className={styles.caseStudyCategory}>Distribución de Consumo Masivo · 1,200 SKUs · 4 Almacenes</p>
               <blockquote className={styles.caseStudyQuote}>
                 &ldquo;Antes de INVENTA.AI perdíamos ventas todas las semanas por quiebres en nuestros 40 productos estrella, mientras teníamos S/ 300,000 atrapados en productos de baja rotación. En menos de 90 días redujimos los quiebres en 52% y liberamos S/ 120,000 en liquidez inmediata.&rdquo;

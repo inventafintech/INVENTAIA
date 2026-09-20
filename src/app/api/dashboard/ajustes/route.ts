@@ -21,14 +21,14 @@ export async function GET() {
       workspace?.name ||
       customSession?.workspaceName ||
       (nextAuthSession?.user as any)?.workspace?.name ||
-      'Distribuidora San Martín';
+      '';
 
     const savedSettings = workspace?.settings || {};
 
     const settings = {
       // Claves canónicas
       razonSocial: companyName,
-      ruc: savedSettings.ruc || '20601234567',
+      ruc: savedSettings.ruc || '',
       leadTime: savedSettings.leadTime ?? 5,
       sla: savedSettings.sla || '95',
       moneda: savedSettings.currency || 'PEN',

@@ -619,10 +619,10 @@ function initDb(): DatabaseStore {
     workspaces: {
       'ws-default': {
         id: 'ws-default',
-        name: 'Distribuidora San Martín',
-        slug_url: 'distribuidora-san-martin',
+        name: '',
+        slug_url: '',
         settings: {
-          ruc: '20601234567',
+          ruc: '',
           leadTime: 5,
           sla: '95',
           currency: 'PEN',
@@ -1186,8 +1186,8 @@ export const db = {
       targetId = id || 'ws-default';
       ws = {
         id: targetId,
-        name: updates.name || 'Distribuidora San Martín',
-        slug_url: updates.slug_url || 'distribuidora-san-martin',
+        name: updates.name || '',
+        slug_url: updates.slug_url || '',
         settings: updates.settings,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
