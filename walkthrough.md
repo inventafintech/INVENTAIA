@@ -4,6 +4,36 @@ Implementación integral de arquitectura limpia (Clean Architecture), TypeScript
 
 ---
 
+## 7. Módulo "Inteligencia & Analytics Operacional" (`/dashboard/analytics`)
+
+### Componentes y Funcionalidades Implementadas
+- **Header & Indicador de Integración**:
+  - Título `"Inteligencia & Analytics Operacional"` y subtítulo `"Métricas de precisión algorítmica, retorno de capital inmovilizado y tasa de quiebre prevenida."`.
+  - Indicador obligatorio en la esquina superior derecha: `Pendiente de configuración` con badge ámbar y punto naranja mientras las integraciones de ventas/ERP permanezcan desconectadas.
+- **Tarjetas KPI Dinámicas**:
+  - **PRECISIÓN DEL ALGORITMO**: `94.5%` con variación mensual `+2.3% vs mes anterior (MAPE: 5.5%)`.
+  - **AHORRO GENERADO (30D)**: `S/ 48,600` con subtítulo `Por consolidación y anticipación`.
+  - **INVENTARIO MUERTO**: `-42%` con subtítulo `Liberación de capital estancado`.
+  - **QUIEBRES PREVENIDOS**: `18 SKUs` con subtítulo `100% stockout mitigado`.
+- **Gráfico de Tendencia (Líneas & Área)**:
+  - Componente `"Evolución de Precisión de Forecast vs Demanda Real (6 meses)"` con curva SVG de alta precisión, gradiente azul, puntos interactivos con tooltips (`Mayo (88%)`, `Junio (89%)`, `Julio (91%)`, `Ago (93%)`, `Sep (94%)`, `Oct (94.5%)`) y líneas de cuadrícula tenues.
+- **Gráfico de Ranking (Barras Horizontales)**:
+  - Componente `"Precisión por Categoría"` ordenado de mayor a menor:
+    - **Abarrotes & Consumo**: `96.2%`
+    - **Bebidas & Licores**: `94.8%`
+    - **Materiales Construcción**: `93.1%`
+    - **Lácteos & Refrigerados**: `91.4%`
+- **Lógica de Backend y Data Science**:
+  - Servicio `AnalyticsService.ts` implementando la fórmula real del MAPE:
+    $$\text{MAPE} = \frac{1}{n} \sum_{i=1}^n \left| \frac{\text{actual}_i - \text{forecast}_i}{\text{actual}_i} \right| \times 100$$
+    $$\text{Precisión} = 100\% - \text{MAPE}$$
+  - Motor de Ahorros cuantificando el capital liberado a partir de logs de auditoría.
+- **Arquitectura de Base de Datos**:
+  - Tablas relacionales en `schema.sql` y `prisma/schema.prisma`: `forecast_accuracy_logs`, `inventory_savings_logs`, `prevented_stockouts`.
+  - Endpoint REST: `GET /api/dashboard/analytics`.
+
+---
+
 ## 6. Módulo "Maestro de Inventario" (`/dashboard/inventario`)
 
 ### Componentes y Funcionalidades Implementadas
