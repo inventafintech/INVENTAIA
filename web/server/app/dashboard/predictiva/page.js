@@ -1,7 +1,7 @@
 var R=require("../../../chunks/ssr/[turbopack]_runtime.js")("server/app/dashboard/predictiva/page.js")
 R.c("server/chunks/ssr/[root-of-the-server]__1aiew9v._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_1n3w9lb._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__1t5dj3g._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__0ted_8b._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__0xpcv9w._.js")
 R.c("server/chunks/ssr/[root-of-the-server]__17y6r1f._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_client_components_0wpq8j3._.js")
