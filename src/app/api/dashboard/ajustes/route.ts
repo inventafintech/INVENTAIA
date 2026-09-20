@@ -22,7 +22,7 @@ export async function GET() {
 
     let workspace;
     if (workspaceId !== 'ws-default') {
-      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).single();
+      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).maybeSingle();
       workspace = data;
       if (workspace && typeof workspace.settings === 'string') {
         try { workspace.settings = JSON.parse(workspace.settings); } catch(e){}
@@ -121,33 +121,38 @@ export async function PUT(req: NextRequest) {
 
     // Persistir en base de datos real (Supabase)
     let updated;
-    if (workspaceId !== 'ws-default') {
-      const { data, error } = await supabase.from('workspaces').update({
-        name: targetName,
-        settings: {
-          ruc: targetRuc,
-          leadTime: targetLeadTime,
-          sla: targetSla,
-          currency: targetMoneda,
-          horizon: targetHorizon,
-          notifyWhatsApp: targetWhatsapp,
-          notifyEmail: targetEmail,
-        },
-      }).eq('id', workspaceId).select().single();
-      
-      if (error) {
-        console.error('Supabase Error en update de ajustes:', error);
-        return NextResponse.json(
-          { success: false, error: 'Error al actualizar base de datos: ' + error.message },
-          { status: 500 }
-        );
-      }
-      updated = data;
-    } else {
+    const targetWorkspaceId = workspaceId !== 'ws-default' ? workspaceId : `ws-${Date.now()}`;
+    const slugUrl = customSession?.workspaceSlug || (nextAuthSession?.user as any)?.workspace?.slug || `ws-${targetWorkspaceId}`;
+
+    const { data, error } = await supabase.from('workspaces').upsert({
+      id: targetWorkspaceId,
+      name: targetName,
+      slug_url: slugUrl,
+      settings: {
+        ruc: targetRuc,
+        leadTime: targetLeadTime,
+        sla: targetSla,
+        currency: targetMoneda,
+        horizon: targetHorizon,
+        notifyWhatsApp: targetWhatsapp,
+        notifyEmail: targetEmail,
+      },
+      updated_at: new Date().toISOString(),
+    }, { onConflict: 'id' }).select().maybeSingle();
+    
+    if (error) {
+      console.error('Supabase Error en update de ajustes:', error);
       return NextResponse.json(
-        { success: false, error: 'No se identificó un espacio de trabajo válido (ws-default).' },
-        { status: 400 }
+        { success: false, error: 'Error al actualizar base de datos: ' + error.message },
+        { status: 500 }
       );
+    }
+    updated = data;
+
+    // Asegurar vinculación del usuario en la tabla users
+    const userEmail = nextAuthSession?.user?.email || customSession?.email;
+    if (userEmail) {
+      await supabase.from('users').update({ workspace_id: targetWorkspaceId }).eq('email', userEmail);
     }
 
     // Actualizar o crear sesión activa con cookie segura para persistencia entre lambdas serverless
@@ -156,14 +161,14 @@ export async function PUT(req: NextRequest) {
       email: nextAuthSession?.user?.email || 'admin@inventa.ai',
       name: nextAuthSession?.user?.name || targetName || 'Usuario',
       avatarUrl: (nextAuthSession?.user as any)?.image,
-      workspaceId,
-      workspaceSlug: 'default',
+      workspaceId: targetWorkspaceId,
+      workspaceSlug: slugUrl,
       role: 'OWNER' as const,
     };
 
     await SessionManager.createSession({
       ...baseSession,
-      workspaceId,
+      workspaceId: targetWorkspaceId,
       workspaceName: targetName,
       workspaceRuc: targetRuc,
       settings: {
