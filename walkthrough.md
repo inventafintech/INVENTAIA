@@ -4,6 +4,24 @@ Implementación integral de arquitectura limpia (Clean Architecture), TypeScript
 
 ---
 
+## 8. Módulo "App Shell & Motor de Integraciones" (Layout Global & Sidebar)
+
+### Componentes y Funcionalidades Implementadas
+- **Arquitectura Modular Clean Architecture**:
+  - `Sidebar.tsx` ([src/components/layout/Sidebar.tsx](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/components/layout/Sidebar.tsx)): Barra lateral fija con identidad corporativa `I.AI` (`Distribuidora San Martín`), secciones estructuradas `PRINCIPAL` y `OPERACIÓN`, footer con enlaces a `Ajustes` y `Volver al Inicio`.
+  - `TopBar.tsx` ([src/components/layout/TopBar.tsx](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/components/layout/TopBar.tsx)): Barra superior con título dinámico y badge de estado de integraciones `Pendiente de configuración` con indicador ámbar pulsante.
+  - `AppShell.tsx` ([src/components/layout/AppShell.tsx](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/components/layout/AppShell.tsx)): Envoltorio global para Next.js App Router combinando Server Components (`layout.tsx`) con componentes reactivos de cliente.
+- **Badge Dinámico de Notificaciones**:
+  - El enlace **"Órdenes"** calcula en tiempo real el número de órdenes de compra pendientes de aprobación (estado `draft` en la base de datos), mostrando dinámicamente el badge rojo circular con el valor exacto (`2`).
+- **Motor de Integraciones Base (`IntegrationEngineService.ts`)**:
+  - **Shopify & Mercado Libre**: Verifica credenciales reales (`shop_domain`, `access_token`, `refresh_token`). Si no existen, inyecta `NO CONFIGURADO` y expone `pending_configuration`.
+  - **SAP**: Verifica la conectividad REST/OData. Al no haber instancia conectada, registra en `integration_logs`: `"Conector disponible. Instancia SAP no configurada."`.
+  - **WhatsApp Business**: Verifica la configuración del token de Meta Cloud API (`WHATSAPP_API_TOKEN`).
+- **Endpoint REST del App Shell**:
+  - `GET /api/dashboard/shell`: Retorna en una sola llamada optimizada el estado consolidado de integraciones, badge de órdenes pendientes y datos de sesión.
+
+---
+
 ## 7. Módulo "Inteligencia & Analytics Operacional" (`/dashboard/analytics`)
 
 ### Componentes y Funcionalidades Implementadas
