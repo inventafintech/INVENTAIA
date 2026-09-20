@@ -211,3 +211,56 @@ model PreventedStockout {
   @@index([created_at])
   @@map("prevented_stockouts")
 }
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  avatar_url String?
+  google_id  String?  @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  workspaces WorkspaceUser[]
+
+  @@index([email])
+  @@index([google_id])
+  @@map("users")
+}
+
+model Workspace {
+  id         String   @id @default(uuid())
+  name       String
+  slug_url   String   @unique
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  users WorkspaceUser[]
+
+  @@index([slug_url])
+  @@map("workspaces")
+}
+
+model WorkspaceUser {
+  id           String        @id @default(uuid())
+  user_id      String
+  workspace_id String
+  role         WorkspaceRole @default(OWNER)
+  created_at   DateTime      @default(now())
+
+  user      User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspace_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, workspace_id])
+  @@index([user_id])
+  @@index([workspace_id])
+  @@index([role])
+  @@map("workspace_users")
+}
+

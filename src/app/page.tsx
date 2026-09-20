@@ -42,6 +42,9 @@ export default function LandingPage() {
           </nav>
 
           <div className={styles.actions}>
+            <Link href="/login" className={styles.btnSecondaryNav}>
+              Iniciar Sesión
+            </Link>
             <Link href="/dashboard" className={styles.btnSecondaryNav}>
               Ver cómo funciona
             </Link>

@@ -170,6 +170,32 @@ export interface PreventedStockoutRecord {
   created_at: string;
 }
 
+export interface UserRecord {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  google_id?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceRecord {
+  id: string;
+  name: string;
+  slug_url: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceUserRecord {
+  id: string;
+  user_id: string;
+  workspace_id: string;
+  role: 'OWNER' | 'ADMIN' | 'MEMBER';
+  created_at: string;
+}
+
 // In-memory + persistent storage
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'integrations_store.json');
@@ -191,6 +217,9 @@ interface DatabaseStore {
   forecast_accuracy_logs: ForecastAccuracyLogRecord[];
   inventory_savings_logs: InventorySavingsLogRecord[];
   prevented_stockouts: PreventedStockoutRecord[];
+  users: Record<string, UserRecord>;
+  workspaces: Record<string, WorkspaceRecord>;
+  workspace_users: WorkspaceUserRecord[];
 }
 
 function initDb(): DatabaseStore {
@@ -573,6 +602,9 @@ function initDb(): DatabaseStore {
     forecast_accuracy_logs: defaultForecastLogs,
     inventory_savings_logs: defaultSavingsLogs,
     prevented_stockouts: defaultPreventedStockouts,
+    users: {},
+    workspaces: {},
+    workspace_users: [],
   };
 
   try {
@@ -596,6 +628,9 @@ function initDb(): DatabaseStore {
         forecast_accuracy_logs: parsed.forecast_accuracy_logs?.length ? parsed.forecast_accuracy_logs : defaultForecastLogs,
         inventory_savings_logs: parsed.inventory_savings_logs?.length ? parsed.inventory_savings_logs : defaultSavingsLogs,
         prevented_stockouts: parsed.prevented_stockouts?.length ? parsed.prevented_stockouts : defaultPreventedStockouts,
+        users: parsed.users || {},
+        workspaces: parsed.workspaces || {},
+        workspace_users: parsed.workspace_users || [],
       };
     }
   } catch (err) {
@@ -971,5 +1006,128 @@ export const db = {
     store.prevented_stockouts.push(record);
     persistStore();
     return record;
+  },
+
+  // --- Multi-Tenant Users & Workspaces ---
+  getUser: (id: string): UserRecord | undefined => {
+    return store.users?.[id];
+  },
+
+  getUserByEmail: (email: string): UserRecord | undefined => {
+    return Object.values(store.users || {}).find(
+      (u) => u.email.toLowerCase() === email.toLowerCase()
+    );
+  },
+
+  getUserByGoogleId: (googleId: string): UserRecord | undefined => {
+    return Object.values(store.users || {}).find((u) => u.google_id === googleId);
+  },
+
+  upsertUser: (userData: {
+    name: string;
+    email: string;
+    avatar_url?: string;
+    google_id?: string;
+  }): UserRecord => {
+    const existing =
+      db.getUserByEmail(userData.email) ||
+      (userData.google_id ? db.getUserByGoogleId(userData.google_id) : undefined);
+    const now = new Date().toISOString();
+
+    if (existing) {
+      existing.name = userData.name || existing.name;
+      if (userData.avatar_url) existing.avatar_url = userData.avatar_url;
+      if (userData.google_id) existing.google_id = userData.google_id;
+      existing.updated_at = now;
+      if (!store.users) store.users = {};
+      store.users[existing.id] = existing;
+      persistStore();
+      return existing;
+    }
+
+    const id = `usr-${Date.now()}`;
+    const user: UserRecord = {
+      id,
+      name: userData.name,
+      email: userData.email,
+      avatar_url: userData.avatar_url,
+      google_id: userData.google_id,
+      created_at: now,
+      updated_at: now,
+    };
+
+    if (!store.users) store.users = {};
+    store.users[id] = user;
+    persistStore();
+    return user;
+  },
+
+  getWorkspace: (id: string): WorkspaceRecord | undefined => {
+    return store.workspaces?.[id];
+  },
+
+  getWorkspaceBySlug: (slug: string): WorkspaceRecord | undefined => {
+    const cleanSlug = slug.toLowerCase().trim();
+    return Object.values(store.workspaces || {}).find(
+      (w) => w.slug_url.toLowerCase() === cleanSlug
+    );
+  },
+
+  getUserWorkspaces: (
+    userId: string
+  ): Array<WorkspaceRecord & { role: 'OWNER' | 'ADMIN' | 'MEMBER' }> => {
+    const memberships = (store.workspace_users || []).filter(
+      (m) => m.user_id === userId
+    );
+    return memberships
+      .map((m) => {
+        const ws = store.workspaces?.[m.workspace_id];
+        if (!ws) return null;
+        return {
+          ...ws,
+          role: m.role,
+        };
+      })
+      .filter((w): w is WorkspaceRecord & { role: 'OWNER' | 'ADMIN' | 'MEMBER' } => w !== null);
+  },
+
+  createWorkspaceWithTransaction: (
+    userId: string,
+    name: string,
+    slug: string
+  ): { workspace: WorkspaceRecord; membership: WorkspaceUserRecord } => {
+    const cleanSlug = slug.toLowerCase().trim();
+    const existing = db.getWorkspaceBySlug(cleanSlug);
+    if (existing) {
+      throw new Error(`El espacio de trabajo "${cleanSlug}" ya está en uso.`);
+    }
+
+    const now = new Date().toISOString();
+    const wsId = `ws-${Date.now()}`;
+    const workspace: WorkspaceRecord = {
+      id: wsId,
+      name: name.trim(),
+      slug_url: cleanSlug,
+      created_at: now,
+      updated_at: now,
+    };
+
+    const memId = `wu-${Date.now()}`;
+    const membership: WorkspaceUserRecord = {
+      id: memId,
+      user_id: userId,
+      workspace_id: wsId,
+      role: 'OWNER',
+      created_at: now,
+    };
+
+    if (!store.workspaces) store.workspaces = {};
+    if (!store.workspace_users) store.workspace_users = [];
+
+    store.workspaces[wsId] = workspace;
+    store.workspace_users.push(membership);
+    persistStore();
+
+    return { workspace, membership };
   },
 };

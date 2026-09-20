@@ -159,3 +159,47 @@ CREATE TABLE IF NOT EXISTS prevented_stockouts (
 
 CREATE INDEX IF NOT EXISTS idx_prevented_product_id ON prevented_stockouts(product_id);
 CREATE INDEX IF NOT EXISTS idx_prevented_created_at ON prevented_stockouts(created_at);
+
+-- ==============================================================================
+-- INVENTA.AI - Arquitectura de Autenticación & Multi-Tenancy B2B
+-- ==============================================================================
+
+-- 13. Tabla de Usuarios (Users)
+CREATE TABLE IF NOT EXISTS users (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    avatar_url TEXT,
+    google_id VARCHAR(100) UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
+
+-- 14. Tabla de Espacios de Trabajo Multi-Tenant (Workspaces)
+CREATE TABLE IF NOT EXISTS workspaces (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    slug_url VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_workspaces_slug ON workspaces(slug_url);
+
+-- 15. Tabla Pivote de Usuarios por Espacio (Workspace Users)
+CREATE TABLE IF NOT EXISTS workspace_users (
+    id VARCHAR(50) PRIMARY KEY,
+    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    workspace_id VARCHAR(50) NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL DEFAULT 'OWNER' CHECK (role IN ('OWNER', 'ADMIN', 'MEMBER')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_workspace_user UNIQUE (user_id, workspace_id)
+);
+
+CREATE INDEX IF NOT EXISTS idx_wu_user_id ON workspace_users(user_id);
+CREATE INDEX IF NOT EXISTS idx_wu_workspace_id ON workspace_users(workspace_id);
+CREATE INDEX IF NOT EXISTS idx_wu_role ON workspace_users(role);
+
