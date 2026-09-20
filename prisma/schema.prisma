@@ -62,7 +62,9 @@ model Product {
   created_at  DateTime      @default(now())
   updated_at  DateTime      @updatedAt
 
-  inventory   InventoryLevel?
+  inventory           InventoryLevel?
+  forecast_logs       ForecastAccuracyLog[]
+  prevented_stockouts PreventedStockout[]
 
   @@index([sku_code])
   @@index([category_id])
@@ -169,4 +171,40 @@ model IntegrationLog {
   @@index([integracion])
   @@index([fecha])
   @@map("integration_logs")
+}
+
+model ForecastAccuracyLog {
+  id               String   @id @default(uuid())
+  product_id       String
+  product          Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  forecasted_demand Decimal  @db.Decimal(12, 2)
+  actual_demand    Decimal  @db.Decimal(12, 2)
+  mape_score       Decimal  @db.Decimal(6, 4)
+  calculated_at    DateTime @default(now())
+
+  @@index([product_id])
+  @@index([calculated_at])
+  @@map("forecast_accuracy_logs")
+}
+
+model InventorySavingsLog {
+  id           String   @id @default(uuid())
+  saved_amount Decimal  @db.Decimal(14, 2)
+  action_type  String
+  created_at   DateTime @default(now())
+
+  @@index([created_at])
+  @@map("inventory_savings_logs")
+}
+
+model PreventedStockout {
+  id              String   @id @default(uuid())
+  product_id      String
+  product         Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  days_prevented  Int
+  created_at      DateTime @default(now())
+
+  @@index([product_id])
+  @@index([created_at])
+  @@map("prevented_stockouts")
 }

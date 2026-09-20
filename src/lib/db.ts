@@ -143,6 +143,33 @@ export interface DisbursementRequestRecord {
   created_at: string;
 }
 
+export interface ForecastAccuracyLogRecord {
+  id: string;
+  product_id: string;
+  sku_code: string;
+  category_name: string;
+  forecasted_demand: number;
+  actual_demand: number;
+  mape_score: number;
+  period_month: string;
+  calculated_at: string;
+}
+
+export interface InventorySavingsLogRecord {
+  id: string;
+  saved_amount: number;
+  action_type: string;
+  created_at: string;
+}
+
+export interface PreventedStockoutRecord {
+  id: string;
+  product_id: string;
+  sku_code: string;
+  days_prevented: number;
+  created_at: string;
+}
+
 // In-memory + persistent storage
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'integrations_store.json');
@@ -161,6 +188,9 @@ interface DatabaseStore {
   purchase_order_lines: PurchaseOrderLineRecord[];
   credit_lines: Record<string, CreditLineRecord>;
   disbursement_requests: DisbursementRequestRecord[];
+  forecast_accuracy_logs: ForecastAccuracyLogRecord[];
+  inventory_savings_logs: InventorySavingsLogRecord[];
+  prevented_stockouts: PreventedStockoutRecord[];
 }
 
 function initDb(): DatabaseStore {
@@ -413,6 +443,62 @@ function initDb(): DatabaseStore {
     },
   };
 
+  const defaultForecastLogs: ForecastAccuracyLogRecord[] = [
+    // Historical 6-month benchmarks
+    // Mayo: 88% precision -> MAPE 12.0%
+    { id: 'flog-may-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2100, actual_demand: 2400, mape_score: 12.5, period_month: 'Mayo', calculated_at: '2026-05-31T23:59:59Z' },
+    { id: 'flog-may-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', category_name: 'Lácteos & Refrigerados', forecasted_demand: 1500, actual_demand: 1700, mape_score: 11.76, period_month: 'Mayo', calculated_at: '2026-05-31T23:59:59Z' },
+    // Junio: 89% precision -> MAPE 11.0%
+    { id: 'flog-jun-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2300, actual_demand: 2550, mape_score: 9.8, period_month: 'Junio', calculated_at: '2026-06-30T23:59:59Z' },
+    { id: 'flog-jun-2', product_id: 'prod-3', sku_code: 'SKU-COS-003', category_name: 'Abarrotes & Consumo', forecasted_demand: 1800, actual_demand: 2050, mape_score: 12.2, period_month: 'Junio', calculated_at: '2026-06-30T23:59:59Z' },
+    // Julio: 91% precision -> MAPE 9.0%
+    { id: 'flog-jul-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2450, actual_demand: 2680, mape_score: 8.58, period_month: 'Julio', calculated_at: '2026-07-31T23:59:59Z' },
+    { id: 'flog-jul-2', product_id: 'prod-4', sku_code: 'SKU-SOL-004', category_name: 'Materiales Construcción', forecasted_demand: 3200, actual_demand: 3530, mape_score: 9.35, period_month: 'Julio', calculated_at: '2026-07-31T23:59:59Z' },
+    // Agosto: 93% precision -> MAPE 7.0%
+    { id: 'flog-ago-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2600, actual_demand: 2780, mape_score: 6.47, period_month: 'Ago', calculated_at: '2026-08-31T23:59:59Z' },
+    { id: 'flog-ago-2', product_id: 'prod-6', sku_code: 'SKU-BAC-006', category_name: 'Bebidas & Licores', forecasted_demand: 4100, actual_demand: 4430, mape_score: 7.45, period_month: 'Ago', calculated_at: '2026-08-31T23:59:59Z' },
+    // Setiembre: 92.2% precision -> MAPE 7.8% (para dar variación +2.3% en Octubre con 94.5%)
+    { id: 'flog-sep-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2680, actual_demand: 2880, mape_score: 6.94, period_month: 'Sep', calculated_at: '2026-09-15T23:59:59Z' },
+    { id: 'flog-sep-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', category_name: 'Lácteos & Refrigerados', forecasted_demand: 1600, actual_demand: 1750, mape_score: 8.57, period_month: 'Sep', calculated_at: '2026-09-15T23:59:59Z' },
+    // Octubre: 94.5% precision global -> MAPE 5.5%
+    // Abarrotes & Consumo: 96.2%
+    { id: 'flog-oct-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', category_name: 'Abarrotes & Consumo', forecasted_demand: 2850, actual_demand: 2960, mape_score: 3.72, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    { id: 'flog-oct-3', product_id: 'prod-3', sku_code: 'SKU-COS-003', category_name: 'Abarrotes & Consumo', forecasted_demand: 2100, actual_demand: 2185, mape_score: 3.89, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    { id: 'flog-oct-5', product_id: 'prod-5', sku_code: 'SKU-DON-005', category_name: 'Abarrotes & Consumo', forecasted_demand: 1900, actual_demand: 1975, mape_score: 3.80, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    // Bebidas & Licores: 94.8%
+    { id: 'flog-oct-6', product_id: 'prod-6', sku_code: 'SKU-BAC-006', category_name: 'Bebidas & Licores', forecasted_demand: 4600, actual_demand: 4850, mape_score: 5.15, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    // Materiales Construcción: 93.1%
+    { id: 'flog-oct-4', product_id: 'prod-4', sku_code: 'SKU-SOL-004', category_name: 'Materiales Construcción', forecasted_demand: 3500, actual_demand: 3760, mape_score: 6.91, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+    // Lácteos & Refrigerados: 91.4%
+    { id: 'flog-oct-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', category_name: 'Lácteos & Refrigerados', forecasted_demand: 1720, actual_demand: 1880, mape_score: 8.51, period_month: 'Oct', calculated_at: '2026-09-20T00:00:00Z' },
+  ];
+
+  const defaultSavingsLogs: InventorySavingsLogRecord[] = [
+    { id: 'sav-1', saved_amount: 28400.00, action_type: 'Consolidación de órdenes de compra con proveedores clave', created_at: '2026-09-18T10:00:00Z' },
+    { id: 'sav-2', saved_amount: 20200.00, action_type: 'Anticipación y mitigación de sobrestock estacional', created_at: '2026-09-15T14:30:00Z' },
+  ];
+
+  const defaultPreventedStockouts: PreventedStockoutRecord[] = [
+    { id: 'prev-1', product_id: 'prod-1', sku_code: 'SKU-ALI-001', days_prevented: 14, created_at: '2026-09-19T08:00:00Z' },
+    { id: 'prev-2', product_id: 'prod-2', sku_code: 'SKU-GLO-002', days_prevented: 9, created_at: '2026-09-18T11:00:00Z' },
+    { id: 'prev-3', product_id: 'prod-3', sku_code: 'SKU-COS-003', days_prevented: 21, created_at: '2026-09-17T09:00:00Z' },
+    { id: 'prev-4', product_id: 'prod-4', sku_code: 'SKU-SOL-004', days_prevented: 12, created_at: '2026-09-16T15:00:00Z' },
+    { id: 'prev-5', product_id: 'prod-5', sku_code: 'SKU-DON-005', days_prevented: 7, created_at: '2026-09-15T13:00:00Z' },
+    { id: 'prev-6', product_id: 'prod-6', sku_code: 'SKU-BAC-006', days_prevented: 18, created_at: '2026-09-14T16:00:00Z' },
+    { id: 'prev-7', product_id: 'prod-1', sku_code: 'SKU-ALI-002', days_prevented: 10, created_at: '2026-09-13T10:00:00Z' },
+    { id: 'prev-8', product_id: 'prod-2', sku_code: 'SKU-GLO-003', days_prevented: 8, created_at: '2026-09-12T12:00:00Z' },
+    { id: 'prev-9', product_id: 'prod-3', sku_code: 'SKU-COS-004', days_prevented: 15, created_at: '2026-09-11T09:30:00Z' },
+    { id: 'prev-10', product_id: 'prod-4', sku_code: 'SKU-SOL-005', days_prevented: 11, created_at: '2026-09-10T14:00:00Z' },
+    { id: 'prev-11', product_id: 'prod-5', sku_code: 'SKU-DON-006', days_prevented: 6, created_at: '2026-09-09T11:20:00Z' },
+    { id: 'prev-12', product_id: 'prod-6', sku_code: 'SKU-BAC-007', days_prevented: 16, created_at: '2026-09-08T15:40:00Z' },
+    { id: 'prev-13', product_id: 'prod-1', sku_code: 'SKU-ALI-003', days_prevented: 13, created_at: '2026-09-07T08:50:00Z' },
+    { id: 'prev-14', product_id: 'prod-2', sku_code: 'SKU-GLO-004', days_prevented: 9, created_at: '2026-09-06T10:15:00Z' },
+    { id: 'prev-15', product_id: 'prod-3', sku_code: 'SKU-COS-005', days_prevented: 19, created_at: '2026-09-05T13:45:00Z' },
+    { id: 'prev-16', product_id: 'prod-4', sku_code: 'SKU-SOL-006', days_prevented: 14, created_at: '2026-09-04T12:30:00Z' },
+    { id: 'prev-17', product_id: 'prod-5', sku_code: 'SKU-DON-007', days_prevented: 8, created_at: '2026-09-03T16:10:00Z' },
+    { id: 'prev-18', product_id: 'prod-6', sku_code: 'SKU-BAC-008', days_prevented: 20, created_at: '2026-09-02T17:00:00Z' },
+  ];
+
   const defaultStore: DatabaseStore = {
     integrations: {
       shopify: {
@@ -424,7 +510,7 @@ function initDb(): DatabaseStore {
         updated_at: new Date().toISOString(),
       },
       mercadolibre: {
-        id: 'int-meli',
+        id: 'int-mercadolibre',
         provider: 'mercadolibre',
         status: 'pending_configuration',
         config: {},
@@ -484,6 +570,9 @@ function initDb(): DatabaseStore {
     purchase_order_lines: defaultLines,
     credit_lines: defaultCreditLines,
     disbursement_requests: [],
+    forecast_accuracy_logs: defaultForecastLogs,
+    inventory_savings_logs: defaultSavingsLogs,
+    prevented_stockouts: defaultPreventedStockouts,
   };
 
   try {
@@ -504,6 +593,9 @@ function initDb(): DatabaseStore {
         purchase_order_lines: parsed.purchase_order_lines?.length ? parsed.purchase_order_lines : defaultLines,
         credit_lines: { ...defaultCreditLines, ...(parsed.credit_lines || {}) },
         disbursement_requests: parsed.disbursement_requests || [],
+        forecast_accuracy_logs: parsed.forecast_accuracy_logs?.length ? parsed.forecast_accuracy_logs : defaultForecastLogs,
+        inventory_savings_logs: parsed.inventory_savings_logs?.length ? parsed.inventory_savings_logs : defaultSavingsLogs,
+        prevented_stockouts: parsed.prevented_stockouts?.length ? parsed.prevented_stockouts : defaultPreventedStockouts,
       };
     }
   } catch (err) {
@@ -821,5 +913,63 @@ export const db = {
 
   getDisbursementRequests: (): DisbursementRequestRecord[] => {
     return store.disbursement_requests || [];
+  },
+
+  // --- Analytics & Data Science Methods ---
+  getForecastAccuracyLogs: (): ForecastAccuracyLogRecord[] => {
+    return store.forecast_accuracy_logs || [];
+  },
+
+  getInventorySavingsLogs: (): InventorySavingsLogRecord[] => {
+    return store.inventory_savings_logs || [];
+  },
+
+  getPreventedStockouts: (): PreventedStockoutRecord[] => {
+    return store.prevented_stockouts || [];
+  },
+
+  createForecastAccuracyLog: (
+    data: Omit<ForecastAccuracyLogRecord, 'id' | 'calculated_at'>
+  ): ForecastAccuracyLogRecord => {
+    const id = `flog-${Date.now()}`;
+    const record: ForecastAccuracyLogRecord = {
+      ...data,
+      id,
+      calculated_at: new Date().toISOString(),
+    };
+    if (!store.forecast_accuracy_logs) store.forecast_accuracy_logs = [];
+    store.forecast_accuracy_logs.push(record);
+    persistStore();
+    return record;
+  },
+
+  createInventorySavingsLog: (
+    data: Omit<InventorySavingsLogRecord, 'id' | 'created_at'>
+  ): InventorySavingsLogRecord => {
+    const id = `sav-${Date.now()}`;
+    const record: InventorySavingsLogRecord = {
+      ...data,
+      id,
+      created_at: new Date().toISOString(),
+    };
+    if (!store.inventory_savings_logs) store.inventory_savings_logs = [];
+    store.inventory_savings_logs.push(record);
+    persistStore();
+    return record;
+  },
+
+  createPreventedStockout: (
+    data: Omit<PreventedStockoutRecord, 'id' | 'created_at'>
+  ): PreventedStockoutRecord => {
+    const id = `prev-${Date.now()}`;
+    const record: PreventedStockoutRecord = {
+      ...data,
+      id,
+      created_at: new Date().toISOString(),
+    };
+    if (!store.prevented_stockouts) store.prevented_stockouts = [];
+    store.prevented_stockouts.push(record);
+    persistStore();
+    return record;
   },
 };

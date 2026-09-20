@@ -122,3 +122,37 @@ CREATE TABLE IF NOT EXISTS integration_logs (
 
 CREATE INDEX IF NOT EXISTS idx_logs_integracion ON integration_logs(integracion);
 CREATE INDEX IF NOT EXISTS idx_logs_fecha ON integration_logs(fecha);
+
+-- 10. Tabla de Logs de Precisión de Pronóstico (Forecast Accuracy Logs)
+CREATE TABLE IF NOT EXISTS forecast_accuracy_logs (
+    id VARCHAR(64) PRIMARY KEY,
+    product_id VARCHAR(64) NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    forecasted_demand NUMERIC(12, 2) NOT NULL,
+    actual_demand NUMERIC(12, 2) NOT NULL,
+    mape_score NUMERIC(6, 4) NOT NULL,
+    calculated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_forecast_product_id ON forecast_accuracy_logs(product_id);
+CREATE INDEX IF NOT EXISTS idx_forecast_calculated_at ON forecast_accuracy_logs(calculated_at);
+
+-- 11. Tabla de Logs de Ahorros de Inventario (Inventory Savings Logs)
+CREATE TABLE IF NOT EXISTS inventory_savings_logs (
+    id VARCHAR(64) PRIMARY KEY,
+    saved_amount NUMERIC(14, 2) NOT NULL,
+    action_type VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_savings_created_at ON inventory_savings_logs(created_at);
+
+-- 12. Tabla de Quiebres Prevenidos (Prevented Stockouts)
+CREATE TABLE IF NOT EXISTS prevented_stockouts (
+    id VARCHAR(64) PRIMARY KEY,
+    product_id VARCHAR(64) NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    days_prevented INT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_prevented_product_id ON prevented_stockouts(product_id);
+CREATE INDEX IF NOT EXISTS idx_prevented_created_at ON prevented_stockouts(created_at);
