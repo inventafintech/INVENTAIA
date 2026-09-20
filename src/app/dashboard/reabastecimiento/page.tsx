@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo } from 'react';
 import styles from './page.module.css';
 import { BatchApprovalModal } from '@/components/forms/BatchApprovalModal';
 import { BatchItemExecutionResult } from '@/services/BatchOrderApprovalService';
+import { triggerNotificationRefresh } from '@/context/NotificationContext';
 
 interface RestockItem {
   id: string;
@@ -104,6 +105,7 @@ export default function ReabastecimientoPage() {
           summary: data.summary,
           results: data.results,
         });
+        triggerNotificationRefresh();
       } else {
         alert(data.error || 'Error al procesar la orden de compra.');
       }
@@ -133,6 +135,7 @@ export default function ReabastecimientoPage() {
           summary: data.summary,
           results: data.results,
         });
+        triggerNotificationRefresh();
       } else {
         alert(data.error || 'Error al procesar las órdenes masivas.');
       }

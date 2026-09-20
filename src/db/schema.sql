@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS inventory_levels (
 );
 
 CREATE INDEX IF NOT EXISTS idx_inventory_product ON inventory_levels(product_id);
+CREATE INDEX IF NOT EXISTS idx_inventory_physical_stock ON inventory_levels(physical_stock);
 
 -- 4. Tabla de Proveedores (Suppliers)
 CREATE TABLE IF NOT EXISTS suppliers (
@@ -122,6 +123,8 @@ CREATE TABLE IF NOT EXISTS integration_logs (
 
 CREATE INDEX IF NOT EXISTS idx_logs_integracion ON integration_logs(integracion);
 CREATE INDEX IF NOT EXISTS idx_logs_fecha ON integration_logs(fecha);
+CREATE INDEX IF NOT EXISTS idx_logs_resultado ON integration_logs(resultado);
+CREATE INDEX IF NOT EXISTS idx_logs_fecha_resultado ON integration_logs(fecha, resultado);
 
 -- 10. Tabla de Logs de Precisión de Pronóstico (Forecast Accuracy Logs)
 CREATE TABLE IF NOT EXISTS forecast_accuracy_logs (

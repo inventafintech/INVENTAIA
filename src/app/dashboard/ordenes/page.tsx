@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { triggerNotificationRefresh } from '@/context/NotificationContext';
 import styles from './page.module.css';
 
 interface Order {
@@ -109,6 +110,7 @@ export default function OrdenesPage() {
         });
         // Reload data to reflect state and dynamic metrics
         await loadOrders();
+        triggerNotificationRefresh();
       } else {
         alert(data.error || 'Error al aprobar la orden de compra');
       }
@@ -152,6 +154,7 @@ export default function OrdenesPage() {
       if (res.ok && data.success) {
         setNewOrderModal(false);
         await loadOrders();
+        triggerNotificationRefresh();
       } else {
         alert(data.error || 'Error al crear orden');
       }
