@@ -58,8 +58,8 @@ export default function DashboardLayout({
             Resumen Ejecutivo
           </Link>
           <Link 
-            href="/dashboard/predictiva" 
-            className={`${styles.navItem} ${isActive('/dashboard/predictiva') ? styles.active : ''}`}
+            href="/dashboard?tab=predictiva" 
+            className={`${styles.navItem} ${pathname === '/dashboard/predictiva' ? styles.active : ''}`}
           >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={styles.icon}><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
             IA Predictiva

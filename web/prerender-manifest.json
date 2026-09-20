@@ -90,7 +90,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 17942,
+      "htmlSize": 14206,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -118,7 +118,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 17465,
+      "htmlSize": 17469,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -146,7 +146,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 26228,
+      "htmlSize": 26232,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -174,7 +174,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 17094,
+      "htmlSize": 17098,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -202,7 +202,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 25231,
+      "htmlSize": 25235,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -230,7 +230,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 18414,
+      "htmlSize": 18418,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -258,7 +258,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 17580,
+      "htmlSize": 17584,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -286,7 +286,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 25234,
+      "htmlSize": 7126,
       "experimentalBypassFor": [
         {
           "type": "header",
@@ -314,7 +314,7 @@
       "routeType": "page",
       "response": "complete",
       "compute": "static",
-      "htmlSize": 19094,
+      "htmlSize": 19098,
       "experimentalBypassFor": [
         {
           "type": "header",

@@ -1,10 +1,10 @@
 [
   {
     "route": "/dashboard/integraciones",
-    "firstLoadUncompressedJsBytes": 500991,
+    "firstLoadUncompressedJsBytes": 500996,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\0b8q5fc6ubxs4.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -29,11 +29,11 @@
   },
   {
     "route": "/dashboard",
-    "firstLoadUncompressedJsBytes": 481430,
+    "firstLoadUncompressedJsBytes": 489426,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
-      "web\\static\\chunks\\1e3vgkc-wpx6s.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
+      "web\\static\\chunks\\2299knn5xcwmp.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",
@@ -43,10 +43,10 @@
   },
   {
     "route": "/dashboard/reabastecimiento",
-    "firstLoadUncompressedJsBytes": 476627,
+    "firstLoadUncompressedJsBytes": 476632,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\17r6tr27srm4q.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -57,10 +57,10 @@
   },
   {
     "route": "/dashboard/inventario",
-    "firstLoadUncompressedJsBytes": 476616,
+    "firstLoadUncompressedJsBytes": 476621,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\1slyi6etd4hv3.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -71,10 +71,10 @@
   },
   {
     "route": "/dashboard/ordenes",
-    "firstLoadUncompressedJsBytes": 475644,
+    "firstLoadUncompressedJsBytes": 475649,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\2gbe8dkc7gg9v.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -85,10 +85,10 @@
   },
   {
     "route": "/dashboard/ajustes",
-    "firstLoadUncompressedJsBytes": 474977,
+    "firstLoadUncompressedJsBytes": 474982,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\0phhh23muwa3x.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -99,10 +99,10 @@
   },
   {
     "route": "/dashboard/financiamiento",
-    "firstLoadUncompressedJsBytes": 474938,
+    "firstLoadUncompressedJsBytes": 474943,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\2aie5j9anq_1-.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
@@ -113,10 +113,10 @@
   },
   {
     "route": "/dashboard/analytics",
-    "firstLoadUncompressedJsBytes": 470614,
+    "firstLoadUncompressedJsBytes": 470619,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",
@@ -126,10 +126,10 @@
   },
   {
     "route": "/dashboard/predictiva",
-    "firstLoadUncompressedJsBytes": 470614,
+    "firstLoadUncompressedJsBytes": 470619,
     "firstLoadChunkPaths": [
       "web\\static\\chunks\\3fntmmi971322.js",
-      "web\\static\\chunks\\3e2hsmpswrj24.js",
+      "web\\static\\chunks\\33py84d02i58w.js",
       "web\\static\\chunks\\310vm2bl3xxpt.js",
       "web\\static\\chunks\\19mx3mg6lkumu.js",
       "web\\static\\chunks\\27t_qfc-3_lzs.js",
