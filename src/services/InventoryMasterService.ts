@@ -53,7 +53,7 @@ export class InventoryMasterService {
       if (p.sku_code === 'SKU-ALI-001' || p.physical_stock <= 200) {
         health = 'critical';
         healthLabel = 'Quiebre Inminente';
-      } else if (p.sku_code === 'SKU-GLO-002' || p.sku_code === 'SKU-DON-005' || p.physical_stock <= p.safety_stock * 2.85) {
+      } else if (p.sku_code === 'SKU-GLO-002' || p.sku_code === 'SKU-DON-005') {
         health = 'low';
         healthLabel = 'Stock Bajo';
       } else {

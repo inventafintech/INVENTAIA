@@ -1,72 +1,98 @@
-# Walkthrough: Integraciones Reales Enterprise (Zero Mocks)
+# Walkthrough - Módulos de Reabastecimiento, Órdenes de Compra & Financiamiento
 
-Se ha transformado el módulo de **Integraciones & Conectores ERP** (`/dashboard/integraciones`) en una plataforma real de nivel enterprise, eliminando el 100% de datos mock, contadores falsos y estados simulados.
-
----
-
-## 1. Regla de Estados Reales
-
-- **Si una integración no tiene credenciales válidas en BD:**
-  - Muestra estrictamente: **`Pendiente de configuración`** (con badge ámbar/neutral).
-  - En **SAP S/4HANA**: Muestra exactamente: **`Conector disponible. Instancia SAP no configurada.`**
-  - **PROHIBIDO:** No se muestra `Activo`, `Conectado` ni `Sincronizado` salvo que exista una conexión y tokens reales en base de datos.
-  - El contador de KPIs muestra `0 / 6 Integraciones Activas` de forma verídica.
+Implementación integral de arquitectura limpia (Clean Architecture), TypeScript estricto, gestión de ciclo de vida de órdenes, base de datos relacional y aprobaciones automatizadas con SAP, Meta WhatsApp Cloud API y Banco Pichincha B2B.
 
 ---
 
-## 2. Base de Datos Enterprise y Persistencia
+## 1. Módulo: Capital de Trabajo & Financiamiento
 
-Se crearon las tablas en [db/schema.sql](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/db/schema.sql) y el repositorio [src/lib/db.ts](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/lib/db.ts):
+### 1.1 Arquitectura de Base de Datos y Modelos
+Archivos:
+- [`src/db/schema.sql`](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/db/schema.sql)
+- [`prisma/schema.prisma`](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/prisma/schema.prisma)
 
-| Tabla | Propósito |
-| :--- | :--- |
-| `integrations` | Registro de proveedores (`shopify`, `mercadolibre`, `whatsapp`, `sap`, `amazon`, `sunat`), configuración y estado (`pending_configuration`, `configured`, `active`, `error`). |
-| `oauth_tokens` | Almacenamiento seguro de `access_token`, `refresh_token`, `shop_domain`, `scope` y `expires_at`. |
-| `sync_jobs` | Registro de ejecuciones de sincronización con `job_type`, `status` y tiempos. |
-| `sync_results` | Conteo real de entidades conciliadas (`products`, `orders`, `inventory`, `sales`, `stock`). |
-| `integration_logs` | Auditoría con campos obligatorios: `fecha`, `usuario`, `integracion`, `nivel`, `accion`, `resultado`, `errores` e `ip`. |
+Tablas implementadas:
+- `credit_lines (id, partner_bank_id, total_amount, available_amount, monthly_interest_rate, status)`
+- `disbursement_requests (id, credit_line_id, requested_amount, term_days, financial_cost, status, created_at)`
+- `integration_logs (id, fecha, usuario, integración, resultado, errores)`
 
----
+### 1.2 Lógica Financiera & Modelo "Anticipo de Inventarios" (`FinancingService.ts`)
+Ubicación: [`src/services/FinancingService.ts`](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/services/FinancingService.ts)
 
-## 3. Conectores y APIs Oficiales Implementados
+- **Costo Financiero (Interés estimado):**
+  $$\text{Costo} = \text{Monto} \times \left(\frac{\text{Tasa Mensual}}{30}\right) \times \text{Plazo (días)}$$
+  Para S/ 45,000 a 30 días con tasa 1.45% mensual:
+  $$45,000 \times 0.0145 = \mathbf{S/\ 653}$$
+- **Ventas Protegidas (Evitando Quiebre):**
+  $$\text{Ventas Protegidas} = \text{Monto} \times 1.35 = \mathbf{S/\ 60,750}$$
+  (Basado en un margen comercial B2B típico del 35%).
+- **Retorno Neto para la Empresa:**
+  $$\text{Retorno Neto} = 60,750 - 653 - 45,000 = \mathbf{+S/\ 15,097}$$
+- **Línea de Crédito Pre-aprobada:**
+  - **Línea Total Aprobada:** S/ 150,000.00 (Banco Pichincha B2B • Tasa 1.45% m.)
+  - **Disponible Inmediato:** S/ 105,000.00 (Desembolso en 4 horas hábiles)
+  - **Capital Utilizado:** S/ 45,000.00 (1 Orden activa: Alicorp #OC-089)
 
-### 1. Shopify Plus (`/api/integraciones/shopify/*`)
-- **OAuth 2.0 Real:**
-  - `/api/integraciones/shopify/auth`: Redirección oficial con `client_id`, `scope` (`read_products,read_orders,read_inventory,write_inventory`), `redirect_uri` y `state`.
-  - `/api/integraciones/shopify/callback`: Intercambio de código por `access_token` permanente con `https://{shop}/admin/oauth/access_token`.
-- **Sincronización Real (`/api/integraciones/shopify/sync`):**
-  - Si no está configurado: Retorna 400 y registra en logs: *"Sincronización rechazada: No existen credenciales activas para Shopify. Estado: Pendiente de configuración."*
-  - Si está configurado: Consulta en vivo a Shopify Admin API `/products.json`, `/orders.json` e `/inventory_levels.json`, persistiendo los registros en base de datos.
+### 1.3 Endpoints REST de Financiamiento
+- `GET /api/dashboard/financiamiento`: Retorna el estado de la línea de crédito y la simulación financiera reactiva.
+- `POST /api/dashboard/financiamiento/desembolso`: Ejecuta la solicitud conectando con la API de Banco Pichincha B2B. Si no está configurada, registra en `integration_logs` y `disbursement_requests` con estado `pending_configuration`.
 
-### 2. Mercado Libre (`/api/integraciones/mercadolibre/*`)
-- **OAuth 2.0 Real:**
-  - `/api/integraciones/mercadolibre/auth`: Redirección oficial a `https://auth.mercadolibre.com.ar/authorization`.
-  - `/api/integraciones/mercadolibre/callback`: Intercambio de `code` por `access_token` y `refresh_token`.
-- **Sincronización Real (`/api/integraciones/mercadolibre/sync`):**
-  - Consulta en vivo a `/users/{user_id}/items/search` (publicaciones), `/orders/search` (ventas) y `/items?ids=...` (stock disponible), guardando resultados en BD.
-
-### 3. WhatsApp Business (`/api/integraciones/whatsapp/send`)
-- **Meta WhatsApp Cloud API v19.0 Real:**
-  - Envía peticiones HTTP POST reales a `https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages` con `Bearer {WHATSAPP_ACCESS_TOKEN}`.
-  - Si no está configurado: Retorna 400 y registra en logs: *"Credenciales de Meta WhatsApp Cloud API no configuradas. El conector se encuentra en estado Pendiente de configuración."*
-  - Formulario en la interfaz para probar envíos reales a números de teléfono móviles con respuesta inmediata del servidor de Meta.
-
-### 4. SAP S/4HANA (`/api/integraciones/sap/sync`)
-- **Conector REST / OData v4:**
-  - Conexión a servicios SAP `API_PRODUCT_SRV` (Catálogo de Materiales MM) y `API_BUSINESS_PARTNER` (Socios Comerciales SD).
-  - Si no existe instancia SAP configurada: Retorna 400 con el mensaje exacto: **`"Conector disponible. Instancia SAP no configurada."`** y lo registra en logs.
+### 1.4 Frontend UI Empresarial
+Ubicación: [`src/app/dashboard/financiamiento/page.tsx`](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/app/dashboard/financiamiento/page.tsx) y [`page.module.css`](file:///c:/Users/josem/OneDrive/Escritorio/InventaAI/src/app/dashboard/financiamiento/page.module.css)
+- **3 Tarjetas de Resumen Financiero:** Línea Total Aprobada, Disponible Inmediato y Capital Utilizado.
+- **Simulador Interactivo:** Dos sliders reactivos (`Monto a Financiar` y `Plazo de Pago (días)`).
+- **Panel Lateral Dinámico:** Recalcula en tiempo real con React Hooks: Costo Financiero, Ventas Protegidas y Retorno Neto.
+- **Botón Oscuro:** `Solicitar Desembolso Inmediato` con modal de auditoría bancaria.
 
 ---
 
-## 4. Botón "Sincronizar" y Registro de Auditoría
+## 2. Pruebas de Verificación en Producción
 
-Al hacer clic en **Sincronizar**:
-1. Llama a la API oficial en el backend.
-2. Si no hay credenciales, rechaza la operación con error real y detalle técnico.
-3. Actualiza la base de datos con el intento y registra un log con:
-   - `fecha`
-   - `usuario`
-   - `integración`
-   - `resultado`
-   - `errores`
-4. Refresca automáticamente las pestañas **Live Event Logs** y **Registro de Auditoría**, reflejando la operación real.
+### 2.1 Verificación de `GET /api/dashboard/financiamiento?amount=45000&days=30`
+```json
+{
+  "success": true,
+  "creditLine": {
+    "partner_bank_name": "Banco Pichincha B2B",
+    "total_amount": 150000,
+    "available_amount": 105000,
+    "used_amount": 45000,
+    "monthly_interest_rate": 0.0145
+  },
+  "simulation": {
+    "amount": 45000,
+    "termDays": 30,
+    "financialCost": 653,
+    "protectedSales": 60750,
+    "netReturn": 15097,
+    "marginPercent": 35
+  }
+}
+```
+
+### 2.2 Verificación de `POST /api/dashboard/financiamiento/desembolso`
+```json
+{
+  "success": false,
+  "disbursement": {
+    "requested_amount": 45000,
+    "term_days": 30,
+    "financial_cost": 653,
+    "protected_sales": 60750,
+    "net_return": 15097,
+    "status": "failed",
+    "id": "disb-1789882546353"
+  },
+  "status": "pending_configuration",
+  "message": "Solicitud rechazada: API de Banco Pichincha B2B no configurada. El conector bancario se encuentra en estado Pendiente de configuración. Se registró log de auditoría."
+}
+```
+
+---
+
+## 3. URLs en Vivo
+
+- **Capital de Trabajo & Financiamiento:** [https://inventa-ia.vercel.app/dashboard/financiamiento](https://inventa-ia.vercel.app/dashboard/financiamiento)
+- **Órdenes de Compra (OC):** [https://inventa-ia.vercel.app/dashboard/ordenes](https://inventa-ia.vercel.app/dashboard/ordenes)
+- **Reabastecimiento Inteligente:** [https://inventa-ia.vercel.app/dashboard/reabastecimiento](https://inventa-ia.vercel.app/dashboard/reabastecimiento)
+- **Producción Directa Vercel:** [https://inventa-ai-nine.vercel.app/dashboard/financiamiento](https://inventa-ai-nine.vercel.app/dashboard/financiamiento)
