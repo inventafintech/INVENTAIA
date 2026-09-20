@@ -1,14 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { WorkspaceService } from '@/services/WorkspaceService';
 import { SessionManager } from '@/lib/session';
+import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await SessionManager.getSession();
+    // 1. Obtener sesión de NextAuth o de SessionManager institucional
+    const nextAuthSession = await getServerSession(authOptions);
+    const customSession = await SessionManager.getSession();
 
-    if (!session || !session.userId) {
+    const body = await req.json().catch(() => ({}));
+    const { name, slug, userEmail: bodyEmail, userName: bodyName, userAvatar: bodyAvatar } = body;
+
+    const authenticatedEmail =
+      nextAuthSession?.user?.email || customSession?.email || bodyEmail;
+    const authenticatedName =
+      nextAuthSession?.user?.name || customSession?.name || bodyName || 'Usuario';
+    const authenticatedAvatar =
+      nextAuthSession?.user?.image || customSession?.avatarUrl || bodyAvatar;
+    const authenticatedId =
+      (nextAuthSession?.user as any)?.id || customSession?.userId;
+
+    if (!authenticatedEmail && !authenticatedId) {
       return NextResponse.json(
         {
           success: false,
@@ -17,9 +34,6 @@ export async function POST(req: NextRequest) {
         { status: 401 }
       );
     }
-
-    const body = await req.json();
-    const { name, slug } = body;
 
     if (!name || typeof name !== 'string') {
       return NextResponse.json(
@@ -35,20 +49,53 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Ejecutar creación transaccional
+    // 2. Garantizar que el usuario exista en la tabla users
+    let user = authenticatedId ? db.getUser(authenticatedId) : undefined;
+    if (!user && authenticatedEmail) {
+      user = db.getUserByEmail(authenticatedEmail);
+    }
+    if (!user && authenticatedEmail) {
+      user = db.upsertUser({
+        name: authenticatedName,
+        email: authenticatedEmail,
+        avatar_url: authenticatedAvatar,
+      });
+    }
+
+    if (!user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'No se pudo vincular la sesión del usuario. Inicia sesión nuevamente.',
+        },
+        { status: 400 }
+      );
+    }
+
+    // 3. Ejecutar creación transaccional del espacio de trabajo
     const { workspace, membership } = WorkspaceService.createWorkspace(
-      session.userId,
+      user.id,
       name,
-      slug
+      slug,
+      {
+        email: user.email,
+        name: user.name,
+        avatar_url: user.avatar_url,
+      }
     );
 
-    // Actualizar la sesión activa con el nuevo espacio
-    await SessionManager.updateSessionWorkspace(
-      workspace.id,
-      workspace.slug_url,
-      workspace.name,
-      membership.role
-    );
+    // 4. Actualizar la sesión activa con el nuevo espacio
+    await SessionManager.createSession({
+      userId: user.id,
+      email: user.email,
+      name: user.name,
+      avatarUrl: user.avatar_url,
+      googleId: user.google_id,
+      workspaceId: workspace.id,
+      workspaceSlug: workspace.slug_url,
+      workspaceName: workspace.name,
+      role: membership.role,
+    });
 
     return NextResponse.json({
       success: true,

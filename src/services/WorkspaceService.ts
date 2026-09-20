@@ -115,7 +115,8 @@ export class WorkspaceService {
   public static createWorkspace(
     userId: string,
     name: string,
-    rawSlug: string
+    rawSlug: string,
+    userFallback?: { email?: string; name?: string; avatar_url?: string }
   ): { workspace: WorkspaceRecord; membership: WorkspaceUserRecord } {
     const validation = this.validateSlug(rawSlug);
     if (!validation.valid || !validation.available) {
@@ -127,12 +128,24 @@ export class WorkspaceService {
       throw new Error('El nombre de la empresa debe tener al menos 2 caracteres.');
     }
 
-    const user = db.getUser(userId);
+    // Buscar por ID, luego por email o crear si proviene de una sesión OAuth válida
+    let user = userId ? db.getUser(userId) : undefined;
+    if (!user && userFallback?.email) {
+      user = db.getUserByEmail(userFallback.email);
+    }
+    if (!user && userFallback?.email) {
+      user = db.upsertUser({
+        name: userFallback.name || 'Usuario',
+        email: userFallback.email,
+        avatar_url: userFallback.avatar_url,
+      });
+    }
+
     if (!user) {
       throw new Error(`Usuario con ID ${userId} no encontrado en la base de datos.`);
     }
 
-    const result = db.createWorkspaceWithTransaction(userId, trimmedName, validation.slug);
+    const result = db.createWorkspaceWithTransaction(user.id, trimmedName, validation.slug);
 
     db.addLog(
       'system',

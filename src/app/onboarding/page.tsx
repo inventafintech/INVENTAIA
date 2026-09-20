@@ -183,6 +183,9 @@ export default function OnboardingPage() {
         body: JSON.stringify({
           name: companyName.trim(),
           slug: workspaceSlug.trim(),
+          userEmail: user?.email,
+          userName: user?.name,
+          userAvatar: user?.avatar_url,
         }),
       });
 

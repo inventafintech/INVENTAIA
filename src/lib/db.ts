@@ -196,8 +196,10 @@ export interface WorkspaceUserRecord {
   created_at: string;
 }
 
-// In-memory + persistent storage
-const DATA_DIR = path.join(process.cwd(), '.data');
+// In-memory + persistent storage (usar /tmp/.data en serverless/Vercel)
+const DATA_DIR = process.env.VERCEL
+  ? path.join('/tmp', '.data')
+  : path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'integrations_store.json');
 
 interface DatabaseStore {
