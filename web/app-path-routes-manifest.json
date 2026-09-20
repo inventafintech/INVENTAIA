@@ -14,11 +14,12 @@
   "/api/integraciones/shopify/sync/route": "/api/integraciones/shopify/sync",
   "/api/integraciones/sunat/sync/route": "/api/integraciones/sunat/sync",
   "/api/integraciones/whatsapp/send/route": "/api/integraciones/whatsapp/send",
-  "/api/dashboard/ordenes/[id]/approve/route": "/api/dashboard/ordenes/[id]/approve",
   "/api/dashboard/ordenes/[id]/pdf/route": "/api/dashboard/ordenes/[id]/pdf",
-  "/api/dashboard/ordenes/route": "/api/dashboard/ordenes",
+  "/api/dashboard/financiamiento/route": "/api/dashboard/financiamiento",
+  "/api/dashboard/ordenes/[id]/approve/route": "/api/dashboard/ordenes/[id]/approve",
+  "/api/dashboard/financiamiento/desembolso/route": "/api/dashboard/financiamiento/desembolso",
   "/api/dashboard/reabastecimiento/route": "/api/dashboard/reabastecimiento",
-  "/api/dashboard/reabastecimiento/oc/route": "/api/dashboard/reabastecimiento/oc",
+  "/api/dashboard/ordenes/route": "/api/dashboard/ordenes",
   "/page": "/",
   "/dashboard/ajustes/page": "/dashboard/ajustes",
   "/dashboard/analytics/page": "/dashboard/analytics",
@@ -28,5 +29,6 @@
   "/dashboard/ordenes/page": "/dashboard/ordenes",
   "/dashboard/page": "/dashboard",
   "/dashboard/predictiva/page": "/dashboard/predictiva",
-  "/dashboard/reabastecimiento/page": "/dashboard/reabastecimiento"
+  "/dashboard/reabastecimiento/page": "/dashboard/reabastecimiento",
+  "/api/dashboard/reabastecimiento/oc/route": "/api/dashboard/reabastecimiento/oc"
 }

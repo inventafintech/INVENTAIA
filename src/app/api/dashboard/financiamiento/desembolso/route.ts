@@ -1,0 +1,31 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { FinancingService } from '@/services/FinancingService';
+
+export const dynamic = 'force-dynamic';
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const { amount, termDays, userEmail = 'operaciones@distribuidorasanmartin.pe' } = body;
+
+    if (!amount || !termDays) {
+      return NextResponse.json(
+        { success: false, error: 'Monto y plazo de pago son campos obligatorios.' },
+        { status: 400 }
+      );
+    }
+
+    const result = await FinancingService.requestDisbursement(
+      Number(amount),
+      Number(termDays),
+      userEmail
+    );
+
+    return NextResponse.json(result);
+  } catch (error: any) {
+    return NextResponse.json(
+      { success: false, error: error.message || 'Error al procesar solicitud de desembolso' },
+      { status: 500 }
+    );
+  }
+}

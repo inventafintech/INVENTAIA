@@ -65,6 +65,18 @@
       "namedRegex": "^/api/dashboard/cerebro(?:/)?$"
     },
     {
+      "page": "/api/dashboard/financiamiento",
+      "regex": "^/api/dashboard/financiamiento(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/financiamiento(?:/)?$"
+    },
+    {
+      "page": "/api/dashboard/financiamiento/desembolso",
+      "regex": "^/api/dashboard/financiamiento/desembolso(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/dashboard/financiamiento/desembolso(?:/)?$"
+    },
+    {
       "page": "/api/dashboard/ordenes",
       "regex": "^/api/dashboard/ordenes(?:/)?$",
       "routeKeys": {},

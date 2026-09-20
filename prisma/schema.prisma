@@ -19,6 +19,20 @@ enum POStatus {
   received
 }
 
+enum CreditLineStatus {
+  active
+  suspended
+  pending_configuration
+}
+
+enum DisbursementStatus {
+  pending
+  approved
+  disbursed
+  rejected
+  failed
+}
+
 model Supplier {
   id               String          @id @default(uuid())
   name             String
@@ -64,4 +78,47 @@ model PurchaseOrderLine {
   @@index([po_id])
   @@index([sku])
   @@map("purchase_order_lines")
+}
+
+model CreditLine {
+  id                    String                @id @default(uuid())
+  partner_bank_id       String
+  total_amount          Decimal               @db.Decimal(14, 2)
+  available_amount      Decimal               @db.Decimal(14, 2)
+  monthly_interest_rate Decimal               @db.Decimal(6, 4) @default(0.0145)
+  status                CreditLineStatus      @default(active)
+  created_at            DateTime              @default(now())
+  updated_at            DateTime              @updatedAt
+
+  disbursements         DisbursementRequest[]
+
+  @@index([partner_bank_id])
+  @@map("credit_lines")
+}
+
+model DisbursementRequest {
+  id               String             @id @default(uuid())
+  credit_line_id   String
+  credit_line      CreditLine         @relation(fields: [credit_line_id], references: [id])
+  requested_amount Decimal            @db.Decimal(14, 2)
+  term_days        Int
+  financial_cost   Decimal            @db.Decimal(12, 2)
+  status           DisbursementStatus @default(pending)
+  created_at       DateTime           @default(now())
+
+  @@index([credit_line_id])
+  @@map("disbursement_requests")
+}
+
+model IntegrationLog {
+  id          String   @id @default(uuid())
+  fecha       DateTime @default(now())
+  usuario     String
+  integracion String
+  resultado   String
+  errores     String?
+
+  @@index([integracion])
+  @@index([fecha])
+  @@map("integration_logs")
 }

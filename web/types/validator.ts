@@ -146,6 +146,24 @@ type RouteHandlerConfig<Route extends AppRouteHandlerRoutes = AppRouteHandlerRou
   type __Unused = __Check
 }
 
+// Validate ../../src/app/api/dashboard/financiamiento/desembolso/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/financiamiento/desembolso">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/financiamiento/desembolso/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
+// Validate ../../src/app/api/dashboard/financiamiento/route.ts
+{
+  type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/financiamiento">> = Specific
+  const handler = {} as typeof import("../../src/app/api/dashboard/financiamiento/route.js")
+  type __Check = __IsExpected<typeof handler>
+  // @ts-ignore
+  type __Unused = __Check
+}
+
 // Validate ../../src/app/api/dashboard/ordenes/[id]/approve/route.ts
 {
   type __IsExpected<Specific extends RouteHandlerConfig<"/api/dashboard/ordenes/[id]/approve">> = Specific

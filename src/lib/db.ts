@@ -92,6 +92,30 @@ export interface PurchaseOrderLineRecord {
   subtotal: number;
 }
 
+export interface CreditLineRecord {
+  id: string;
+  partner_bank_id: string;
+  partner_bank_name: string;
+  total_amount: number;
+  available_amount: number;
+  used_amount: number;
+  monthly_interest_rate: number;
+  status: 'active' | 'suspended' | 'pending_configuration';
+  active_orders_description: string;
+}
+
+export interface DisbursementRequestRecord {
+  id: string;
+  credit_line_id: string;
+  requested_amount: number;
+  term_days: number;
+  financial_cost: number;
+  protected_sales: number;
+  net_return: number;
+  status: 'pending' | 'approved' | 'disbursed' | 'rejected' | 'failed';
+  created_at: string;
+}
+
 // In-memory + persistent storage
 const DATA_DIR = path.join(process.cwd(), '.data');
 const DB_FILE = path.join(DATA_DIR, 'integrations_store.json');
@@ -105,6 +129,8 @@ interface DatabaseStore {
   suppliers: Record<string, SupplierRecord>;
   purchase_orders: Record<string, PurchaseOrderRecord>;
   purchase_order_lines: PurchaseOrderLineRecord[];
+  credit_lines: Record<string, CreditLineRecord>;
+  disbursement_requests: DisbursementRequestRecord[];
 }
 
 function initDb(): DatabaseStore {
@@ -252,6 +278,20 @@ function initDb(): DatabaseStore {
     { id: 'pol-10', po_id: 'po-5', sku: 'SKU-BAC-002', product_name: 'Agua San Mateo 500ml Pack 12', quantity: 1000, unit_price: 12.50, subtotal: 12500.00 },
   ];
 
+  const defaultCreditLines: Record<string, CreditLineRecord> = {
+    'cl-pichincha': {
+      id: 'cl-pichincha',
+      partner_bank_id: 'banco-pichincha-b2b',
+      partner_bank_name: 'Banco Pichincha B2B',
+      total_amount: 150000.00,
+      available_amount: 105000.00,
+      used_amount: 45000.00,
+      monthly_interest_rate: 0.0145, // 1.45% mensual
+      status: 'active',
+      active_orders_description: '1 Orden activa (Alicorp #OC-089)',
+    },
+  };
+
   const defaultStore: DatabaseStore = {
     integrations: {
       shopify: {
@@ -302,6 +342,14 @@ function initDb(): DatabaseStore {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       },
+      pichincha_b2b: {
+        id: 'int-pichincha-b2b',
+        provider: 'pichincha_b2b',
+        status: 'pending_configuration',
+        config: {},
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      },
     },
     oauth_tokens: {},
     sync_jobs: [],
@@ -310,6 +358,8 @@ function initDb(): DatabaseStore {
     suppliers: defaultSuppliers,
     purchase_orders: defaultOrders,
     purchase_order_lines: defaultLines,
+    credit_lines: defaultCreditLines,
+    disbursement_requests: [],
   };
 
   try {
@@ -325,6 +375,8 @@ function initDb(): DatabaseStore {
         suppliers: { ...defaultSuppliers, ...(parsed.suppliers || {}) },
         purchase_orders: { ...defaultOrders, ...(parsed.purchase_orders || {}) },
         purchase_order_lines: parsed.purchase_order_lines?.length ? parsed.purchase_order_lines : defaultLines,
+        credit_lines: { ...defaultCreditLines, ...(parsed.credit_lines || {}) },
+        disbursement_requests: parsed.disbursement_requests || [],
       };
     }
   } catch (err) {
@@ -541,5 +593,42 @@ export const db = {
     persistStore();
 
     return { po, lines: createdLines };
+  },
+
+  // --- Credit Lines & Financing Methods ---
+  getCreditLine: (id: string = 'cl-pichincha'): CreditLineRecord | undefined => {
+    return store.credit_lines[id] || Object.values(store.credit_lines)[0];
+  },
+
+  updateCreditLine: (
+    id: string,
+    updates: Partial<CreditLineRecord>
+  ): CreditLineRecord | undefined => {
+    const cl = store.credit_lines[id] || Object.values(store.credit_lines)[0];
+    if (cl) {
+      const updated = { ...cl, ...updates };
+      store.credit_lines[cl.id] = updated;
+      persistStore();
+      return updated;
+    }
+    return undefined;
+  },
+
+  createDisbursementRequest: (
+    data: Omit<DisbursementRequestRecord, 'id' | 'created_at'>
+  ): DisbursementRequestRecord => {
+    const id = `disb-${Date.now()}`;
+    const record: DisbursementRequestRecord = {
+      ...data,
+      id,
+      created_at: new Date().toISOString(),
+    };
+    store.disbursement_requests.unshift(record);
+    persistStore();
+    return record;
+  },
+
+  getDisbursementRequests: (): DisbursementRequestRecord[] => {
+    return store.disbursement_requests;
   },
 };
