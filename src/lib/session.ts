@@ -10,6 +10,16 @@ export interface SessionData {
   workspaceId?: string | null;
   workspaceSlug?: string | null;
   workspaceName?: string | null;
+  workspaceRuc?: string | null;
+  settings?: {
+    ruc?: string;
+    leadTime?: number;
+    sla?: string;
+    currency?: string;
+    horizon?: string;
+    notifyWhatsApp?: boolean;
+    notifyEmail?: boolean;
+  } | null;
   role?: 'OWNER' | 'ADMIN' | 'MEMBER' | null;
   createdAt: number;
 }

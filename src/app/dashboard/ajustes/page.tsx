@@ -23,19 +23,21 @@ export default function AjustesPage() {
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
+            const currentStore = useWorkspaceStore.getState().settings;
+
             const serverSettings: WorkspaceSettings = {
-              razonSocial: data.settings.razonSocial || data.settings.companyName || '',
-              ruc: data.settings.ruc || '',
-              leadTime: Number(data.settings.leadTime) || 5,
-              sla: String(data.settings.sla || '95'),
-              moneda: data.settings.moneda || data.settings.currency || 'PEN',
-              horizonteProyeccion: String(data.settings.horizonteProyeccion || data.settings.horizon || '30'),
+              razonSocial: data.settings.razonSocial || data.settings.companyName || currentStore.razonSocial || '',
+              ruc: data.settings.ruc || currentStore.ruc || '',
+              leadTime: Number(data.settings.leadTime) || currentStore.leadTime || 5,
+              sla: String(data.settings.sla || currentStore.sla || '95'),
+              moneda: data.settings.moneda || data.settings.currency || currentStore.moneda || 'PEN',
+              horizonteProyeccion: String(data.settings.horizonteProyeccion || data.settings.horizon || currentStore.horizonteProyeccion || '30'),
               alertasWhatsapp: typeof data.settings.alertasWhatsapp === 'boolean'
                 ? data.settings.alertasWhatsapp
-                : Boolean(data.settings.notifyWhatsApp ?? true),
+                : (currentStore.alertasWhatsapp ?? true),
               resumenCorreo: typeof data.settings.resumenCorreo === 'boolean'
                 ? data.settings.resumenCorreo
-                : Boolean(data.settings.notifyEmail ?? true),
+                : (currentStore.resumenCorreo ?? true),
             };
 
             setFormData(serverSettings);

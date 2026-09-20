@@ -17,31 +17,34 @@ export async function GET() {
       'ws-default';
 
     const workspace = db.getWorkspace(workspaceId);
+    const sessionSettings = customSession?.settings || {};
+    const savedSettings = workspace?.settings || sessionSettings;
+
     const companyName =
       workspace?.name ||
       customSession?.workspaceName ||
       (nextAuthSession?.user as any)?.workspace?.name ||
       '';
 
-    const savedSettings = workspace?.settings || {};
+    const ruc = savedSettings.ruc || sessionSettings.ruc || customSession?.workspaceRuc || '';
 
     const settings = {
       // Claves canónicas
       razonSocial: companyName,
-      ruc: savedSettings.ruc || '',
-      leadTime: savedSettings.leadTime ?? 5,
-      sla: savedSettings.sla || '95',
-      moneda: savedSettings.currency || 'PEN',
-      horizonteProyeccion: savedSettings.horizon || '30',
-      alertasWhatsapp: savedSettings.notifyWhatsApp ?? true,
-      resumenCorreo: savedSettings.notifyEmail ?? true,
+      ruc,
+      leadTime: savedSettings.leadTime ?? sessionSettings.leadTime ?? 5,
+      sla: savedSettings.sla || sessionSettings.sla || '95',
+      moneda: savedSettings.currency || sessionSettings.currency || 'PEN',
+      horizonteProyeccion: savedSettings.horizon || sessionSettings.horizon || '30',
+      alertasWhatsapp: savedSettings.notifyWhatsApp ?? sessionSettings.notifyWhatsApp ?? true,
+      resumenCorreo: savedSettings.notifyEmail ?? sessionSettings.notifyEmail ?? true,
 
       // Alias retrocompatibles
       companyName,
-      currency: savedSettings.currency || 'PEN',
-      horizon: savedSettings.horizon || '30',
-      notifyWhatsApp: savedSettings.notifyWhatsApp ?? true,
-      notifyEmail: savedSettings.notifyEmail ?? true,
+      currency: savedSettings.currency || sessionSettings.currency || 'PEN',
+      horizon: savedSettings.horizon || sessionSettings.horizon || '30',
+      notifyWhatsApp: savedSettings.notifyWhatsApp ?? sessionSettings.notifyWhatsApp ?? true,
+      notifyEmail: savedSettings.notifyEmail ?? sessionSettings.notifyEmail ?? true,
     };
 
     return NextResponse.json({
@@ -114,21 +117,40 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    // Actualizar sesión activa
-    if (customSession) {
-      await SessionManager.createSession({
-        ...customSession,
-        workspaceName: targetName,
-      });
-    }
+    // Actualizar o crear sesión activa con cookie segura para persistencia entre lambdas serverless
+    const baseSession = customSession || {
+      userId: (nextAuthSession?.user as any)?.id || 'usr-default',
+      email: nextAuthSession?.user?.email || 'admin@inventa.ai',
+      name: nextAuthSession?.user?.name || targetName || 'Usuario',
+      avatarUrl: (nextAuthSession?.user as any)?.image,
+      workspaceId,
+      workspaceSlug: 'default',
+      role: 'OWNER' as const,
+    };
+
+    await SessionManager.createSession({
+      ...baseSession,
+      workspaceId,
+      workspaceName: targetName,
+      workspaceRuc: targetRuc,
+      settings: {
+        ruc: targetRuc,
+        leadTime: targetLeadTime,
+        sla: targetSla,
+        currency: targetMoneda,
+        horizon: targetHorizon,
+        notifyWhatsApp: targetWhatsapp,
+        notifyEmail: targetEmail,
+      },
+    });
 
     db.addLog(
       'system',
       'INFO',
       'WORKSPACE_SETTINGS_UPDATED',
       'EXITOSO',
-      `Configuración actualizada para "${targetName}" en base de datos.`,
-      customSession?.email || 'admin@inventa.ai'
+      `Configuración actualizada para "${targetName}" (RUC: ${targetRuc || 'N/A'}) en base de datos.`,
+      baseSession.email
     );
 
     const normalizedSettings = {
