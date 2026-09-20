@@ -1,200 +1,72 @@
 -- ==============================================================================
--- INVENTA.AI - Módulos de Inventario, Órdenes de Compra (OC) & Financiamiento B2B
--- PostgreSQL / Supabase / Cloud SQL Relational Schema
+-- INVENTA.AI - Schema Completo para Supabase (PostgreSQL)
+-- Ejecutar este script en el SQL Editor de tu proyecto Supabase:
+-- https://supabase.com/dashboard/project/eztnhqcsfhwgjwfdqxlg/sql/new
 -- ==============================================================================
 
--- 1. Tabla de Categorías (Categories)
-CREATE TABLE IF NOT EXISTS categories (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_categories_name ON categories(name);
-
--- 2. Tabla de Productos (Products)
-CREATE TABLE IF NOT EXISTS products (
-    id VARCHAR(50) PRIMARY KEY,
-    sku_code VARCHAR(100) UNIQUE NOT NULL,
-    name VARCHAR(255) NOT NULL,
-    category_id VARCHAR(50) NOT NULL REFERENCES categories(id) ON DELETE RESTRICT,
-    unit_cost NUMERIC(12, 2) NOT NULL CHECK (unit_cost >= 0),
-    unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0),
-    status VARCHAR(50) NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'archived')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_products_sku ON products(sku_code);
-CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
-
--- 3. Tabla de Niveles de Inventario (Inventory Levels)
-CREATE TABLE IF NOT EXISTS inventory_levels (
-    id VARCHAR(50) PRIMARY KEY,
-    product_id VARCHAR(50) UNIQUE NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    physical_stock INT NOT NULL DEFAULT 0 CHECK (physical_stock >= 0),
-    safety_stock INT NOT NULL DEFAULT 0 CHECK (safety_stock >= 0),
-    last_synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_inventory_product ON inventory_levels(product_id);
-CREATE INDEX IF NOT EXISTS idx_inventory_physical_stock ON inventory_levels(physical_stock);
-
--- 4. Tabla de Proveedores (Suppliers)
-CREATE TABLE IF NOT EXISTS suppliers (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    contact_info JSONB NOT NULL DEFAULT '{}'::jsonb,
-    integration_type VARCHAR(50) NOT NULL CHECK (integration_type IN ('corporate', 'traditional')),
-    lead_time_days INT NOT NULL DEFAULT 5,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_suppliers_integration ON suppliers(integration_type);
-
--- 5. Tabla de Órdenes de Compra (Purchase Orders)
-CREATE TABLE IF NOT EXISTS purchase_orders (
-    id VARCHAR(50) PRIMARY KEY,
-    order_number VARCHAR(50) UNIQUE NOT NULL,
-    supplier_id VARCHAR(50) NOT NULL REFERENCES suppliers(id) ON DELETE RESTRICT,
-    condition VARCHAR(100) NOT NULL,
-    total_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    estimated_arrival DATE NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('draft', 'approved', 'transit', 'received')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_po_status ON purchase_orders(status);
-CREATE INDEX IF NOT EXISTS idx_po_supplier ON purchase_orders(supplier_id);
-CREATE INDEX IF NOT EXISTS idx_po_order_number ON purchase_orders(order_number);
-
--- 6. Tabla de Líneas de Órdenes de Compra (Purchase Order Lines)
-CREATE TABLE IF NOT EXISTS purchase_order_lines (
-    id VARCHAR(50) PRIMARY KEY,
-    po_id VARCHAR(50) NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
-    sku VARCHAR(100) NOT NULL,
-    quantity INT NOT NULL CHECK (quantity > 0),
-    unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_pol_po_id ON purchase_order_lines(po_id);
-CREATE INDEX IF NOT EXISTS idx_pol_sku ON purchase_order_lines(sku);
-
--- 7. Tabla de Líneas de Crédito (Credit Lines)
-CREATE TABLE IF NOT EXISTS credit_lines (
-    id VARCHAR(50) PRIMARY KEY,
-    partner_bank_id VARCHAR(100) NOT NULL,
-    total_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    available_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
-    monthly_interest_rate NUMERIC(6, 4) NOT NULL DEFAULT 0.0145, -- 1.45% mensual
-    status VARCHAR(50) NOT NULL CHECK (status IN ('active', 'suspended', 'pending_configuration')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_credit_lines_bank ON credit_lines(partner_bank_id);
-
--- 8. Tabla de Solicitudes de Desembolso (Disbursement Requests)
-CREATE TABLE IF NOT EXISTS disbursement_requests (
-    id VARCHAR(50) PRIMARY KEY,
-    credit_line_id VARCHAR(50) NOT NULL REFERENCES credit_lines(id) ON DELETE RESTRICT,
-    requested_amount NUMERIC(14, 2) NOT NULL,
-    term_days INT NOT NULL,
-    financial_cost NUMERIC(12, 2) NOT NULL,
-    status VARCHAR(50) NOT NULL CHECK (status IN ('pending', 'approved', 'disbursed', 'rejected', 'failed')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_disbursement_cl_id ON disbursement_requests(credit_line_id);
-
--- 9. Tabla de Auditoría de Integraciones (Integration Logs)
-CREATE TABLE IF NOT EXISTS integration_logs (
-    id VARCHAR(100) PRIMARY KEY,
-    fecha TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    usuario VARCHAR(255) NOT NULL,
-    integracion VARCHAR(100) NOT NULL,
-    resultado VARCHAR(50) NOT NULL,
-    errores TEXT
-);
-
-CREATE INDEX IF NOT EXISTS idx_logs_integracion ON integration_logs(integracion);
-CREATE INDEX IF NOT EXISTS idx_logs_fecha ON integration_logs(fecha);
-CREATE INDEX IF NOT EXISTS idx_logs_resultado ON integration_logs(resultado);
-CREATE INDEX IF NOT EXISTS idx_logs_fecha_resultado ON integration_logs(fecha, resultado);
-
--- 10. Tabla de Logs de Precisión de Pronóstico (Forecast Accuracy Logs)
-CREATE TABLE IF NOT EXISTS forecast_accuracy_logs (
-    id VARCHAR(64) PRIMARY KEY,
-    product_id VARCHAR(64) NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    forecasted_demand NUMERIC(12, 2) NOT NULL,
-    actual_demand NUMERIC(12, 2) NOT NULL,
-    mape_score NUMERIC(6, 4) NOT NULL,
-    calculated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_forecast_product_id ON forecast_accuracy_logs(product_id);
-CREATE INDEX IF NOT EXISTS idx_forecast_calculated_at ON forecast_accuracy_logs(calculated_at);
-
--- 11. Tabla de Logs de Ahorros de Inventario (Inventory Savings Logs)
-CREATE TABLE IF NOT EXISTS inventory_savings_logs (
-    id VARCHAR(64) PRIMARY KEY,
-    saved_amount NUMERIC(14, 2) NOT NULL,
-    action_type VARCHAR(100) NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_savings_created_at ON inventory_savings_logs(created_at);
-
--- 12. Tabla de Quiebres Prevenidos (Prevented Stockouts)
-CREATE TABLE IF NOT EXISTS prevented_stockouts (
-    id VARCHAR(64) PRIMARY KEY,
-    product_id VARCHAR(64) NOT NULL REFERENCES products(id) ON DELETE CASCADE,
-    days_prevented INT NOT NULL,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_prevented_product_id ON prevented_stockouts(product_id);
-CREATE INDEX IF NOT EXISTS idx_prevented_created_at ON prevented_stockouts(created_at);
-
--- ==============================================================================
--- INVENTA.AI - Arquitectura de Autenticación & Multi-Tenancy B2B
--- ==============================================================================
-
--- 13. Tabla de Usuarios (Users)
-CREATE TABLE IF NOT EXISTS users (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
-    avatar_url TEXT,
-    google_id VARCHAR(100) UNIQUE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
-CREATE INDEX IF NOT EXISTS idx_users_google_id ON users(google_id);
-
--- 14. Tabla de Espacios de Trabajo Multi-Tenant (Workspaces)
+-- 1. Tabla de Espacios de Trabajo Multi-Tenant (Workspaces)
 CREATE TABLE IF NOT EXISTS workspaces (
-    id VARCHAR(50) PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    slug_url VARCHAR(100) UNIQUE NOT NULL,
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    slug_url TEXT UNIQUE NOT NULL,
+    industry TEXT,
+    plan TEXT DEFAULT 'FREE',
+    status TEXT DEFAULT 'ACTIVE',
+    sla_days INTEGER DEFAULT 3,
+    lead_time_days INTEGER DEFAULT 7,
+    safety_margin_percent INTEGER DEFAULT 15,
+    auto_reorder BOOLEAN DEFAULT false,
+    tax_id TEXT,
+    address TEXT,
+    currency TEXT DEFAULT 'USD',
+    timezone TEXT DEFAULT 'America/Lima',
+    settings JSONB DEFAULT '{}'::jsonb,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS industry TEXT;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'FREE';
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'ACTIVE';
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS sla_days INTEGER DEFAULT 3;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS lead_time_days INTEGER DEFAULT 7;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS safety_margin_percent INTEGER DEFAULT 15;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS auto_reorder BOOLEAN DEFAULT false;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS tax_id TEXT;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS address TEXT;
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'USD';
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS timezone TEXT DEFAULT 'America/Lima';
+ALTER TABLE workspaces ADD COLUMN IF NOT EXISTS settings JSONB DEFAULT '{}'::jsonb;
 
 CREATE INDEX IF NOT EXISTS idx_workspaces_slug ON workspaces(slug_url);
 
--- 15. Tabla Pivote de Usuarios por Espacio (Workspace Users)
+-- 2. Tabla de Usuarios (Users)
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    email TEXT UNIQUE NOT NULL,
+    avatar_url TEXT,
+    image TEXT,
+    google_id TEXT UNIQUE,
+    workspace_id TEXT REFERENCES workspaces(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+ALTER TABLE users ADD COLUMN IF NOT EXISTS workspace_id TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS image TEXT;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_workspace_id ON users(workspace_id);
+
+-- 3. Tabla Pivote de Usuarios por Espacio (Workspace Users)
 CREATE TABLE IF NOT EXISTS workspace_users (
-    id VARCHAR(50) PRIMARY KEY,
-    user_id VARCHAR(50) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-    workspace_id VARCHAR(50) NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
-    role VARCHAR(20) NOT NULL DEFAULT 'OWNER' CHECK (role IN ('OWNER', 'ADMIN', 'MEMBER')),
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    workspace_id TEXT NOT NULL REFERENCES workspaces(id) ON DELETE CASCADE,
+    role TEXT NOT NULL DEFAULT 'OWNER',
+    status TEXT DEFAULT 'ACTIVE',
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT uq_workspace_user UNIQUE (user_id, workspace_id)
 );
@@ -203,3 +75,99 @@ CREATE INDEX IF NOT EXISTS idx_wu_user_id ON workspace_users(user_id);
 CREATE INDEX IF NOT EXISTS idx_wu_workspace_id ON workspace_users(workspace_id);
 CREATE INDEX IF NOT EXISTS idx_wu_role ON workspace_users(role);
 
+-- 4. Tabla de Categorías (Categories)
+CREATE TABLE IF NOT EXISTS categories (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 5. Tabla de Productos (Products)
+CREATE TABLE IF NOT EXISTS products (
+    id TEXT PRIMARY KEY,
+    sku_code TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    category_id TEXT REFERENCES categories(id) ON DELETE RESTRICT,
+    unit_cost NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (unit_cost >= 0),
+    unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (unit_price >= 0),
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 6. Tabla de Niveles de Inventario (Inventory Levels)
+CREATE TABLE IF NOT EXISTS inventory_levels (
+    id TEXT PRIMARY KEY,
+    product_id TEXT UNIQUE NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+    physical_stock INT NOT NULL DEFAULT 0 CHECK (physical_stock >= 0),
+    safety_stock INT NOT NULL DEFAULT 0 CHECK (safety_stock >= 0),
+    last_synced_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 7. Tabla de Proveedores (Suppliers)
+CREATE TABLE IF NOT EXISTS suppliers (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    contact_info JSONB NOT NULL DEFAULT '{}'::jsonb,
+    integration_type TEXT NOT NULL DEFAULT 'corporate',
+    lead_time_days INT NOT NULL DEFAULT 5,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 8. Tabla de Órdenes de Compra (Purchase Orders)
+CREATE TABLE IF NOT EXISTS purchase_orders (
+    id TEXT PRIMARY KEY,
+    order_number TEXT UNIQUE NOT NULL,
+    supplier_id TEXT REFERENCES suppliers(id) ON DELETE RESTRICT,
+    condition TEXT NOT NULL,
+    total_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
+    estimated_arrival DATE NOT NULL,
+    status TEXT NOT NULL DEFAULT 'draft',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 9. Tabla de Líneas de Órdenes de Compra (Purchase Order Lines)
+CREATE TABLE IF NOT EXISTS purchase_order_lines (
+    id TEXT PRIMARY KEY,
+    po_id TEXT NOT NULL REFERENCES purchase_orders(id) ON DELETE CASCADE,
+    sku TEXT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    unit_price NUMERIC(12, 2) NOT NULL CHECK (unit_price >= 0),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 10. Tabla de Líneas de Crédito (Credit Lines)
+CREATE TABLE IF NOT EXISTS credit_lines (
+    id TEXT PRIMARY KEY,
+    partner_bank_id TEXT NOT NULL,
+    total_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
+    available_amount NUMERIC(14, 2) NOT NULL DEFAULT 0.00,
+    monthly_interest_rate NUMERIC(6, 4) NOT NULL DEFAULT 0.0145,
+    status TEXT NOT NULL DEFAULT 'active',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 11. Tabla de Solicitudes de Desembolso (Disbursement Requests)
+CREATE TABLE IF NOT EXISTS disbursement_requests (
+    id TEXT PRIMARY KEY,
+    credit_line_id TEXT NOT NULL REFERENCES credit_lines(id) ON DELETE RESTRICT,
+    requested_amount NUMERIC(14, 2) NOT NULL,
+    term_days INT NOT NULL,
+    financial_cost NUMERIC(12, 2) NOT NULL,
+    status TEXT NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 12. Tabla de Logs de Integraciones
+CREATE TABLE IF NOT EXISTS integration_logs (
+    id TEXT PRIMARY KEY,
+    fecha TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    usuario TEXT NOT NULL,
+    integracion TEXT NOT NULL,
+    resultado TEXT NOT NULL,
+    errores TEXT
+);
