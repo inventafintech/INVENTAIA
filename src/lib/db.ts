@@ -1132,4 +1132,30 @@ export const db = {
 
     return { workspace, membership };
   },
+
+  updateWorkspace: (
+    id: string,
+    updates: Partial<WorkspaceRecord>
+  ): WorkspaceRecord | undefined => {
+    if (!store.workspaces) store.workspaces = {};
+    let ws = store.workspaces[id];
+    let targetId = id;
+    if (!ws) {
+      const firstId = Object.keys(store.workspaces)[0];
+      if (firstId) {
+        ws = store.workspaces[firstId];
+        targetId = firstId;
+      }
+    }
+    if (!ws) return undefined;
+
+    const updated: WorkspaceRecord = {
+      ...ws,
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+    store.workspaces[targetId] = updated;
+    persistStore();
+    return updated;
+  },
 };

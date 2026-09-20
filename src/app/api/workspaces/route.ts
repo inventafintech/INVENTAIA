@@ -114,3 +114,53 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const nextAuthSession = await getServerSession(authOptions);
+    const customSession = await SessionManager.getSession();
+
+    const body = await req.json().catch(() => ({}));
+    const { name, companyName } = body;
+    const targetName = (name || companyName || '').trim();
+
+    if (!targetName || targetName.length < 2) {
+      return NextResponse.json(
+        { success: false, error: 'El nombre del espacio de trabajo debe tener al menos 2 caracteres.' },
+        { status: 400 }
+      );
+    }
+
+    const workspaceId =
+      customSession?.workspaceId ||
+      (nextAuthSession?.user as any)?.workspace?.id ||
+      'ws-default';
+
+    // Actualizar en base de datos
+    const updated = db.updateWorkspace(workspaceId, {
+      name: targetName,
+    });
+
+    // Actualizar sesión activa
+    if (customSession) {
+      await SessionManager.createSession({
+        ...customSession,
+        workspaceName: targetName,
+      });
+    }
+
+    return NextResponse.json({
+      success: true,
+      workspace: updated || { id: workspaceId, name: targetName },
+      workspaceName: targetName,
+      message: 'Nombre de espacio de trabajo actualizado correctamente.',
+    });
+  } catch (error: any) {
+    console.error('Error updating workspace:', error);
+    return NextResponse.json(
+      { success: false, error: error.message || 'Error al actualizar espacio de trabajo.' },
+      { status: 500 }
+    );
+  }
+}
+

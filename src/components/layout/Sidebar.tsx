@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { SidebarItem } from './SidebarItem';
 import { useNotificationStore } from '@/context/NotificationContext';
+import { useWorkspaceStore } from '@/hooks/useWorkspaceStore';
 import styles from './Sidebar.module.css';
 
 interface SidebarProps {
@@ -12,6 +14,25 @@ interface SidebarProps {
 export function Sidebar({ pendingOrdersCount }: SidebarProps) {
   const pathname = usePathname() || '';
   const { counts } = useNotificationStore();
+  const { workspaceName, setWorkspaceName } = useWorkspaceStore();
+
+  // Sincronizar el nombre inicial desde la sesión activa
+  useEffect(() => {
+    async function initWorkspaceName() {
+      try {
+        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.workspace?.name) {
+            setWorkspaceName(data.workspace.name);
+          }
+        }
+      } catch (err) {
+        console.error('Error sincronizando nombre de workspace:', err);
+      }
+    }
+    initWorkspaceName();
+  }, [setWorkspaceName]);
 
   // El contador de órdenes prioriza el valor dinámico del store
   const orderCount = typeof counts.ordenes === 'number' ? counts.ordenes : (pendingOrdersCount ?? 0);
@@ -28,7 +49,9 @@ export function Sidebar({ pendingOrdersCount }: SidebarProps) {
       {/* Encabezado de Marca */}
       <div className={styles.brand}>
         <div className={styles.logo}>I.AI</div>
-        <span className={styles.company}>Distribuidora San Martín</span>
+        <span className={styles.company} title={workspaceName}>
+          {workspaceName}
+        </span>
       </div>
 
       {/* Navegación Principal */}
