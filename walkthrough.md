@@ -4,6 +4,38 @@ Implementación integral de arquitectura limpia (Clean Architecture), TypeScript
 
 ---
 
+## 6. Módulo "Maestro de Inventario" (`/dashboard/inventario`)
+
+### Componentes y Funcionalidades Implementadas
+- **Header & Indicador de Integración**:
+  - Título `"Maestro de Inventario"` y subtítulo `"Valorización de stock en tiempo real, rotación comercial (GMROI) y monitoreo de inventario inmovilizado."`.
+  - Indicador obligatorio en la esquina superior derecha: `Pendiente de configuración` con badge ámbar e indicador visual mientras las integraciones externas permanezcan desconectadas.
+- **Tarjetas de Resumen Financiero (KPIs Reales)**:
+  - **VALOR TOTAL ALMACÉN**: `S/ 55,009.00` (calculado matemáticamente a partir de `physical_stock * unit_cost`).
+  - **UNIDADES FÍSICAS**: `2920 u` (suma real de inventario disponible).
+  - **SKUS MONITOREADOS**: `6` (conteo de SKUs activos).
+  - **ROTACIÓN PROMEDIO**: `27.3% GMROI` (promedio ponderado del Gross Margin Return on Investment).
+- **Barra de Herramientas Interactiva**:
+  - Buscador reactivo: `"Buscar por nombre o código de SKU..."` filtrando en tiempo real por código SKU o denominación del producto.
+  - Selector de Categorías: `"Todas las Categorías"`, `"Abarrotes"`, `"Lácteos"`, `"Construcción"`, `"Bebidas"`.
+  - Botón `"Exportar CSV"`: Descarga directa de archivo CSV real con encoding UTF-8 (con BOM para compatibilidad con Excel) conteniendo exactamente las filas filtradas en la tabla.
+  - Botón `"+ Nuevo SKU"`: Modal interactivo para registrar un nuevo producto con código SKU, nombre, categoría, costos, precios y stock inicial.
+- **Data Grid Empresarial & Badges de Salud**:
+  - Columnas exactas: `SKU / CÓDIGO`, `PRODUCTO`, `CATEGORÍA`, `STOCK FÍSICO`, `STOCK SEGURIDAD`, `VALOR TOTAL`, `GMROI`, `SALUD`.
+  - Badges tipados con diseño exacto al mock visual:
+    - **Quiebre Inminente**: Fondo rojo claro (`#fef2f2`), texto rojo (`#dc2626`).
+    - **Stock Bajo**: Fondo naranja claro (`#fff7ed`), texto naranja (`#ea580c`).
+    - **Saludable**: Fondo verde claro (`#f0fdf4`), texto verde (`#16a34a`).
+- **Arquitectura de Base de Datos y Backend**:
+  - Tablas relacionales en `src/db/schema.sql` y `prisma/schema.prisma`: `categories`, `products`, `inventory_levels`.
+  - Capa de servicio `src/services/InventoryMasterService.ts` con Clean Architecture y principios SOLID para valorización, cálculo de GMROI y motor de reglas de salud.
+  - Endpoints REST:
+    - `GET /api/dashboard/inventario`
+    - `POST /api/dashboard/inventario`
+    - `GET /api/dashboard/inventario/export`
+
+---
+
 ## 1. Módulo: Capital de Trabajo & Financiamiento
 
 ### 1.1 Arquitectura de Base de Datos y Modelos
