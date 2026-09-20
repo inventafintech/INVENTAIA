@@ -21,3 +21,5 @@ Thumbs.db
 
 .vercel
 .env*
+
+.next/

@@ -1,0 +1,232 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.navContent {
+  max-width: 1200px;
+  margin: 0 auto;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.02em;
+}
+
+.links {
+  display: flex;
+  gap: 32px;
+}
+
+.links a {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.links a:hover {
+  color: var(--ink);
+}
+
+.actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btnPrimary {
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnPrimary:hover {
+  background: var(--primary-hover);
+}
+
+.btnSecondary {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 7px 15px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnSecondary:hover {
+  background: var(--bg2);
+}
+
+.main {
+  flex: 1;
+}
+
+.hero {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 120px 24px 80px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.badgeDot {
+  width: 8px;
+  height: 8px;
+  background: var(--ok);
+  border-radius: 50%;
+}
+
+.title {
+  font-size: 64px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 24px;
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  font-size: 20px;
+  line-height: 1.5;
+  color: var(--muted);
+  max-width: 600px;
+  margin: 0 auto 40px;
+}
+
+.heroActions {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 80px;
+}
+
+.btnPrimaryLarge {
+  background: var(--primary);
+  color: var(--bg);
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnPrimaryLarge:hover {
+  background: var(--primary-hover);
+}
+
+.btnSecondaryLarge {
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 11px 23px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btnSecondaryLarge:hover {
+  background: var(--bg2);
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+  max-width: 800px;
+}
+
+.metricCard {
+  background: var(--card);
+  border: 1px solid var(--line);
+  padding: 24px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.metricValue {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: -0.02em;
+}
+
+.metricLabel {
+  font-size: 14px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.trust {
+  padding: 60px 24px;
+  text-align: center;
+  border-top: 1px solid var(--line);
+  background: var(--bg2);
+}
+
+.trustLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.logos {
+  display: flex;
+  justify-content: center;
+  gap: 64px;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 18px;
+}

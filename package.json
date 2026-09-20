@@ -3,17 +3,25 @@
   "version": "1.4.0",
   "private": true,
   "description": "INVENTA.AI — El Cerebro de Compras para tu Empresa",
-  "type": "commonjs",
   "scripts": {
-    "build": "node scripts/build.js && node scripts/validate-build.js",
-    "lint": "npx htmlhint public/index.html && node scripts/check-modules.js",
-    "test": "node tests/engine-check.js && node tests/audit-ids.js && python ai-engine/test_smoke.py",
-    "serve": "python -m http.server 5173 --directory public",
-    "setup": "powershell -ExecutionPolicy Bypass -File scripts/setup.ps1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "test": "node tests/engine-check.js && node tests/audit-ids.js && python ai-engine/test_smoke.py"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "next": "^16.3.5",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
-    "esbuild": "^0.21.5",
-    "htmlhint": "^1.1.4"
-  },
-  "engines": { "node": ">=20" }
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "typescript": "^7.0.2"
+  }
 }
