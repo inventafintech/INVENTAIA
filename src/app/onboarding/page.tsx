@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 import styles from './page.module.css';
@@ -13,33 +13,35 @@ interface UserSession {
   role?: string;
 }
 
+// Función pura para autogenerar y limpiar el slug
+const generateSlug = (name: string): string => {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Eliminar acentos y diacríticos
+    .replace(/[^a-z0-9]+/g, '-')     // Reemplazar espacios y caracteres especiales por guiones
+    .replace(/^-+|-+$/g, '')         // Eliminar guiones al principio y al final
+    .slice(0, 35);
+};
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { data: nextAuthSession, status: nextAuthStatus } = useSession();
 
-  // Estados de sesión
+  // 1. Manejo de Estado (React Hooks)
   const [user, setUser] = useState<UserSession | null>(null);
   const [loadingSession, setLoadingSession] = useState<boolean>(true);
 
-  // Estados del formulario
   const [companyName, setCompanyName] = useState<string>('');
   const [workspaceSlug, setWorkspaceSlug] = useState<string>('');
   const [isSlugManuallyEdited, setIsSlugManuallyEdited] = useState<boolean>(false);
 
-  // Estados de validación de slug
-  const [slugStatus, setSlugStatus] = useState<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
-  const [slugMessage, setSlugMessage] = useState<string>('');
-
-  // Estados de envío
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  // 1. Cargar sesión activa (NextAuth o sesión institucional)
+  // 2. Cargar sesión activa (Google OAuth vía NextAuth o sesión institucional)
   useEffect(() => {
     async function loadSession() {
-      // Si NextAuth ya tiene sesión cargada
       if (nextAuthSession?.user) {
         const u = nextAuthSession.user as any;
         if (u.hasWorkspace) {
@@ -57,7 +59,6 @@ export default function OnboardingPage() {
         return;
       }
 
-      // Si NextAuth terminó de cargar y no hay sesión, o como fallback
       if (nextAuthStatus === 'unauthenticated') {
         try {
           const res = await fetch('/api/auth/session', { cache: 'no-store' });
@@ -86,67 +87,27 @@ export default function OnboardingPage() {
     }
   }, [nextAuthSession, nextAuthStatus, router]);
 
-  // 2. Validación de slug en tiempo real contra el backend
-  const validateSlugOnServer = useCallback(async (slugToTest: string) => {
-    if (!slugToTest || slugToTest.length < 3) {
-      setSlugStatus('invalid');
-      setSlugMessage('El identificador debe tener al menos 3 caracteres.');
-      return;
-    }
-
-    setSlugStatus('checking');
-    try {
-      const res = await fetch(`/api/workspaces/validate-slug?slug=${encodeURIComponent(slugToTest)}`);
-      const data = await res.json();
-
-      if (data.valid && data.available) {
-        setSlugStatus('valid');
-        setSlugMessage(`Espacio de trabajo disponible: ${data.slug}.inventa.ai`);
-      } else {
-        setSlugStatus('invalid');
-        setSlugMessage(data.error || 'Identificador no disponible.');
-      }
-    } catch {
-      setSlugStatus('invalid');
-      setSlugMessage('Error al verificar disponibilidad.');
-    }
-  }, []);
-
-  // 3. Manejar cambio en nombre de la empresa
+  // 3. Autogeneración y Validación del Slug
   const handleCompanyNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const name = e.target.value;
-    setCompanyName(name);
+    const value = e.target.value;
+    setCompanyName(value);
 
-    // Auto-generar slug si no se ha editado manualmente
+    // Si el usuario no ha editado manualmente el slug, autogenerar dinámicamente
     if (!isSlugManuallyEdited) {
-      const autoSlug = name
-        .toLowerCase()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '') // Eliminar tildes
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 30);
-
-      setWorkspaceSlug(autoSlug);
-
-      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-      debounceTimerRef.current = setTimeout(() => {
-        validateSlugOnServer(autoSlug);
-      }, 350);
+      setWorkspaceSlug(generateSlug(value));
     }
   };
 
-  // 4. Manejar cambio manual en slug
   const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsSlugManuallyEdited(true);
-    const raw = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-    setWorkspaceSlug(raw);
-
-    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
-    debounceTimerRef.current = setTimeout(() => {
-      validateSlugOnServer(raw);
-    }, 350);
+    const cleaned = e.target.value
+      .toLowerCase()
+      .replace(/[^a-z0-9-]/g, '');
+    setWorkspaceSlug(cleaned);
   };
+
+  // 4. Activación Dinámica del Botón (Validación UI: mínimo 3 caracteres en ambos)
+  const isFormValid = companyName.trim().length >= 3 && workspaceSlug.trim().length >= 3;
 
   // 5. Cerrar sesión
   const handleLogout = async () => {
@@ -160,29 +121,22 @@ export default function OnboardingPage() {
     }
   };
 
-  // 6. Enviar creación de espacio de trabajo
+  // 6. Envío de Datos (Submit Handler)
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid || submitting) return;
+
+    setSubmitting(true);
     setSubmitError(null);
 
-    if (!companyName.trim()) {
-      setSubmitError('Por favor, ingresa el nombre de tu empresa.');
-      return;
-    }
-
-    if (slugStatus !== 'valid') {
-      setSubmitError('Por favor, ingresa una dirección de espacio de trabajo válida y disponible.');
-      return;
-    }
-
     try {
-      setSubmitting(true);
       const res = await fetch('/api/workspaces', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: companyName.trim(),
           slug: workspaceSlug.trim(),
+          userId: user?.id,
           userEmail: user?.email,
           userName: user?.name,
           userAvatar: user?.avatar_url,
@@ -190,14 +144,14 @@ export default function OnboardingPage() {
       });
 
       const data = await res.json();
-      if (res.ok && data.success) {
-        // Redirigir al dashboard oficial
-        router.push(data.redirectUrl || '/dashboard');
+      if (res.ok && (data.success || res.status === 200 || res.status === 201)) {
+        // Redirige automáticamente al usuario a la vista principal del dashboard
+        router.push('/dashboard');
       } else {
         setSubmitError(data.error || 'No se pudo crear el espacio de trabajo.');
       }
     } catch (err: any) {
-      setSubmitError(`Error de conexión: ${err.message}`);
+      setSubmitError(`Error de conexión: ${err.message || 'Inténtalo de nuevo.'}`);
     } finally {
       setSubmitting(false);
     }
@@ -251,10 +205,10 @@ export default function OnboardingPage() {
           </button>
         </div>
 
-        {/* Mensaje de error general */}
+        {/* Mensaje de error general si ocurre */}
         {submitError && <div className={styles.errorMessage}>{submitError}</div>}
 
-        {/* Formulario Multi-Tenant */}
+        {/* Formulario Controlado de Onboarding */}
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGroup}>
             <label htmlFor="companyName" className={styles.label}>
@@ -278,11 +232,7 @@ export default function OnboardingPage() {
             </label>
             <div
               className={`${styles.slugInputContainer} ${
-                slugStatus === 'valid'
-                  ? styles.success
-                  : slugStatus === 'invalid'
-                  ? styles.error
-                  : ''
+                workspaceSlug.trim().length >= 3 ? styles.success : ''
               }`}
             >
               <input
@@ -296,28 +246,17 @@ export default function OnboardingPage() {
               />
               <span className={styles.slugSuffix}>.inventa.ai</span>
             </div>
-
-            {slugMessage && (
-              <div
-                className={`${styles.slugFeedback} ${
-                  slugStatus === 'valid' ? styles.valid : styles.invalid
-                }`}
-              >
-                {slugStatus === 'valid' ? '✓ ' : slugStatus === 'invalid' ? '✕ ' : ''}
-                {slugMessage}
-              </div>
-            )}
           </div>
 
           <button
             type="submit"
             className={styles.btnSubmit}
-            disabled={submitting || slugStatus !== 'valid'}
+            disabled={!isFormValid || submitting}
           >
             {submitting ? (
               <>
                 <div className={styles.spinner} />
-                <span>Creando espacio...</span>
+                <span>Cargando...</span>
               </>
             ) : (
               'Crear espacio de trabajo'

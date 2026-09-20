@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     const customSession = await SessionManager.getSession();
 
     const body = await req.json().catch(() => ({}));
-    const { name, slug, userEmail: bodyEmail, userName: bodyName, userAvatar: bodyAvatar } = body;
+    const { name, slug, userEmail: bodyEmail, userName: bodyName, userAvatar: bodyAvatar, userId: bodyUserId } = body;
 
     const authenticatedEmail =
       nextAuthSession?.user?.email || customSession?.email || bodyEmail;
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
     const authenticatedAvatar =
       nextAuthSession?.user?.image || customSession?.avatarUrl || bodyAvatar;
     const authenticatedId =
-      (nextAuthSession?.user as any)?.id || customSession?.userId;
+      (nextAuthSession?.user as any)?.id || customSession?.userId || bodyUserId;
 
     if (!authenticatedEmail && !authenticatedId) {
       return NextResponse.json(
