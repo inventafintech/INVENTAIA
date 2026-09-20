@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface WorkspaceSettings {
   razonSocial: string;
@@ -37,38 +38,45 @@ const DEFAULT_SETTINGS: WorkspaceSettings = {
   resumenCorreo: true,
 };
 
-export const useWorkspaceStore = create<WorkspaceState>((set) => ({
-  settings: DEFAULT_SETTINGS,
-  workspaceName: DEFAULT_SETTINGS.razonSocial,
-  workspaceSlug: 'distribuidora-san-martin',
+export const useWorkspaceStore = create<WorkspaceState>()(
+  persist(
+    (set) => ({
+      settings: DEFAULT_SETTINGS,
+      workspaceName: DEFAULT_SETTINGS.razonSocial,
+      workspaceSlug: 'distribuidora-san-martin',
 
-  updateWorkspaceSettings: (newSettings) =>
-    set((state) => {
-      const updated = { ...state.settings, ...newSettings };
-      return {
-        settings: updated,
-        workspaceName: updated.razonSocial ?? state.workspaceName,
-      };
+      updateWorkspaceSettings: (newSettings) =>
+        set((state) => {
+          const updated = { ...state.settings, ...newSettings };
+          return {
+            settings: updated,
+            workspaceName: updated.razonSocial ?? state.workspaceName,
+          };
+        }),
+
+      setWorkspaceName: (newName: string) =>
+        set((state) => ({
+          workspaceName: newName,
+          settings: { ...state.settings, razonSocial: newName },
+        })),
+
+      setWorkspaceSlug: (newSlug: string) => set({ workspaceSlug: newSlug }),
+
+      setWorkspace: (data) =>
+        set((state) => {
+          const updatedSettings = data.settings
+            ? { ...state.settings, ...data.settings, razonSocial: data.name }
+            : { ...state.settings, razonSocial: data.name };
+          return {
+            workspaceName: data.name,
+            workspaceSlug: data.slug || state.workspaceSlug,
+            settings: updatedSettings,
+          };
+        }),
     }),
-
-  setWorkspaceName: (newName: string) =>
-    set((state) => ({
-      workspaceName: newName,
-      settings: { ...state.settings, razonSocial: newName },
-    })),
-
-  setWorkspaceSlug: (newSlug: string) => set({ workspaceSlug: newSlug }),
-
-  setWorkspace: (data) =>
-    set((state) => {
-      const updatedSettings = data.settings
-        ? { ...state.settings, ...data.settings, razonSocial: data.name }
-        : { ...state.settings, razonSocial: data.name };
-      return {
-        workspaceName: data.name,
-        workspaceSlug: data.slug || state.workspaceSlug,
-        settings: updatedSettings,
-      };
-    }),
-}));
+    {
+      name: 'inventa_workspace_storage',
+    }
+  )
+);
 

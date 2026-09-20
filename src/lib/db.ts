@@ -616,7 +616,24 @@ function initDb(): DatabaseStore {
     inventory_savings_logs: defaultSavingsLogs,
     prevented_stockouts: defaultPreventedStockouts,
     users: {},
-    workspaces: {},
+    workspaces: {
+      'ws-default': {
+        id: 'ws-default',
+        name: 'Distribuidora San Martín',
+        slug_url: 'distribuidora-san-martin',
+        settings: {
+          ruc: '20601234567',
+          leadTime: 5,
+          sla: '95',
+          currency: 'PEN',
+          horizon: '30',
+          notifyWhatsApp: true,
+          notifyEmail: true,
+        },
+        created_at: '2026-09-01T00:00:00.000Z',
+        updated_at: '2026-09-01T00:00:00.000Z',
+      },
+    },
     workspace_users: [],
   };
 
@@ -642,7 +659,9 @@ function initDb(): DatabaseStore {
         inventory_savings_logs: parsed.inventory_savings_logs?.length ? parsed.inventory_savings_logs : defaultSavingsLogs,
         prevented_stockouts: parsed.prevented_stockouts?.length ? parsed.prevented_stockouts : defaultPreventedStockouts,
         users: parsed.users || {},
-        workspaces: parsed.workspaces || {},
+        workspaces: parsed.workspaces && Object.keys(parsed.workspaces).length > 0
+          ? parsed.workspaces
+          : defaultStore.workspaces,
         workspace_users: parsed.workspace_users || [],
       };
     }
@@ -1076,7 +1095,12 @@ export const db = {
   },
 
   getWorkspace: (id: string): WorkspaceRecord | undefined => {
-    return store.workspaces?.[id];
+    if (!store.workspaces) store.workspaces = {};
+    if (store.workspaces[id]) return store.workspaces[id];
+    // Fallback al primer workspace si existe
+    const first = Object.values(store.workspaces)[0];
+    if (first) return first;
+    return undefined;
   },
 
   getWorkspaceBySlug: (slug: string): WorkspaceRecord | undefined => {
@@ -1158,11 +1182,26 @@ export const db = {
         targetId = firstId;
       }
     }
-    if (!ws) return undefined;
+    if (!ws) {
+      targetId = id || 'ws-default';
+      ws = {
+        id: targetId,
+        name: updates.name || 'Distribuidora San Martín',
+        slug_url: updates.slug_url || 'distribuidora-san-martin',
+        settings: updates.settings,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      store.workspaces[targetId] = ws;
+    }
 
     const updated: WorkspaceRecord = {
       ...ws,
       ...updates,
+      settings: {
+        ...(ws.settings || {}),
+        ...(updates.settings || {}),
+      },
       updated_at: new Date().toISOString(),
     };
     store.workspaces[targetId] = updated;

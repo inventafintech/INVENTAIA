@@ -16,15 +16,25 @@ export function Sidebar({ pendingOrdersCount }: SidebarProps) {
   const { counts } = useNotificationStore();
   const { workspaceName, setWorkspaceName } = useWorkspaceStore();
 
-  // Sincronizar el nombre inicial desde la sesión activa
+  // Sincronizar el nombre inicial desde el backend (ajustes o sesión activa)
   useEffect(() => {
     async function initWorkspaceName() {
       try {
-        const res = await fetch('/api/auth/session', { cache: 'no-store' });
+        const res = await fetch('/api/dashboard/ajustes', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          if (data.workspace?.name) {
-            setWorkspaceName(data.workspace.name);
+          const name = data.settings?.razonSocial || data.settings?.companyName;
+          if (name) {
+            setWorkspaceName(name);
+            return;
+          }
+        }
+
+        const sessionRes = await fetch('/api/auth/session', { cache: 'no-store' });
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.workspace?.name) {
+            setWorkspaceName(sessionData.workspace.name);
           }
         }
       } catch (err) {
