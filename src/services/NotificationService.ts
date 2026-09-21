@@ -45,13 +45,15 @@ export class NotificationService {
 
       // 3. Inventario:
       // Conteo de SKUs con estado "Stock Bajo" y "Stock Inmovilizado / Exceso"
+      // REGLA ANTIGRAVITY: cero fallbacks. 0 si DB vacía, nunca valor inventado.
       Promise.resolve().then(() => {
         const items = InventoryMasterService.getInventoryItems();
+        if (!items || items.length === 0) return { lowStock: 0, inmovilizado: 0 };
         const lowStock = items.filter(
           (item) => item.health === 'low' || item.healthLabel === 'Stock Bajo'
         ).length;
         const inmovilizado = items.filter(
-          (item) => (item.physicalStock || 0) > 500 && item.health === 'healthy'
+          (item) => (item.physicalStock ?? 0) > 500 && item.health === 'healthy'
         ).length;
         return { lowStock, inmovilizado };
       }),
@@ -60,9 +62,11 @@ export class NotificationService {
       // Conteo de integration_logs donde el resultado en las últimas 24 horas haya sido "Error"
       Promise.resolve().then(() => {
         const logs = db.getLogs(500);
+        if (!logs || logs.length === 0) return 0;
         const cutoffTime = Date.now() - 24 * 60 * 60 * 1000;
         return logs.filter((l) => {
           const logTime = new Date(l.created_at).getTime();
+          if (Number.isNaN(logTime)) return false;
           const isLastError =
             l.level === 'ERROR' ||
             l.result === 'Error' ||
@@ -73,22 +77,25 @@ export class NotificationService {
     ]);
 
     // Filtrar SKUs en riesgo inminente de quiebre (cobertura < 3.5 días o status critical)
-    const criticalItems = restockData.items.filter(
+    // Conteo real DB. 0 si vacío. Sin fallbacks.
+    const criticalItems = (restockData.items ?? []).filter(
       (item) => item.status === 'critical' || item.coverageDays < 3.5
     );
     const riesgoQuiebreCount = criticalItems.length;
 
     // Proveedores críticos: proveedores únicos que suministran SKUs en riesgo de quiebre
-    const criticalProvidersSet = new Set(criticalItems.map((i) => i.provider));
+    const criticalProvidersSet = new Set(
+      criticalItems.map((i) => i.provider).filter(Boolean)
+    );
 
     return {
-      reabastecimiento: restockData.items.filter((i) => i.suggestedQty > 0).length,
-      ordenes: ordenesCount,
-      inventario: inventarioData.lowStock,
-      integraciones: integracionesCount,
+      reabastecimiento: (restockData.items ?? []).filter((i) => i.suggestedQty > 0).length,
+      ordenes: ordenesCount ?? 0,
+      inventario: inventarioData.lowStock ?? 0,
+      integraciones: integracionesCount ?? 0,
       riesgoQuiebre: riesgoQuiebreCount,
       proveedoresCriticos: criticalProvidersSet.size,
-      inventarioInmovilizado: inventarioData.inmovilizado || 2,
+      inventarioInmovilizado: inventarioData.inmovilizado,
     };
   }
 }

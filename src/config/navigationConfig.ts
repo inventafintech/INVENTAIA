@@ -108,6 +108,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         label: 'Capital Requerido',
         sublabel: 'Presupuesto de Compras',
         href: '/finanzas/capital-requerido',
+        aliases: ['/finanzas/capital', '/capital-requerido'],
         icon: Coins,
       },
       {

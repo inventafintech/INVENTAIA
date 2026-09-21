@@ -200,18 +200,27 @@ export function Sidebar({
                   <ul
                     id={`group-${group.id}`}
                     className={styles.itemList}
-                    role="list"
                   >
                     {group.items.map((item: NavItemConfig) => {
                       const Icon = item.icon;
                       const active = isItemActive(item);
                       const badgeCount = item.badgeKey ? counts[item.badgeKey] : 0;
+                      // En modo colapsado el badge se oculta visualmente (display:none),
+                      // así que el conteo se expone a lectores de pantalla vía aria-label.
+                      const collapsedA11yLabel = isCollapsed
+                        ? `${item.label}${badgeCount > 0 ? `, ${badgeCount} alertas pendientes` : ''}`
+                        : undefined;
 
                       return (
                         <li key={item.id} className={styles.itemListItem}>
                           <Link
                             href={item.href}
-                            title={isCollapsed ? item.label : undefined}
+                            title={
+                              isCollapsed
+                                ? `${item.label}${badgeCount > 0 ? ` (${badgeCount > 99 ? '99+' : badgeCount})` : ''}`
+                                : undefined
+                            }
+                            aria-label={collapsedA11yLabel}
                             aria-current={active ? 'page' : undefined}
                             onClick={() => {
                               // Cerrar automáticamente el drawer móvil al seleccionar una opción

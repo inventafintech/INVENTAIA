@@ -155,8 +155,8 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   border: none;
   background: transparent;
@@ -168,6 +168,11 @@
 .closeButton:hover {
   background-color: #f1f5f9;
   color: #0f172a;
+}
+
+.closeButton:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
 }
 
 @media (max-width: 1023px) {
@@ -224,20 +229,24 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 8px 10px;
   border-radius: 6px;
   border: none;
-  outline: none;
   background: transparent;
   cursor: pointer;
   text-align: left;
   transition: background-color 0.15s ease;
   box-sizing: border-box;
-  min-height: 32px;
+  min-height: 44px;
 }
 
 .groupHeader:hover {
   background-color: #f8fafc;
+}
+
+.groupHeader:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
 }
 
 .groupTitle {
@@ -305,7 +314,7 @@
   align-items: center;
   gap: 12px;
   padding: 8px 10px;
-  min-height: 40px;
+  min-height: 44px;
   border-radius: 8px;
   font-size: 13.5px;
   color: #475569;
@@ -474,10 +483,11 @@
 
 .collapseButton {
   width: 100%;
+  min-height: 44px;
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   border-radius: 8px;
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -501,8 +511,8 @@
 }
 
 .sidebarCollapsed .collapseButton {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   justify-content: center;
 }

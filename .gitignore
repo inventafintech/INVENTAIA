@@ -26,3 +26,6 @@ Thumbs.db
 web/
 .data
 *.tsbuildinfo
+
+.vercel
+.env*
