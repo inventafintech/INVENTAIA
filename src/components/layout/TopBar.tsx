@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Bell, Moon } from 'lucide-react';
+import { Menu, Search, Bell, Moon, Sun } from 'lucide-react';
 import { UserDropdown } from './UserDropdown';
+import { useTheme } from '@/hooks/useTheme';
 import styles from './TopBar.module.css';
 
 interface TopBarProps {
@@ -17,6 +18,8 @@ export function TopBar({
   onToggleMobileMenu,
   isMobileMenuOpen = false,
 }: TopBarProps) {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
   return (
     <header className={styles.topbar}>
       {/* Sección Izquierda: Menú Hamburguesa en móvil + Barra de Búsqueda Global */}
@@ -59,11 +62,13 @@ export function TopBar({
         {/* Botón de Modo Oscuro / Claro */}
         <button
           type="button"
+          onClick={toggleTheme}
           className={styles.iconButton}
-          aria-label="Alternar tema visual"
-          title="Modo Oscuro / Claro"
+          aria-label={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          title={isDark ? 'Modo Claro' : 'Modo Oscuro'}
+          aria-pressed={isDark}
         >
-          <Moon size={18} strokeWidth={1.5} />
+          {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
         </button>
 
         {/* Selector de Idioma (Bandera España) */}

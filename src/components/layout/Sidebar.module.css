@@ -532,3 +532,67 @@
     display: none;
   }
 }
+
+/* Modo oscuro real: responde a <html data-theme="dark"> */
+:global([data-theme='dark']) .sidebar {
+  background: #0b0f19;
+  border-right-color: #334155;
+}
+:global([data-theme='dark']) .brandHeader {
+  border-bottom-color: #1e293b;
+}
+:global([data-theme='dark']) .logoIcon {
+  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
+  color: #0f172a;
+}
+:global([data-theme='dark']) .brandName {
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .brandSub,
+:global([data-theme='dark']) .groupTitle {
+  color: #94a3b8;
+}
+:global([data-theme='dark']) .groupHeader:hover {
+  background-color: #1e293b;
+}
+:global([data-theme='dark']) .navItem {
+  color: #cbd5e1;
+}
+:global([data-theme='dark']) .navItem:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .navItem:hover .itemIcon {
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .navItem.active {
+  background-color: #1e3a8a;
+  color: #dbeafe;
+}
+:global([data-theme='dark']) .navItem.active .itemIcon {
+  color: #93c5fd;
+}
+:global([data-theme='dark']) .itemIcon {
+  color: #94a3b8;
+}
+:global([data-theme='dark']) .sidebarFooter {
+  background: #0b0f19;
+  border-top-color: #1e293b;
+}
+:global([data-theme='dark']) .collapseButton {
+  background: #0b0f19;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+:global([data-theme='dark']) .collapseButton:hover {
+  background: #1e293b;
+  color: #f8fafc;
+  border-color: #475569;
+}
+:global([data-theme='dark']) .closeButton {
+  color: #94a3b8;
+}
+:global([data-theme='dark']) .closeButton:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}

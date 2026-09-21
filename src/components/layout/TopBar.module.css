@@ -154,3 +154,32 @@
   overflow: hidden;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
+
+/* Modo oscuro real: responde a <html data-theme="dark"> */
+:global([data-theme='dark']) .topbar {
+  background: #0b0f19;
+  border-bottom-color: #334155;
+}
+:global([data-theme='dark']) .menuButton,
+:global([data-theme='dark']) .iconButton {
+  background: #0b0f19;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+:global([data-theme='dark']) .menuButton:hover,
+:global([data-theme='dark']) .iconButton:hover {
+  background: #1e293b;
+  border-color: #475569;
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .searchContainer {
+  background: #1e293b;
+  border-color: #334155;
+}
+:global([data-theme='dark']) .searchContainer:focus-within {
+  background: #0b0f19;
+  border-color: #3b82f6;
+}
+:global([data-theme='dark']) .searchInput {
+  color: #f1f5f9;
+}
