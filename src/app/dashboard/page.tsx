@@ -12,7 +12,7 @@ interface ExecutiveData {
     deadStockAmount: number;
     recommendedPurchaseAmount: number;
     availableCreditLine: number;
-    forecastAccuracy: number;
+    forecastAccuracy: number | null;
   };
   modules: {
     riesgoQuiebre: Array<{

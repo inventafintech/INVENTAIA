@@ -7,7 +7,7 @@ export interface ExecutiveDashboardData {
     deadStockAmount: number;
     recommendedPurchaseAmount: number;
     availableCreditLine: number;
-    forecastAccuracy: number;
+    forecastAccuracy: number | null;
   };
   modules: {
     // 1. Riesgo de Quiebre
@@ -272,12 +272,12 @@ export class DashboardService {
 
     return {
       summary: {
-        totalSkus: products.length || 24,
+        totalSkus: products.length,
         stockoutRiskCount: riesgoQuiebre.length,
         deadStockAmount: totalDeadStock,
         recommendedPurchaseAmount: totalRecommendedAmount,
         availableCreditLine: totalAvailableCredit,
-        forecastAccuracy: 99.4,
+        forecastAccuracy: null, // Sin actuals contra pronóstico: indeterminado, no inventado
       },
       modules: {
         riesgoQuiebre,

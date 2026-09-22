@@ -24,6 +24,52 @@ export interface InventoryMetrics {
   avgGmroi: string;
 }
 
+export interface SummaryKpis {
+  totalUnits: number;
+  totalValue: number;
+  turnover: number | null;
+  turnoverLabel: string;
+  daysAvailable: number | null;
+}
+
+export interface TrendPoint {
+  date: string;
+  value: number;
+}
+
+export interface CategorySlice {
+  category: string;
+  units: number;
+  value: number;
+}
+
+export interface AbcSlice {
+  units: number;
+  value: number;
+  skuCount: number;
+  skus: string[];
+}
+
+export interface AgingBucket {
+  bucket: '0-30' | '31-60' | '61-90' | '>90';
+  label: string;
+  units: number;
+  skuCount: number;
+}
+
+export interface InventorySummary {
+  success: true;
+  kpis: SummaryKpis;
+  trend30d: TrendPoint[];
+  byCategory: CategorySlice[];
+  abc: { A: AbcSlice; B: AbcSlice; C: AbcSlice };
+  aging: AgingBucket[];
+  lowStock: InventoryMasterItem[];
+  alerts: { lowStock: number; outOfStock: number };
+  meta: { isTurnoverEstimated: boolean; isDaysAvailableEstimated: boolean; timestamp: string };
+  timestamp: string;
+}
+
 export class InventoryMasterService {
   /**
    * Retrieves and calculates all inventory items with mathematical valuation and health rules
@@ -188,5 +234,137 @@ export class InventoryMasterService {
 
     // Prepend UTF-8 BOM for flawless Excel compatibility
     return '\uFEFF' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\r\n');
+  }
+
+  /**
+   * Consolida todo el resumen de inventario en una sola llamada:
+   * KPIs, categorías, ABC, antigüedad, bajo stock y alertas.
+   * Matemática 100% real desde maestro + db. Sin movimientos/ventas reales,
+   * turnover=null ('Sin movimientos') y trend30d=[] (empty-safe, nunca 500).
+   */
+  public static getInventorySummary(now = new Date()): InventorySummary {
+    const timestamp = now.toISOString();
+    const items = this.getInventoryItems();
+
+    const emptyAbc = (): AbcSlice => ({ units: 0, value: 0, skuCount: 0, skus: [] });
+    const emptyAging = (): AgingBucket[] => [
+      { bucket: '0-30', label: '0–30 días', units: 0, skuCount: 0 },
+      { bucket: '31-60', label: '31–60 días', units: 0, skuCount: 0 },
+      { bucket: '61-90', label: '61–90 días', units: 0, skuCount: 0 },
+      { bucket: '>90', label: '> 90 días', units: 0, skuCount: 0 },
+    ];
+
+    if (items.length === 0) {
+      return {
+        success: true,
+        kpis: {
+          totalUnits: 0,
+          totalValue: 0,
+          turnover: null,
+          turnoverLabel: 'Sin movimientos',
+          daysAvailable: null,
+        },
+        trend30d: [],
+        byCategory: [],
+        abc: { A: emptyAbc(), B: emptyAbc(), C: emptyAbc() },
+        aging: emptyAging(),
+        lowStock: [],
+        alerts: { lowStock: 0, outOfStock: 0 },
+        meta: { isTurnoverEstimated: false, isDaysAvailableEstimated: false, timestamp },
+        timestamp,
+      };
+    }
+
+    // 1. KPIs base: Σ stock y Σ (stock × costo)
+    const totalUnits = items.reduce((s, i) => s + (i.physicalStock || 0), 0);
+    const totalValue = Number(items.reduce((s, i) => s + (i.totalValue || 0), 0).toFixed(2));
+
+    // 2. Turnover real: COGS / inventario promedio. Sin tabla de movimientos
+    // ni ventas en db → null. NUNCA valor inventado.
+    let turnover: number | null = null;
+    let turnoverLabel = 'Sin movimientos';
+    const dbAny = db as unknown as {
+      getInventoryMovements?: () => Array<{ qty: number; unit_cost: number }>;
+      getSales?: () => Array<{ qty: number; unit_cost: number }>;
+    };
+    const movements =
+      typeof dbAny.getInventoryMovements === 'function'
+        ? dbAny.getInventoryMovements()
+        : typeof dbAny.getSales === 'function'
+          ? dbAny.getSales()
+          : null;
+    if (movements && movements.length > 0) {
+      const cogs = movements.reduce((s, m) => s + Math.abs(m.qty || 0) * (m.unit_cost ?? 0), 0);
+      if (totalValue > 0 && cogs > 0) {
+        turnover = Number((cogs / totalValue).toFixed(2));
+        turnoverLabel = `${turnover}x`;
+      }
+    }
+
+    // 3. Días disponibles: stock / velocidad diaria. Sin velocidad real → null.
+    // Se marca estimado si alguna vez proviene de fuente no-DB.
+    const daysAvailable: number | null = null;
+    const isDaysAvailableEstimated = false;
+
+    // 4. Tendencia 30d: sin snapshots diarios en db → [] (el Frontend
+    // renderiza el Empty State en lugar de inventar una curva).
+    const trend30d: TrendPoint[] = [];
+
+    // 5. Stock y valor por categoría
+    const catMap = new Map<string, CategorySlice>();
+    for (const it of items) {
+      const key = it.category?.trim() || 'Sin categoría';
+      const e = catMap.get(key) ?? { category: key, units: 0, value: 0 };
+      e.units += it.physicalStock || 0;
+      e.value = Number((e.value + (it.totalValue || 0)).toFixed(2));
+      catMap.set(key, e);
+    }
+    const byCategory = [...catMap.values()].sort((a, b) => b.value - a.value);
+
+    // 6. ABC por valor acumulado: A ≤80%, B ≤95%, C resto
+    const sorted = [...items].sort((a, b) => (b.totalValue || 0) - (a.totalValue || 0));
+    const abc = { A: emptyAbc(), B: emptyAbc(), C: emptyAbc() };
+    let acc = 0;
+    for (const it of sorted) {
+      acc += it.totalValue || 0;
+      const pct = totalValue > 0 ? acc / totalValue : 0;
+      const slot = pct <= 0.8 ? abc.A : pct <= 0.95 ? abc.B : abc.C;
+      slot.units += it.physicalStock || 0;
+      slot.value = Number((slot.value + (it.totalValue || 0)).toFixed(2));
+      slot.skuCount += 1;
+      slot.skus.push(it.sku);
+    }
+
+    // 7. Antigüedad por última venta o created_at (fallback honesto sin ventas)
+    const products = db.getProductsWithInventory();
+    const createdBySku = new Map(products.map((p) => [p.sku_code, p.created_at]));
+    const buckets = emptyAging();
+    for (const it of items) {
+      const ref = createdBySku.get(it.sku);
+      const days = ref ? Math.floor((now.getTime() - new Date(ref).getTime()) / 86400000) : 0;
+      const b = days <= 30 ? buckets[0] : days <= 60 ? buckets[1] : days <= 90 ? buckets[2] : buckets[3];
+      b.units += it.physicalStock || 0;
+      b.skuCount += 1;
+    }
+
+    // 8. Bajo stock y alertas (reutiliza health calculado)
+    const lowStock = items.filter((i) => i.health !== 'healthy' || i.physicalStock <= i.safetyStock);
+    const alerts = {
+      lowStock: lowStock.length,
+      outOfStock: items.filter((i) => (i.physicalStock || 0) <= 0).length,
+    };
+
+    return {
+      success: true,
+      kpis: { totalUnits, totalValue, turnover, turnoverLabel, daysAvailable },
+      trend30d,
+      byCategory,
+      abc,
+      aging: buckets,
+      lowStock,
+      alerts,
+      meta: { isTurnoverEstimated: false, isDaysAvailableEstimated, timestamp },
+      timestamp,
+    };
   }
 }
