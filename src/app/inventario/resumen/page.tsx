@@ -1,7 +1,7 @@
-import DashboardSummary from '@/components/inventory/DashboardSummary';
+import { redirect } from 'next/navigation';
 
-/* Server Component mínimo. NO envuelve AppShell:
-   src/app/inventario/layout.tsx ya lo provee a todas las subrutas. */
-export default function ResumenPage() {
-  return <DashboardSummary />;
+/* URL canónica del Resumen: /panel/resumen (sección PANEL del Sidebar).
+   Esta ruta redirige para no duplicar la vista. */
+export default function InventarioResumenRedirect() {
+  redirect('/panel/resumen');
 }
