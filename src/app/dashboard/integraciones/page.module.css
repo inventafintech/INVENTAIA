@@ -278,8 +278,8 @@
 }
 
 .btnOAuth {
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--bg);
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 7px 12px;
   border-radius: 6px;
@@ -296,7 +296,7 @@
 }
 
 .btnOAuth:hover {
-  background: #1e293b;
+  background: var(--primary-hover);
   border-color: rgba(255, 255, 255, 0.3);
 }
 

@@ -13,6 +13,10 @@
   --ok: #059669;
   --warn: #D97706;
   --bad: #DC2626;
+
+  /* Texto semántico sobre superficies (pasa WCAG en ambos temas) */
+  --success: #065F46;
+  --danger: #991B1B;
   
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -31,9 +35,17 @@
   --ink: #F9FAFB;
   --muted: #9CA3AF;
   --line: #334155;
-  
+
   --primary: #F8FAFC;
   --primary-hover: #E2E8F0;
+
+  --success: #6EE7B7;
+  --danger: #FECACA;
+}
+
+/* Alias de clase para compatibilidad con variante Tailwind `dark:` y libs */
+.dark {
+  color-scheme: dark;
 }
 
 * {
@@ -42,6 +54,7 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--bg);
 }
 
 body {

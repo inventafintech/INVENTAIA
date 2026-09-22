@@ -2,12 +2,13 @@
   display: flex;
   min-height: 100vh;
   min-height: 100dvh;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--bg);
+  color: var(--ink);
   font-family: inherit;
   overflow-x: hidden;
   position: relative;
   width: 100%;
+  color-scheme: light;
 }
 
 .mainWrapper {
@@ -15,7 +16,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background-color: #f8fafc;
+  background-color: var(--bg);
+  color: var(--ink);
   overflow-x: hidden;
 }
 
@@ -32,4 +34,10 @@
   .contentArea {
     padding: 20px 16px;
   }
+}
+
+/* Controles nativos (scrollbars, inputs) en el tema activo */
+:global([data-theme='dark']) .layout,
+:global([data-theme='dark']) .mainWrapper {
+  color-scheme: dark;
 }

@@ -253,3 +253,66 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+/* Modo oscuro: responde a <html data-theme="dark"> */
+:global([data-theme='dark']) .trigger {
+  background: #0b0f19;
+  border-color: #334155;
+}
+:global([data-theme='dark']) .trigger:hover {
+  background: #1e293b;
+  border-color: #475569;
+}
+:global([data-theme='dark']) .trigger[aria-expanded='true'] {
+  background: #1e293b;
+  border-color: #64748b;
+}
+:global([data-theme='dark']) .triggerAvatar,
+:global([data-theme='dark']) .identityAvatar {
+  background-color: #1e3a8a;
+  color: #bfdbfe;
+}
+:global([data-theme='dark']) .triggerName,
+:global([data-theme='dark']) .identityName {
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .triggerChevron {
+  color: #94a3b8;
+}
+:global([data-theme='dark']) .chevronOpen {
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .dropdown {
+  background: #0b0f19;
+  border-color: #334155;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+:global([data-theme='dark']) .identityBlock {
+  background: #0b0f19;
+}
+:global([data-theme='dark']) .identityEmail {
+  color: #9ca3af;
+}
+:global([data-theme='dark']) .menuItem {
+  color: #cbd5e1;
+}
+:global([data-theme='dark']) .menuItem:hover {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .menuItem:hover .itemIcon {
+  color: #f8fafc;
+}
+:global([data-theme='dark']) .itemIcon {
+  color: #94a3b8;
+}
+:global([data-theme='dark']) .divider {
+  background-color: #1e293b;
+}
+:global([data-theme='dark']) .logoutButton:hover {
+  background-color: rgba(248, 113, 113, 0.12);
+  color: #fca5a5;
+}
+:global([data-theme='dark']) .logoutButton:hover .logoutIcon {
+  color: #fca5a5;
+}

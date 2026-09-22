@@ -50,12 +50,12 @@ export default function InventarioInmovilizadoPage() {
                 <Boxes size={14} />
                 INVENTARIO & FINANZAS
               </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Optimización de Capital de Trabajo</span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Optimización de Capital de Trabajo</span>
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--ink)', margin: 0, letterSpacing: '-0.02em' }}>
               Inventario Inmovilizado & Exceso
             </h1>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '6px', marginBottom: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginTop: '6px', marginBottom: 0 }}>
               Identificación de productos con rotación reducida que generan costo financiero y ocupación de almacén.
             </p>
           </div>
@@ -66,8 +66,8 @@ export default function InventarioInmovilizadoPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#0f172a',
-              color: '#ffffff',
+              backgroundColor: 'var(--primary)',
+              color: 'var(--bg)',
               padding: '10px 18px',
               borderRadius: '8px',
               fontWeight: 600,
@@ -82,42 +82,42 @@ export default function InventarioInmovilizadoPage() {
 
         {/* Tarjetas de Métricas Financieras */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Capital Inmovilizado Estimado</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>Capital Inmovilizado Estimado</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               PEN {loading ? '...' : totalTiedCapital.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
             </div>
             <div style={{ fontSize: '12px', color: '#b45309', marginTop: '4px' }}>Fondos representados en stock</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>SKUs con Alta Disponibilidad</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>SKUs con Alta Disponibilidad</div>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.length}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Stock holgado en almacén</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Stock holgado en almacén</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Acción Recomendada</div>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+            <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>Acción Recomendada</div>
             <div style={{ fontSize: '16px', fontWeight: 700, color: '#2563eb', marginTop: '6px' }}>
               Priorizar Ventas & Evitar Reorden
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Acelerar rotación para liberar caja</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Acelerar rotación para liberar caja</div>
           </div>
         </div>
 
         {/* Tabla de Productos */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>Detalle de SKUs</span>
-            <span style={{ fontSize: '12px', color: '#64748b' }}>Sincronizado con almacén central</span>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Detalle de SKUs</span>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Sincronizado con almacén central</span>
           </div>
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 600 }}>
+                <tr style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--line)', color: 'var(--muted)', fontWeight: 600 }}>
                   <th style={{ padding: '12px 16px' }}>SKU / Nombre</th>
                   <th style={{ padding: '12px 16px' }}>Categoría</th>
                   <th style={{ padding: '12px 16px' }}>Stock Físico</th>
@@ -129,26 +129,26 @@ export default function InventarioInmovilizadoPage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)' }}>
                       Cargando análisis de inventario...
                     </td>
                   </tr>
                 ) : items.length === 0 ? (
                   <tr>
-                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                    <td colSpan={6} style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)' }}>
                       No se detectó inventario inmovilizado.
                     </td>
                   </tr>
                 ) : (
                   items.map((item) => (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--line)' }}>
                       <td style={{ padding: '12px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{item.name}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>{item.sku}</div>
+                        <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.name}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{item.sku}</div>
                       </td>
-                      <td style={{ padding: '12px 16px', color: '#334155' }}>{item.category || 'General'}</td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#0f172a' }}>{item.physicalStock} uds</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b' }}>PEN {item.unitCost?.toFixed(2) || '10.00'}</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--ink)' }}>{item.category || 'General'}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--ink)' }}>{item.physicalStock} uds</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>PEN {item.unitCost?.toFixed(2) || '10.00'}</td>
                       <td style={{ padding: '12px 16px', fontWeight: 700, color: '#b45309' }}>
                         PEN {(item.totalValue || (item.physicalStock || 0) * (item.unitCost || 10)).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                       </td>

@@ -244,8 +244,8 @@ export default function AnalyticsPage() {
                       cx={c.x}
                       cy={c.y}
                       r={isCurrent ? 5.5 : 4}
-                      fill={isCurrent ? '#0f172a' : '#2563eb'}
-                      stroke="#ffffff"
+                      fill={isCurrent ? 'var(--ink)' : '#2563eb'}
+                      stroke="var(--bg)"
                       strokeWidth={isCurrent ? 2 : 1.5}
                       style={{ transition: 'r 0.15s ease' }}
                     />
@@ -254,7 +254,7 @@ export default function AnalyticsPage() {
                     <text
                       x={c.x}
                       y="200"
-                      fill={isCurrent ? '#0f172a' : '#64748b'}
+                      fill={isCurrent ? 'var(--ink)' : 'var(--muted)'}
                       fontWeight={isCurrent ? '700' : '500'}
                       fontSize="11"
                       textAnchor="middle"

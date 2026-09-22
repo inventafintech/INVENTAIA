@@ -298,7 +298,7 @@ export default function OrdenesPage() {
             <div className={styles.modalFooter}>
               <button
                 className={styles.btnAction}
-                style={{ background: '#0f172a', color: '#fff' }}
+                style={{ background: 'var(--primary)', color: 'var(--bg)' }}
                 onClick={() => setAuditModal(null)}
               >
                 Entendido

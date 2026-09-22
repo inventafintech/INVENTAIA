@@ -44,12 +44,12 @@ export default function RiesgoQuiebrePage() {
                 <ShieldAlert size={14} />
                 ESTRATEGIA & IA
               </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Monitoreo en Tiempo Real</span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Monitoreo en Tiempo Real</span>
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--ink)', margin: 0, letterSpacing: '-0.02em' }}>
               Riesgo de Quiebre de Stock
             </h1>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '6px', marginBottom: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginTop: '6px', marginBottom: 0 }}>
               Detección algorítmica de SKUs con cobertura inferior al Lead Time de reabastecimiento.
             </p>
           </div>
@@ -77,42 +77,42 @@ export default function RiesgoQuiebrePage() {
 
         {/* Métricas Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: '#ffffff', border: '1px solid #fee2e2', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #ef4444' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid #fee2e2', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #ef4444' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>SKUs en Riesgo Crítico</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.filter((i) => i.status === 'critical').length}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Cobertura menor a 3.5 días</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Cobertura menor a 3.5 días</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #fef3c7', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #f59e0b' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid #fef3c7', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #f59e0b' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#92400e', textTransform: 'uppercase' }}>En Advertencia</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.filter((i) => i.status === 'warning').length}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Cobertura entre 3.5 y 7 días</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Cobertura entre 3.5 y 7 días</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #3b82f6' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>Proveedores Implicados</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : new Set(items.map((i) => i.provider)).size}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Requieren emisión de pedido</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Requieren emisión de pedido</div>
           </div>
         </div>
 
         {/* Tabla de SKUs en Riesgo */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>Listado de SKUs en Alerta</span>
-            <span style={{ fontSize: '12px', color: '#64748b' }}>Basado en consumo de los últimos 30 días</span>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Listado de SKUs en Alerta</span>
+            <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Basado en consumo de los últimos 30 días</span>
           </div>
 
           <div style={{ overflowX: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
               <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', color: '#475569', fontWeight: 600 }}>
+                <tr style={{ background: 'var(--bg2)', borderBottom: '1px solid var(--line)', color: 'var(--muted)', fontWeight: 600 }}>
                   <th style={{ padding: '12px 16px' }}>SKU / Producto</th>
                   <th style={{ padding: '12px 16px' }}>Proveedor</th>
                   <th style={{ padding: '12px 16px' }}>Stock Actual</th>
@@ -125,7 +125,7 @@ export default function RiesgoQuiebrePage() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>
+                    <td colSpan={7} style={{ padding: '32px', textAlign: 'center', color: 'var(--muted)' }}>
                       Analizando niveles de stock y predicción de demanda...
                     </td>
                   </tr>
@@ -138,15 +138,15 @@ export default function RiesgoQuiebrePage() {
                   </tr>
                 ) : (
                   items.map((item) => (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--line)' }}>
                       <td style={{ padding: '12px 16px' }}>
-                        <div style={{ fontWeight: 600, color: '#0f172a' }}>{item.name}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>{item.sku}</div>
+                        <div style={{ fontWeight: 600, color: 'var(--ink)' }}>{item.name}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--muted)' }}>{item.sku}</div>
                       </td>
-                      <td style={{ padding: '12px 16px', color: '#334155' }}>{item.provider}</td>
-                      <td style={{ padding: '12px 16px', fontWeight: 600, color: '#0f172a' }}>{item.currentStock} uds</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b' }}>{item.dailyVelocity} u/día</td>
-                      <td style={{ padding: '12px 16px', color: '#64748b' }}>
+                      <td style={{ padding: '12px 16px', color: 'var(--ink)' }}>{item.provider}</td>
+                      <td style={{ padding: '12px 16px', fontWeight: 600, color: 'var(--ink)' }}>{item.currentStock} uds</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>{item.dailyVelocity} u/día</td>
+                      <td style={{ padding: '12px 16px', color: 'var(--muted)' }}>
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                           <Clock size={13} />
                           {item.leadTimeDays}d

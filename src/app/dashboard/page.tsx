@@ -170,10 +170,10 @@ function DashboardContent() {
             <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
               CENTRO DE CONTROL EJECUTIVO · B2B SAAS ENTERPRISE
             </span>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 6px 0', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--ink)', margin: '4px 0 6px 0', letterSpacing: '-0.02em' }}>
               Cerebro de Compras & Financiamiento
             </h1>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: 0, maxWidth: '720px' }}>
+            <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0, maxWidth: '720px' }}>
               ¿Qué está pasando? <strong>{summary?.stockoutRiskCount || 0} SKUs en riesgo</strong>. 
               ¿Qué va a pasar? Demandas por <strong>S/ {(summary?.recommendedPurchaseAmount || 0).toLocaleString()}</strong> en 30 días. 
               ¿Qué debo hacer? Aprobar OC recomendadas y activar líneas de crédito.
@@ -184,8 +184,8 @@ function DashboardContent() {
               onClick={handleSyncAll}
               disabled={syncing}
               style={{
-                background: '#0f172a',
-                color: '#ffffff',
+                background: 'var(--primary)',
+                color: 'var(--bg)',
                 border: 'none',
                 padding: '9px 16px',
                 borderRadius: '6px',
@@ -226,7 +226,7 @@ function DashboardContent() {
         <div style={{
           background: syncFeedback.startsWith('✓') ? 'rgba(5, 150, 105, 0.08)' : 'rgba(220, 38, 38, 0.08)',
           border: `1px solid ${syncFeedback.startsWith('✓') ? 'rgba(5, 150, 105, 0.2)' : 'rgba(220, 38, 38, 0.2)'}`,
-          color: syncFeedback.startsWith('✓') ? '#065f46' : '#991b1b',
+          color: syncFeedback.startsWith('✓') ? 'var(--success)' : 'var(--danger)',
           borderRadius: '8px',
           padding: '10px 16px',
           fontSize: '12px',
@@ -339,7 +339,7 @@ function DashboardContent() {
               <div className={styles.progressBar} style={{ margin: '12px 0 8px 0' }}>
                 <div className={styles.progressFill} style={{ width: '60%' }} />
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: 'var(--muted)' }}>
                 <span>Inmediato (7 días): S/ {(modules?.capitalRequerido?.immediate7Days || 0).toLocaleString()}</span>
                 <span>Proyectado (30 días): S/ {(modules?.capitalRequerido?.horizon30Days || 0).toLocaleString()}</span>
               </div>
@@ -358,7 +358,7 @@ function DashboardContent() {
                 {modules?.financiamientoDisponible.map((line) => (
                   <li key={line.id}>
                     <span style={{ fontSize: '12px' }}>{line.bankName}</span>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#10b981' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--success)' }}>
                       S/ {line.availableLine.toLocaleString()} ({(line.monthlyRate * 100).toFixed(2)}%/mes)
                     </span>
                   </li>
@@ -383,7 +383,7 @@ function DashboardContent() {
                 <div className={styles.chartBars}>
                   {modules?.forecast90Dias.map((fc, idx) => (
                     <div key={idx} className={styles.bar} style={{ height: `${(fc.projectedDemand / 6000) * 100}%` }}>
-                      <span style={{ bottom: '-22px', fontSize: '11px', fontWeight: 600, color: '#475569' }}>{fc.month}</span>
+                      <span style={{ bottom: '-22px', fontSize: '11px', fontWeight: 600, color: 'var(--muted)' }}>{fc.month}</span>
                     </div>
                   ))}
                 </div>
@@ -532,9 +532,9 @@ function DashboardContent() {
                   strokeWidth="4"
                 />
 
-                <line x1="500" y1="0" x2="500" y2="300" stroke="#0f172a" strokeWidth="2" strokeDasharray="4 4" />
-                <rect x="460" y="10" width="80" height="24" rx="12" fill="#0f172a" />
-                <text x="500" y="26" fill="#ffffff" fontSize="12" fontWeight="600" textAnchor="middle">HOY</text>
+                <line x1="500" y1="0" x2="500" y2="300" stroke="var(--ink)" strokeWidth="2" strokeDasharray="4 4" />
+                <rect x="460" y="10" width="80" height="24" rx="12" fill="var(--ink)" />
+                <text x="500" y="26" fill="var(--bg)" fontSize="12" fontWeight="600" textAnchor="middle">HOY</text>
               </svg>
 
               <div className={styles.xAxis}>
@@ -557,7 +557,7 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '32px', color: '#64748b' }}>Cargando Centro de Control Ejecutivo...</div>}>
+    <Suspense fallback={<div style={{ padding: '32px', color: 'var(--muted)' }}>Cargando Centro de Control Ejecutivo...</div>}>
       <DashboardContent />
     </Suspense>
   );

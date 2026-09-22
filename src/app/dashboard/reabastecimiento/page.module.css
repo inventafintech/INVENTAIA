@@ -17,14 +17,14 @@
 .title {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.02em;
   margin-bottom: 4px;
 }
 
 .subtitle {
   font-size: 13.5px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 400;
 }
 
@@ -35,8 +35,8 @@
 }
 
 .statCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 12px 20px;
   border-radius: 8px;
   display: flex;
@@ -48,7 +48,7 @@
 .statValue {
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
@@ -56,7 +56,7 @@
 
 .statLabel {
   font-size: 12px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 500;
   margin-top: 4px;
 }
@@ -65,10 +65,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #ffffff;
+  background: var(--card);
   padding: 12px 18px;
   border-radius: 8px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
@@ -85,20 +85,20 @@
 }
 
 .input {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg2);
+  border: 1px solid var(--line);
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--ink);
   width: 320px;
   outline: none;
   transition: border-color 0.15s, background-color 0.15s;
 }
 
 .input:focus {
-  border-color: #0f172a;
-  background: #ffffff;
+  border-color: var(--primary);
+  background: var(--card);
 }
 
 .input::placeholder {
@@ -106,12 +106,12 @@
 }
 
 .select {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg2);
+  border: 1px solid var(--line);
   padding: 8px 14px;
   border-radius: 6px;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--ink);
   font-weight: 500;
   cursor: pointer;
   outline: none;
@@ -119,12 +119,12 @@
 }
 
 .select:focus {
-  border-color: #0f172a;
+  border-color: var(--primary);
 }
 
 .btnPrimary {
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--bg);
   border: none;
   padding: 9px 20px;
   border-radius: 6px;
@@ -138,7 +138,7 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background: #1e293b;
+  background: var(--primary-hover);
 }
 
 .btnPrimary:disabled {
@@ -147,8 +147,8 @@
 }
 
 .tableCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
@@ -162,12 +162,12 @@
 }
 
 .table th {
-  background: #ffffff;
+  background: var(--card);
   padding: 14px 18px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 600;
   font-size: 11px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--line);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -175,8 +175,8 @@
 
 .table td {
   padding: 16px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #1e293b;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
   vertical-align: middle;
 }
 
@@ -185,7 +185,7 @@
 }
 
 .table tr:hover td {
-  background: #f8fafc;
+  background: var(--bg2);
 }
 
 .skuInfo {
@@ -196,7 +196,7 @@
 
 .skuName {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
   font-size: 13px;
 }
 
@@ -207,17 +207,17 @@
 }
 
 .providerText {
-  color: #334155;
+  color: var(--ink);
   font-size: 13px;
 }
 
 .stockNumber {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .ropNumber {
-  color: #334155;
+  color: var(--ink);
 }
 
 .coverageCritical {
@@ -226,18 +226,18 @@
 }
 
 .coverageNormal {
-  color: #0f172a;
+  color: var(--ink);
   font-weight: 500;
 }
 
 .suggestedQty {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .investmentAmount {
   font-weight: 500;
-  color: #0f172a;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
@@ -272,22 +272,22 @@
 }
 
 .btnTableAction {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 6px 14px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .btnTableAction:hover:not(:disabled) {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
 }
 
 .btnTableAction:disabled {
@@ -311,9 +311,9 @@
 }
 
 .modalContent {
-  background: #ffffff;
+  background: var(--card);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   padding: 24px;
   max-width: 620px;
   width: 90%;
@@ -328,28 +328,28 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--line);
 }
 
 .modalTitle {
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .modalClose {
   background: none;
   border: none;
   font-size: 20px;
-  color: #64748b;
+  color: var(--muted);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .modalClose:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--bg2);
+  color: var(--ink);
 }
 
 .modalBody {
@@ -359,10 +359,10 @@
 }
 
 .resultCard {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px 14px;
-  background: #f8fafc;
+  background: var(--bg2);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -377,7 +377,7 @@
 .resultProduct {
   font-weight: 600;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .resultPoNumber {
@@ -392,7 +392,7 @@
 
 .resultMessage {
   font-size: 12px;
-  color: #475569;
+  color: var(--muted);
   line-height: 1.4;
 }
 
@@ -413,6 +413,6 @@
 .emptyState {
   text-align: center;
   padding: 40px 20px;
-  color: #64748b;
+  color: var(--muted);
   font-size: 13px;
 }

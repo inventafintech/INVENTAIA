@@ -76,12 +76,12 @@ export default function ProveedoresCriticosPage() {
                 <ShieldAlert size={14} />
                 RED DE ABASTECIMIENTO
               </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Matriz de Proveedores Estratégicos</span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Matriz de Proveedores Estratégicos</span>
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--ink)', margin: 0, letterSpacing: '-0.02em' }}>
               Proveedores Críticos
             </h1>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '6px', marginBottom: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginTop: '6px', marginBottom: 0 }}>
               Proveedores que suministran referencias con stock en quiebre inminente y requieren emisión prioritaria.
             </p>
           </div>
@@ -107,13 +107,13 @@ export default function ProveedoresCriticosPage() {
         </div>
 
         {/* Tarjetas de Proveedores */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))', gap: '20px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
           {loading ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#64748b', background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--muted)', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--line)' }}>
               Evaluando red de abastecimiento y SLA de entrega...
             </div>
           ) : suppliers.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#16a34a', background: '#ffffff', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#16a34a', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--line)' }}>
               <CheckCircle2 size={32} style={{ margin: '0 auto 8px', display: 'block' }} />
               Todos los proveedores tienen niveles óptimos de cumplimiento y stock.
             </div>
@@ -122,8 +122,8 @@ export default function ProveedoresCriticosPage() {
               <div
                 key={sup.provider}
                 style={{
-                  background: '#ffffff',
-                  border: sup.criticalSkuCount > 0 ? '1px solid #fee2e2' : '1px solid #e2e8f0',
+                  background: 'var(--card)',
+                  border: sup.criticalSkuCount > 0 ? '1px solid #fee2e2' : '1px solid var(--line)',
                   borderRadius: '12px',
                   padding: '20px',
                   display: 'flex',
@@ -134,8 +134,8 @@ export default function ProveedoresCriticosPage() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <div>
-                    <div style={{ fontWeight: 800, fontSize: '16px', color: '#0f172a' }}>{sup.provider}</div>
-                    <span style={{ fontSize: '12px', color: '#64748b', textTransform: 'capitalize' }}>
+                    <div style={{ fontWeight: 800, fontSize: '16px', color: 'var(--ink)' }}>{sup.provider}</div>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)', textTransform: 'capitalize' }}>
                       Canal: {sup.providerType === 'corporate' ? 'Integración EDI / SAP' : 'Canal Tradicional'}
                     </span>
                   </div>
@@ -152,30 +152,30 @@ export default function ProveedoresCriticosPage() {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: '#f8fafc', padding: '12px', borderRadius: '8px', fontSize: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'var(--bg2)', padding: '12px', borderRadius: '8px', fontSize: '12px' }}>
                   <div>
-                    <span style={{ color: '#64748b', display: 'block' }}>Lead Time Promedio</span>
-                    <span style={{ fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                    <span style={{ color: 'var(--muted)', display: 'block' }}>Lead Time Promedio</span>
+                    <span style={{ fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                       <Clock size={13} />
                       {sup.avgLeadTime} días hábiles
                     </span>
                   </div>
                   <div>
-                    <span style={{ color: '#64748b', display: 'block' }}>Inversión Requerida</span>
+                    <span style={{ color: 'var(--muted)', display: 'block' }}>Inversión Requerida</span>
                     <span style={{ fontWeight: 700, color: '#2563eb', display: 'block', marginTop: '2px' }}>
                       PEN {sup.totalInvestment.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </span>
                   </div>
                 </div>
 
-                <div style={{ fontSize: '12px', color: '#475569' }}>
+                <div style={{ fontSize: '12px', color: 'var(--muted)' }}>
                   <strong>SKUs suministrados:</strong> {sup.skus.slice(0, 2).join(', ')}
                   {sup.skus.length > 2 ? ` y ${sup.skus.length - 2} más` : ''}
                 </div>
 
                 {sup.providerPhone && (
-                  <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '12px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <div style={{ borderTop: '1px solid var(--line)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                       <Phone size={13} />
                       {sup.providerPhone}
                     </span>

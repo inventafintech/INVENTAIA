@@ -31,9 +31,9 @@ export function PendingConfigState({
         maxWidth: '840px',
         margin: '24px auto',
         padding: '36px 32px',
-        background: '#ffffff',
+        background: 'var(--card)',
         borderRadius: '12px',
-        border: '1px solid #e2e8f0',
+        border: '1px solid var(--line)',
         boxShadow: '0 4px 12px rgba(15, 23, 42, 0.03)',
         fontFamily: 'inherit',
       }}
@@ -63,7 +63,7 @@ export function PendingConfigState({
         style={{
           fontSize: '22px',
           fontWeight: 800,
-          color: '#0f172a',
+          color: 'var(--ink)',
           letterSpacing: '-0.02em',
           margin: '0 0 8px 0',
         }}
@@ -74,7 +74,7 @@ export function PendingConfigState({
       <p
         style={{
           fontSize: '14px',
-          color: '#475569',
+          color: 'var(--muted)',
           lineHeight: '1.6',
           margin: '0 0 24px 0',
         }}
@@ -85,8 +85,8 @@ export function PendingConfigState({
       {/* Integration Requirement Box */}
       <div
         style={{
-          background: '#f8fafc',
-          border: '1px solid #e2e8f0',
+          background: 'var(--bg2)',
+          border: '1px solid var(--line)',
           borderRadius: '8px',
           padding: '20px',
           marginBottom: '28px',
@@ -114,7 +114,7 @@ export function PendingConfigState({
                 alignItems: 'center',
                 gap: '10px',
                 fontSize: '13px',
-                color: '#334155',
+                color: 'var(--ink)',
               }}
             >
               <CheckCircle2 size={16} strokeWidth={1.5} style={{ color: '#94a3b8', flexShrink: 0 }} />
@@ -134,8 +134,8 @@ export function PendingConfigState({
             gap: '8px',
             padding: '10px 18px',
             borderRadius: '6px',
-            background: '#0f172a',
-            color: '#ffffff',
+            background: 'var(--primary)',
+            color: 'var(--bg)',
             fontSize: '13px',
             fontWeight: 600,
             textDecoration: 'none',
@@ -155,9 +155,9 @@ export function PendingConfigState({
             gap: '8px',
             padding: '10px 16px',
             borderRadius: '6px',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
-            color: '#475569',
+            background: 'var(--card)',
+            border: '1px solid var(--line)',
+            color: 'var(--muted)',
             fontSize: '13px',
             fontWeight: 500,
             textDecoration: 'none',

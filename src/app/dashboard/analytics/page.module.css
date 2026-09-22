@@ -13,14 +13,14 @@
 .title {
   font-size: 24px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.02em;
   margin-bottom: 6px;
 }
 
 .subtitle {
   font-size: 14px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 400;
 }
 
@@ -31,8 +31,8 @@
 }
 
 .kpiCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 20px 24px;
   border-radius: 8px;
   display: flex;
@@ -43,7 +43,7 @@
 
 .kpiLabel {
   font-size: 12px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -52,7 +52,7 @@
 .kpiValue {
   font-size: 28px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.02em;
 }
 
@@ -72,8 +72,8 @@
 }
 
 .chartCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 24px;
   border-radius: 8px;
   display: flex;
@@ -91,18 +91,18 @@
 .chartTitle {
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.01em;
 }
 
 .chartBadge {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
-  background: #f8fafc;
+  color: var(--muted);
+  background: var(--bg2);
   padding: 4px 8px;
   border-radius: 4px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
 }
 
 .chartContainer {
@@ -119,8 +119,8 @@
 .tooltip {
   position: absolute;
   transform: translate(-50%, -115%);
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--bg);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -135,7 +135,7 @@
 
 .tooltipMonth {
   font-weight: 600;
-  border-bottom: 1px solid #334155;
+  border-bottom: 1px solid var(--line);
   padding-bottom: 4px;
   margin-bottom: 2px;
   color: #94a3b8;
@@ -174,19 +174,19 @@
 .categoryName {
   font-size: 13.5px;
   font-weight: 600;
-  color: #1e293b;
+  color: var(--ink);
 }
 
 .categoryPercentage {
   font-size: 14px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .progressBar {
   width: 100%;
   height: 8px;
-  background: #f1f5f9;
+  background: var(--bg2);
   border-radius: 999px;
   overflow: hidden;
 }

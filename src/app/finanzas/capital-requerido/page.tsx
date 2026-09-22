@@ -53,12 +53,12 @@ export default function CapitalRequeridoPage() {
                 <Coins size={14} />
                 INVENTARIO & FINANZAS
               </span>
-              <span style={{ fontSize: '13px', color: '#64748b' }}>Planificación de Flujo de Caja</span>
+              <span style={{ fontSize: '13px', color: 'var(--muted)' }}>Planificación de Flujo de Caja</span>
             </div>
-            <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--ink)', margin: 0, letterSpacing: '-0.02em' }}>
               Capital Requerido para Compras
             </h1>
-            <p style={{ fontSize: '14px', color: '#64748b', marginTop: '6px', marginBottom: 0 }}>
+            <p style={{ fontSize: '14px', color: 'var(--muted)', marginTop: '6px', marginBottom: 0 }}>
               Estimación de liquidez necesaria para abastecer los lotes óptimos sugeridos por el algoritmo de reabastecimiento.
             </p>
           </div>
@@ -85,35 +85,35 @@ export default function CapitalRequeridoPage() {
 
         {/* Tarjetas Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #2563eb' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #2563eb' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>Inversión Total Estimada</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               PEN {loading ? '...' : totalCapital.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Para 100% de órdenes sugeridas</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Para 100% de órdenes sugeridas</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #16a34a' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #16a34a' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#166534', textTransform: 'uppercase' }}>Retorno Proyectado (30d)</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a', marginTop: '6px' }}>
               +38.5%
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Margen comercial promedio</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Margen comercial promedio</div>
           </div>
 
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b21a8', textTransform: 'uppercase' }}>Proveedores por Pagar</div>
-            <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '6px' }}>
+            <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : Object.keys(providerBreakdown).length}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Negociación de plazos a 30-60 días</div>
+            <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Negociación de plazos a 30-60 días</div>
           </div>
         </div>
 
         {/* Desglose por Proveedor */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 20px', borderBottom: '1px solid #f1f5f9' }}>
-            <span style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>Distribución de Capital por Proveedor</span>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)' }}>
+            <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Distribución de Capital por Proveedor</span>
           </div>
 
           <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -122,12 +122,12 @@ export default function CapitalRequeridoPage() {
               return (
                 <div key={provider} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 600 }}>
-                    <span style={{ color: '#0f172a' }}>{provider} ({data.count} SKUs)</span>
+                    <span style={{ color: 'var(--ink)' }}>{provider} ({data.count} SKUs)</span>
                     <span style={{ color: '#2563eb' }}>
                       PEN {data.total.toLocaleString('es-PE', { minimumFractionDigits: 2 })} ({pct.toFixed(1)}%)
                     </span>
                   </div>
-                  <div style={{ width: '100%', height: '8px', background: '#f1f5f9', borderRadius: '4px', overflow: 'hidden' }}>
+                  <div style={{ width: '100%', height: '8px', background: 'var(--bg2)', borderRadius: '4px', overflow: 'hidden' }}>
                     <div style={{ width: `${pct}%`, height: '100%', background: '#2563eb', borderRadius: '4px' }} />
                   </div>
                 </div>

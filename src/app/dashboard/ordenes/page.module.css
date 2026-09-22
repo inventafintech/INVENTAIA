@@ -17,20 +17,20 @@
 .title {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.02em;
   margin-bottom: 4px;
 }
 
 .subtitle {
   font-size: 13.5px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 400;
 }
 
 .btnPrimary {
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--primary);
+  color: var(--bg);
   border: none;
   padding: 9px 20px;
   border-radius: 6px;
@@ -45,7 +45,7 @@
 }
 
 .btnPrimary:hover {
-  background: #1e293b;
+  background: var(--primary-hover);
 }
 
 .summaryCards {
@@ -55,8 +55,8 @@
 }
 
 .card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 16px 20px;
   border-radius: 8px;
   display: flex;
@@ -68,7 +68,7 @@
 .cardTitle {
   font-size: 11px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -76,15 +76,15 @@
 .cardValue {
   font-size: 22px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
 }
 
 .tableCard {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card);
+  border: 1px solid var(--line);
   border-radius: 8px;
   overflow-x: auto;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
@@ -98,12 +98,12 @@
 }
 
 .table th {
-  background: #ffffff;
+  background: var(--card);
   padding: 14px 18px;
-  color: #64748b;
+  color: var(--muted);
   font-weight: 600;
   font-size: 11px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--line);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -111,8 +111,8 @@
 
 .table td {
   padding: 16px 18px;
-  border-bottom: 1px solid #f1f5f9;
-  color: #1e293b;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
   vertical-align: middle;
 }
 
@@ -121,43 +121,43 @@
 }
 
 .table tr:hover td {
-  background: #f8fafc;
+  background: var(--bg2);
 }
 
 .orderNumber {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   font-family: inherit;
 }
 
 .providerName {
-  color: #334155;
+  color: var(--ink);
   font-size: 13px;
 }
 
 .linesText {
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .conditionText {
-  color: #334155;
+  color: var(--ink);
 }
 
 .totalAmount {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   font-variant-numeric: tabular-nums;
 }
 
 .arrivalText {
-  color: #334155;
+  color: var(--ink);
 }
 
 /* Badges */
 .badgeDraft {
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--bg2);
+  color: var(--muted);
   padding: 3px 10px;
   border-radius: 9999px;
   font-size: 11.5px;
@@ -196,22 +196,22 @@
 }
 
 .btnAction {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 6px 14px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--ink);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .btnAction:hover:not(:disabled) {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
+  background: var(--primary);
+  color: var(--bg);
+  border-color: var(--primary);
 }
 
 .btnAction:disabled {
@@ -235,9 +235,9 @@
 }
 
 .modalContent {
-  background: #ffffff;
+  background: var(--card);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   padding: 24px;
   max-width: 580px;
   width: 90%;
@@ -252,28 +252,28 @@
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--line);
 }
 
 .modalTitle {
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
 }
 
 .modalClose {
   background: none;
   border: none;
   font-size: 20px;
-  color: #64748b;
+  color: var(--muted);
   cursor: pointer;
   padding: 4px 8px;
   border-radius: 4px;
 }
 
 .modalClose:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--bg2);
+  color: var(--ink);
 }
 
 .formGroup {
@@ -286,30 +286,30 @@
 .label {
   font-size: 12px;
   font-weight: 600;
-  color: #334155;
+  color: var(--ink);
 }
 
 .input, .select {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--bg2);
+  border: 1px solid var(--line);
   padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
-  color: #0f172a;
+  color: var(--ink);
   outline: none;
 }
 
 .input:focus, .select:focus {
-  border-color: #0f172a;
-  background: #ffffff;
+  border-color: var(--primary);
+  background: var(--card);
 }
 
 .linesContainer {
   margin-top: 10px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 6px;
   padding: 10px;
-  background: #f8fafc;
+  background: var(--bg2);
 }
 
 .lineRow {
@@ -327,25 +327,25 @@
 }
 
 .btnSecondary {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--card);
+  border: 1px solid var(--line);
   padding: 8px 16px;
   border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  color: #334155;
+  color: var(--ink);
   cursor: pointer;
 }
 
 .btnSecondary:hover {
-  background: #f1f5f9;
+  background: var(--bg2);
 }
 
 .auditCard {
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--line);
   border-radius: 8px;
   padding: 14px;
-  background: #f8fafc;
+  background: var(--bg2);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -359,13 +359,13 @@
 
 .auditPoNumber {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--ink);
   font-size: 14px;
 }
 
 .auditMessage {
   font-size: 12.5px;
-  color: #334155;
+  color: var(--ink);
   line-height: 1.4;
 }
 
@@ -373,6 +373,6 @@
   display: flex;
   gap: 14px;
   font-size: 11px;
-  color: #64748b;
+  color: var(--muted);
   margin-top: 4px;
 }
