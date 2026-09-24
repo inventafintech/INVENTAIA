@@ -70,15 +70,26 @@ export class MercadoLibreService {
         for (const entry of detailsData) {
           const item = entry.body;
           if (item && item.id) {
+            const productId = `mli-${item.id}`;
             await supabase.from('products').upsert({
-              id: `mli-${item.id}`,
+              id: productId,
               sku_code: item.seller_custom_field || `SKU-MLI-${item.id}`,
               name: item.title,
               unit_cost: Number(item.price) * 0.6,
               unit_price: Number(item.price),
-              status: 'active',
+              status: item.status === 'active' ? 'active' : 'paused',
               updated_at: new Date().toISOString(),
             });
+            // Persistir stock real de la publicación en inventory_levels
+            if (typeof item.available_quantity === 'number') {
+              await supabase.from('inventory_levels').upsert(
+                {
+                  product_id: productId,
+                  physical_stock: Math.max(0, Math.floor(item.available_quantity)),
+                },
+                { onConflict: 'product_id' }
+              );
+            }
             count++;
           }
         }

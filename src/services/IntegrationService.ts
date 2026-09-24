@@ -29,6 +29,15 @@ export class IntegrationService {
       .select('provider, expires_at, created_at')
       .eq('workspace_id', workspaceId);
 
+    // Respaldo real: credenciales en settings JSONB (tablas aún no migradas)
+    let settingsAuth: Record<string, any> = {};
+    try {
+      const { data: ws } = await supabase.from('workspaces').select('settings').eq('id', workspaceId).maybeSingle();
+      settingsAuth = (ws?.settings as Record<string, any>) || {};
+    } catch {
+      settingsAuth = {};
+    }
+
     const integrationMap = new Map((dbIntegrations || []).map((item) => [item.provider, item]));
     const tokenMap = new Map((dbTokens || []).map((token) => [token.provider, token]));
 
@@ -48,8 +57,8 @@ export class IntegrationService {
       let status: 'PENDING_CONFIG' | 'ACTIVE' | 'ERROR' | 'DISCONNECTED' = 'PENDING_CONFIG';
       let statusLabel = 'Pendiente de configuración';
 
-      // Verificar si hay un token u objeto activo real
-      if (tokenItem || (dbItem && dbItem.status === 'ACTIVE')) {
+      // Verificar si hay un token u objeto activo real (tabla o settings JSONB)
+      if (tokenItem || settingsAuth[`oauth_${channel.provider}`]?.access_token || (dbItem && dbItem.status === 'ACTIVE')) {
         status = 'ACTIVE';
         statusLabel = 'Activo y Conectado';
       } else if (dbItem?.status === 'ERROR') {
@@ -69,6 +78,146 @@ export class IntegrationService {
   }
 
   /**
+   * Guarda credenciales OAuth de un proveedor. Destino real: settings JSONB del
+   * workspace (columna existente). Las tablas oauth_tokens/integrations se
+   * intentan como mejor esfuerzo para cuando se aplique la migración completa.
+   */
+  static async saveProviderAuth(
+    workspaceId: string,
+    provider: string,
+    auth: {
+      accessToken: string;
+      refreshToken?: string | null;
+      expiresIn?: number | null;
+      scope?: string | null;
+      userId?: string | null;
+      config?: Record<string, any>;
+    }
+  ): Promise<void> {
+    const supabase = await createClient();
+    const expiresAt = auth.expiresIn
+      ? new Date(Date.now() + auth.expiresIn * 1000).toISOString()
+      : null;
+
+    // 1. Store real: settings del workspace (merge, nunca sobrescribir todo)
+    try {
+      const { data: ws } = await supabase.from('workspaces').select('settings').eq('id', workspaceId).maybeSingle();
+      const current = (ws?.settings as Record<string, any>) || {};
+      const merged = {
+        ...current,
+        [`oauth_${provider}`]: {
+          access_token: auth.accessToken,
+          refresh_token: auth.refreshToken || null,
+          expires_at: expiresAt,
+          scope: auth.scope || null,
+          user_id: auth.userId || null,
+          updated_at: new Date().toISOString(),
+        },
+        ...(auth.config ? { [`config_${provider}`]: { ...(current[`config_${provider}`] || {}), ...auth.config } } : {}),
+      };
+      await supabase.from('workspaces').update({ settings: merged }).eq('id', workspaceId);
+    } catch (err) {
+      console.error(`No se pudo persistir auth de ${provider} en settings:`, err);
+    }
+
+    // 2. Mejor esfuerzo: tablas dedicadas (si la migración está aplicada)
+    try {
+      await supabase.from('oauth_tokens').upsert(
+        {
+          id: `tok-${workspaceId}-${provider}`,
+          workspace_id: workspaceId,
+          provider,
+          access_token: auth.accessToken,
+          refresh_token: auth.refreshToken || null,
+          expires_at: expiresAt,
+          scope: auth.scope || null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'workspace_id,provider' }
+      );
+    } catch {
+      // Tabla aún no creada: el estado vive en settings (ver getProviderAuth)
+    }
+    try {
+      await supabase.from('integrations').upsert(
+        {
+          id: `int-${workspaceId}-${provider}`,
+          workspace_id: workspaceId,
+          provider,
+          name: provider.toUpperCase(),
+          status: 'ACTIVE',
+          last_synced_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: 'workspace_id,provider' }
+      );
+    } catch {
+      // Tabla aún no creada: el estado vive en settings
+    }
+  }
+
+  /**
+   * Lee credenciales: tabla oauth_tokens → settings JSONB. Nunca falla:
+   * retorna null si no hay nada configurado (Pendiente de configuración).
+   */
+  static async getProviderAuth(
+    workspaceId: string,
+    provider: string
+  ): Promise<{
+    accessToken?: string;
+    refreshToken?: string | null;
+    expiresAt?: string | null;
+    userId?: string | null;
+    config: Record<string, any>;
+    source: 'table' | 'settings' | null;
+  }> {
+    const supabase = await createClient();
+    try {
+      const { data: tok } = await supabase
+        .from('oauth_tokens')
+        .select('access_token,refresh_token,expires_at')
+        .eq('workspace_id', workspaceId)
+        .eq('provider', provider)
+        .maybeSingle();
+      if (tok?.access_token) {
+        const { data: integ } = await supabase
+          .from('integrations')
+          .select('config')
+          .eq('workspace_id', workspaceId)
+          .eq('provider', provider)
+          .maybeSingle();
+        return {
+          accessToken: tok.access_token,
+          refreshToken: tok.refresh_token,
+          expiresAt: tok.expires_at,
+          config: (integ?.config as Record<string, any>) || {},
+          source: 'table',
+        };
+      }
+    } catch {
+      // Tablas aún no creadas: continuar con settings
+    }
+    try {
+      const { data: ws } = await supabase.from('workspaces').select('settings').eq('id', workspaceId).maybeSingle();
+      const settings = (ws?.settings as Record<string, any>) || {};
+      const stored = settings[`oauth_${provider}`];
+      if (stored?.access_token) {
+        return {
+          accessToken: stored.access_token,
+          refreshToken: stored.refresh_token,
+          expiresAt: stored.expires_at,
+          userId: stored.user_id,
+          config: settings[`config_${provider}`] || {},
+          source: 'settings',
+        };
+      }
+    } catch (err) {
+      console.error(`Error al leer auth de ${provider}:`, err);
+    }
+    return { config: {}, source: null };
+  }
+
+  /**
    * Guarda o actualiza un token OAuth obtenido mediante flujo OAuth 2.0 real.
    */
   static async storeOAuthToken(
@@ -81,43 +230,13 @@ export class IntegrationService {
       scope?: string;
     }
   ) {
-    const supabase = await createClient();
-    const expiresAt = tokenData.expiresIn
-      ? new Date(Date.now() + tokenData.expiresIn * 1000).toISOString()
-      : null;
-
-    // 1. Upsert token en oauth_tokens
-    const { error: tokenError } = await supabase.from('oauth_tokens').upsert(
-      {
-        id: `tok-${workspaceId}-${provider}`,
-        workspace_id: workspaceId,
-        provider,
-        access_token: tokenData.accessToken,
-        refresh_token: tokenData.refreshToken || null,
-        expires_at: expiresAt,
-        scope: tokenData.scope || null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'workspace_id,provider' }
-    );
-
-    if (tokenError) {
-      throw new Error(`Error al guardar token de ${provider}: ${tokenError.message}`);
-    }
-
-    // 2. Marcar integración como ACTIVE en la tabla integrations
-    await supabase.from('integrations').upsert(
-      {
-        id: `int-${workspaceId}-${provider}`,
-        workspace_id: workspaceId,
-        provider,
-        name: provider.toUpperCase(),
-        status: 'ACTIVE',
-        last_synced_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: 'workspace_id,provider' }
-    );
+    // Delegar al store real (settings JSONB + tablas como mejor esfuerzo)
+    await this.saveProviderAuth(workspaceId, provider, {
+      accessToken: tokenData.accessToken,
+      refreshToken: tokenData.refreshToken,
+      expiresIn: tokenData.expiresIn,
+      scope: tokenData.scope,
+    });
   }
 
   /**

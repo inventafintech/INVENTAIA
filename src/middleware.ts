@@ -8,11 +8,19 @@ export async function middleware(req: NextRequest) {
   const isProtected =
     pathname.startsWith('/onboarding') ||
     pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/overview') ||
+    pathname.startsWith('/stock-alerts') ||
+    pathname.startsWith('/activity-log') ||
+    pathname.startsWith('/products') ||
     pathname.startsWith('/inventario') ||
+    pathname.startsWith('/inventory') ||
     pathname.startsWith('/entidades') ||
     pathname.startsWith('/configuracion') ||
     pathname.startsWith('/complementos') ||
+    pathname.startsWith('/addons') ||
+    pathname.startsWith('/plans') ||
     pathname.startsWith('/ayuda') ||
+    pathname.startsWith('/help') ||
     pathname.startsWith('/panel') ||
     pathname.startsWith('/users') ||
     pathname.startsWith('/settings') ||
@@ -54,6 +62,21 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Enforcement de 2FA para sesiones NextAuth: si la cuenta lo exige y aún
+  // no se verificó el TOTP en este login, forzar la pantalla de verificación.
+  // (El flujo por cookie nunca crea sesión completa sin verificar antes.)
+  if (
+    nextAuthToken &&
+    (nextAuthToken as any).twoFaEnabled === true &&
+    (nextAuthToken as any).twoFactorVerified !== true &&
+    !pathname.startsWith('/login/verify-2fa')
+  ) {
+    const verifyUrl = new URL('/login/verify-2fa', req.url);
+    verifyUrl.searchParams.set('callbackUrl', req.nextUrl.pathname);
+    verifyUrl.searchParams.set('flow', 'nextauth');
+    return NextResponse.redirect(verifyUrl);
+  }
+
   const workspaceId =
     (nextAuthToken as any)?.workspace_id ||
     (nextAuthToken as any)?.workspace?.id ||
@@ -70,18 +93,31 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
-  return NextResponse.next();
+  // Anti-caché en rutas protegidas: tras el logout, el botón Atrás no debe
+  // mostrar un dashboard cacheado (ni bfcache ni caché HTTP).
+  const response = NextResponse.next();
+  response.headers.set('Cache-Control', 'no-store, must-revalidate');
+  response.headers.set('Pragma', 'no-cache');
+  return response;
 }
 
 export const config = {
   matcher: [
     '/onboarding',
     '/dashboard/:path*',
+    '/overview',
+    '/stock-alerts',
+    '/activity-log',
+    '/products/:path*',
     '/inventario/:path*',
+    '/inventory/:path*',
     '/entidades/:path*',
     '/configuracion/:path*',
     '/complementos/:path*',
+    '/addons',
+    '/plans',
     '/ayuda/:path*',
+    '/help/:path*',
     '/panel/:path*',
     '/users/:path*',
     '/settings/:path*',

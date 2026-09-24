@@ -9,6 +9,32 @@ export const metadata: Metadata = {
   title: 'Cerebro de Compras | INVENTA.AI',
   description:
     'Predice qué comprar, cuándo comprarlo y cómo financiarlo antes de que ocurra un quiebre de stock.',
+  openGraph: {
+    title: 'INVENTA.AI — El Cerebro de Compras para tu Empresa',
+    description:
+      'Anticipa la demanda, evita quiebres de stock y financia inventario con inteligencia predictiva.',
+    type: 'website',
+    locale: 'es_PE',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  icons: {
+    icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+  },
+};
+
+const ORG_JSON_LD = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'INVENTA.AI',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
+  description:
+    'Predice qué comprar, cuándo comprarlo y cómo financiarlo antes de que ocurra un quiebre de stock.',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'PEN' },
+  provider: { '@type': 'Organization', name: 'INVENTA.AI Technologies Inc.' },
 };
 
 // Corre ANTES del primer paint: lee la preferencia persistida y deja <html>
@@ -27,6 +53,7 @@ export default function RootLayout({
       <head>
         <meta name="color-scheme" content="light dark" />
         <script id="inventa-theme-init" dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+        <script id="inventa-org-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ORG_JSON_LD) }} />
       </head>
       <body className={inter.className}>
         <NextAuthProvider>{children}</NextAuthProvider>

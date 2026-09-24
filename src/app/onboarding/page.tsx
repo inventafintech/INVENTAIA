@@ -110,15 +110,15 @@ export default function OnboardingPage() {
   // 4. Activación Dinámica del Botón (Validación UI: mínimo 3 caracteres en ambos)
   const isFormValid = companyName.trim().length >= 3 && workspaceSlug.trim().length >= 3;
 
-  // 5. Cerrar sesión
+  // 5. Cerrar sesión (al landing principal, con recarga completa para limpiar estado)
   const handleLogout = async () => {
     try {
       await signOut({ redirect: false });
       await fetch('/api/auth/logout', { method: 'POST' });
-      router.push('/login');
     } catch (err) {
       console.error('Error al cerrar sesión:', err);
-      router.push('/login');
+    } finally {
+      window.location.href = '/';
     }
   };
 

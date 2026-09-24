@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const data = RestockCalculatorService.calculateRestockItems();
+    const data = await RestockCalculatorService.calculateRestockItems();
 
     return NextResponse.json({
       success: true,

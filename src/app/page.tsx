@@ -1,7 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { Moon, Sun } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { useTheme } from '@/hooks/useTheme';
+import { Logo } from '@/components/brand/Logo';
 import styles from './page.module.css';
 import {
   IconGlobe,
@@ -13,16 +17,78 @@ import {
   IconCode,
   IconHelpCircle
 } from '@/components/ui/icons';
+import { LANDING_COPY, LANDING_LANG_KEY, LandingLang } from '@/lib/landingCopy';
 
 export default function LandingPage() {
+  const { theme, toggleTheme } = useTheme();
+  const { data: session, status: authStatus } = useSession();
+  const isAuthenticated = authStatus === 'authenticated';
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [platformDropdownOpen, setPlatformDropdownOpen] = useState(false);
   const [solutionsDropdownOpen, setSolutionsDropdownOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState<'es' | 'en'>('es');
+  const [selectedLang, setSelectedLang] = useState<LandingLang>('es');
   const [forecastHorizon, setForecastHorizon] = useState<'30d' | '60d' | '180d'>('60d');
-  
+
+  const t = LANDING_COPY[selectedLang];
+
+  // Idioma: ?lang= compartible > localStorage > 'es'. Sincroniza <html lang>.
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const urlLang = params.get('lang');
+      if (urlLang === 'es' || urlLang === 'en') {
+        setSelectedLang(urlLang);
+        window.localStorage.setItem(LANDING_LANG_KEY, urlLang);
+        document.documentElement.lang = urlLang;
+        return;
+      }
+      const saved = window.localStorage.getItem(LANDING_LANG_KEY);
+      if (saved === 'es' || saved === 'en') {
+        setSelectedLang(saved);
+        document.documentElement.lang = saved;
+      }
+    } catch {
+      // entorno sin storage/DOM: se mantiene español
+    }
+  }, []);
+
+  const changeLang = (lang: LandingLang) => {
+    setSelectedLang(lang);
+    try {
+      window.localStorage.setItem(LANDING_LANG_KEY, lang);
+      document.documentElement.lang = lang;
+    } catch {
+      // solo sesión
+    }
+    setLangDropdownOpen(false);
+  };
+
+  // Cierre accesible de desplegables: clic fuera + Escape
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent) {
+      const el = event.target as HTMLElement | null;
+      if (el && typeof el.closest === 'function' && el.closest('[data-dropdown]')) return;
+      setPlatformDropdownOpen(false);
+      setSolutionsDropdownOpen(false);
+      setLangDropdownOpen(false);
+    }
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setPlatformDropdownOpen(false);
+        setSolutionsDropdownOpen(false);
+        setLangDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   // Demo Form State
   const [demoForm, setDemoForm] = useState({
     nombre: '',
@@ -40,13 +106,13 @@ export default function LandingPage() {
 
   return (
     <div className={styles.containerDark}>
-      {/* 1. Navigation Bar - Estilo Enterprise B2B Panthor/Vercel */}
+      {/* 1. Barra de Navegación Superior */}
       <header className={styles.navDark}>
         <div className={styles.navContent}>
           {/* Logo a la izquierda */}
           <div className={styles.logoGroup}>
-            <Link href="/" className={styles.logoDark}>
-              INVENTA<span className={styles.logoAccent}>.AI</span>
+            <Link href="/" className={styles.logoDark} aria-label="INVENTA.AI - Inicio">
+              <Logo height={26} />
             </Link>
             <span className={styles.tagEnterpriseDark}>Enterprise B2B</span>
           </div>
@@ -54,80 +120,86 @@ export default function LandingPage() {
           {/* Enlaces de navegación centrales con dropdowns */}
           <nav className={styles.linksDark}>
             {/* Plataforma */}
-            <div className={styles.navDropdownWrapper}>
-              <button 
+            <div className={styles.navDropdownWrapper} data-dropdown="platform">
+              <button
                 type="button"
                 className={styles.navDropdownTrigger}
+                aria-haspopup="true"
+                aria-expanded={platformDropdownOpen}
                 onClick={() => {
                   setPlatformDropdownOpen(!platformDropdownOpen);
                   setSolutionsDropdownOpen(false);
                 }}
               >
-                <span>Plataforma</span>
+                <span>{t.nav_plataforma}</span>
                 <span className={styles.chevronIcon}>⌄</span>
               </button>
               {platformDropdownOpen && (
                 <div className={styles.dropdownMenuDark}>
                   <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>Motor Predictivo IA</strong>
-                    <span>Pronóstico a 30, 60 y 180 días</span>
+                    <strong>{t.nav_motor}</strong>
+                    <span>{t.nav_motor_desc}</span>
                   </a>
                   <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>Reabastecimiento JIT</strong>
-                    <span>Generación de OC en 1 clic</span>
+                    <strong>{t.nav_jit}</strong>
+                    <span>{t.nav_jit_desc}</span>
                   </a>
                   <a href="#tecnologia" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>Conectores ERP & APIs</strong>
-                    <span>SAP, Shopify, Amazon & SUNAT</span>
+                    <strong>{t.nav_erp}</strong>
+                    <span>{t.nav_erp_desc}</span>
                   </a>
                 </div>
               )}
             </div>
 
             {/* Soluciones */}
-            <div className={styles.navDropdownWrapper}>
-              <button 
+            <div className={styles.navDropdownWrapper} data-dropdown="solutions">
+              <button
                 type="button"
                 className={styles.navDropdownTrigger}
+                aria-haspopup="true"
+                aria-expanded={solutionsDropdownOpen}
                 onClick={() => {
                   setSolutionsDropdownOpen(!solutionsDropdownOpen);
                   setPlatformDropdownOpen(false);
                 }}
               >
-                <span>Soluciones</span>
+                <span>{t.nav_soluciones}</span>
                 <span className={styles.chevronIcon}>⌄</span>
               </button>
               {solutionsDropdownOpen && (
                 <div className={styles.dropdownMenuDark}>
                   <a href="#problema" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>Para Distribuidores & Mayoristas</strong>
-                    <span>Eliminación de quiebres de stock</span>
+                    <strong>{t.nav_dist}</strong>
+                    <span>{t.nav_dist_desc}</span>
                   </a>
                   <a href="#roi" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>Financiamiento de Inventario</strong>
-                    <span>Líneas de crédito rotativas B2B</span>
+                    <strong>{t.nav_fin}</strong>
+                    <span>{t.nav_fin_desc}</span>
                   </a>
                   <a href="#casos" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>Consorcios de Compra</strong>
-                    <span>Descuentos por volumen agrupado</span>
+                    <strong>{t.nav_consorcios}</strong>
+                    <span>{t.nav_consorcios_desc}</span>
                   </a>
                 </div>
               )}
             </div>
 
-            <a href="#roi" className={styles.navLinkDark}>Precios</a>
-            <a href="#tecnologia" className={styles.navLinkDark}>Recursos</a>
+            <a href="#roi" className={styles.navLinkDark}>{t.nav_precios}</a>
+            <a href="#tecnologia" className={styles.navLinkDark}>{t.nav_recursos}</a>
           </nav>
 
-          {/* Extremo derecho: Selector de idioma, login, outline demo, botón primario y link empezar gratis */}
+          {/* Extremo derecho: idioma, tema, login/CTAs */}
           <div className={styles.actionsDark}>
             {/* Selector de idioma con ícono vectorial */}
-            <div className={styles.langSelectorWrapper}>
-              <button 
+            <div className={styles.langSelectorWrapper} data-dropdown="lang">
+              <button
                 type="button"
                 className={styles.langSelectorBtn}
+                aria-haspopup="true"
+                aria-expanded={langDropdownOpen}
                 onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                aria-label="Seleccionar idioma"
+                aria-label={t.nav_lang_label}
               >
                 <IconGlobe size={14} className={styles.langGlobeIcon} />
                 <span>{selectedLang === 'es' ? 'Español' : 'English'}</span>
@@ -135,17 +207,17 @@ export default function LandingPage() {
               </button>
               {langDropdownOpen && (
                 <div className={styles.langDropdownMenu}>
-                  <button 
+                  <button
                     type="button"
                     className={`${styles.langOption} ${selectedLang === 'es' ? styles.langActive : ''}`}
-                    onClick={() => { setSelectedLang('es'); setLangDropdownOpen(false); }}
+                    onClick={() => changeLang('es')}
                   >
                     Español
                   </button>
-                  <button 
+                  <button
                     type="button"
                     className={`${styles.langOption} ${selectedLang === 'en' ? styles.langActive : ''}`}
-                    onClick={() => { setSelectedLang('en'); setLangDropdownOpen(false); }}
+                    onClick={() => changeLang('en')}
                   >
                     English
                   </button>
@@ -153,37 +225,56 @@ export default function LandingPage() {
               )}
             </div>
 
-            {/* Iniciar sesión */}
-            <Link href="/login" className={styles.navLoginLinkDark}>
-              Iniciar sesión
-            </Link>
-
-            {/* Reservar una demo */}
-            <button 
+            {/* Tema claro/oscuro (mismo sistema que el dashboard) */}
+            <button
               type="button"
-              className={styles.btnOutlineNav} 
-              onClick={() => setIsDemoModalOpen(true)}
+              onClick={toggleTheme}
+              className={styles.langSelectorBtn}
+              aria-label={theme === 'dark' ? (selectedLang === 'es' ? 'Cambiar a modo claro' : 'Switch to light mode') : (selectedLang === 'es' ? 'Cambiar a modo oscuro' : 'Switch to dark mode')}
+              title={theme === 'dark' ? '☀' : '☾'}
             >
-              Reservar una demo
+              {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
             </button>
 
-            {/* Iniciar prueba gratis de 7 días (Botón principal destacado) */}
-            <Link href="/login" className={styles.btnAmberNav}>
-              Iniciar prueba gratis de 7 días
-            </Link>
+            {isAuthenticated ? (
+              <Link href="/overview" className={styles.btnAmberNav}>
+                {t.nav_dashboard}
+              </Link>
+            ) : (
+              <>
+                {/* Iniciar sesión */}
+                <Link href="/login" className={styles.navLoginLinkDark}>
+                  {t.nav_login}
+                </Link>
 
-            {/* Empezar gratis (Enlace sutil) */}
-            <Link href="/login" className={styles.linkEmpezarGratis}>
-              Empezar gratis
-            </Link>
+                {/* Reservar una demo */}
+                <button
+                  type="button"
+                  className={styles.btnOutlineNav}
+                  onClick={() => setIsDemoModalOpen(true)}
+                >
+                  {t.nav_demo}
+                </button>
+
+                {/* Iniciar prueba gratis de 7 días (Botón principal destacado) */}
+                <Link href="/login" className={styles.btnAmberNav}>
+                  {t.nav_trial}
+                </Link>
+
+                {/* Empezar gratis (Enlace sutil) */}
+                <Link href="/login" className={styles.linkEmpezarGratis}>
+                  {t.nav_start}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Botón menú hamburguesa en móvil */}
-          <button 
+          <button
             type="button"
             className={styles.hamburgerBtnDark}
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Menú principal"
+            aria-label={t.nav_menu}
             aria-expanded={mobileMenuOpen}
           >
             {mobileMenuOpen ? (
@@ -205,27 +296,35 @@ export default function LandingPage() {
         {mobileMenuOpen && (
           <div className={styles.mobileMenuDark}>
             <nav className={styles.mobileNavLinksDark}>
-              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>Plataforma</a>
-              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>Soluciones</a>
-              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>Precios</a>
-              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>Recursos</a>
+              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>{t.nav_plataforma}</a>
+              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>{t.nav_soluciones}</a>
+              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>{t.nav_precios}</a>
+              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>{t.nav_recursos}</a>
             </nav>
             <div className={styles.mobileMenuDividerDark} />
             <div className={styles.mobileMenuActionsDark}>
-              <Link href="/login" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
-                Iniciar prueba gratis de 7 días
-              </Link>
-              <button 
-                type="button"
-                className={styles.btnOutlineNav} 
-                onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }}
-                style={{ width: '100%', justifyContent: 'center' }}
-              >
-                Reservar una demo
-              </button>
-              <Link href="/login" className={styles.navLoginLinkDark} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
-                Iniciar sesión
-              </Link>
+              {isAuthenticated ? (
+                <Link href="/overview" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
+                  {t.nav_dashboard}
+                </Link>
+              ) : (
+                <>
+                  <Link href="/login" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
+                    {t.nav_trial}
+                  </Link>
+                  <button
+                    type="button"
+                    className={styles.btnOutlineNav}
+                    onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }}
+                    style={{ width: '100%', justifyContent: 'center' }}
+                  >
+                    {t.nav_demo}
+                  </button>
+                  <Link href="/login" className={styles.navLoginLinkDark} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
+                    {t.nav_login}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -239,55 +338,55 @@ export default function LandingPage() {
             <div className={styles.heroLeftCol}>
               {/* Eyebrow Text */}
               <div className={styles.eyebrowAmber}>
-                PLATAFORMA
+                {t.hero_eyebrow}
               </div>
 
               {/* Titular Principal */}
               <h1 className={styles.heroMainTitle}>
-                El Cerebro de Compras para tu Empresa
+                {t.hero_title}
               </h1>
 
               {/* Subtitular */}
               <p className={styles.heroSubTitle}>
-                Anticipa la demanda, evita quiebres de stock y financia inventario con inteligencia predictiva.
+                {t.hero_sub}
               </p>
 
               {/* Botones de Acción (CTAs) */}
               <div className={styles.heroBtnGroup}>
-                <button 
+                <button
                   type="button"
                   className={styles.btnAmberHero}
                   onClick={() => setIsDemoModalOpen(true)}
                 >
-                  <span>Solicitar Demo</span>
+                  <span>{t.hero_cta_demo}</span>
                   <span className={styles.btnArrowIcon}>→</span>
                 </button>
-                <a 
+                <a
                   href="#problema"
                   className={styles.btnOutlineHero}
                 >
-                  Ver cómo funciona
+                  {t.hero_cta_how}
                 </a>
               </div>
 
               {/* Micro-copy y Señales de Confianza */}
               <div className={styles.heroMicroTrust}>
                 <Link href="/login" className={styles.planLightLink}>
-                  o empieza gratis con el plan Light
+                  {t.hero_light}
                 </Link>
 
                 <div className={styles.trustBulletsList}>
                   <div className={styles.trustBulletItem}>
                     <span className={styles.checkCircleAmber}>✓</span>
-                    <span>Plan Light gratuito</span>
+                    <span>{t.hero_trust1}</span>
                   </div>
                   <div className={styles.trustBulletItem}>
                     <span className={styles.checkCircleAmber}>✓</span>
-                    <span>Facturación Essential mensual o anual</span>
+                    <span>{t.hero_trust2}</span>
                   </div>
                   <div className={styles.trustBulletItem}>
                     <span className={styles.checkCircleAmber}>✓</span>
-                    <span>14 días de gracia al bajar de plan</span>
+                    <span>{t.hero_trust3}</span>
                   </div>
                 </div>
               </div>
@@ -308,11 +407,11 @@ export default function LandingPage() {
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <span>Buscar productos, stock, almacenes, órdenes...</span>
+                    <span>{t.mockup_search}</span>
                   </div>
                   <div className={styles.macLiveStatus}>
                     <span className={styles.macLiveDot} />
-                    <span>INVENTA Core</span>
+                    <span>{t.mockup_live}</span>
                   </div>
                 </div>
 
@@ -321,39 +420,39 @@ export default function LandingPage() {
                   {/* Encabezado del Dashboard */}
                   <div className={styles.mockupHeaderRow}>
                     <div>
-                      <div className={styles.mockupBreadcrumb}>INVENTA.AI › Overview</div>
-                      <h3 className={styles.mockupHeading}>Overview</h3>
-                      <p className={styles.mockupSubtext}>El algoritmo operó los últimos 30 días</p>
+                      <div className={styles.mockupBreadcrumb}>{t.mockup_crumb}</div>
+                      <h3 className={styles.mockupHeading}>{t.mockup_heading}</h3>
+                      <p className={styles.mockupSubtext}>{t.mockup_sub}</p>
                     </div>
                     <div className={styles.mockupHeaderTools}>
                       <span className={styles.mockupDateTag}>30d · 90d · 180d</span>
-                      <button type="button" className={styles.mockupToolBtn}>Filtrar</button>
+                      <button type="button" className={styles.mockupToolBtn}>{t.mockup_filter}</button>
                     </div>
                   </div>
 
                   <p className={styles.mockupInsightText}>
-                    Inventory is in good shape overall, with a health score of 85. Moving well below stock-out rate of 1.2% (target &lt;3%). Forecast demand for next 30 days is 12,847 units across 4 warehouses.
+                    {t.mockup_insight}
                   </p>
 
                   {/* Tarjetas de Resumen KPI */}
                   <div className={styles.mockupKpiGrid}>
                     <div className={styles.mockupKpiItem}>
-                      <span className={styles.mockupKpiLabel}>Stock Valorizado</span>
+                      <span className={styles.mockupKpiLabel}>{t.mockup_kpi1}</span>
                       <div className={styles.mockupKpiValue}>$812,450</div>
                       <span className={styles.mockupKpiBadgeUp}>↑ +4.2%</span>
                     </div>
                     <div className={styles.mockupKpiItem}>
-                      <span className={styles.mockupKpiLabel}>Pedidos Sincronizados</span>
+                      <span className={styles.mockupKpiLabel}>{t.mockup_kpi2}</span>
                       <div className={styles.mockupKpiValue}>12,847</div>
                       <span className={styles.mockupKpiBadgeUp}>↑ 99.8% a tiempo</span>
                     </div>
                     <div className={styles.mockupKpiItem}>
-                      <span className={styles.mockupKpiLabel}>Salud de Inventario</span>
+                      <span className={styles.mockupKpiLabel}>{t.mockup_kpi3}</span>
                       <div className={styles.mockupKpiValue}>85%</div>
                       <span className={styles.mockupKpiBadgeNeutral}>Óptimo</span>
                     </div>
                     <div className={styles.mockupKpiItem}>
-                      <span className={styles.mockupKpiLabel}>Sedes Conectadas</span>
+                      <span className={styles.mockupKpiLabel}>{t.mockup_kpi4}</span>
                       <div className={styles.mockupKpiValue}>8</div>
                       <span className={styles.mockupKpiBadgeUp}>100% online</span>
                     </div>
@@ -364,10 +463,10 @@ export default function LandingPage() {
                     {/* Gráfico de Forecast y Demanda */}
                     <div className={styles.mockupChartCard}>
                       <div className={styles.mockupChartHeader}>
-                        <span>Demanda Real vs Pronóstico IA</span>
+                        <span>{t.mockup_chart}</span>
                         <div className={styles.mockupLegend}>
-                          <span style={{ color: '#10b981' }}>―</span> Real
-                          <span style={{ color: '#3b82f6' }}>┄</span> Forecast
+                          <span style={{ color: '#10b981' }}>―</span> {t.mockup_real}
+                          <span style={{ color: '#3b82f6' }}>┄</span> {t.mockup_forecast}
                         </div>
                       </div>
                       <div className={styles.mockupSvgWrap}>
@@ -397,30 +496,30 @@ export default function LandingPage() {
                     {/* Gráfico Radial de Salud */}
                     <div className={styles.mockupGaugeCard}>
                       <div className={styles.mockupChartHeader}>
-                        <span>Disponibilidad</span>
+                        <span>{t.mockup_avail}</span>
                       </div>
                       <div className={styles.mockupGaugeCircle}>
                         <svg viewBox="0 0 90 90" className={styles.mockupDonut}>
                           <circle cx="45" cy="45" r="34" fill="none" stroke="#1e293b" strokeWidth="7" />
-                          <circle 
-                            cx="45" 
-                            cy="45" 
-                            r="34" 
-                            fill="none" 
-                            stroke="#10b981" 
-                            strokeWidth="7" 
-                            strokeDasharray="213.6" 
-                            strokeDashoffset="32" 
+                          <circle
+                            cx="45"
+                            cy="45"
+                            r="34"
+                            fill="none"
+                            stroke="#10b981"
+                            strokeWidth="7"
+                            strokeDasharray="213.6"
+                            strokeDashoffset="32"
                             strokeLinecap="round"
-                            transform="rotate(-90 45 45)" 
+                            transform="rotate(-90 45 45)"
                           />
                           <text x="45" y="47" fill="#ffffff" fontSize="15" fontWeight="bold" textAnchor="middle" dominantBaseline="middle">85%</text>
-                          <text x="45" y="60" fill="#94a3b8" fontSize="7" textAnchor="middle">ÓPTIMO</text>
+                          <text x="45" y="60" fill="#94a3b8" fontSize="7" textAnchor="middle">{t.mockup_optimo}</text>
                         </svg>
                       </div>
                       <div className={styles.mockupGaugeLegend}>
-                        <div><span style={{ color: '#10b981' }}>●</span> En Stock</div>
-                        <div><span style={{ color: '#f59e0b' }}>●</span> Bajo Stock</div>
+                        <div><span style={{ color: '#10b981' }}>●</span> {t.mockup_enstock}</div>
+                        <div><span style={{ color: '#f59e0b' }}>●</span> {t.mockup_bajostock}</div>
                       </div>
                     </div>
                   </div>
@@ -431,21 +530,21 @@ export default function LandingPage() {
         </section>
 
         {/* Floating Action Button (Esquina inferior derecha) */}
-        <button 
+        <button
           type="button"
           className={styles.floatingBusinessFitBtn}
           onClick={() => setIsDemoModalOpen(true)}
-          aria-label="Consultar si encaja con mi negocio"
+          aria-label={t.floating_aria}
         >
           <IconHelpCircle size={16} className={styles.sparkleIcon} />
-          <span>¿Encaja con mi negocio?</span>
+          <span>{t.floating}</span>
         </button>
 
 
         {/* 3. Confianza Inmediata & Partners */}
         <section className={styles.trustSection}>
           <p className={styles.trustTitle}>
-            CONECTIVIDAD OFICIAL & COMPATIBILIDAD EMPRESARIAL VERIFICADA
+            {t.trust_title}
           </p>
           <div className={styles.trustLogosGrid}>
             <div className={styles.partnerChip}>
@@ -454,81 +553,81 @@ export default function LandingPage() {
             </div>
             <div className={styles.partnerChip}>
               <strong>Shopify Plus</strong>
-              <span>API Admin 2026</span>
+              <span>{t.sec_shopify}</span>
             </div>
             <div className={styles.partnerChip}>
               <strong>Mercado Libre</strong>
-              <span>OAuth 2.0 Oficial</span>
+              <span>{t.sec_meli}</span>
             </div>
             <div className={styles.partnerChip}>
               <strong>Amazon Business</strong>
-              <span>SP-API v2</span>
+              <span>{t.sec_amazon}</span>
             </div>
             <div className={styles.partnerChip}>
               <strong>SUNAT / OSE</strong>
-              <span>Facturas & GRE</span>
+              <span>{t.sec_sunat}</span>
             </div>
           </div>
 
           <div className={styles.securityBadges}>
-            <span className={styles.securityPill}><IconShieldCheck size={14} /> SOC 2 Type II Compliant</span>
-            <span className={styles.securityPill}><IconLock size={14} /> Cifrado AES-256 en Reposo</span>
-            <span className={styles.securityPill}><IconZap size={14} /> 99.99% Uptime SLA</span>
-            <span className={styles.securityPill}><IconCloud size={14} /> Multi-Cloud AWS & GCP</span>
+            <span className={styles.securityPill}><IconShieldCheck size={14} /> {t.sec_soc}</span>
+            <span className={styles.securityPill}><IconLock size={14} /> {t.sec_aes}</span>
+            <span className={styles.securityPill}><IconZap size={14} /> {t.sec_uptime}</span>
+            <span className={styles.securityPill}><IconCloud size={14} /> {t.sec_cloud}</span>
           </div>
         </section>
 
         {/* 4. El Costo del Problema (Rational Drowning) vs La Nueva Forma */}
         <section id="problema" className={styles.sectionDark}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionPre}>EL COSTO OCULTO DEL MODELO TRADICIONAL</span>
+            <span className={styles.sectionPre}>{t.prob_pre}</span>
             <h2 className={styles.sectionTitle}>
-              El 34% del capital de trabajo de una empresa queda atrapado en inventario inmóvil
+              {t.prob_title}
             </h2>
             <p className={styles.sectionSubtitle}>
-              Gestionar compras con intuición y tablas de Excel desactualizadas genera pérdidas silenciosas en quiebres de stock y sobrecostos financieros de almacenamiento.
+              {t.prob_sub}
             </p>
           </div>
 
           <div className={styles.comparisonGrid}>
             <div className={styles.problemCard}>
               <div className={styles.problemHeader}>
-                <span className={styles.problemBadge}>El Riesgo Tradicional</span>
-                <h3>Compras Reactivas en Excel</h3>
+                <span className={styles.problemBadge}>{t.prob_badge}</span>
+                <h3>{t.prob_h}</h3>
               </div>
               <ul className={styles.problemList}>
                 <li>
-                  <strong>Quiebres de stock imprevistos:</strong> Te enteras de que un producto clave se agotó cuando el cliente ya le compró a tu competidor.
+                  <strong>{t.prob_1t}</strong> {t.prob_1}
                 </li>
                 <li>
-                  <strong>Sobrestock y obsolescencia:</strong> Comprar lotes grandes para "aprovechar el precio" inmoviliza miles de soles en productos que no rotan.
+                  <strong>{t.prob_2t}</strong> {t.prob_2}
                 </li>
                 <li>
-                  <strong>Pérdida de poder de negociación:</strong> Comprar solo como empresa individual te obliga a aceptar los precios más altos del fabricante.
+                  <strong>{t.prob_3t}</strong> {t.prob_3}
                 </li>
                 <li>
-                  <strong>Desconexión con finanzas:</strong> El área de compras pide sin visibilidad de las líneas de crédito ni del flujo de caja proyectado.
+                  <strong>{t.prob_4t}</strong> {t.prob_4}
                 </li>
               </ul>
             </div>
 
             <div className={styles.solutionCard}>
               <div className={styles.solutionHeader}>
-                <span className={styles.solutionBadge}>Con INVENTA.AI</span>
-                <h3>Operación Autónoma & Predictiva</h3>
+                <span className={styles.solutionBadge}>{t.sol_badge}</span>
+                <h3>{t.sol_h}</h3>
               </div>
               <ul className={styles.solutionList}>
                 <li>
-                  <strong>Forecast con 94.5% de exactitud:</strong> Algoritmos de Machine Learning anticipan la demanda a 30, 60 y 180 días considerando estacionalidad y tendencias.
+                  <strong>{t.sol_1t}</strong> {t.sol_1}
                 </li>
                 <li>
-                  <strong>Reabastecimiento Just-in-Time:</strong> Órdenes de compra generadas automáticamente en el momento exacto para no acumular inventario innecesario.
+                  <strong>{t.sol_2t}</strong> {t.sol_2}
                 </li>
                 <li>
-                  <strong>Poder de Compra Consolidada:</strong> Agrupación algorítmica de compras con otras empresas para acceder a descuentos por escala de hasta 18%.
+                  <strong>{t.sol_3t}</strong> {t.sol_3}
                 </li>
                 <li>
-                  <strong>Financiamiento de Inventario:</strong> Desbloqueo de líneas de crédito rotativas vinculadas directamente a la rotación de tus productos.
+                  <strong>{t.sol_4t}</strong> {t.sol_4}
                 </li>
               </ul>
             </div>
@@ -538,12 +637,12 @@ export default function LandingPage() {
         {/* 5. Sección de Beneficios & Características Específicas */}
         <section id="soluciones" className={styles.section}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionPre}>PILIS TECNOLÓGICOS</span>
+            <span className={styles.sectionPre}>{t.feat_pre}</span>
             <h2 className={styles.sectionTitle}>
-              Tres módulos diseñados para maximizar tu rentabilidad
+              {t.feat_title}
             </h2>
             <p className={styles.sectionSubtitle}>
-              Una plataforma integral que une predicción de demanda, negociación de escala y liquidez inmediata para distribuidores y retailers.
+              {t.feat_sub}
             </p>
           </div>
 
@@ -551,48 +650,48 @@ export default function LandingPage() {
             {/* Feature 1 */}
             <div className={styles.featureCard}>
               <div className={styles.featureIconBox}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18" /><path d="m19 9-5 5-4-4-3 3" /></svg>
               </div>
-              <h3>Pronóstico Automático de Demanda</h3>
+              <h3>{t.feat1_t}</h3>
               <p>
-                Modelos de Deep Learning entrenados con tu histórico de ventas, estacionalidad, inflación y comportamiento de mercado. Genera predicciones precisas SKU por SKU a 30, 60 y 180 días.
+                {t.feat1_d}
               </p>
               <div className={styles.featureHighlight}>
-                <span>✓ Alertas de quiebre preventivas</span>
-                <span>✓ Buffer de seguridad dinámico</span>
-                <span>✓ Sugerencias de OC con 1 clic</span>
+                <span>✓ {t.feat1_a}</span>
+                <span>✓ {t.feat1_b}</span>
+                <span>✓ {t.feat1_c}</span>
               </div>
             </div>
 
             {/* Feature 2 */}
             <div className={styles.featureCard}>
               <div className={styles.featureIconBox}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
               </div>
-              <h3>Compras Conjuntas (Consorcios B2B)</h3>
+              <h3>{t.feat2_t}</h3>
               <p>
-                Unimos la demanda de múltiples distribuidores y PYMES para formar lotes de compra mayores. Accede a los precios y condiciones preferenciales que solo obtienen las corporaciones gigantes.
+                {t.feat2_d}
               </p>
               <div className={styles.featureHighlight}>
-                <span>✓ Hasta 18% ahorro en costo de producto</span>
-                <span>✓ Negociación directa con fabricantes</span>
-                <span>✓ Reducción de costos de flete</span>
+                <span>✓ {t.feat2_a}</span>
+                <span>✓ {t.feat2_b}</span>
+                <span>✓ {t.feat2_c}</span>
               </div>
             </div>
 
             {/* Feature 3 */}
             <div className={styles.featureCard}>
               <div className={styles.featureIconBox}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="20" height="14" x="2" y="5" rx="2" /><line x1="2" x2="22" y1="10" y2="10" /></svg>
               </div>
-              <h3>Financiamiento de Inventarios</h3>
+              <h3>{t.feat3_t}</h3>
               <p>
-                Líneas de crédito rotativas de capital de trabajo aprobadas en tiempo real en función de la rotación comprobada de tus SKUs y tus órdenes de compra en firme. Paga el inventario a medida que lo vendes.
+                {t.feat3_d}
               </p>
               <div className={styles.featureHighlight}>
-                <span>✓ Evaluación crediticia con datos de venta</span>
-                <span>✓ Plazos de 30 a 90 días</span>
-                <span>✓ Cero trámites bancarios tradicionales</span>
+                <span>✓ {t.feat3_a}</span>
+                <span>✓ {t.feat3_b}</span>
+                <span>✓ {t.feat3_c}</span>
               </div>
             </div>
           </div>
@@ -601,37 +700,37 @@ export default function LandingPage() {
         {/* 6. Prueba de ROI & Caso de Estudio Real */}
         <section id="roi" className={styles.sectionDark}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionPre}>IMPACTO MEDIBLE Y COMPROBADO</span>
+            <span className={styles.sectionPre}>{t.roi_pre}</span>
             <h2 className={styles.sectionTitle}>
-              Retorno de inversión garantizado desde el primer mes
+              {t.roi_title}
             </h2>
             <p className={styles.sectionSubtitle}>
-              Métricas auditadas de empresas que reemplazaron hojas de cálculo por el motor de compras autónomo de INVENTA.AI.
+              {t.roi_sub}
             </p>
           </div>
 
           <div className={styles.roiMetricsGrid}>
             <div className={styles.roiMetricCard}>
               <span className={styles.roiValue}>S/ 48,600</span>
-              <span className={styles.roiTitle}>Ahorro Promedio Generado (30d)</span>
+              <span className={styles.roiTitle}>{t.roi1_t}</span>
               <p className={styles.roiDesc}>
-                Ahorro directo derivado de compras consolidadas, eliminación de fletes urgentes y optimización de capital inmovilizado.
+                {t.roi1_d}
               </p>
             </div>
 
             <div className={styles.roiMetricCard}>
               <span className={styles.roiValue}>-42%</span>
-              <span className={styles.roiTitle}>Inventario Muerto</span>
+              <span className={styles.roiTitle}>{t.roi2_t}</span>
               <p className={styles.roiDesc}>
-                Reducción de productos estancados en bodega gracias al rebalanceo preventivo y ajustes automáticos de lote económico.
+                {t.roi2_d}
               </p>
             </div>
 
             <div className={styles.roiMetricCard}>
               <span className={styles.roiValue}>94.5%</span>
-              <span className={styles.roiTitle}>Precisión de Forecast</span>
+              <span className={styles.roiTitle}>{t.roi3_t}</span>
               <p className={styles.roiDesc}>
-                Exactitud comprobada frente a métodos basados en promedios móviles y hojas de cálculo (que promedian 61%).
+                {t.roi3_d}
               </p>
             </div>
           </div>
@@ -639,11 +738,11 @@ export default function LandingPage() {
           {/* Case Study Card */}
           <div id="casos" className={styles.caseStudyBox}>
             <div className={styles.caseStudyContent}>
-              <span className={styles.caseStudyTag}>CASO DE ÉXITO VERIFICADO</span>
-              <h3 className={styles.caseStudyCompany}>Grupo Logístico Nacional S.A.C.</h3>
-              <p className={styles.caseStudyCategory}>Distribución de Consumo Masivo · 1,200 SKUs · 4 Almacenes</p>
+              <span className={styles.caseStudyTag}>{t.case_tag}</span>
+              <h3 className={styles.caseStudyCompany}>{t.case_company}</h3>
+              <p className={styles.caseStudyCategory}>{t.case_cat}</p>
               <blockquote className={styles.caseStudyQuote}>
-                &ldquo;Antes de INVENTA.AI perdíamos ventas todas las semanas por quiebres en nuestros 40 productos estrella, mientras teníamos S/ 300,000 atrapados en productos de baja rotación. En menos de 90 días redujimos los quiebres en 52% y liberamos S/ 120,000 en liquidez inmediata.&rdquo;
+                {t.case_quote}
               </blockquote>
               <div className={styles.caseStudyAuthor}>
                 <strong>Javier González</strong>
@@ -653,15 +752,15 @@ export default function LandingPage() {
             <div className={styles.caseStudyStats}>
               <div className={styles.statBox}>
                 <span className={styles.statNum}>-52%</span>
-                <span className={styles.statLabel}>Quiebres de Stock</span>
+                <span className={styles.statLabel}>{t.case_stat1}</span>
               </div>
               <div className={styles.statBox}>
                 <span className={styles.statNum}>S/ 120k</span>
-                <span className={styles.statLabel}>Liquidez Liberada</span>
+                <span className={styles.statLabel}>{t.case_stat2}</span>
               </div>
               <div className={styles.statBox}>
                 <span className={styles.statNum}>14 días</span>
-                <span className={styles.statLabel}>Tiempo de Adopción</span>
+                <span className={styles.statLabel}>{t.case_stat3}</span>
               </div>
             </div>
           </div>
@@ -670,38 +769,38 @@ export default function LandingPage() {
         {/* 7. Credibilidad Técnica e Integraciones (Para CTOs, COOs e Inversores) */}
         <section id="tecnologia" className={styles.section}>
           <div className={styles.sectionHeader}>
-            <span className={styles.sectionPre}>INFRAESTRUCTURA & SEGURIDAD ENTERPRISE</span>
+            <span className={styles.sectionPre}>{t.tech_pre}</span>
             <h2 className={styles.sectionTitle}>
-              Diseñado para escalar con los requerimientos técnicos más exigentes
+              {t.tech_title}
             </h2>
             <p className={styles.sectionSubtitle}>
-              Arquitectura en la nube de alta disponibilidad, APIs abiertas y cumplimiento de estándares internacionales de protección de datos.
+              {t.tech_sub}
             </p>
           </div>
 
           <div className={styles.techSpecsGrid}>
             <div className={styles.techSpecCard}>
               <div className={styles.techSpecIcon}><IconZap size={22} strokeWidth={2} /></div>
-              <h4>99.99% Uptime SLA</h4>
-              <p>Infraestructura redundante multi-región en AWS y Google Cloud con failover automático y balanceo de carga.</p>
+              <h4>{t.tech1_t}</h4>
+              <p>{t.tech1_d}</p>
             </div>
 
             <div className={styles.techSpecCard}>
               <div className={styles.techSpecIcon}><IconLock size={22} strokeWidth={2} /></div>
-              <h4>Seguridad de Grado Bancario</h4>
-              <p>Cifrado AES-256 en reposo, TLS 1.3 en tránsito, autenticación OAuth 2.0 y compatibilidad con Single Sign-On (SSO).</p>
+              <h4>{t.tech2_t}</h4>
+              <p>{t.tech2_d}</p>
             </div>
 
             <div className={styles.techSpecCard}>
               <div className={styles.techSpecIcon}><IconCode size={22} strokeWidth={2} /></div>
-              <h4>APIs REST & Webhooks</h4>
-              <p>Endpoints documentados con OpenAPI 3.0, webhooks firmados criptográficamente (HMAC-SHA256) y sincronización cada 5 min.</p>
+              <h4>{t.tech3_t}</h4>
+              <p>{t.tech3_d}</p>
             </div>
 
             <div className={styles.techSpecCard}>
               <div className={styles.techSpecIcon}><IconBuilding size={22} strokeWidth={2} /></div>
-              <h4>Cumplimiento Fiscal SUNAT</h4>
-              <p>Integración directa con los Web Services de SUNAT y OSE para consulta de RUC, validación de CPEs y emisión de GRE.</p>
+              <h4>{t.tech4_t}</h4>
+              <p>{t.tech4_d}</p>
             </div>
           </div>
         </section>
@@ -709,20 +808,20 @@ export default function LandingPage() {
         {/* 8. Bottom CTA Banner */}
         <section className={styles.bottomCtaSection}>
           <div className={styles.bottomCtaCard}>
-            <h2>¿Listo para transformar las compras de tu empresa?</h2>
-            <p>Agenda una sesión estratégica de 15 minutos con nuestros especialistas de producto e ingeniería de datos.</p>
+            <h2>{t.cta_title}</h2>
+            <p>{t.cta_sub}</p>
             <div className={styles.bottomCtaActions}>
-              <button 
-                className={styles.btnPrimaryCta} 
+              <button
+                className={styles.btnPrimaryCta}
                 onClick={() => setIsDemoModalOpen(true)}
               >
-                Solicitar Demo 1:1
+                {t.cta_demo}
               </button>
-              <Link href="/dashboard" className={styles.btnSecondaryCta}>
-                Explorar Dashboard
+              <Link href="/overview" className={styles.btnSecondaryCta}>
+                {t.cta_explore}
               </Link>
             </div>
-            <span className={styles.bottomCtaMicro}>Sin tarjeta de crédito requerida · Onboarding asistido</span>
+            <span className={styles.bottomCtaMicro}>{t.cta_micro}</span>
           </div>
         </section>
       </main>
@@ -731,38 +830,40 @@ export default function LandingPage() {
       <footer className={styles.footer}>
         <div className={styles.footerContent}>
           <div className={styles.footerBrand}>
-            <span className={styles.logo}>INVENTA<span className={styles.logoAccent}>.AI</span></span>
-            <p>El cerebro de compras y financiamiento de inventario para empresas en América Latina.</p>
+            <span className={styles.logo}>
+              <Logo height={28} />
+            </span>
+            <p>{t.foot_tagline}</p>
           </div>
 
           <div className={styles.footerLinksGrid}>
             <div>
-              <h5>Producto</h5>
-              <a href="#soluciones">Pronóstico de Demanda</a>
-              <a href="#soluciones">Compras Conjuntas</a>
-              <a href="#soluciones">Financiamiento de Stock</a>
-              <Link href="/dashboard/integraciones">Integraciones ERP</Link>
+              <h5>{t.foot_prod}</h5>
+              <a href="#soluciones">{t.foot_f1}</a>
+              <a href="#soluciones">{t.foot_f2}</a>
+              <a href="#soluciones">{t.foot_f3}</a>
+              <Link href="/addons">{t.foot_f4}</Link>
             </div>
             <div>
-              <h5>Empresa</h5>
-              <a href="#roi">Prueba de ROI</a>
-              <a href="#casos">Casos de Éxito</a>
-              <a href="#tecnologia">Seguridad & SLA</a>
-              <a href="#problema">El Desafío</a>
+              <h5>{t.foot_emp}</h5>
+              <a href="#roi">{t.foot_e1}</a>
+              <a href="#casos">{t.foot_e2}</a>
+              <a href="#tecnologia">{t.foot_e3}</a>
+              <a href="#problema">{t.foot_e4}</a>
             </div>
             <div>
-              <h5>Soporte & Legal</h5>
+              <h5>{t.foot_sup}</h5>
               <a href="mailto:contacto@inventa.ai">contacto@inventa.ai</a>
-              <a href="#">Términos de Servicio</a>
-              <a href="#">Política de Privacidad</a>
-              <a href="#">Estado del Sistema (Status)</a>
+              <span title={selectedLang === 'es' ? 'Disponible próximamente' : 'Coming soon'} style={{ cursor: 'default' }}>{t.foot_terms}</span>
+              <span title={selectedLang === 'es' ? 'Disponible próximamente' : 'Coming soon'} style={{ cursor: 'default' }}>{t.foot_priv}</span>
+              <a href="/api/health/schema" target="_blank" rel="noreferrer">{t.foot_status}</a>
             </div>
           </div>
         </div>
 
         <div className={styles.footerBottom}>
-          <span>© 2026 INVENTA.AI Technologies Inc. Todos los derechos reservados.</span>
-          <span>Desarrollado con estándares Enterprise B2B.</span>
+          <span>{t.foot_rights}</span>
+          <span>{t.foot_built}</span>
         </div>
       </footer>
 
@@ -775,29 +876,29 @@ export default function LandingPage() {
             {!demoSubmitted ? (
               <>
                 <div className={styles.modalHeader}>
-                  <span className={styles.modalPre}>SESIÓN ESTRATÉGICA 1:1</span>
-                  <h3>Solicitar Demo de INVENTA.AI</h3>
-                  <p>Descubre en 15 minutos cómo optimizar tu inventario y acceder a financiamiento rotativo.</p>
+                  <span className={styles.modalPre}>{t.modal_pre}</span>
+                  <h3>{t.modal_title}</h3>
+                  <p>{t.modal_sub}</p>
                 </div>
 
                 <form onSubmit={handleDemoSubmit} className={styles.demoForm}>
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
-                      <label>Nombre y Apellido *</label>
-                      <input 
-                        type="text" 
-                        required 
-                        placeholder="Ej: Carlos Mendoza" 
+                      <label>{t.modal_nombre}</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={t.modal_nombre_ph}
                         value={demoForm.nombre}
                         onChange={(e) => setDemoForm({ ...demoForm, nombre: e.target.value })}
                       />
                     </div>
                     <div className={styles.formGroup}>
-                      <label>Correo Corporativo *</label>
-                      <input 
-                        type="email" 
-                        required 
-                        placeholder="carlos@empresa.com" 
+                      <label>{t.modal_email}</label>
+                      <input
+                        type="email"
+                        required
+                        placeholder="carlos@empresa.com"
                         value={demoForm.email}
                         onChange={(e) => setDemoForm({ ...demoForm, email: e.target.value })}
                       />
@@ -806,21 +907,21 @@ export default function LandingPage() {
 
                   <div className={styles.formRow}>
                     <div className={styles.formGroup}>
-                      <label>Empresa *</label>
-                      <input 
-                        type="text" 
-                        required 
-                        placeholder="Nombre de tu empresa" 
+                      <label>{t.modal_empresa}</label>
+                      <input
+                        type="text"
+                        required
+                        placeholder={t.modal_empresa_ph}
                         value={demoForm.empresa}
                         onChange={(e) => setDemoForm({ ...demoForm, empresa: e.target.value })}
                       />
                     </div>
                     <div className={styles.formGroup}>
-                      <label>Teléfono / WhatsApp *</label>
-                      <input 
-                        type="tel" 
-                        required 
-                        placeholder="+51 987 654 321" 
+                      <label>{t.modal_tel}</label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="+51 987 654 321"
                         value={demoForm.telefono}
                         onChange={(e) => setDemoForm({ ...demoForm, telefono: e.target.value })}
                       />
@@ -828,8 +929,8 @@ export default function LandingPage() {
                   </div>
 
                   <div className={styles.formGroup}>
-                    <label>Volumen Mensual de Compras de Inventario</label>
-                    <select 
+                    <label>{t.modal_vol}</label>
+                    <select
                       value={demoForm.volumen}
                       onChange={(e) => setDemoForm({ ...demoForm, volumen: e.target.value })}
                     >
@@ -841,30 +942,30 @@ export default function LandingPage() {
                   </div>
 
                   <button type="submit" className={styles.btnSubmitDemo}>
-                    Confirmar y Agendar Demo 1:1
+                    {t.modal_submit}
                   </button>
                   <span className={styles.formDisclaimer} style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                    <IconLock size={13} /> Respetamos tu privacidad. Tus datos están protegidos con cifrado y nunca serán compartidos con terceros.
+                    <IconLock size={13} /> {t.modal_priv}
                   </span>
                 </form>
               </>
             ) : (
               <div className={styles.modalSuccess}>
                 <div className={styles.successIcon}>✓</div>
-                <h3>¡Solicitud Recibida con Éxito!</h3>
+                <h3>{t.modal_ok}</h3>
                 <p>
-                  Gracias <strong>{demoForm.nombre}</strong>. Uno de nuestros Directores de Producto te contactará a <strong>{demoForm.email}</strong> y por WhatsApp a <strong>{demoForm.telefono}</strong> para coordinar tu demo personalizada.
+                  {t.modal_ok_p1} <strong>{demoForm.nombre}</strong>. {t.modal_ok_p2} <strong>{demoForm.email}</strong> {t.modal_ok_p3} <strong>{demoForm.telefono}</strong> {t.modal_ok_p4}
                 </p>
                 <div className={styles.successDetails}>
-                  <span>Empresa: <strong>{demoForm.empresa}</strong></span>
-                  <span>Rango: <strong>{demoForm.volumen}</strong></span>
+                  <span>{t.modal_company} <strong>{demoForm.empresa}</strong></span>
+                  <span>{t.modal_range} <strong>{demoForm.volumen}</strong></span>
                 </div>
                 <div style={{ display: 'flex', gap: '10px', marginTop: '16px' }}>
-                  <Link href="/dashboard" className={styles.btnPrimaryCta} style={{ flex: 1, textAlign: 'center' }}>
-                    Ir al Dashboard mientras tanto
+                  <Link href="/overview" className={styles.btnPrimaryCta} style={{ flex: 1, textAlign: 'center' }}>
+                    {t.modal_dashboard}
                   </Link>
                   <button className={styles.btnSecondaryCta} onClick={() => { setIsDemoModalOpen(false); setDemoSubmitted(false); }}>
-                    Cerrar
+                    {t.modal_close}
                   </button>
                 </div>
               </div>

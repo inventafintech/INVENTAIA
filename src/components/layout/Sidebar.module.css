@@ -99,20 +99,25 @@
   overflow: hidden;
 }
 
-.logoIcon {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 16px;
+/* Logotipo oficial: versión completa en barra expandida, solo isotipo en colapsada */
+.brandFull {
   display: flex;
   align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  box-shadow: 0 2px 4px rgba(15, 23, 42, 0.15);
   flex-shrink: 0;
-  letter-spacing: -0.02em;
+}
+
+.brandMark {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.sidebarCollapsed .brandFull {
+  display: none;
+}
+
+.sidebarCollapsed .brandMark {
+  display: flex;
 }
 
 .brandInfo {
@@ -261,16 +266,17 @@
   text-overflow: ellipsis;
 }
 
-/* Indicador de Flecha (Chevron) */
+/* Indicador de Flecha (Chevron): apunta hacia abajo cuando el grupo está
+   contraído y hacia arriba cuando está expandido */
 .chevron {
   color: #94a3b8;
   flex-shrink: 0;
   transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  transform: rotate(-90deg);
+  transform: rotate(0deg);
 }
 
 .chevronExpanded {
-  transform: rotate(0deg);
+  transform: rotate(180deg);
   color: #475569;
 }
 
@@ -347,22 +353,11 @@
   outline-offset: 1px;
 }
 
-/* Estado Activo */
+/* Estado Activo: fondo gris claro con texto oscuro y semibold */
 .navItem.active {
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: #eef1f5;
+  color: #0f172a;
   font-weight: 600;
-}
-
-.navItem.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 3.5px;
-  background-color: #2563eb;
-  border-radius: 0 4px 4px 0;
 }
 
 /* En modo colapsado, centrar icono */
@@ -399,7 +394,7 @@
 }
 
 .navItem.active .itemIcon {
-  color: #2563eb;
+  color: #0f172a;
 }
 
 .navLabel {
@@ -541,13 +536,6 @@
 :global([data-theme='dark']) .brandHeader {
   border-bottom-color: #1e293b;
 }
-:global([data-theme='dark']) .logoIcon {
-  background: linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%);
-  color: #0f172a;
-}
-:global([data-theme='dark']) .brandName {
-  color: #f8fafc;
-}
 :global([data-theme='dark']) .brandSub,
 :global([data-theme='dark']) .groupTitle {
   color: #94a3b8;
@@ -566,11 +554,11 @@
   color: #f8fafc;
 }
 :global([data-theme='dark']) .navItem.active {
-  background-color: #1e3a8a;
-  color: #dbeafe;
+  background-color: #1e293b;
+  color: #f8fafc;
 }
 :global([data-theme='dark']) .navItem.active .itemIcon {
-  color: #93c5fd;
+  color: #f8fafc;
 }
 :global([data-theme='dark']) .itemIcon {
   color: #94a3b8;

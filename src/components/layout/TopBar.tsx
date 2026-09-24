@@ -1,8 +1,9 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Bell, Moon, Sun } from 'lucide-react';
+import { Menu, Bell, Moon, Sun } from 'lucide-react';
 import { UserDropdown } from './UserDropdown';
+import { GlobalSearch } from './GlobalSearch';
 import { useTheme } from '@/hooks/useTheme';
 import styles from './TopBar.module.css';
 
@@ -36,15 +37,7 @@ export function TopBar({
           </button>
         )}
 
-        <div className={styles.searchContainer}>
-          <Search size={16} strokeWidth={2} className={styles.searchIcon} />
-          <input
-            type="text"
-            placeholder="Buscar productos, clientes, proveedores, sucursales, ubicaciones, pedidos..."
-            className={styles.searchInput}
-            aria-label="Búsqueda global"
-          />
-        </div>
+        <GlobalSearch />
       </div>
 
       {/* Sección Derecha: Notificaciones, Modo Oscuro, Idioma, y Dropdown de Perfil */}

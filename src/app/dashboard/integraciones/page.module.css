@@ -141,11 +141,52 @@
   border-radius: 10px;
 }
 
-/* 3. Connectors Grid */
+/* 3. Connectors Grid — responsive: 1 col móvil, 2 tablet, 3 desktop, 4 ultra */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1900px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Botón destructivo secundario (Desconectar con confirmación) */
+.btnDangerOutline {
+  background: transparent !important;
+  color: #dc2626 !important;
+  border: 1px solid #fecaca !important;
+}
+
+.btnDangerOutline:hover:not(:disabled) {
+  background: #fef2f2 !important;
+  border-color: #dc2626 !important;
+}
+
+:global([data-theme='dark']) .btnDangerOutline {
+  color: #fca5a8 !important;
+  border-color: #7f1d1d !important;
+}
+
+:global([data-theme='dark']) .btnDangerOutline:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.12) !important;
 }
 
 .card {

@@ -1,22 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { resolveWhatsAppCredentials, sendWhatsAppCloudMessage } from '@/lib/dispatchers';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json().catch(() => ({}));
-    const { to, message, templateName, languageCode } = body;
+    const { to, message, templateName } = body;
 
     const integration = db.getIntegration('whatsapp');
     const tokenRecord = db.getOAuthToken('whatsapp');
 
-    const accessToken = 
-      process.env.WHATSAPP_ACCESS_TOKEN || 
-      tokenRecord?.access_token || 
-      integration?.config?.access_token;
-
-    const phoneNumberId = 
-      process.env.WHATSAPP_PHONE_NUMBER_ID || 
-      integration?.config?.phone_number_id;
+    const creds = resolveWhatsAppCredentials({
+      access_token:
+        tokenRecord?.access_token || integration?.config?.access_token,
+      phone_number_id: integration?.config?.phone_number_id,
+    });
 
     if (!to || (!message && !templateName)) {
       return NextResponse.json(
@@ -28,7 +26,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!accessToken || !phoneNumberId) {
+    if (!creds) {
       db.addLog(
         'whatsapp',
         'ERROR',
@@ -47,54 +45,31 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Build real Meta WhatsApp Cloud API payload
-    const payload: Record<string, any> = {
-      messaging_product: 'whatsapp',
-      recipient_type: 'individual',
-      to: to.replace(/[^0-9]/g, ''),
-    };
-
     if (templateName) {
-      payload.type = 'template';
-      payload.template = {
-        name: templateName,
-        language: { code: languageCode || 'es' }
-      };
-    } else {
-      payload.type = 'text';
-      payload.text = { preview_url: false, body: message };
+      return NextResponse.json(
+        { success: false, error: 'Plantillas no soportadas en este endpoint. Envía "message" de texto.' },
+        { status: 400 }
+      );
     }
 
-    // Real call to Meta Graph API
-    const metaUrl = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
-    const metaResponse = await fetch(metaUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+    // Envío real vía Meta Graph API (librería compartida con reabastecimiento)
+    const result = await sendWhatsAppCloudMessage(to, message, creds);
 
-    const metaData = await metaResponse.json();
-
-    if (!metaResponse.ok) {
-      const errorMsg = metaData.error?.message || `Meta API error HTTP ${metaResponse.status}`;
+    if (!result.ok) {
       db.addLog(
         'whatsapp',
         'ERROR',
         'SEND_MESSAGE',
         'FALLIDO',
-        `Error Meta API: ${errorMsg}`
+        `Error Meta API: ${result.error}`
       );
 
       return NextResponse.json(
         {
           success: false,
-          error: errorMsg,
-          meta_response: metaData
+          error: result.error,
         },
-        { status: metaResponse.status }
+        { status: 502 }
       );
     }
 
@@ -104,13 +79,12 @@ export async function POST(req: NextRequest) {
       'SUCCESS',
       'SEND_MESSAGE',
       'EXITOSO',
-      `Mensaje enviado a ${to}. ID: ${metaData.messages?.[0]?.id || 'OK'}`
+      `Mensaje enviado a ${to}. ID: ${result.messageId || 'OK'}`
     );
 
     return NextResponse.json({
       success: true,
-      message_id: metaData.messages?.[0]?.id,
-      contacts: metaData.contacts,
+      message_id: result.messageId,
       status: 'sent'
     });
 

@@ -30,6 +30,9 @@ interface ConnectorDef {
   id: string;
   name: string;
   category: string;
+  group: 'Marketplaces' | 'E-commerce' | 'ERP Empresarial' | 'Comunicaciones' | 'Fiscal';
+  brandLetter: string;
+  brandColor: string;
   desc: string;
   oauthSupported: boolean;
   syncEndpoint: string;
@@ -37,11 +40,31 @@ interface ConnectorDef {
   authType: string;
 }
 
+const CONNECTOR_GROUPS = ['Marketplaces', 'E-commerce', 'ERP Empresarial', 'Comunicaciones', 'Fiscal'] as const;
+
+const CREDENTIAL_FIELDS: Record<string, Array<{ key: string; label: string; placeholder: string; secret?: boolean }>> = {
+  whatsapp: [
+    { key: 'access_token', label: 'Token de acceso (Meta System User)', placeholder: 'EAAB...', secret: true },
+    { key: 'phone_number_id', label: 'Phone Number ID', placeholder: '123456789012345' },
+  ],
+  sap: [
+    { key: 'baseUrl', label: 'URL base OData (SAP_HOST)', placeholder: 'https://sap.midominio.com:44300' },
+  ],
+  woocommerce: [
+    { key: 'storeUrl', label: 'URL de la tienda', placeholder: 'https://mitienda.com' },
+    { key: 'consumerKey', label: 'Consumer Key', placeholder: 'ck_...' },
+    { key: 'consumerSecret', label: 'Consumer Secret', placeholder: 'cs_...', secret: true },
+  ],
+};
+
 const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
   {
     id: 'shopify',
     name: 'Shopify Plus',
     category: 'E-commerce B2B',
+    group: 'E-commerce',
+    brandLetter: 'S',
+    brandColor: '#16a34a',
     desc: 'OAuth 2.0 real con Shopify Admin API (/products.json, /orders.json, /inventory_levels.json). Persistencia directa en base de datos.',
     oauthSupported: true,
     syncEndpoint: '/api/integraciones/shopify/sync',
@@ -52,6 +75,9 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     id: 'mercadolibre',
     name: 'Mercado Libre',
     category: 'Marketplace Oficial',
+    group: 'Marketplaces',
+    brandLetter: 'M',
+    brandColor: '#2563eb',
     desc: 'OAuth 2.0 oficial de Mercado Libre. Sincronización de publicaciones (/users/me/items/search), ventas (/orders/search) y stock.',
     oauthSupported: true,
     syncEndpoint: '/api/integraciones/mercadolibre/sync',
@@ -59,9 +85,25 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     authType: 'OAuth 2.0 Bearer Token'
   },
   {
+    id: 'woocommerce',
+    name: 'WooCommerce',
+    category: 'E-commerce WC REST',
+    group: 'E-commerce',
+    brandLetter: 'W',
+    brandColor: '#7e22ce',
+    desc: 'WooCommerce REST API v3 con Consumer Key/Secret. Sincronización de catálogo (/products) y stock real a Supabase.',
+    oauthSupported: false,
+    syncEndpoint: '/api/integraciones/woocommerce/sync',
+    defaultEndpoint: 'https://mitienda.com/wp-json/wc/v3',
+    authType: 'Consumer Key + Secret (Basic)'
+  },
+  {
     id: 'whatsapp',
     name: 'WhatsApp Business API',
     category: 'Meta Cloud API',
+    group: 'Comunicaciones',
+    brandLetter: 'W',
+    brandColor: '#059669',
     desc: 'Meta WhatsApp Cloud API oficial (v19.0) para envío de notificaciones y alertas operacionales a almacenes y compradores.',
     oauthSupported: false,
     syncEndpoint: '/api/integraciones/whatsapp/send',
@@ -72,6 +114,9 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     id: 'sap',
     name: 'SAP S/4HANA',
     category: 'ERP Empresarial OData',
+    group: 'ERP Empresarial',
+    brandLetter: 'S',
+    brandColor: '#1d4ed8',
     desc: 'Conectores REST/OData v4 para sincronización de Catálogo de Productos (API_PRODUCT_SRV) y Socios Comerciales (API_BUSINESS_PARTNER).',
     oauthSupported: false,
     syncEndpoint: '/api/integraciones/sap/sync',
@@ -82,6 +127,9 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     id: 'amazon',
     name: 'Amazon Business',
     category: 'Marketplace SP-API',
+    group: 'Marketplaces',
+    brandLetter: 'a',
+    brandColor: '#f59e0b',
     desc: 'Conexión Selling Partner API para conciliación de reportes de inventario FBA y órdenes multicanal.',
     oauthSupported: false,
     syncEndpoint: '/api/integraciones/amazon/sync',
@@ -92,6 +140,9 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     id: 'sunat',
     name: 'SUNAT Facturación & GRE',
     category: 'Fiscal / OSE',
+    group: 'Fiscal',
+    brandLetter: 'S',
+    brandColor: '#dc2626',
     desc: 'Conexión Web Services SUNAT para emisión de Guías de Remisión Electrónicas (GRE) y Facturación Comercial.',
     oauthSupported: false,
     syncEndpoint: '/api/integraciones/sunat/sync',
@@ -129,13 +180,28 @@ export default function IntegracionesPage() {
   const [logFilter, setLogFilter] = useState<'ALL' | 'INFO' | 'WARN' | 'ERROR' | 'SUCCESS'>('ALL');
   const [logSearch, setLogSearch] = useState('');
 
+  // Stats reales (sincronizaciones hoy + última actualización)
+  const [stats, setStats] = useState<{ syncsToday: number; lastSyncAt: string | null }>({ syncsToday: 0, lastSyncAt: null });
+
+  // Modal de credenciales manuales (WhatsApp / SAP / WooCommerce)
+  const [credProvider, setCredProvider] = useState<string | null>(null);
+  const [credValues, setCredValues] = useState<Record<string, string>>({});
+  const [credLoading, setCredLoading] = useState(false);
+  const [credError, setCredError] = useState<string | null>(null);
+  const [credOk, setCredOk] = useState<string | null>(null);
+
+  // Confirmación de desconexión (two-step)
+  const [disconnectConfirm, setDisconnectConfirm] = useState<string | null>(null);
+  const [disconnecting, setDisconnecting] = useState(false);
+
   // 1. Fetch real integrations and logs
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [resInt, resLogs] = await Promise.all([
+      const [resInt, resLogs, resStats] = await Promise.all([
         fetch('/api/integraciones', { cache: 'no-store' }),
-        fetch('/api/integraciones/logs', { cache: 'no-store' })
+        fetch('/api/integraciones/logs', { cache: 'no-store' }),
+        fetch('/api/integraciones/stats', { cache: 'no-store' })
       ]);
 
       if (resInt.ok) {
@@ -150,6 +216,11 @@ export default function IntegracionesPage() {
       if (resLogs.ok) {
         const logsData = await resLogs.json();
         setLogs(logsData.logs || []);
+      }
+
+      if (resStats.ok) {
+        const statsData = await resStats.json();
+        setStats({ syncsToday: statsData.syncsToday || 0, lastSyncAt: statsData.lastSyncAt || null });
       }
     } catch (err) {
       console.error('Error fetching integration data:', err);
@@ -286,6 +357,75 @@ export default function IntegracionesPage() {
     }
   };
 
+  // 4b. Revocar acceso de forma segura (two-step, con limpieza real)
+  const handleDisconnect = async (connectorId: string) => {
+    if (disconnectConfirm !== connectorId) {
+      setDisconnectConfirm(connectorId);
+      return;
+    }
+    setDisconnectConfirm(null);
+    setDisconnecting(true);
+    try {
+      const res = await fetch(`/api/integraciones/${encodeURIComponent(connectorId)}`, { method: 'DELETE' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'No se pudo desconectar.');
+      setSyncState(prev => ({
+        ...prev,
+        [connectorId]: { loading: false, success: '✓ Acceso revocado. Tokens y configuración eliminados.' }
+      }));
+      await loadData();
+    } catch (err: any) {
+      setSyncState(prev => ({
+        ...prev,
+        [connectorId]: { loading: false, error: err.message || 'Error al desconectar' }
+      }));
+    } finally {
+      setDisconnecting(false);
+    }
+  };
+
+  // 4c. Guardar credenciales manuales con verificación viva
+  const openCredModal = (provider: string) => {
+    setCredProvider(provider);
+    setCredValues({});
+    setCredError(null);
+    setCredOk(null);
+  };
+
+  const handleSaveCredentials = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!credProvider) return;
+    const fields = CREDENTIAL_FIELDS[credProvider] || [];
+    for (const f of fields) {
+      if (!credValues[f.key]?.trim()) {
+        setCredError(`Falta el campo obligatorio: ${f.label}.`);
+        return;
+      }
+    }
+    setCredLoading(true);
+    setCredError(null);
+    setCredOk(null);
+    try {
+      const res = await fetch('/api/integraciones/credentials', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider: credProvider, credentials: credValues })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || 'No se pudo guardar.');
+      setCredOk(data?.message || 'Conectado y verificado.');
+      await loadData();
+      setTimeout(() => {
+        setCredProvider(null);
+        setCredOk(null);
+      }, 1400);
+    } catch (err: any) {
+      setCredError(err?.message || 'No se pudo guardar.');
+    } finally {
+      setCredLoading(false);
+    }
+  };
+
   // Start Shopify OAuth
   const handleStartShopifyOAuth = () => {
     if (!shopifyShopDomain.trim()) {
@@ -398,11 +538,16 @@ export default function IntegracionesPage() {
         <div className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Última Sincronización</span>
           <span className={styles.kpiValue} style={{ fontSize: '15px', marginTop: '4px' }}>
-            {logs.length > 0 ? new Date(logs[0].fecha).toLocaleTimeString() : 'Sin registros'}
+            {stats.lastSyncAt ? new Date(stats.lastSyncAt).toLocaleTimeString() : (logs.length > 0 ? new Date(logs[0].fecha).toLocaleTimeString() : 'Sin registros')}
           </span>
           <span className={`${styles.kpiStatus} ${styles.statusBlue}`}>
-            {logs.length > 0 ? new Date(logs[0].fecha).toLocaleDateString() : 'A la espera de ejecución'}
+            {stats.lastSyncAt ? new Date(stats.lastSyncAt).toLocaleDateString() : (logs.length > 0 ? new Date(logs[0].fecha).toLocaleDateString() : 'A la espera de ejecución')}
           </span>
+        </div>
+        <div className={styles.kpiCard}>
+          <span className={styles.kpiLabel}>Sincronizaciones Hoy</span>
+          <span className={styles.kpiValue}>{stats.syncsToday}</span>
+          <span className={`${styles.kpiStatus} ${styles.statusGreen}`}>Eventos de integración hoy</span>
         </div>
         <div className={styles.kpiCard}>
           <span className={styles.kpiLabel}>Logs de Auditoría</span>
@@ -448,17 +593,46 @@ export default function IntegracionesPage() {
         </button>
       </div>
 
-      {/* TAB 1: CONECTORES */}
+      {/* TAB 1: CONECTORES (agrupados por categoría) */}
       {activeTab === 'conectores' && (
-        <div className={styles.grid}>
-          {CONNECTOR_DEFINITIONS.map((connector) => {
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+          {CONNECTOR_GROUPS.map((group) => {
+            const groupConnectors = CONNECTOR_DEFINITIONS.filter((c) => c.group === group);
+            if (groupConnectors.length === 0) return null;
+            return (
+              <section key={group} aria-label={`Categoría ${group}`}>
+                <h2 style={{ fontSize: '12px', fontWeight: 800, letterSpacing: '0.06em', color: 'var(--ink)', opacity: 0.75, margin: '0 0 10px 2px', textTransform: 'uppercase' }}>
+                  {group}
+                </h2>
+                <div className={styles.grid}>
+                  {groupConnectors.map((connector) => {
             const intData = integrations[connector.id];
+            const isActive = intData?.status === 'configured' || intData?.status === 'active';
             const syncInfo = syncState[connector.id];
 
             return (
               <div key={connector.id} className={styles.card}>
                 <div className={styles.cardTop}>
                   <div className={styles.logoRow}>
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        width: '34px',
+                        height: '34px',
+                        borderRadius: '9px',
+                        background: `${connector.brandColor}1a`,
+                        border: `1px solid ${connector.brandColor}55`,
+                        color: connector.brandColor,
+                        fontWeight: 800,
+                        fontSize: '16px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {connector.brandLetter}
+                    </span>
                     <span className={styles.appName}>{connector.name}</span>
                     {renderStatusBadge(connector)}
                   </div>
@@ -576,8 +750,32 @@ export default function IntegracionesPage() {
                   >
                     Ajustes
                   </button>
+                  {CREDENTIAL_FIELDS[connector.id] && (
+                    <button
+                      type="button"
+                      className={styles.btnAction}
+                      onClick={() => openCredModal(connector.id)}
+                    >
+                      Configurar
+                    </button>
+                  )}
+                  {isActive && (
+                    <button
+                      type="button"
+                      className={`${styles.btnAction} ${styles.btnDangerOutline}`}
+                      disabled={disconnecting}
+                      onClick={() => handleDisconnect(connector.id)}
+                      title="Revocar tokens y configuración"
+                    >
+                      {disconnectConfirm === connector.id ? '¿Confirmar desconexión?' : 'Desconectar'}
+                    </button>
+                  )}
                 </div>
               </div>
+            );
+          })}
+                </div>
+              </section>
             );
           })}
         </div>
@@ -1009,6 +1207,92 @@ export default function IntegracionesPage() {
                 Guardar en Base de Datos
               </button>
             </div>
+          </div>
+        </>
+      )}
+
+      {/* Modal de credenciales manuales (verificación viva) */}
+      {credProvider && (
+        <>
+          <div className={styles.drawerBackdrop} onClick={() => !credLoading && setCredProvider(null)} />
+          <div
+            className={styles.drawer}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Configurar ${credProvider}`}
+            style={{ maxWidth: '440px', margin: '10vh auto', height: 'auto', maxHeight: '86vh' }}
+          >
+            <div className={styles.drawerHeader}>
+              <span className={styles.drawerTitle}>
+                Conectar {CONNECTOR_DEFINITIONS.find((c) => c.id === credProvider)?.name || credProvider}
+              </span>
+              <button
+                type="button"
+                className={styles.drawerClose}
+                onClick={() => !credLoading && setCredProvider(null)}
+                aria-label="Cerrar"
+              >
+                ×
+              </button>
+            </div>
+            <form
+              className={styles.drawerBody}
+              onSubmit={handleSaveCredentials}
+              style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
+            >
+              <p style={{ fontSize: '13px', color: 'var(--ink)', opacity: 0.75, margin: 0 }}>
+                Las llaves se verifican en vivo contra la API oficial antes de guardarse. Nada se almacena sin validar.
+              </p>
+              {(CREDENTIAL_FIELDS[credProvider] || []).map((f) => (
+                <label key={f.key} style={{ display: 'flex', flexDirection: 'column', gap: '6px', fontSize: '12px', fontWeight: 600 }}>
+                  {f.label} *
+                  <input
+                    type={f.secret ? 'password' : 'text'}
+                    value={credValues[f.key] || ''}
+                    onChange={(e) => setCredValues((prev) => ({ ...prev, [f.key]: e.target.value }))}
+                    placeholder={f.placeholder}
+                    required
+                    autoComplete="off"
+                    style={{
+                      padding: '10px 12px',
+                      minHeight: '44px',
+                      borderRadius: '8px',
+                      border: '1px solid var(--line)',
+                      background: 'var(--card)',
+                      color: 'var(--ink)',
+                      fontSize: '14px',
+                      boxSizing: 'border-box',
+                    }}
+                  />
+                </label>
+              ))}
+              {credError && (
+                <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+                  {credError}
+                </div>
+              )}
+              {credOk && (
+                <div role="status" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+                  {credOk}
+                </div>
+              )}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  className={styles.btnAction}
+                  onClick={() => !credLoading && setCredProvider(null)}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className={styles.btnPrimary}
+                  disabled={credLoading}
+                >
+                  {credLoading ? 'Verificando…' : 'Verificar y guardar'}
+                </button>
+              </div>
+            </form>
           </div>
         </>
       )}

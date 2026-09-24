@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
+import { NexoCommandPalette } from '@/components/nexo/NexoCommandPalette';
 import { useAppShell } from '@/hooks/useAppShell';
 import { NotificationProvider } from '@/context/NotificationContext';
 import styles from './AppShell.module.css';
@@ -69,6 +70,8 @@ export function AppShell({ children }: AppShellProps) {
           </main>
         </div>
       </div>
+      {/* Nexo: copiloto flotante global (fuera del flujo del layout) */}
+      <NexoCommandPalette />
     </NotificationProvider>
   );
 }

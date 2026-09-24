@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
+import { Logo } from '@/components/brand/Logo';
 import styles from './page.module.css';
 
 // Diccionario empresarial de traducción de errores OAuth y NextAuth
@@ -23,7 +24,6 @@ const AUTH_ERROR_MESSAGES: Record<string, string> = {
 function LoginContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
-  const [devLoading, setDevLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // 1. Intercepción y limpieza inmediata de URL (?error=)
@@ -41,7 +41,7 @@ function LoginContent() {
 
   // 2. Manejo de inicio de sesión real con Google OAuth 2.0 y prevención de múltiples clics
   const handleGoogleLogin = async () => {
-    if (loading || devLoading) return; // Prevención de doble clic
+    if (loading) return; // Prevención de doble clic
     try {
       setLoading(true);
       setErrorMessage(null);
@@ -52,26 +52,6 @@ function LoginContent() {
       setLoading(false);
     }
   };
-
-  // 3. Inicio de sesión de desarrollo local (Credentials Provider)
-  const handleDevLogin = async () => {
-    if (loading || devLoading) return;
-    try {
-      setDevLoading(true);
-      setErrorMessage(null);
-      await signIn('credentials', {
-        email: 'jmgonzalez.contact@gmail.com',
-        name: 'José González',
-        callbackUrl: '/onboarding',
-      });
-    } catch (err) {
-      console.error('Error en login de desarrollo:', err);
-      setErrorMessage('Hubo un problema al iniciar sesión de prueba.');
-      setDevLoading(false);
-    }
-  };
-
-  const isDevelopment = process.env.NODE_ENV === 'development';
 
   return (
     <>
@@ -113,7 +93,7 @@ function LoginContent() {
         {/* Brand */}
         <div className={styles.brand}>
           <span className={styles.logo}>
-            INVENTA<span className={styles.logoAccent}>.AI</span>
+            <Logo height={30} tone="light" />
           </span>
           <span className={styles.badge}>Enterprise B2B</span>
         </div>
@@ -127,7 +107,7 @@ function LoginContent() {
         <button
           type="button"
           onClick={handleGoogleLogin}
-          disabled={loading || devLoading}
+          disabled={loading}
           className={styles.btnGoogle}
           aria-busy={loading}
         >
@@ -174,32 +154,6 @@ function LoginContent() {
             </>
           )}
         </button>
-
-        {/* Botón de Acceso Rápido / Demo Enterprise */}
-        <div className={styles.noticeBox} style={{ marginTop: '16px' }}>
-          <div className={styles.noticeTitle} style={{ color: '#0f172a', fontWeight: 700 }}>
-            Acceso Rápido de Demostración
-          </div>
-          <p style={{ margin: '4px 0 10px 0', fontSize: '12px', color: '#64748b' }}>
-            Ingresa directamente con el perfil de Director de Operaciones para explorar todas las funcionalidades:
-          </p>
-          <a
-            href="/api/auth/demo?callbackUrl=/panel/resumen"
-            className={styles.btnDemo}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              textDecoration: 'none',
-              textAlign: 'center',
-              width: '100%',
-              boxSizing: 'border-box',
-            }}
-          >
-            Acceder como José González (Director de Operaciones)
-          </a>
-        </div>
 
         <div className={styles.footerText}>
           Al continuar, aceptas nuestros{' '}

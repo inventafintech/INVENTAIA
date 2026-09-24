@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import styles from './page.module.css';
+import { useSearchQuery } from '@/hooks/useSearchQuery';
 
 interface InventoryItem {
   id: string;
@@ -32,7 +33,7 @@ interface Category {
   name: string;
 }
 
-export default function InventarioPage() {
+export function InventarioContent() {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [metrics, setMetrics] = useState<InventoryMetrics>({
     totalValue: 55009.00,
@@ -43,9 +44,15 @@ export default function InventarioPage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Filters
-  const [searchTerm, setSearchTerm] = useState<string>('');
+  // Filters (q inicial desde la búsqueda global ?q=)
+  const initialQ = useSearchQuery();
+  const [searchTerm, setSearchTerm] = useState<string>(initialQ);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+
+  // Sincronizar con ?q= de la búsqueda global (navegación entre resultados)
+  useEffect(() => {
+    setSearchTerm(initialQ);
+  }, [initialQ]);
 
   // Modal
   const [newSkuModal, setNewSkuModal] = useState<boolean>(false);
@@ -385,5 +392,13 @@ export default function InventarioPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function InventarioPage() {
+  return (
+    <Suspense fallback={null}>
+      <InventarioContent />
+    </Suspense>
   );
 }

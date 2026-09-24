@@ -2,6 +2,7 @@ node_modules
 .git
 tests
 .next
+web
 /api/
 /ai-engine/
 .data

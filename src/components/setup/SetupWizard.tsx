@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Logo } from '@/components/brand/Logo';
 import {
   Globe,
   Building2,
@@ -179,11 +180,11 @@ export function SetupWizard() {
         }),
       });
 
-      // Redirigir al Centro de Control Ejecutivo
-      router.push('/panel/resumen');
+      // Redirigir al Resumen del PANEL
+      router.push('/overview');
     } catch (err) {
       console.error('Error guardando configuración:', err);
-      router.push('/panel/resumen');
+      router.push('/overview');
     } finally {
       setSaving(false);
     }
@@ -202,11 +203,10 @@ export function SetupWizard() {
       {/* Header Superior */}
       <header className={styles.header}>
         <div className={styles.brand}>
-          <div className={styles.logoIcon}>I.AI</div>
-          <span className={styles.brandName}>INVENTA.AI</span>
+          <Logo height={24} tone="light" />
           <span className={styles.brandTag}>Asistente de Configuración</span>
         </div>
-        <Link href="/panel/resumen" className={styles.exitLink}>
+        <Link href="/overview" className={styles.exitLink}>
           Omitir e ir al Panel →
         </Link>
       </header>

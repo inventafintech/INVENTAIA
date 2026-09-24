@@ -44,6 +44,28 @@ export async function GET(req: NextRequest) {
     const userWorkspaces = db.getUserWorkspaces(user.id);
     const activeWorkspace = userWorkspaces[0] || null;
 
+    // 4b. Si la cuenta exige segundo factor, dejar la sesión pendiente.
+    // Lee columnas o blob en `image` (automigración sin SQL previo).
+    try {
+      const { createClient } = await import('@/utils/supabase/server');
+      const { readTwoFactorState } = await import('@/lib/twoFactorStore');
+      const supabase = await createClient();
+      const { data: secRow } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', profile.email)
+        .maybeSingle();
+      if (readTwoFactorState(secRow)?.enabled) {
+        await SessionManager.createPendingTwoFactor(secRow.id, profile.email);
+        const verifyUrl = new URL('/login/verify-2fa', req.url);
+        verifyUrl.searchParams.set('callbackUrl', activeWorkspace ? '/dashboard' : '/onboarding');
+        verifyUrl.searchParams.set('flow', 'cookie');
+        return NextResponse.redirect(verifyUrl);
+      }
+    } catch {
+      // Ante cualquier fallo, continuar con el flujo normal
+    }
+
     // 5. Crear sesión en cookie HTTP-only
     await SessionManager.createSession({
       userId: user.id,

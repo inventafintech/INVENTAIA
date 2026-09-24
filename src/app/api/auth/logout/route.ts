@@ -10,5 +10,5 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   await SessionManager.destroySession();
-  return NextResponse.redirect(new URL('/login', req.url));
+  return NextResponse.redirect(new URL('/', req.url));
 }

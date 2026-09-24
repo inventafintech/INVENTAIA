@@ -1,7 +1,7 @@
 import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { db } from '@/lib/db';
+import { readTwoFactorState } from '@/lib/twoFactorStore';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,32 +19,7 @@ export const authOptions: NextAuthOptions = {
       },
     }),
 
-    // 2. Proveedor de credenciales para acceso demo / corporativo
-    CredentialsProvider({
-      id: 'credentials',
-      name: 'Acceso Corporativo Demo',
-      credentials: {
-        email: { label: 'Email', type: 'text' },
-        name: { label: 'Nombre', type: 'text' },
-      },
-      async authorize(credentials) {
-        const email = credentials?.email || 'jmgonzalez.contact@gmail.com';
-        const name = credentials?.name || 'José González';
-        const user = db.upsertUser({
-          email,
-          name,
-          avatar_url:
-            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          google_id: `demo-${Date.now()}`,
-        });
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.avatar_url,
-        };
-      },
-    }),
+    // Único proveedor autorizado: Google OAuth 2.0 (sin bypass demo).
   ],
   pages: {
     signIn: '/login',
@@ -71,13 +46,15 @@ export const authOptions: NextAuthOptions = {
         const { data: existing } = await supabase.from('users').select('*').eq('email', user.email).single();
         
         if (existing) {
-           const { data: updated } = await supabase.from('users').update({
-             name: userData.name,
-             avatar_url: userData.avatar_url,
-             google_id: userData.google_id,
-             updated_at: new Date().toISOString()
-           }).eq('id', existing.id).select().single();
-           dbUser = updated || existing;
+            // No sobrescribir un avatar personalizado (data URL) con la foto de Google
+            const keepCustomAvatar = (existing as any)?.avatar_url?.startsWith('data:');
+            const { data: updated } = await supabase.from('users').update({
+              name: userData.name,
+              ...(keepCustomAvatar ? {} : { avatar_url: userData.avatar_url }),
+              google_id: userData.google_id,
+              updated_at: new Date().toISOString()
+            }).eq('id', existing.id).select().single();
+            dbUser = updated || existing;
         } else {
            const id = `usr-${Date.now()}`;
            const { data: inserted } = await supabase.from('users').insert({ id, ...userData }).select().single();
@@ -123,6 +100,8 @@ export const authOptions: NextAuthOptions = {
           token.workspace_id = session.workspace.id;
         }
         if (session.hasWorkspace) token.hasWorkspace = true;
+        // Confirmación del segundo factor tras verificar el TOTP en /login/verify-2fa
+        if ((session as any).twoFactorVerified === true) token.twoFactorVerified = true;
       }
 
       if (token.id) {
@@ -130,6 +109,28 @@ export const authOptions: NextAuthOptions = {
         const supabase = await createClient();
         
         const { data: dbUser } = await supabase.from('users').select('*').eq('id', token.id as string).single();
+
+        // La BD manda: así useSession().update() refresca nombre/avatar
+        // del header en caliente tras guardar el perfil.
+        if (dbUser) {
+          if (dbUser.name) token.name = dbUser.name;
+          // NUNCA guardar data URLs en el JWT: inflan la cookie de sesión
+          // más allá del límite de headers y provocan 494 REQUEST_HEADER_TOO_LARGE.
+          // El avatar pesado vive solo en la BD y el header lo lee de /api/session.
+          const dbAvatar = (dbUser as any).avatar_url as string | undefined;
+          if (dbAvatar && !dbAvatar.startsWith('data:')) {
+            token.picture = dbAvatar;
+          } else if (typeof token.picture === 'string' && token.picture.startsWith('data:')) {
+            delete (token as any).picture;
+          }
+          // Flag de 2FA para enforcement en middleware (sin consultas extra).
+          // Lee columnas o blob en `image` (automigración); nunca falla el login.
+          try {
+            (token as any).twoFaEnabled = Boolean(readTwoFactorState(dbUser)?.enabled);
+          } catch {
+            (token as any).twoFaEnabled = Boolean((dbUser as any)?.two_factor_enabled);
+          }
+        }
         
         if (dbUser?.workspace_id) {
           token.workspace_id = dbUser.workspace_id;

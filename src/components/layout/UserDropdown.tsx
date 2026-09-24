@@ -12,6 +12,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import styles from './UserDropdown.module.css';
+import { subscribeProfileUpdates } from '@/lib/profileEvents';
 
 /**
  * Función robusta para calcular iniciales:
@@ -80,8 +81,14 @@ export function UserDropdown() {
 
     loadRealSession();
 
+    // Refrescar en caliente cuando el perfil se actualiza (sin recargar)
+    const unsubscribe = subscribeProfileUpdates(() => {
+      loadRealSession();
+    });
+
     return () => {
       isMounted = false;
+      unsubscribe();
     };
   }, []);
 
@@ -96,9 +103,10 @@ export function UserDropdown() {
     dbUser?.email ||
     '';
 
+  // La BD manda: el JWT de NextAuth nunca transporta data URLs (límite de cookies/494)
   const userAvatar =
-    nextAuthSession?.user?.image ||
     dbUser?.avatar_url ||
+    nextAuthSession?.user?.image ||
     null;
 
   const initials = getInitials(
@@ -144,11 +152,11 @@ export function UserDropdown() {
     }
 
     try {
-      // 2. Destruir sesión NextAuth y redirigir limpiamente
-      await signOut({ callbackUrl: '/login', redirect: true });
+      // 2. Destruir sesión NextAuth y redirigir al landing principal
+      await signOut({ callbackUrl: '/', redirect: true });
     } catch (err) {
       console.error('Error en signOut de NextAuth:', err);
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   }, [isSigningOut]);
 

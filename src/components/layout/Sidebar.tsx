@@ -4,6 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { Logo } from '@/components/brand/Logo';
 import { NAVIGATION_CONFIG, NavGroupConfig, NavItemConfig } from '@/config/navigationConfig';
 import { useSafeNotificationStore } from '@/context/NotificationContext';
 
@@ -50,7 +51,9 @@ export function Sidebar({
     });
   };
 
-  // Estado de los acordeones: todas las categorías abiertas por defecto
+  // Estado de los acordeones: se restaura desde localStorage para que la
+  // navegación client-side (que remonta el shell en cada página) conserve los
+  // grupos tal como los dejó el usuario; por defecto todo abierto.
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     NAVIGATION_CONFIG.reduce((acc, group) => {
       acc[group.id] = true;
@@ -58,11 +61,31 @@ export function Sidebar({
     }, {} as Record<string, boolean>)
   );
 
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('inventa_sidebar_groups');
+      if (saved) {
+        const parsed = JSON.parse(saved) as Record<string, boolean>;
+        setOpenGroups((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch {
+      // Fallback seguro para SSR
+    }
+  }, []);
+
   const toggleGroup = (groupId: string) => {
-    setOpenGroups((prev) => ({
-      ...prev,
-      [groupId]: !prev[groupId],
-    }));
+    setOpenGroups((prev) => {
+      const next = {
+        ...prev,
+        [groupId]: !prev[groupId],
+      };
+      try {
+        localStorage.setItem('inventa_sidebar_groups', JSON.stringify(next));
+      } catch {
+        // Fallback seguro
+      }
+      return next;
+    });
   };
 
   // Cierre accesible del menú con la tecla 'Escape' en dispositivos móviles
@@ -151,11 +174,13 @@ export function Sidebar({
         {/* Encabezado Corporativo Enterprise */}
         <div className={styles.brandHeader}>
           <div className={styles.brandLeft}>
-            <div className={styles.logoIcon} aria-hidden="true" title="INVENTA.AI">
-              <span>I</span>
-            </div>
+            <span className={styles.brandFull}>
+              <Logo height={26} />
+            </span>
+            <span className={styles.brandMark}>
+              <Logo variant="mark" height={30} />
+            </span>
             <div className={styles.brandInfo}>
-              <span className={styles.brandName}>INVENTA.AI</span>
               <span className={styles.brandSub}>Cerebro de Compras</span>
             </div>
           </div>
@@ -218,7 +243,7 @@ export function Sidebar({
                             title={
                               isCollapsed
                                 ? `${item.label}${badgeCount > 0 ? ` (${badgeCount > 99 ? '99+' : badgeCount})` : ''}`
-                                : undefined
+                                : item.label
                             }
                             aria-label={collapsedA11yLabel}
                             aria-current={active ? 'page' : undefined}

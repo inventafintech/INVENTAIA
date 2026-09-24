@@ -1,0 +1,52 @@
+/* Logotipo oficial INVENTA.AI — responde al tema global [data-theme] */
+
+.logo {
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Tinta principal: azul marino profundo en claro, casi blanco en oscuro */
+.ink {
+  fill: #0b1b33;
+}
+
+/* Acento índigo vibrante (barras + .AI) */
+.accent {
+  fill: #4f46e5;
+}
+
+.accentText {
+  fill: #4f46e5;
+}
+
+.wordmark {
+  user-select: none;
+}
+
+:global([data-theme='dark']) .ink {
+  fill: #f8fafc;
+}
+
+:global([data-theme='dark']) .accent,
+:global([data-theme='dark']) .accentText {
+  fill: #818cf8;
+}
+
+/* Tonos forzados (superficies siempre claras u oscuras, van al final para prevalecer) */
+.toneLight .ink {
+  fill: #0b1b33;
+}
+
+.toneLight .accent,
+.toneLight .accentText {
+  fill: #4f46e5;
+}
+
+.toneDark .ink {
+  fill: #f8fafc;
+}
+
+.toneDark .accent,
+.toneDark .accentText {
+  fill: #818cf8;
+}

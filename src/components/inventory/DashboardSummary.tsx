@@ -101,10 +101,10 @@ function EmptyState({ text }: { text: string }) {
 }
 
 const ACTIONS = [
-  { href: '/inventario/recibos', title: 'Recibir stock', desc: 'Ingreso de mercadería al almacén' },
-  { href: '/inventario/ajustes', title: 'Ajuste de stock', desc: 'Correcciones y regularizaciones' },
-  { href: '/inventario/despachos', title: 'Despachar stock', desc: 'Salidas y entregas de stock' },
-  { href: '/inventario/actual', title: 'Ver inventario', desc: 'Maestro de inventario valorizado' },
+  { href: '/inventory/incoming', title: 'Recibir stock', desc: 'Ingreso de mercadería al almacén' },
+  { href: '/inventory/stock-adjustments', title: 'Ajuste de stock', desc: 'Correcciones y regularizaciones' },
+  { href: '/inventory/outgoing', title: 'Despachar stock', desc: 'Salidas y entregas de stock' },
+  { href: '/inventory/inventory-items', title: 'Ver inventario', desc: 'Maestro de inventario valorizado' },
 ] as const;
 
 export default function DashboardSummary() {
@@ -517,7 +517,7 @@ export default function DashboardSummary() {
         <div className={styles.tableCard}>
           <div className={styles.tableHeadRow}>
             <h2 className={styles.tableTitle}>Resumen de alertas</h2>
-            <Link href="/estrategia/riesgo-quiebre" className={styles.viewAll}>
+            <Link href="/stock-alerts" className={styles.viewAll}>
               Ver todo →
             </Link>
           </div>

@@ -25,6 +25,8 @@ export interface SessionData {
 }
 
 export const SESSION_COOKIE_NAME = 'inventa_session';
+export const PENDING_2FA_COOKIE_NAME = 'inventa_2fa_pending';
+const PENDING_2FA_TTL_MS = 10 * 60 * 1000; // 10 minutos
 const SESSION_SECRET =
   process.env.JWT_SECRET ||
   process.env.SESSION_SECRET ||
@@ -126,6 +128,43 @@ export class SessionManager {
       workspaceName,
       role,
     });
+  }
+
+  /**
+   * Crea una marca temporal firmada de "2FA pendiente" (10 min) para el flujo
+   * de login con segundo factor. NO otorga acceso: solo habilita la
+   * verificación del código TOTP en /login/verify-2fa.
+   */
+  public static async createPendingTwoFactor(userId: string, email: string): Promise<void> {
+    const payload = Buffer.from(JSON.stringify({ userId, email, createdAt: Date.now() })).toString('base64');
+    const cookieStore = await cookies();
+    cookieStore.set(PENDING_2FA_COOKIE_NAME, signData(payload), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+      maxAge: 10 * 60,
+    });
+  }
+
+  public static async getPendingTwoFactor(): Promise<{ userId: string; email: string } | null> {
+    try {
+      const cookieStore = await cookies();
+      const cookie = cookieStore.get(PENDING_2FA_COOKIE_NAME);
+      if (!cookie?.value) return null;
+      const verified = verifyData(cookie.value);
+      if (!verified) return null;
+      const data = JSON.parse(Buffer.from(verified, 'base64').toString('utf-8'));
+      if (!data?.userId || Date.now() - (data.createdAt || 0) > PENDING_2FA_TTL_MS) return null;
+      return { userId: data.userId, email: data.email || '' };
+    } catch {
+      return null;
+    }
+  }
+
+  public static async clearPendingTwoFactor(): Promise<void> {
+    const cookieStore = await cookies();
+    cookieStore.delete(PENDING_2FA_COOKIE_NAME);
   }
 
   /**

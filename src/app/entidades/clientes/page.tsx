@@ -1,19 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Users, Building, CreditCard, ShoppingCart } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
+import { CLIENTS } from '@/data/businessDirectory';
+import { useSearchQuery } from '@/hooks/useSearchQuery';
 
-const CLIENTS = [
-  { id: 'CLI-01', name: 'Supermercados Peruanos S.A.', ruc: '20100070970', canal: 'Moderna / Retail', activeOrders: 14, creditLine: 'S/ 250,000', paymentTerms: 'Factura 30d', status: 'Activo' },
-  { id: 'CLI-02', name: 'Cencosud Retail Perú S.A.', ruc: '20109072177', canal: 'Moderna / Retail', activeOrders: 9, creditLine: 'S/ 180,000', paymentTerms: 'Factura 45d', status: 'Activo' },
-  { id: 'CLI-03', name: 'Tiendas Mass / InRetail', ruc: '20512808034', canal: 'Hard Discount', activeOrders: 22, creditLine: 'S/ 120,000', paymentTerms: 'Factura 15d', status: 'Activo' },
-  { id: 'CLI-04', name: 'Distribuidora Mayorista El Sol', ruc: '20498112340', canal: 'Tradicional', activeOrders: 5, creditLine: 'S/ 60,000', paymentTerms: 'Contado', status: 'Activo' },
-  { id: 'CLI-05', name: 'Minimarkets Pronto Express', ruc: '20601248991', canal: 'Conveniencia', activeOrders: 3, creditLine: 'S/ 35,000', paymentTerms: 'Factura 7d', status: 'Al día' },
-];
+function ClientesContent() {
+  const initialQ = useSearchQuery();
+  const [searchTerm, setSearchTerm] = useState(initialQ);
 
-export default function ClientesPage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  // Sincronizar con ?q= de la búsqueda global (navegación entre resultados)
+  useEffect(() => {
+    setSearchTerm(initialQ);
+  }, [initialQ]);
 
   const filtered = CLIENTS.filter(cli =>
     cli.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -94,5 +94,13 @@ export default function ClientesPage() {
         </table>
       </div>
     </div>
+  );
+}
+
+export default function ClientesPage() {
+  return (
+    <Suspense fallback={null}>
+      <ClientesContent />
+    </Suspense>
   );
 }

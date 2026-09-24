@@ -1,18 +1,19 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { MapPin, Warehouse, Layers, CheckCircle2 } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
+import { LOCATIONS } from '@/data/businessDirectory';
+import { useSearchQuery } from '@/hooks/useSearchQuery';
 
-const LOCATIONS = [
-  { id: 'LOC-01', name: 'Almacén Central Lima', code: 'ALM-CEN-01', zone: 'Zona Norte / Callao', capacity: '2,500 m³', occupation: '72%', status: 'Operativo', skus: 840 },
-  { id: 'LOC-02', name: 'Centro de Distribución Sur', code: 'CD-SUR-02', zone: 'Lurín / Panamericana', capacity: '1,500 m³', occupation: '58%', status: 'Operativo', skus: 520 },
-  { id: 'LOC-03', name: 'Depósito Aduanero Callao', code: 'DEP-ADU-03', zone: 'Terminal Portuario', capacity: '800 m³', occupation: '35%', status: 'Operativo', skus: 110 },
-  { id: 'LOC-04', name: 'Almacén Frío & Perecibles', code: 'ALM-FRIO-04', zone: 'Ate Vitarte', capacity: '600 m³', occupation: '88%', status: 'Alerta Alta Ocupación', skus: 95 },
-];
+function UbicacionesContent() {
+  const initialQ = useSearchQuery();
+  const [searchTerm, setSearchTerm] = useState(initialQ);
 
-export default function UbicacionesPage() {
-  const [searchTerm, setSearchTerm] = useState('');
+  // Sincronizar con ?q= de la búsqueda global (navegación entre resultados)
+  useEffect(() => {
+    setSearchTerm(initialQ);
+  }, [initialQ]);
 
   const filtered = LOCATIONS.filter(loc =>
     loc.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -99,5 +100,13 @@ export default function UbicacionesPage() {
         </table>
       </div>
     </div>
+  );
+}
+
+export default function UbicacionesPage() {
+  return (
+    <Suspense fallback={null}>
+      <UbicacionesContent />
+    </Suspense>
   );
 }

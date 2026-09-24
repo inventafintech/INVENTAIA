@@ -34,6 +34,8 @@ export default function ReabastecimientoPage() {
   // Execution states
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [approvingAll, setApprovingAll] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [connectorsOk, setConnectorsOk] = useState<boolean | null>(null);
   const [resultsModal, setResultsModal] = useState<{
     open: boolean;
     count: number;
@@ -61,6 +63,16 @@ export default function ReabastecimientoPage() {
 
   useEffect(() => {
     fetchRestockData();
+    // Estado real de conectores (regla del core: mostrar "Pendiente de configuración")
+    fetch('/api/integraciones', { cache: 'no-store' })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        const list: Array<{ provider: string; status: string }> = data?.integrations || [];
+        const wa = list.find((i) => i.provider === 'whatsapp')?.status === 'ACTIVE';
+        const sap = list.find((i) => i.provider === 'sap')?.status === 'ACTIVE';
+        setConnectorsOk(wa && sap);
+      })
+      .catch(() => setConnectorsOk(false));
   }, []);
 
   // Filtered items
@@ -91,6 +103,7 @@ export default function ReabastecimientoPage() {
   const handleGenerateOC = async (item: RestockItem) => {
     try {
       setProcessingId(item.id);
+      setErrorMessage(null);
       const res = await fetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -106,11 +119,12 @@ export default function ReabastecimientoPage() {
           results: data.results,
         });
         triggerNotificationRefresh();
+        fetchRestockData();
       } else {
-        alert(data.error || 'Error al procesar la orden de compra.');
+        setErrorMessage(data.error || 'Error al procesar la orden de compra.');
       }
     } catch (err: any) {
-      alert(`Error de conexión: ${err.message}`);
+      setErrorMessage(`Error de conexión: ${err.message}`);
     } finally {
       setProcessingId(null);
     }
@@ -121,6 +135,7 @@ export default function ReabastecimientoPage() {
     if (filteredItems.length === 0) return;
     try {
       setApprovingAll(true);
+      setErrorMessage(null);
       const res = await fetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -136,11 +151,12 @@ export default function ReabastecimientoPage() {
           results: data.results,
         });
         triggerNotificationRefresh();
+        fetchRestockData();
       } else {
-        alert(data.error || 'Error al procesar las órdenes masivas.');
+        setErrorMessage(data.error || 'Error al procesar las órdenes masivas.');
       }
     } catch (err: any) {
-      alert(`Error de conexión: ${err.message}`);
+      setErrorMessage(`Error de conexión: ${err.message}`);
     } finally {
       setApprovingAll(false);
     }
@@ -155,6 +171,25 @@ export default function ReabastecimientoPage() {
           <p className={styles.subtitle}>
             Sugerencias de compra calculadas con el Punto de Reorden (ROP) y velocidad de venta en tiempo real.
           </p>
+          {connectorsOk !== null && (
+            <span
+              style={{
+                display: 'inline-block',
+                marginTop: '8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '4px 10px',
+                borderRadius: '999px',
+                background: connectorsOk ? '#f0fdf4' : '#fffbeb',
+                color: connectorsOk ? '#15803d' : '#b45309',
+                border: connectorsOk ? '1px solid #bbf7d0' : '1px solid #fde68a',
+              }}
+            >
+              {connectorsOk
+                ? 'Conectores activos: WhatsApp + SAP'
+                : 'Integraciones: Pendiente de configuración (WhatsApp / SAP)'}
+            </span>
+          )}
         </div>
         <div className={styles.headerStats}>
           <div className={styles.statCard}>
@@ -165,10 +200,40 @@ export default function ReabastecimientoPage() {
           </div>
           <div className={styles.statCard}>
             <span className={styles.statValue}>{criticalCount} SKUs</span>
-            <span className={styles.statLabel}>En Quiebre Inminente (&lt;3d)</span>
+            <span className={styles.statLabel}>En Quiebre Inminente (&lt;3.5d)</span>
           </div>
         </div>
       </header>
+
+      {/* Banner de error elegante (sin alerts que rompen el flujo) */}
+      {errorMessage && (
+        <div
+          style={{
+            background: '#fef2f2',
+            border: '1px solid #fecaca',
+            color: '#991b1b',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            fontSize: '13px',
+            fontWeight: 600,
+            marginBottom: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+          role="alert"
+        >
+          <span>{errorMessage}</span>
+          <button
+            type="button"
+            onClick={() => setErrorMessage(null)}
+            style={{ marginLeft: 'auto', background: 'transparent', border: 'none', color: '#991b1b', cursor: 'pointer', fontWeight: 700 }}
+            aria-label="Cerrar error"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Barra de Herramientas */}
       <div className={styles.actionsBar}>
@@ -188,8 +253,8 @@ export default function ReabastecimientoPage() {
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="all">Todos los Estados</option>
-            <option value="critical">Crítico (&lt; 3 días)</option>
-            <option value="warning">Alerta (3 - 7 días)</option>
+            <option value="critical">Crítico (&lt; 3.5 días)</option>
+            <option value="warning">Alerta (3.5 - 7 días)</option>
             <option value="optimal">Normal (&gt; 7 días)</option>
           </select>
         </div>
@@ -252,7 +317,7 @@ export default function ReabastecimientoPage() {
                   <td>
                     <span
                       className={
-                        item.coverageDays < 3.0
+                        item.status === 'critical'
                           ? styles.coverageCritical
                           : styles.coverageNormal
                       }
