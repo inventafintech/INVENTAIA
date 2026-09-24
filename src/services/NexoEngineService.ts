@@ -35,11 +35,13 @@ export interface NexoAction {
 
 export interface NexoCard {
   id: string;
-  kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info';
+  kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info' | 'summary' | 'history';
   title: string;
   subtitle?: string;
   metric?: string;
   action?: NexoAction;
+  /** summary: { kpis: [{label,value}] } · history: { items: [líneas] } */
+  payload?: Record<string, any>;
 }
 
 export interface NexoQueryResult {
@@ -61,7 +63,62 @@ export interface NexoExecuteResult {
   elapsedMs: number;
 }
 
-type Intent = 'financing' | 'generate_oc' | 'critical_stock' | 'sync_status' | 'help';
+type Intent = 'financing' | 'generate_oc' | 'critical_stock' | 'sync_status' | 'help' | 'memory' | 'status';
+
+// ---------------------------------------------------------------------------
+// Memoria persistente de Nexo (corto + largo plazo) en workspaces.settings.
+// Cero DDL, cero vectores externos: hechos y últimas interacciones por
+// workspace. Si el usuario aprobó una OC, la siguiente interacción lo sabe.
+// ---------------------------------------------------------------------------
+
+export interface NexoMemory {
+  interactions: Array<{ ts: string; intent: string; summary: string }>;
+  facts: Record<string, any>;
+  sessions: number;
+}
+
+const MEMORY_KEY = 'nexo_memory';
+const MEMORY_INTERACTIONS_CAP = 20;
+
+function blankMemory(): NexoMemory {
+  return { interactions: [], facts: {}, sessions: 0 };
+}
+
+async function loadNexoMemory(supabase: any, workspaceId: string): Promise<NexoMemory> {
+  try {
+    const { data: ws } = await supabase.from('workspaces').select('settings').eq('id', workspaceId).maybeSingle();
+    const m = (ws?.settings as any)?.[MEMORY_KEY];
+    if (m && typeof m === 'object') {
+      return {
+        interactions: Array.isArray(m.interactions) ? m.interactions.slice(0, MEMORY_INTERACTIONS_CAP) : [],
+        facts: m.facts && typeof m.facts === 'object' ? m.facts : {},
+        sessions: typeof m.sessions === 'number' ? m.sessions : 0,
+      };
+    }
+  } catch {
+    /* sin memoria: arranca en blanco */
+  }
+  return blankMemory();
+}
+
+async function saveNexoMemory(supabase: any, workspaceId: string, memory: NexoMemory): Promise<void> {
+  try {
+    const { data: ws } = await supabase.from('workspaces').select('settings').eq('id', workspaceId).maybeSingle();
+    const settings = { ...(((ws as any)?.settings as any) || {}), [MEMORY_KEY]: memory };
+    await supabase.from('workspaces').update({ settings }).eq('id', workspaceId);
+  } catch {
+    /* mejor esfuerzo */
+  }
+}
+
+function timeAgo(ts: string): string {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(ts).getTime()) / 60000));
+  if (mins < 1) return 'ahora mismo';
+  if (mins < 60) return `hace ${mins} min`;
+  const h = Math.round(mins / 60);
+  if (h < 24) return `hace ${h} h`;
+  return `hace ${Math.round(h / 24)} d`;
+}
 
 const CONNECTORS = [
   { id: 'shopify', name: 'Shopify' },
@@ -81,11 +138,50 @@ function norm(s: string): string {
 
 function detectIntent(message: string): Intent {
   const t = ` ${norm(message)} `;
+  if (/recuerdas|historial|hiciste|qué hic|que hic|ultima vez|mi actividad|generaste|qué fue|que fue|lo ultimo|anteriormente/.test(t)) return 'memory';
   if (/financi|desembols|anticipo|capital|credito|prestamo|banco|pichincha/.test(t)) return 'financing';
   if (/genera|crea|crear|aprueba|aprobar|orden|reabastec|repone|compra|\boc\b/.test(t)) return 'generate_oc';
+  if (/resumen|balance|como voy|cómo voy|estado general|como va|cómo va|panel general/.test(t)) return 'status';
   if (/quiebr|quebr|critico|stock|faltan|falta|alerta|inventario|sku/.test(t)) return 'critical_stock';
   if (/sincron|integrac|conect|shopify|mercado|whatsapp|sap|sunat|woocommerce/.test(t)) return 'sync_status';
   return 'help';
+}
+
+// Límite de dominio: cadena de suministro y finanzas. Solo se activa ante
+// temas claramente ajenos y sin ninguna señal del dominio.
+const OFF_DOMAIN = [
+  'futbol', 'receta', 'cocina', 'clima', 'pelicula', 'serie', 'musica', 'cancion',
+  'chiste', 'politica', 'religion', 'amor', 'viaje', 'turismo', 'deporte',
+  'videojuego', 'poema', 'cumpleanos', ' horoscopo', 'signo zodiacal', 'partido',
+];
+const DOMAIN_HINTS = [
+  'financi', 'desembols', 'anticipo', 'capital', 'credito', 'prestamo', 'banco',
+  'stock', 'orden', 'compra', 'sku', 'proveedor', 'cliente', 'inventario',
+  'quiebr', 'quebr', 'inventa', 'nexo', 'hola', 'buenas', 'gracias', 'si', 'vale',
+  'resumen', 'balance', 'sincron', 'integrac', 'conect', 'recuerdas', 'historial',
+  'genera', 'crea', 'aprueba', 'reabastec', 'repone', 'alerta', 'categoria',
+  'ubicacion', 'sucursal', 'producto', 'plan', 'complemento', 'ayuda', 'soporte',
+];
+
+function isOffDomain(message: string): boolean {
+  const t = ` ${norm(message)} `;
+  const off = OFF_DOMAIN.some((k) => new RegExp(`\\b${escapeRegExp(k)}`).test(t));
+  if (!off) return false;
+  return !DOMAIN_HINTS.some((k) => t.includes(k)) && !hasNavVerb(message);
+}
+
+/** SKU en foco desde el query string de la pantalla (?q=, ?sku=, ?search=). */
+export function extractFocusSku(search: string): string | null {
+  try {
+    const params = new URLSearchParams((search || '').replace(/^\?/, ''));
+    for (const key of ['sku', 'q', 'search', 'filtro', 'filter']) {
+      const v = (params.get(key) || '').trim().toUpperCase();
+      if (v && v.length >= 3) return v;
+    }
+  } catch {
+    /* sin contexto de búsqueda */
+  }
+  return null;
 }
 
 function extractAmount(message: string): number | null {
@@ -311,9 +407,47 @@ export class NexoEngineService {
 
   /**
    * Interpreta un mensaje y responde con texto + tarjetas accionables.
-   * Consultas concurrentes para consolidar el insight.
+   * Consultas concurrentes para consolidar el insight. La memoria se carga
+   * y persiste aquí: cada interacción queda registrada por workspace.
    */
-  public static async query(message: string, pathname: string, userEmail: string): Promise<NexoQueryResult> {
+  public static async query(
+    message: string,
+    pathname: string,
+    userEmail: string,
+    opts?: { search?: string }
+  ): Promise<NexoQueryResult> {
+    const { createClient } = await import('@/utils/supabase/server');
+    const supabase = await createClient();
+    const workspaceId = (await resolveWorkspaceId(supabase)) || 'ws-default';
+    const memory = await loadNexoMemory(supabase, workspaceId);
+
+    const result = await this.queryCore(message, pathname, userEmail, { search: opts?.search || '', memory });
+
+    try {
+      memory.interactions.unshift({
+        ts: new Date().toISOString(),
+        intent: result.intent,
+        summary: result.reply.slice(0, 140),
+      });
+      memory.interactions = memory.interactions.slice(0, MEMORY_INTERACTIONS_CAP);
+      const mods = Array.isArray(memory.facts.modules_visited) ? memory.facts.modules_visited : [];
+      if (pathname && mods[0] !== pathname) {
+        memory.facts.modules_visited = [pathname, ...mods.filter((m) => m !== pathname)].slice(0, 10);
+      }
+      if (!((message || '').trim())) memory.sessions = (memory.sessions || 0) + 1;
+      await saveNexoMemory(supabase, workspaceId, memory);
+    } catch {
+      /* mejor esfuerzo */
+    }
+    return result;
+  }
+
+  private static async queryCore(
+    message: string,
+    pathname: string,
+    userEmail: string,
+    ctx: { search: string; memory: NexoMemory }
+  ): Promise<NexoQueryResult> {
     const started = Date.now();
     const text = (message || '').trim();
     if (!text) return this.greet(pathname, userEmail);
