@@ -1,340 +1,671 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Sparkles, Search, X, Loader2, Command, CornerDownLeft, MapPin } from 'lucide-react';
-import { triggerNotificationRefresh } from '@/context/NotificationContext';
+import {
+  Search, X, Loader2, Command, CornerDownLeft, ArrowUp, ArrowDown,
+  Sparkles, MapPin, ExternalLink, ChevronRight, Zap, Package, TrendingUp,
+  DollarSign, AlertTriangle, Settings, HelpCircle, LayoutDashboard,
+  Blocks, ShoppingBag, ArrowLeftRight, Tag, Building2, Store, User,
+  Bell, History, Download, ArrowDownLeft, ArrowUpRight, Boxes,
+  GraduationCap, FileQuestion, Headset, MessageCircleQuestion, BookOpen,
+  BellPlus, Shapes, Repeat,
+} from 'lucide-react';
+import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 
-// Estructuras de tipos para Function Calling y mensajes
-interface ToolCall {
-  tool: 'navigate_to_module' | string;
-  args: any;
+// ─── Types ─────────────────────────────────────────────────────────────
+interface NavSuggestion {
+  href: string;
+  label: string;
+  group: string;
+  score?: number;
 }
 
-interface ChatMessage {
+interface NexoCard {
   id: string;
-  role: 'user' | 'assistant' | 'system';
-  content: string;
+  kind: string;
+  title: string;
+  subtitle?: string;
+  metric?: string;
+  action?: { type: string; label: string; payload: Record<string, any>; requiresConfirm: boolean };
 }
 
-/**
- * NexoCommandPalette — El orquestador inteligente de navegación y operaciones (Copiloto B2B).
- * Combina una Command Palette (Cmd+K) tipo Stripe/Vercel con un asistente conversacional capaz
- * de ejecutar Function Calling (Tool Calling) para enrutar programáticamente al usuario.
- */
+interface OrchestrateResponse {
+  type: 'navigate' | 'suggestions' | 'data';
+  reply: string | null;
+  toolCalls?: Array<{ tool: string; args: { destination_path: string; label: string } }>;
+  suggestions?: NavSuggestion[];
+  cards?: NexoCard[];
+  intent?: string;
+  error?: string;
+}
+
+// ─── Icon Map ──────────────────────────────────────────────────────────
+const ICON_MAP: Record<string, React.ElementType> = {
+  'resumen': LayoutDashboard,
+  'alertas-stock': Bell,
+  'actividad-reciente': History,
+  'productos': Tag,
+  'sucursal': Building2,
+  'ubicaciones': MapPin,
+  'proveedores': Store,
+  'clientes': User,
+  'inventario-actual': Boxes,
+  'ajustes-stock': ArrowLeftRight,
+  'recibos': ArrowDownLeft,
+  'despachos': ArrowUpRight,
+  'importaciones': Download,
+  'centro-integraciones': Blocks,
+  'complementos-disponibles': ShoppingBag,
+  'comparar-planes': Repeat,
+  'config-general': Settings,
+  'categorias': Shapes,
+  'alertas-reorders': BellPlus,
+  'guia-usuario': BookOpen,
+  'faq': MessageCircleQuestion,
+  'contactar-soporte': Headset,
+  'aprender': GraduationCap,
+  'ponme-a-prueba': FileQuestion,
+};
+
+function getIconForHref(href: string): React.ElementType {
+  for (const group of NAVIGATION_CONFIG) {
+    for (const item of group.items) {
+      if (item.href === href) return ICON_MAP[item.id] || ChevronRight;
+    }
+  }
+  return ChevronRight;
+}
+
+function getGroupForHref(href: string): string {
+  for (const group of NAVIGATION_CONFIG) {
+    for (const item of group.items) {
+      if (item.href === href) return group.title;
+    }
+  }
+  return '';
+}
+
+// ─── Local Fuzzy Search (instant, before API) ──────────────────────────
+interface FlatItem {
+  href: string;
+  label: string;
+  group: string;
+  id: string;
+  keywords: string[];
+}
+
+function norm(s: string): string {
+  return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function buildLocalNav(): FlatItem[] {
+  const items: FlatItem[] = [];
+  const SEMANTIC: Record<string, string[]> = {
+    '/overview': ['inicio', 'home', 'resumen', 'panel', 'tablero', 'dashboard'],
+    '/stock-alerts': ['alerta', 'alertas', 'riesgo', 'quiebre', 'critico'],
+    '/activity-log': ['actividad', 'historial', 'log', 'bitacora', 'registro'],
+    '/products/products': ['producto', 'productos', 'catalogo', 'articulo', 'items', 'produc'],
+    '/inventory/branch-details': ['sucursal', 'sede', 'tienda', 'local'],
+    '/inventory/locations': ['ubicacion', 'ubicaciones', 'almacen', 'bodega'],
+    '/inventory/vendors': ['proveedor', 'proveedores', 'vendor'],
+    '/inventory/clients': ['cliente', 'clientes'],
+    '/inventory/inventory-items': ['inventario', 'existencias', 'inmovilizado', 'stock'],
+    '/inventory/stock-adjustments': ['ajuste', 'ajustes', 'ajustar'],
+    '/inventory/incoming': ['recibo', 'recibos', 'recepcion', 'entrada', 'orden', 'ordenes'],
+    '/inventory/outgoing': ['despacho', 'despachos', 'salida', 'envio'],
+    '/inventory/imports': ['importacion', 'importar', 'plantilla', 'excel', 'csv'],
+    '/dashboard/integraciones': ['integracion', 'integraciones', 'conectar', 'shopify', 'mercadolibre', 'woocommerce', 'whatsapp', 'sap'],
+    '/addons': ['complemento', 'complementos', 'addon', 'plugin'],
+    '/plans': ['plan', 'planes', 'precio', 'suscripcion', 'financiamiento'],
+    '/settings/general-settings': ['configuracion', 'config', 'cuenta', 'empresa', 'settings'],
+    '/settings/product-categories': ['categoria', 'categorias'],
+    '/settings/stock-alerts-reorders': ['reorden', 'umbral'],
+    '/help/user-guide': ['guia', 'manual'],
+    '/help/faq': ['faq', 'pregunta frecuente'],
+    '/help/contact-support': ['soporte', 'contacto', 'ayuda', 'help'],
+    '/help/learn': ['aprender', 'tutorial'],
+    '/help/grill-me': ['prueba', 'examen', 'quiz'],
+  };
+
+  for (const group of NAVIGATION_CONFIG) {
+    for (const item of group.items) {
+      const kws = [
+        norm(item.label),
+        norm(item.id.replace(/-/g, ' ')),
+        ...(item.aliases || []).map((a) => norm(a.replace(/^\//,'').replace(/[-/]/g, ' '))),
+        ...(SEMANTIC[item.href] || []).map(norm),
+      ];
+      items.push({
+        href: item.href,
+        label: item.label,
+        group: group.title,
+        id: item.id,
+        keywords: [...new Set(kws.filter(k => k.length >= 2))],
+      });
+    }
+  }
+  return items;
+}
+
+function localSearch(query: string, items: FlatItem[]): FlatItem[] {
+  const q = norm(query);
+  if (!q) return [];
+
+  return items
+    .map((item) => {
+      let score = 0;
+      for (const kw of item.keywords) {
+        if (q === kw) { score = Math.max(score, 1000); break; }
+        if (kw.startsWith(q)) score = Math.max(score, 600 + q.length);
+        else if (q.startsWith(kw)) score = Math.max(score, 500 + kw.length);
+        else if (kw.includes(q)) score = Math.max(score, 400 + q.length);
+        else if (q.includes(kw)) score = Math.max(score, 200 + kw.length);
+      }
+      return { ...item, score };
+    })
+    .filter((item) => item.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 8);
+}
+
+// ─── Domain intent detection (for deep queries) ───────────────────────
+const DOMAIN_INTENTS = [
+  { keywords: ['stock', 'quiebre', 'critico', 'alerta', 'falta', 'faltan', 'inventario bajo'], label: 'stock' },
+  { keywords: ['financi', 'desembols', 'anticipo', 'capital', 'credito', 'prestamo'], label: 'financing' },
+  { keywords: ['genera oc', 'generar', 'crear orden', 'orden de compra', 'reabastec', 'reponer'], label: 'oc' },
+  { keywords: ['sincroniz', 'integrac', 'conectar', 'shopify', 'mercadolibre'], label: 'sync' },
+];
+
+function isDomainQuery(query: string): boolean {
+  const q = norm(query);
+  return DOMAIN_INTENTS.some(intent => intent.keywords.some(kw => q.includes(kw)));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// COMPONENT
+// ═══════════════════════════════════════════════════════════════════════
+
 export function NexoCommandPalette() {
   const pathname = usePathname() || '';
   const router = useRouter();
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [contextGreeted, setContextGreeted] = useState<string | null>(null);
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Results state
+  const [localResults, setLocalResults] = useState<FlatItem[]>([]);
+  const [apiResponse, setApiResponse] = useState<OrchestrateResponse | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
-  // 1. OMNIBAR: Atajo global de teclado (Cmd+K / Ctrl+K)
+  const flatNav = useMemo(() => buildLocalNav(), []);
+
+  // ─── Keyboard shortcut (Cmd+K / Ctrl+K) ───────────────────────────
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-      const modKey = isMac ? e.metaKey : e.ctrlKey;
-      
-      if (modKey && (e.key === 'k' || e.key === 'K')) {
+    const handler = (e: KeyboardEvent) => {
+      const mod = navigator.platform.toUpperCase().includes('MAC') ? e.metaKey : e.ctrlKey;
+      if (mod && (e.key === 'k' || e.key === 'K')) {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
+        setIsOpen((prev) => {
+          if (!prev) {
+            setInput('');
+            setLocalResults([]);
+            setApiResponse(null);
+            setSelectedIndex(0);
+          }
+          return !prev;
+        });
       }
       if (e.key === 'Escape' && isOpen) {
+        e.preventDefault();
         setIsOpen(false);
       }
     };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [isOpen]);
 
-  // Foco automático en el input al abrir
+  // Auto-focus on open
   useEffect(() => {
-    if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    if (isOpen) setTimeout(() => inputRef.current?.focus(), 30);
   }, [isOpen]);
 
-  // Scroll suave hacia abajo cuando hay nuevos mensajes
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isProcessing]);
+  // ─── Input handling with instant local search + debounced API ──────
+  const handleInputChange = useCallback((value: string) => {
+    setInput(value);
+    setSelectedIndex(0);
+    setApiResponse(null);
 
-  // 2. CONCIENCIA DE PANTALLA (Context-Awareness)
-  // Genera un saludo proactivo basado en la ruta actual
-  useEffect(() => {
-    if (!isOpen || contextGreeted === pathname) return;
-    
-    // Mapeo local de contexto para respuestas inmediatas, aunque podría venir del backend
-    let initialGreeting = "Hola. ¿A qué módulo quieres ir o qué operación deseas realizar?";
-    if (pathname.includes('/inventory/stock-adjustments')) {
-      initialGreeting = "Veo que estás ajustando el inventario. ¿Quieres que busque las discrepancias más urgentes?";
-    } else if (pathname.includes('/inventory/incoming') || pathname.includes('/ordenes')) {
-      initialGreeting = "Veo que estás revisando los recibos/órdenes de compra. ¿Filtro las que están pendientes de aprobación?";
-    } else if (pathname.includes('/inventory/vendors')) {
-      initialGreeting = "Estás en el panel de proveedores. ¿Deseas evaluar el rendimiento de tus proveedores críticos?";
+    // Instant local fuzzy search
+    const results = localSearch(value, flatNav);
+    setLocalResults(results);
+
+    // Debounced API call for domain queries or when local results are weak
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (value.trim().length >= 2) {
+      const needsApi = isDomainQuery(value) || results.length === 0 || value.trim().split(/\s+/).length >= 3;
+      if (needsApi) {
+        debounceRef.current = setTimeout(() => {
+          fetchOrchestrate(value.trim());
+        }, 250);
+      }
     }
+  }, [flatNav]);
 
-    setMessages([
-      { id: Date.now().toString(), role: 'assistant', content: initialGreeting }
-    ]);
-    setContextGreeted(pathname);
-  }, [isOpen, pathname, contextGreeted]);
-
-  // 3. MOTOR NLP & FUNCTION CALLING (Enrutamiento e Intenciones)
-  const handleSubmit = async (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    if (!input.trim() || isProcessing) return;
-
-    const userMsg = input.trim();
-    setInput('');
-    
-    // Agregamos el mensaje del usuario al chat
-    const newUserMsg: ChatMessage = { id: `u-${Date.now()}`, role: 'user', content: userMsg };
-    setMessages((prev) => [...prev, newUserMsg]);
-    setIsProcessing(true);
-
+  const fetchOrchestrate = async (message: string) => {
+    setIsLoading(true);
     try {
-      // En una implementación real con Vercel AI SDK, aquí se envía el historial de mensajes
-      // al endpoint `/api/chat` usando el hook `useChat`.
-      // Para cumplir la regla "ENTREGAR CÓDIGO FUNCIONAL", simulamos la conexión al orquestador backend
-      // que devuelve directivas de Function Calling si detecta una intención de navegación.
-      
-      const response = await fetch('/api/nexo/orchestrate', {
+      const res = await fetch('/api/nexo/orchestrate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMsg,
-          currentPath: pathname,
-          history: messages,
-        }),
+        body: JSON.stringify({ message, currentPath: pathname }),
       });
+      if (res.ok) {
+        const data = await res.json();
+        setApiResponse(data);
 
-      // Si no existe el endpoint (ya que estamos rediseñando), usamos un mock funcional interno
-      // para demostrar el motor de enrutamiento basado en intenciones (Mapeo Semántico).
-      let data;
-      if (!response.ok && response.status === 404) {
-        data = simulateAIOrchestrator(userMsg);
-      } else {
-        data = await response.json();
+        // Auto-navigate if the API returns a strong navigate command
+        if (data.type === 'navigate' && data.toolCalls?.length > 0) {
+          const dest = data.toolCalls[0].args.destination_path;
+          executeNavigation(dest);
+        }
       }
-
-      // Procesar respuesta del modelo
-      if (data.reply) {
-        setMessages((prev) => [...prev, { id: `a-${Date.now()}`, role: 'assistant', content: data.reply }]);
-      }
-
-      // Procesar Function Calling (navigate_to_module)
-      if (data.toolCalls && data.toolCalls.length > 0) {
-        data.toolCalls.forEach((toolCall: ToolCall) => {
-          if (toolCall.tool === 'navigate_to_module') {
-            executeNavigationTool(toolCall.args);
-          }
-        });
-      }
-    } catch (error) {
-      console.error('Error en orquestación de Nexo:', error);
-      setMessages((prev) => [...prev, { id: `e-${Date.now()}`, role: 'system', content: 'Error de conexión con el núcleo de Nexo.' }]);
+    } catch (err) {
+      console.error('Nexo orchestrate error:', err);
     } finally {
-      setIsProcessing(false);
+      setIsLoading(false);
     }
   };
 
-  // 4. REDIRECCIÓN AUTOMÁTICA Y AUDITORÍA DE QA
-  const executeNavigationTool = (args: { destination_path: string }) => {
-    // Validar que la URL sea segura y local (evitar 404 inventados por el LLM)
-    const dest = args.destination_path;
-    if (typeof dest === 'string' && dest.startsWith('/')) {
-      // Cerrar la paleta antes de transicionar
+  // ─── Navigation execution ──────────────────────────────────────────
+  const executeNavigation = useCallback((href: string) => {
+    if (typeof href === 'string' && href.startsWith('/')) {
       setIsOpen(false);
-      
-      // router.push de Next.js actualiza instantáneamente el contexto.
-      // El componente Sidebar ya utiliza usePathname(), por lo que al 
-      // cambiar la ruta, la barra lateral resaltará automáticamente el módulo actual (Regla QA superada).
-      router.push(dest);
-    } else {
-      console.warn('Intento de navegación a URL inválida o externa:', dest);
-      setMessages((prev) => [...prev, { id: `e-${Date.now()}`, role: 'system', content: 'No pude encontrar el módulo solicitado.' }]);
+      setInput('');
+      setLocalResults([]);
+      setApiResponse(null);
+      router.push(href);
     }
-  };
+  }, [router]);
 
-  /**
-   * Simulador del Agente de Backend (Motor NLP y Mapeo de Intenciones)
-   * En producción, esto es reemplazado por `generateText` o `streamText` del Vercel AI SDK
-   * usando `tools: { navigate_to_module: tool({ ... }) }`.
-   */
-  const simulateAIOrchestrator = (query: string) => {
-    const q = query.toLowerCase();
-    
-    // Mapeos Semánticos para Function Calling
-    if (q.includes('stock') || q.includes('ajust')) {
-      return {
-        reply: 'Entendido, te llevo al módulo de ajustes de stock.',
-        toolCalls: [{ tool: 'navigate_to_module', args: { destination_path: '/inventory/stock-adjustments' } }]
-      };
-    }
-    if (q.includes('financia') || q.includes('plan') || q.includes('pagar')) {
-      return {
-        reply: 'Abriendo opciones de financiamiento y planes.',
-        toolCalls: [{ tool: 'navigate_to_module', args: { destination_path: '/plans' } }]
-      };
-    }
-    if (q.includes('inventario') || q.includes('inmovilizado')) {
-      return {
-        reply: 'Redirigiendo a tu inventario inmovilizado actual.',
-        toolCalls: [{ tool: 'navigate_to_module', args: { destination_path: '/inventory/inventory-items' } }]
-      };
-    }
-    if (q.includes('proveedor')) {
-      return {
-        reply: 'Vamos a configurar y evaluar tus proveedores.',
-        toolCalls: [{ tool: 'navigate_to_module', args: { destination_path: '/inventory/vendors' } }]
-      };
+  // ─── Build display items ──────────────────────────────────────────
+  const displayItems = useMemo(() => {
+    const items: Array<{ type: 'nav'; href: string; label: string; group: string; id: string }
+      | { type: 'card'; card: NexoCard }> = [];
+
+    // Local nav results
+    for (const r of localResults) {
+      items.push({ type: 'nav', href: r.href, label: r.label, group: r.group, id: r.id });
     }
 
-    // Respuesta conversacional sin navegación
-    return {
-      reply: `No encontré un módulo exacto para "${query}", pero puedo guiarte al inicio o ayudarte con información.`,
-      toolCalls: []
-    };
-  };
+    // API suggestion results (that aren't already shown)
+    if (apiResponse?.suggestions) {
+      for (const s of apiResponse.suggestions) {
+        if (!items.some((i) => i.type === 'nav' && i.href === s.href)) {
+          const navItem = NAVIGATION_CONFIG.flatMap(g => g.items).find(i => i.href === s.href);
+          items.push({ type: 'nav', href: s.href, label: s.label, group: s.group, id: navItem?.id || '' });
+        }
+      }
+    }
 
-  // Renderizado condicional del modal
+    // API data cards
+    if (apiResponse?.cards) {
+      for (const card of apiResponse.cards) {
+        items.push({ type: 'card', card });
+      }
+    }
+
+    return items;
+  }, [localResults, apiResponse]);
+
+  // ─── Keyboard navigation ──────────────────────────────────────────
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    const total = displayItems.length;
+    if (!total) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev + 1) % total);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev - 1 + total) % total);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      const selected = displayItems[selectedIndex];
+      if (selected?.type === 'nav') {
+        executeNavigation(selected.href);
+      } else if (selected?.type === 'card' && selected.card.action) {
+        if (selected.card.action.type === 'navigate') {
+          executeNavigation(selected.card.action.payload.href);
+        }
+      }
+    }
+  }, [displayItems, selectedIndex, executeNavigation]);
+
+  // Scroll selected into view
+  useEffect(() => {
+    const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
+    el?.scrollIntoView({ block: 'nearest' });
+  }, [selectedIndex]);
+
+  // ─── Default items (when input is empty) ───────────────────────────
+  const defaultItems = useMemo(() => {
+    // Show recent/contextual suggestions based on current path
+    const quick: FlatItem[] = [];
+    const currentGroup = NAVIGATION_CONFIG.find(g =>
+      g.items.some(i => i.href === pathname || i.aliases?.includes(pathname))
+    );
+
+    // Add items from current group first
+    if (currentGroup) {
+      for (const item of currentGroup.items) {
+        if (item.href !== pathname) {
+          quick.push({
+            href: item.href, label: item.label, group: currentGroup.title,
+            id: item.id, keywords: [],
+          });
+        }
+      }
+    }
+
+    // Fill with top-level items
+    const topItems = ['/overview', '/products/products', '/inventory/inventory-items', '/stock-alerts', '/dashboard/integraciones', '/settings/general-settings'];
+    for (const href of topItems) {
+      if (!quick.some(q => q.href === href) && href !== pathname) {
+        const navItem = NAVIGATION_CONFIG.flatMap(g => g.items).find(i => i.href === href);
+        if (navItem) {
+          const group = NAVIGATION_CONFIG.find(g => g.items.includes(navItem))!;
+          quick.push({ href: navItem.href, label: navItem.label, group: group.title, id: navItem.id, keywords: [] });
+        }
+      }
+    }
+
+    return quick.slice(0, 6);
+  }, [pathname]);
+
+  const showDefaults = !input.trim();
+  const itemsToShow = showDefaults
+    ? defaultItems.map(d => ({ type: 'nav' as const, href: d.href, label: d.label, group: d.group, id: d.id }))
+    : displayItems;
+
+  // ─── Render ────────────────────────────────────────────────────────
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
-        className="nexo-trigger-widget"
-        title="Nexo Copilot (Cmd+K)"
+        onClick={() => { setIsOpen(true); setInput(''); setLocalResults([]); setApiResponse(null); }}
+        title="Nexo · Cmd+K"
         style={{
           position: 'fixed', bottom: '24px', right: '24px', zIndex: 90,
-          width: '52px', height: '52px', borderRadius: '50%',
-          background: 'linear-gradient(135deg, #1e1b4b, #4f46e5)',
-          color: 'white', border: '1px solid rgba(255,255,255,0.2)',
-          boxShadow: '0 8px 32px rgba(79,70,229,0.4)',
+          width: '48px', height: '48px', borderRadius: '14px',
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #6366f1 100%)',
+          color: 'white', border: 'none',
+          boxShadow: '0 4px 24px rgba(99,102,241,0.4), 0 0 0 1px rgba(255,255,255,0.1) inset',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', transition: 'all 0.2s ease', padding: 0
+          cursor: 'pointer', transition: 'all 0.15s ease', padding: 0,
         }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.5), 0 0 0 1px rgba(255,255,255,0.15) inset'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(99,102,241,0.4), 0 0 0 1px rgba(255,255,255,0.1) inset'; }}
       >
-        <Sparkles size={22} />
+        <Sparkles size={20} />
       </button>
     );
   }
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 100, 
-      display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
-      paddingTop: '12vh', backgroundColor: 'rgba(15, 23, 42, 0.4)',
-      backdropFilter: 'blur(4px)'
-    }} onClick={() => setIsOpen(false)}>
-      
-      {/* Contenedor de la Command Palette */}
-      <div 
+    <div
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+        paddingTop: '14vh',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+        animation: 'nexo-overlay-in 0.15s ease-out',
+      }}
+      onClick={() => setIsOpen(false)}
+    >
+      <div
         onClick={(e) => e.stopPropagation()}
         style={{
-          width: '100%', maxWidth: '640px', background: '#ffffff',
-          borderRadius: '16px', boxShadow: '0 24px 64px rgba(0,0,0,0.2)',
-          border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column',
-          overflow: 'hidden', animation: 'slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+          width: '100%', maxWidth: '580px',
+          background: '#ffffff',
+          borderRadius: '16px',
+          boxShadow: '0 24px 80px rgba(0,0,0,0.25), 0 0 0 1px rgba(0,0,0,0.05)',
+          display: 'flex', flexDirection: 'column',
+          overflow: 'hidden',
+          animation: 'nexo-modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         }}
       >
-        {/* Omnibar Input */}
-        <div style={{ 
-          display: 'flex', alignItems: 'center', padding: '0 16px', 
-          borderBottom: '1px solid #f1f5f9', background: '#ffffff'
+        {/* ── Search Input ─────────────────────────────────────────── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', padding: '0 16px',
+          borderBottom: '1px solid #e5e7eb',
         }}>
-          <Search size={20} color="#64748b" style={{ flexShrink: 0 }} />
-          <form onSubmit={handleSubmit} style={{ flex: 1, display: 'flex' }}>
-            <input
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Pregúntale a Nexo o escribe un comando..."
-              style={{
-                width: '100%', padding: '20px 16px', border: 'none', outline: 'none',
-                fontSize: '16px', color: '#0f172a', background: 'transparent'
-              }}
-            />
-          </form>
-          {isProcessing ? (
-            <Loader2 size={18} color="#4f46e5" style={{ animation: 'spin 1s linear infinite' }} />
+          <Search size={18} color="#9ca3af" style={{ flexShrink: 0 }} />
+          <input
+            ref={inputRef}
+            value={input}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Buscar módulos, ejecutar acciones..."
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
+            style={{
+              width: '100%', padding: '16px 12px', border: 'none', outline: 'none',
+              fontSize: '15px', color: '#111827', background: 'transparent',
+              fontFamily: 'inherit',
+            }}
+          />
+          {isLoading ? (
+            <Loader2 size={16} color="#6366f1" style={{ animation: 'nexo-spin 0.8s linear infinite', flexShrink: 0 }} />
           ) : (
-            <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '3px', alignItems: 'center', flexShrink: 0 }}>
               <kbd style={kbdStyle}>⌘</kbd><kbd style={kbdStyle}>K</kbd>
             </div>
           )}
         </div>
 
-        {/* Historial Conversacional */}
-        {messages.length > 0 && (
-          <div style={{ 
-            maxHeight: '340px', overflowY: 'auto', padding: '16px 20px', 
-            background: '#fafafa', display: 'flex', flexDirection: 'column', gap: '16px' 
-          }}>
-            {messages.map((msg) => (
-              <div key={msg.id} style={{ 
-                display: 'flex', gap: '12px', 
-                flexDirection: msg.role === 'user' ? 'row-reverse' : 'row',
-                alignItems: 'flex-start'
-              }}>
-                {/* Avatar */}
-                <div style={{
-                  width: '28px', height: '28px', borderRadius: '8px',
-                  background: msg.role === 'user' ? '#f1f5f9' : 'linear-gradient(135deg, #1e1b4b, #4f46e5)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-                }}>
-                  {msg.role === 'user' ? <UserIcon /> : <Sparkles size={14} color="#fff" />}
-                </div>
-
-                {/* Burbuja */}
-                <div style={{
-                  background: msg.role === 'user' ? '#ffffff' : 'transparent',
-                  border: msg.role === 'user' ? '1px solid #e2e8f0' : 'none',
-                  padding: msg.role === 'user' ? '8px 14px' : '4px 0',
-                  borderRadius: '12px', fontSize: '14px', color: '#1e293b',
-                  lineHeight: '1.5', maxWidth: '85%'
-                }}>
-                  {msg.content}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        )}
-
-        {/* Footer (Hints) */}
-        <div style={{ 
-          padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #e2e8f0',
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          fontSize: '12px', color: '#64748b'
+        {/* ── Results List ──────────────────────────────────────────── */}
+        <div ref={listRef} style={{
+          maxHeight: '380px', overflowY: 'auto', overflowX: 'hidden',
+          padding: '6px',
         }}>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <CornerDownLeft size={12} /> Seleccionar
+          {/* Section label */}
+          {showDefaults && (
+            <div style={sectionLabelStyle}>
+              <Zap size={11} style={{ opacity: 0.6 }} />
+              <span>Acceso rápido</span>
+            </div>
+          )}
+          {!showDefaults && itemsToShow.length > 0 && (
+            <div style={sectionLabelStyle}>
+              <Search size={11} style={{ opacity: 0.6 }} />
+              <span>Resultados</span>
+            </div>
+          )}
+
+          {/* Items */}
+          {itemsToShow.map((item, idx) => {
+            if (item.type === 'nav') {
+              const Icon = getIconForHref(item.href);
+              const isSelected = idx === selectedIndex;
+              const isCurrentPage = item.href === pathname;
+
+              return (
+                <div
+                  key={`nav-${item.href}`}
+                  data-index={idx}
+                  onClick={() => executeNavigation(item.href)}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 12px', borderRadius: '10px', cursor: 'pointer',
+                    background: isSelected ? '#f3f4f6' : 'transparent',
+                    transition: 'background 0.08s ease',
+                  }}
+                >
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    background: isSelected ? '#eef2ff' : '#f9fafb',
+                    border: `1px solid ${isSelected ? '#c7d2fe' : '#e5e7eb'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0, transition: 'all 0.08s ease',
+                  }}>
+                    <Icon size={15} color={isSelected ? '#4f46e5' : '#6b7280'} />
+                  </div>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: '14px', fontWeight: 500, color: '#111827',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>
+                      {item.label}
+                    </div>
+                    <div style={{
+                      fontSize: '12px', color: '#9ca3af', marginTop: '1px',
+                    }}>
+                      {item.group}
+                      {isCurrentPage && <span style={{ color: '#6366f1', marginLeft: '6px', fontWeight: 500 }}>• Página actual</span>}
+                    </div>
+                  </div>
+
+                  {isSelected && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                      <kbd style={{ ...kbdStyle, fontSize: '10px', padding: '1px 5px' }}>↵</kbd>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Card items (from API domain queries)
+            if (item.type === 'card') {
+              const { card } = item;
+              const isSelected = idx === selectedIndex;
+              const kindIcon = card.kind === 'sku' ? Package
+                : card.kind === 'financing' ? DollarSign
+                : card.kind === 'oc' ? ShoppingBag
+                : card.kind === 'connector' ? Blocks
+                : AlertTriangle;
+
+              return (
+                <div
+                  key={`card-${card.id}`}
+                  data-index={idx}
+                  onMouseEnter={() => setSelectedIndex(idx)}
+                  onClick={() => {
+                    if (card.action?.type === 'navigate') {
+                      executeNavigation(card.action.payload.href);
+                    }
+                  }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: '12px',
+                    padding: '10px 12px', borderRadius: '10px', cursor: 'pointer',
+                    background: isSelected ? '#f3f4f6' : 'transparent',
+                    transition: 'background 0.08s ease',
+                  }}
+                >
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '8px',
+                    background: card.kind === 'sku' ? '#fef3c7' : card.kind === 'financing' ? '#d1fae5' : '#eef2ff',
+                    border: `1px solid ${card.kind === 'sku' ? '#fde68a' : card.kind === 'financing' ? '#a7f3d0' : '#c7d2fe'}`,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}>
+                    {React.createElement(kindIcon, { size: 15, color: card.kind === 'sku' ? '#d97706' : card.kind === 'financing' ? '#059669' : '#4f46e5' })}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '14px', fontWeight: 500, color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {card.title}
+                    </div>
+                    {card.subtitle && (
+                      <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '1px' }}>{card.subtitle}</div>
+                    )}
+                  </div>
+                  {card.metric && (
+                    <div style={{
+                      fontSize: '13px', fontWeight: 600, color: '#4f46e5',
+                      flexShrink: 0, fontVariantNumeric: 'tabular-nums',
+                    }}>
+                      {card.metric}
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            return null;
+          })}
+
+          {/* API reply text (only for data queries, never for nav) */}
+          {apiResponse?.reply && apiResponse.type === 'data' && (
+            <div style={{
+              padding: '12px 14px', margin: '4px 6px',
+              background: '#f8fafc', borderRadius: '10px',
+              border: '1px solid #e5e7eb',
+              fontSize: '13px', lineHeight: '1.6', color: '#374151',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
+                <Sparkles size={13} color="#6366f1" />
+                <span style={{ fontSize: '11px', fontWeight: 600, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nexo</span>
+              </div>
+              {apiResponse.reply}
+            </div>
+          )}
+
+          {/* Empty state */}
+          {!showDefaults && input.trim().length > 0 && itemsToShow.length === 0 && !isLoading && !apiResponse?.reply && (
+            <div style={{
+              padding: '32px 16px', textAlign: 'center', color: '#9ca3af', fontSize: '13px',
+            }}>
+              <Search size={20} style={{ margin: '0 auto 8px', opacity: 0.4 }} />
+              <div>Sin resultados para &quot;{input}&quot;</div>
+              <div style={{ marginTop: '4px', fontSize: '12px' }}>Prueba con: productos, inventario, proveedores...</div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Footer ───────────────────────────────────────────────── */}
+        <div style={{
+          padding: '8px 16px', background: '#fafafa', borderTop: '1px solid #e5e7eb',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+          fontSize: '11px', color: '#9ca3af',
+        }}>
+          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <ArrowUp size={10} /><ArrowDown size={10} /> Navegar
             </span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <Command size={12} /> <MapPin size={12} /> Enrutamiento Activo
+            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <CornerDownLeft size={10} /> Abrir
+            </span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <span style={{ fontSize: '10px' }}>esc</span> Cerrar
             </span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            Nexo AI Engine
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Zap size={10} color="#6366f1" />
+            <span style={{ fontWeight: 500, color: '#6366f1' }}>Nexo</span>
           </div>
         </div>
       </div>
 
       <style>{`
-        @keyframes slideDown {
-          from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+        @keyframes nexo-overlay-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes nexo-modal-in {
+          from { opacity: 0; transform: translateY(-12px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
         }
-        @keyframes spin {
+        @keyframes nexo-spin {
           to { transform: rotate(360deg); }
         }
       `}</style>
@@ -342,19 +673,19 @@ export function NexoCommandPalette() {
   );
 }
 
-// Subcomponente Icono Usuario
-function UserIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-    </svg>
-  );
-}
+// ─── Shared Styles ─────────────────────────────────────────────────────
 
 const kbdStyle: React.CSSProperties = {
-  background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px',
-  padding: '2px 6px', fontSize: '11px', fontWeight: 600, color: '#475569',
-  boxShadow: '0 1px 1px rgba(0,0,0,0.05)'
+  background: '#f3f4f6', border: '1px solid #d1d5db', borderRadius: '4px',
+  padding: '2px 5px', fontSize: '11px', fontWeight: 600, color: '#6b7280',
+  boxShadow: '0 1px 0 rgba(0,0,0,0.06)', lineHeight: '1',
+  fontFamily: 'system-ui, sans-serif',
+};
+
+const sectionLabelStyle: React.CSSProperties = {
+  display: 'flex', alignItems: 'center', gap: '5px',
+  padding: '8px 14px 4px', fontSize: '11px', fontWeight: 600,
+  color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '0.5px',
 };
 
 export default NexoCommandPalette;
