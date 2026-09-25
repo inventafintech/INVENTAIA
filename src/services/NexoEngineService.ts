@@ -309,23 +309,9 @@ export class NexoEngineService {
     const criticalItems = items.filter((i) => i.status === 'critical');
     const warningItems = items.filter((i) => i.status === 'warning');
 
-    const reply = `### 📋 Informe Ejecutivo de Situación Operativa
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **Catálogo Analizado**: Se tienen evaluados **${items.length} SKUs activos** bajo el modelo algorítmico de Punto de Reorden (ROP).
-- **Estado de Stock**: ${criticalCount > 0 ? `Se identifican **${criticalCount} SKUs en quiebre inminente** (< 3.5 días) y **${warningItems.length} SKUs en zona de reorden**.` : `El inventario se mantiene sin quiebres críticos en este momento. Se monitorean **${warningItems.length} SKUs en advertencia preventiva**.`}
-- **Inversión Requerida**: El capital total proyectado para reabastecimiento asciende a **S/ ${totalCapitalRequired.toLocaleString()}**.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- ${criticalCount > 0 ? `De mantenerse la velocidad de venta actual, los productos con menor stock agotarán sus existencias antes de que los proveedores completen el plazo de entrega pactado.` : `La cobertura actual proyectada asegura la continuidad de despachos para los próximos 7 a 14 días sin tensión de suministro en las líneas principales.`}
-- ${totalCapitalRequired > 0 ? `El riesgo financiero principal consiste en no colocar las órdenes a tiempo, lo que generaría pérdida de margen por ventas no atendidas.` : `El riesgo operativo está mitigado en las principales categorías.`}
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- **Módulo de Reabastecimiento**: Inspeccionar los lotes y cantidades sugeridas en el módulo de Reabastecimiento Inteligente (\`/dashboard/reabastecimiento\`).
-- **Aprobación de Órdenes**: ${criticalCount > 0 ? `Aprobar las órdenes de compra en borrador para los ${criticalCount} ítems más críticos.` : `Confirmar calendarios de recepción con proveedores clave.`}
-- **Línea de Financiamiento**: Se dispone de **S/ ${credit.available_amount.toLocaleString()}** pre-aprobados con ${credit.partner_bank_name} para optimizar compras sin desbalancear la caja.
-
-¿En qué módulo operativo puedo asistirte o prefieres que analicemos un SKU en detalle?`;
+    const reply = criticalCount > 0
+      ? `Hola. Tienes **${criticalCount} SKU(s) en quiebre crítico** con un requerimiento de **S/ ${totalCapitalRequired.toLocaleString()}** para reposición. ¿Generamos las órdenes o revisamos financiamiento?`
+      : `Hola. Tu inventario está con cobertura saludable y sin quiebres críticos en este momento. ¿En qué te ayudo hoy?`;
 
     const cards: NexoCard[] = [];
     if (criticalItems.length > 0) {
@@ -472,20 +458,7 @@ export class NexoEngineService {
       if (list.length === 0) {
         return {
           intent,
-          reply: `### 📊 Diagnóstico de Cobertura y Abastecimiento
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **Salud del Catálogo**: El inventario completo opera con niveles óptimos de stock de seguridad.
-- **Quiebres Activos**: **0 SKUs en estado crítico**.
-- **Cobertura Promedio**: Todas las líneas superan el umbral de 30 días de demanda estimada.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- No se prevé riesgo de desabastecimiento ni pérdidas de venta en los próximos 14 a 21 días.
-- El flujo de caja operativo no requiere desembolsos urgentes de reposición.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- Mantener la monitorización periódica de variabilidad de demanda semanal.
-- Verificar recepciones pendientes en el módulo de Despachos y Entradas (\`/inventory/incoming\`).`,
+          reply: 'El inventario está en niveles óptimos; no hay quiebres ni alertas para los próximos 14 días.',
           cards: [],
           elapsedMs: Date.now() - started,
         };
@@ -493,21 +466,7 @@ export class NexoEngineService {
 
       const topSkus = list.slice(0, 4);
       const warningsCount = list.length - Math.min(criticalCount, list.length);
-      const reply = `### 🚨 Análisis Ejecutivo de Quiebres y Stock Crítico
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **SKUs Comprometidos**: Se registran **${criticalCount} SKUs en estado crítico** (< 3.5 días de cobertura) y **${warningsCount} SKUs en advertencia de reposición** (cobertura ajustada antes del ROP).
-- **Capital de Reposición Necesario**: Se requiere un presupuesto de **S/ ${totalCapitalRequired.toLocaleString()}** para reabastecer los lotes sugeridos hasta el nivel de seguridad.
-- **Ítems con Mayor Vulnerabilidad**: ${topSkus.map((s) => `\`${s.sku}\` (${s.name}) con apenas **${s.coverageDays} días** de cobertura`).join(', ')}.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Si no se generan órdenes de compra en las próximas 48 horas, los SKUs críticos sufrirán rotura de stock antes de que los proveedores completen su tiempo de entrega (Lead Time).
-- El quiebre implicará pérdidas directas de ventas diarias y deterioro de la tasa de servicio (Fill Rate) con clientes clave.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- **Aprobación de Órdenes**: Aprobar inmediatamente los lotes de reposición para los SKUs prioritarios mediante las tarjetas interactivas inferiores.
-- **Financiamiento B2B**: En caso de requerir capital de trabajo sin comprometer la caja inmediata, utilizar la línea de crédito disponible con desembolso en 24 horas.
-- **Priorización Logística**: Contactar a los proveedores principales para confirmar fechas de despacho exprés.`;
+      const reply = `Hay **${criticalCount} producto(s) en quiebre crítico** y **${warningsCount} en advertencia**. Se requieren **S/ ${totalCapitalRequired.toLocaleString()}** de inversión para cubrirlos.`;
 
       return {
         intent,
@@ -534,16 +493,7 @@ export class NexoEngineService {
         if (found.length > 0 && targets.length === 0) {
           return {
             intent,
-            reply: `### 📋 Evaluación de Reposición: SKU ${found[0].sku}
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- El producto **${found[0].sku}** (${found[0].name}) cuenta con **${found[0].coverageDays} días de cobertura**, superando holgadamente el punto de reorden.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Generar una orden de compra en este momento causaría sobrestock innecesario y costo de inmovilización de capital.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- No se recomienda emitir orden de compra para este SKU hasta que la cobertura descienda por debajo de su umbral de seguridad.`,
+            reply: `El producto **${found[0].sku}** tiene cobertura de ${found[0].coverageDays} días; no necesita reposición ahora.`,
             cards: [],
             elapsedMs: Date.now() - started,
           };
@@ -551,7 +501,7 @@ export class NexoEngineService {
         if (found.length === 0) {
           return {
             intent,
-            reply: `No encontré el SKU "${sku}" en el catálogo activo de la plataforma. Revisa el código e intenta nuevamente, o explora el catálogo en \`/inventory/inventory-items\`.`,
+            reply: `No encontré el SKU "${sku}" en el catálogo activo de la plataforma.`,
             cards: [],
             elapsedMs: Date.now() - started,
           };
@@ -560,36 +510,14 @@ export class NexoEngineService {
       if (targets.length === 0) {
         return {
           intent,
-          reply: `### 📋 Estado de Reposición: Sin Órdenes Requeridas
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- Ningún SKU del inventario registra cantidad sugerida de compra mayor a cero. Todas las existencias se encuentran sobre su Punto de Reorden.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- El inventario opera con suficiente holgura para abastecer la demanda estimada de los próximos ciclos sin riesgo inminente de quiebre.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- Monitorear el módulo de Reabastecimiento Inteligente al cierre semanal para evaluar variaciones en la velocidad de ventas.`,
+          reply: 'Todo el inventario está por encima del punto de reorden; no se requieren órdenes de compra.',
           cards: [],
           elapsedMs: Date.now() - started,
         };
       }
       const top = targets.slice(0, 3);
       const total = targets.reduce((s, i) => s + i.investment, 0);
-      const reply = `### 📑 Resumen Ejecutivo: Generación de Órdenes de Compra
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- Se han consolidado **${targets.length} SKU(s) listos para reposición** que han alcanzado o perforado su Punto de Reorden (ROP).
-- Presupuesto consolidado de compra: **S/ ${total.toLocaleString()}** distribuido entre proveedores asignados.
-${top.map((i) => `- **${i.sku}** (${i.name}): **${i.suggestedQty} u** vía *${i.provider}* por un subtotal de **S/ ${i.investment.toLocaleString()}**.`).join('\n')}
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Al emitir las órdenes en bloque se consolidan fletes y se garantiza que el stock ingrese antes de la fecha límite de rotura proyectada (7 a 10 días).
-- Las órdenes se crean en estado **Borrador (Draft)** para tu revisión y validación previa antes de su despacho a proveedores.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- **Aprobar en Bloque**: Haz clic en el botón **"Aprobar y generar"** en la tarjeta inferior para crear las órdenes en el sistema.
-- **Canal de Transmisión**: Verificar que el conector o canal de compras con proveedores esté operativo en \`/dashboard/integraciones\`.`;
+      const reply = `He preparado **${targets.length} órdenes de compra en borrador** por un total de **S/ ${total.toLocaleString()}**. Confírmalas aquí abajo para generarlas:`;
 
       return {
         intent,
@@ -622,17 +550,7 @@ ${top.map((i) => `- **${i.sku}** (${i.name}): **${i.suggestedQty} u** vía *${i.
       if (amount > cl.available_amount) {
         return {
           intent,
-          reply: `### 💼 Evaluación Financiera: Límite de Capital
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- El monto solicitado (**S/ ${amount.toLocaleString()}**) excede tu cupo disponible inmediato de **S/ ${cl.available_amount.toLocaleString()}** con **${cl.partner_bank_name}**.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Solicitar un importe superior al cupo requeriría una reevaluación crediticia de riesgo que demora de 3 a 5 días hábiles.
-- Sin embargo, tu línea pre-aprobada de **S/ ${cl.available_amount.toLocaleString()}** está lista para desembolso inmediato en menos de 24 horas.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- Te propongo tomar el máximo pre-aprobado actual de **S/ ${cl.available_amount.toLocaleString()}** para cubrir las compras más críticas y solicitar una ampliación de línea para el remanente.`,
+          reply: `El monto solicitado excede tu disponible de **S/ ${cl.available_amount.toLocaleString()}**. Te sugiero solicitar el máximo disponible:`,
           cards: [
             {
               id: 'fin-max',
@@ -648,20 +566,7 @@ ${top.map((i) => `- **${i.sku}** (${i.name}): **${i.suggestedQty} u** vía *${i.
       }
 
       const sim = FinancingService.simulateFinancing(amount, 30);
-      const reply = `### 💼 Evaluación Financiera y Línea de Capital de Trabajo
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **Requerimiento Analizado**: Solicitud de anticipo de **S/ ${amount.toLocaleString()}** a un plazo estándar de **30 días**.
-- **Línea Pre-Aprobada**: Dispones de **S/ ${cl.available_amount.toLocaleString()}** respaldados por **${cl.partner_bank_name}** a una tasa preferencial del **${(((cl.monthly_interest_rate ?? 0.0145)) * 100).toFixed(2)}% mensual**.
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo Financiero)**
-- **Costo Financiero Total**: **S/ ${sim.financialCost.toLocaleString()}** (intereses + comisiones del periodo).
-- **Ventas Protegidas Estimadas**: La inyección oportuna de stock proyecta proteger facturación por **S/ ${sim.protectedSales.toLocaleString()}**.
-- **Retorno Neto Proyectado**: **S/ ${sim.netReturn.toLocaleString()}**, asegurando rentabilidad positiva para la operación.${alerts ? ` Quiebres activos en plataforma: ${alerts.riesgoQuiebre ?? 0} ítems.` : ''}
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- **Confirmación de Anticipo**: Pulsa el botón **"Confirmar solicitud"** en la tarjeta inferior para emitir el desembolso seguro en 24h.
-- **Destino del Capital**: Asignar los fondos prioritariamente al lote de compra de SKUs de alta rotación (Clase A).`;
+      const reply = `Para **S/ ${amount.toLocaleString()}** a 30 días con ${cl.partner_bank_name}, el costo financiero es **S/ ${sim.financialCost.toLocaleString()}** y el retorno neto estimado es **S/ ${sim.netReturn.toLocaleString()}**.`;
 
       return {
         intent,
@@ -682,17 +587,9 @@ ${top.map((i) => `- **${i.sku}** (${i.name}): **${i.suggestedQty} u** vía *${i.
 
     if (intent === 'memory') {
       const past = ctx.memory.interactions.slice(0, 3);
-      const reply = `### 🧠 Bitácora de Memoria Operativa Nexo
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **Historial del Workspace**: Se tienen registradas **${ctx.memory.interactions.length} interacciones recientes** asociadas a tu cuenta.
-${past.length > 0 ? past.map((p, idx) => `- **Interacción ${idx + 1}**: "${p.summary}" → Intención: *${p.intent}* (${new Date(p.ts).toLocaleTimeString()}).`).join('\n') : '- No se registran consultas previas en la sesión actual.'}
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Nexo conserva el contexto de las decisiones y órdenes generadas para evitar duplicación de compras y asegurar continuidad en tus análisis.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- Puedes indicarme continuar con alguna de las acciones previas o abrir un análisis nuevo de inventario, proveedores o financiamiento.`;
+      const reply = past.length > 0
+        ? `Últimas interacciones: ${past.map((p) => `"${p.summary}"`).join(', ')}. ¿En qué continuamos?`
+        : 'No hay interacciones previas registradas en esta sesión. ¿En qué te puedo ayudar?';
 
       return {
         intent,
@@ -713,19 +610,7 @@ ${past.length > 0 ? past.map((p, idx) => `- **Interacción ${idx + 1}**: "${p.su
     const pending = states.filter((s) => !s.configured);
     const active = states.filter((s) => s.configured);
 
-    const reply = `### 🔄 Auditoría de Sincronización y Conectores Operativos
-
-**1. 📊 ¿Qué está pasando? (Diagnóstico)**
-- **Conectores Activos**: **${active.length} integraciones configuradas** operando con intercambio de datos.
-- **Canales Pendientes**: **${pending.length} integraciones sin configurar**.
-${lastLog?.data ? `- **Último Evento Auditado**: Canal *${lastLog.data.integracion}* finalizó con resultado **${lastLog.data.resultado}** (${new Date(lastLog.data.fecha).toLocaleString()}).` : '- **Sin eventos recientes**: No hay sincronizaciones auditadas en las últimas horas.'}
-
-**2. 🔮 ¿Qué va a pasar? (Predicción y Riesgo)**
-- Sin los canales de venta o ERPs sincronizados (como Shopify, MercadoLibre o SAP), el cálculo de Puntos de Reorden operará con datos parciales, incrementando el riesgo de sobrestock o roturas ocultas.
-
-**3. 🎯 ¿Qué debo hacer? (Prescripción Ejecutiva)**
-- **Configuración de Canales**: Completa la vinculación de los canales pendientes a través de las acciones en las tarjetas a continuación.
-- **Prueba de Conexión**: Asegurar la validez de los tokens y webhooks para mantener la sincronización en tiempo real.`;
+    const reply = `Tienes **${active.length} integraciones activas** y **${pending.length} pendientes de configuración**.${lastLog?.data ? ` Último evento: ${lastLog.data.integracion} (${lastLog.data.resultado}).` : ''}`;
 
     return {
       intent,

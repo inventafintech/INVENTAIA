@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
-import { NexoCommandPalette } from '@/components/nexo/NexoCommandPalette';
+import { NexoChatInterface } from '@/components/nexo/NexoChatInterface';
 import { useAppShell } from '@/hooks/useAppShell';
 import { NotificationProvider } from '@/context/NotificationContext';
 import styles from './AppShell.module.css';
@@ -74,8 +74,8 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </div>
 
-      {/* Nexo: copiloto flotante en la esquina inferior DERECHA (fixed bottom-6 right-6 z-50) */}
-      <NexoCommandPalette />
+      {/* Nexo: copiloto conversacional flotante en la esquina inferior DERECHA (fixed bottom-6 right-6 z-50) */}
+      <NexoChatInterface />
     </NotificationProvider>
   );
 }

@@ -1077,4 +1077,5 @@ export function NexoCommandPalette() {
   );
 }
 
+export { NexoChatInterface } from './NexoChatInterface';
 export default NexoCommandPalette;

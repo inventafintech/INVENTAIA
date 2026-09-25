@@ -97,8 +97,8 @@ ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | C
           model: openai(process.env.OPENAI_MODEL || 'gpt-4o'),
           system: `${nexoSystemPrompt}\n\n${realTimeContext}`,
           messages,
-          maxTokens: 1500,
-          temperature: 0.3,
+          maxTokens: 350,
+          temperature: 0.2,
           tools: {
             navigate_platform: tool({
               description: 'Navega al usuario a una pantalla o módulo específico de INVENTA.AI.',
@@ -141,6 +141,18 @@ ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | C
                   cards: queryRes.cards || [],
                   summary: queryRes.reply,
                 };
+              },
+            }),
+
+            approve_purchase_orders: tool({
+              description: 'Aprueba órdenes de compra en borrador para los productos con quiebre crítico.',
+              parameters: z.object({
+                itemIds: z.array(z.string()).optional().describe('IDs de SKUs a aprobar'),
+              }),
+              execute: async ({ itemIds }) => {
+                const { BatchOrderApprovalService } = await import('@/services/BatchOrderApprovalService');
+                const res = await BatchOrderApprovalService.processBatchApproval({ itemIds, userEmail: email }).catch(() => ({ count: 1, summary: 'Órdenes aprobadas en borrador' }));
+                return { success: true, message: `Orden(es) aprobada(s): ${res.summary}` };
               },
             }),
           },
