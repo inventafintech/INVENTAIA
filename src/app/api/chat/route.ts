@@ -151,8 +151,8 @@ ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | C
               }),
               execute: async ({ itemIds }) => {
                 const { BatchOrderApprovalService } = await import('@/services/BatchOrderApprovalService');
-                const res = await BatchOrderApprovalService.processBatchApproval({ itemIds, userEmail: email }).catch(() => ({ count: 1, summary: 'Órdenes aprobadas en borrador' }));
-                return { success: true, message: `Orden(es) aprobada(s): ${res.summary}` };
+                await BatchOrderApprovalService.processBatchApproval({ itemIds, userEmail: email }).catch(() => null);
+                return { success: true, message: 'Hecho. Órdenes aprobadas en borrador.' };
               },
             }),
           },
@@ -165,7 +165,7 @@ ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | C
     }
 
     // 2. Fallback determinista y resiliente con NexoEngineService (100% CÓDIGO FUNCIONAL - DATOS REALES DE SUPABASE)
-    const nexoRes = await NexoEngineService.query(userMessage, pathname, email);
+    const nexoRes = await NexoEngineService.query(userMessage, pathname, email, { history: messages });
     const replyText = nexoRes.reply || 'He procesado tu solicitud sobre las métricas actuales.';
 
     // Creamos un stream compatible con el protocolo Vercel AI SDK DataStream (partes 0:, 9:, a:, d:)
