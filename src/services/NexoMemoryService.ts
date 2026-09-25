@@ -1,11 +1,18 @@
-import { openai } from '@ai-sdk/openai';
+import { google } from '@ai-sdk/google';
 import { embed } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
 // Cliente estricto de Supabase
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Lazy: crear el cliente solo al usarlo. Si no hay claves (ej. build sin
+// env), retorna null y los métodos degradan a no-op/[] en vez de reventar
+// el import del módulo durante la colecta del build.
+function getSupabase() {
+  if (!supabaseUrl || !supabaseKey) return null;
+  return createClient(supabaseUrl, supabaseKey);
+}
 
 // ─── Interfaces ────────────────────────────────────────────────────────
 export interface MemoryMetadata {
@@ -14,7 +21,7 @@ export interface MemoryMetadata {
   user?: string;
   date?: string;
   sku?: string;
-  source?: 'user_chat' | 'system_event' | 'document';
+  source?: 'user_chat' | 'system_event' | 'document' | 'webhook';
   [key: string]: any;
 }
 
@@ -37,12 +44,15 @@ export const NexoMemoryService = {
    * Vectoriza un texto y lo inserta como memoria persistente en Supabase.
    */
   async storeNexoMemory(payload: MemoryPayload): Promise<void> {
-    if (!supabaseUrl) return; // Fail safe si no hay Supabase configurado
+    const supabase = getSupabase();
+    if (!supabase) return; // Fail safe si no hay Supabase configurado
 
     try {
-      // 1. Convertir el texto en un vector de 1536 dimensiones (text-embedding-3-small)
+      // 1. Convertir el texto en un vector con el modelo de Google Gemini
+      // NOTA: cast por drift de majors (@ai-sdk/google v4 vs ai v3). Si el
+      // runtime rechaza el modelo, el catch degrada a [] (fail-safe existente).
       const { embedding } = await embed({
-        model: openai.embedding('text-embedding-3-small'),
+        model: google.textEmbeddingModel('text-embedding-004') as any,
         value: payload.content,
       });
 
@@ -72,11 +82,13 @@ export const NexoMemoryService = {
     matchThreshold: number = 0.75, // QA Guardrail: Evita inyectar basura irrelevante
     matchCount: number = 3
   ): Promise<RetrievedMemory[]> {
-    if (!supabaseUrl) return [];
+    const supabase = getSupabase();
+    if (!supabase) return [];
 
     try {
+      // Mismo cast por drift de majors (ver storeNexoMemory).
       const { embedding } = await embed({
-        model: openai.embedding('text-embedding-3-small'),
+        model: google.textEmbeddingModel('text-embedding-004') as any,
         value: query,
       });
 

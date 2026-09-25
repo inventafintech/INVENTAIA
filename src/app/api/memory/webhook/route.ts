@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { NexoMemoryService, MemoryPayload } from '@/services/NexoMemoryService';
 import { SessionManager } from '@/lib/session';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     // Seguridad básica (en producción: verificar API Key secreta del webhook)

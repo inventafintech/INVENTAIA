@@ -35,7 +35,7 @@ export interface NexoAction {
 
 export interface NexoCard {
   id: string;
-  kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info' | 'summary' | 'history';
+  kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info' | 'summary' | 'history' | 'dashboard' | 'po_approval';
   title: string;
   subtitle?: string;
   metric?: string;
@@ -467,21 +467,55 @@ export class NexoEngineService {
         };
       }
 
-      const topSkus = list.slice(0, 3);
+      const topSkus = list.slice(0, 5);
       const warningsCount = list.length - Math.min(criticalCount, list.length);
-      const reply = `Hay **${criticalCount} SKU(s) en quiebre crítico** y **${warningsCount} en advertencia** (inversión necesaria: **S/ ${totalCapitalRequired.toLocaleString()}**).`;
+      const criticalDetail = topSkus
+        .map(
+          (i) =>
+            `- **${i.sku} · ${i.name}**: stock ${i.currentStock}u vs seguridad ${i.safetyStock ?? '—'}u · cobertura **${i.coverageDays}d** · ROP ${i.rop} · sugerido ${i.suggestedQty}u (S/ ${i.investment.toLocaleString()}) · ${i.provider}`
+        )
+        .join('\n');
+      const reply = [
+        '### ¿Qué está pasando?',
+        `- **${criticalCount} SKU(s) en quiebre crítico** (< 3.5 días) y **${warningsCount} en advertencia** (≤ 7 días).`,
+        `- Inversión necesaria para reposición: **S/ ${totalCapitalRequired.toLocaleString()}**.`,
+        criticalDetail,
+        '### ¿Qué va a pasar?',
+        `- Sin reposición, los SKUs críticos quiebran en menos de 3.5 días y frenan ventas.`,
+        '### ¿Qué debo hacer?',
+        `- Genera las OC en borrador desde la tarjeta y apruébalas con un clic.`,
+        `- Si el capital no alcanza, solicita anticipo en Financiamiento.`,
+      ].join('\n');
 
       return {
         intent,
         reply,
-        cards: topSkus.map((i) => ({
-          id: `sku-${i.id}`,
-          kind: 'sku' as const,
-          title: `${i.sku} · ${i.name}`,
-          subtitle: `${i.status === 'critical' ? '🔴 Crítico' : '🟡 Advertencia'} · Cobertura ${i.coverageDays}d · ROP ${i.rop}`,
-          metric: `S/ ${i.investment.toLocaleString()}`,
-          action: { type: 'generate_oc' as const, label: 'Generar OC', payload: { itemIds: [i.id] }, requiresConfirm: false },
-        })),
+        cards: [
+          {
+            id: 'risk-dashboard',
+            kind: 'dashboard' as const,
+            title: 'Mapa de riesgo de quiebre',
+            subtitle: `${criticalCount} críticos · ${warningsCount} en advertencia`,
+            metric: `S/ ${totalCapitalRequired.toLocaleString()}`,
+            payload: {
+              items: topSkus.map((i) => ({
+                sku: i.sku,
+                name: i.name,
+                coverageDays: i.coverageDays,
+                currentStock: i.currentStock,
+                investment: i.investment,
+              })),
+            },
+          },
+          ...topSkus.slice(0, 3).map((i) => ({
+            id: `sku-${i.id}`,
+            kind: 'sku' as const,
+            title: `${i.sku} · ${i.name}`,
+            subtitle: `${i.status === 'critical' ? 'Crítico' : 'Advertencia'} · Cobertura ${i.coverageDays}d · ROP ${i.rop}`,
+            metric: `S/ ${i.investment.toLocaleString()}`,
+            action: { type: 'generate_oc' as const, label: 'Generar OC', payload: { itemIds: [i.id] }, requiresConfirm: true },
+          })),
+        ],
         elapsedMs: Date.now() - started,
       };
     }
@@ -519,21 +553,42 @@ export class NexoEngineService {
         };
       }
 
-      // Tool calling silencioso si el usuario pide aprobar/ejecutar directamente
+      // SEGURIDAD: ante "aprueba/apruébalo/ejecuta" NUNCA se ejecuta automáticamente.
+      // Se devuelve la propuesta como tarjeta po_approval con requiresConfirm:true;
+      // la ejecución real solo ocurre vía POST /api/nexo/execute con {confirm:true}.
       if (/\b(aprueba|aprob|apruébala|aprobar|confirmar|hecho|ejecuta)\b/i.test(text)) {
-        try {
-          const { BatchOrderApprovalService } = await import('@/services/BatchOrderApprovalService');
-          await BatchOrderApprovalService.processBatchApproval({
-            itemIds: targets.map((i) => i.id),
-            userEmail,
-          });
-        } catch {
-          /* ignore */
-        }
+        const top = targets.slice(0, 5);
+        const total = targets.reduce((s, i) => s + i.investment, 0);
         return {
           intent,
-          reply: 'Hecho. Órdenes aprobadas en borrador.',
-          cards: [],
+          reply: [
+            '### ¿Qué está pasando?',
+            `- Hay **${targets.length} SKUs** con sugerido mayor a 0 por **S/ ${total.toLocaleString()}**.`,
+            '### ¿Qué va a pasar?',
+            `- Sin tu confirmación no ejecuto nada: las órdenes quedan en borrador.`,
+            '### ¿Qué debo hacer?',
+            `- Revisa la tarjeta y pulsa Aprobar para generar las OC en borrador.`,
+          ].join('\n'),
+          cards: [
+            {
+              id: 'po-all',
+              kind: 'po_approval' as const,
+              title: `Generar ${targets.length} OC(s) en borrador`,
+              subtitle: `Inversión total S/ ${total.toLocaleString()}`,
+              metric: `S/ ${total.toLocaleString()}`,
+              payload: {
+                skusCount: targets.length,
+                totalInvestment: total,
+                itemIds: targets.map((i) => i.id),
+              },
+              action: {
+                type: 'generate_oc' as const,
+                label: 'Aprobar Órdenes en Borrador',
+                payload: { itemIds: targets.map((i) => i.id) },
+                requiresConfirm: true,
+              },
+            },
+          ],
           elapsedMs: Date.now() - started,
         };
       }
@@ -559,7 +614,7 @@ export class NexoEngineService {
             title: `Generar ${targets.length} OC(s) en borrador`,
             subtitle: `Inversión total S/ ${total.toLocaleString()}`,
             metric: `${targets.length} OC(s)`,
-            action: { type: 'generate_oc', label: 'Aprobar ahora', payload: { itemIds: targets.map((i) => i.id) }, requiresConfirm: false },
+            action: { type: 'generate_oc', label: 'Aprobar ahora', payload: { itemIds: targets.map((i) => i.id) }, requiresConfirm: true },
           },
         ],
         elapsedMs: Date.now() - started,

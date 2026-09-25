@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { NexoMemoryService } from '@/services/NexoMemoryService';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
   try {
     const body = await req.json();

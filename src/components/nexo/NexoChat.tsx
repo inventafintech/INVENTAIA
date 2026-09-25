@@ -82,14 +82,14 @@ function renderMarkdown(text: string) {
   if (!text) return null;
   const lines = text.split('\n');
   return (
-    <div className="flex flex-col gap-1 text-[13px] leading-relaxed break-words text-slate-800 font-sans">
+    <div className="flex flex-col gap-1 text-[13px] leading-relaxed break-words text-slate-800 dark:text-slate-200 font-sans">
       {lines.map((line, idx) => {
         const trimmed = line.trim();
         if (!trimmed) return <div key={idx} className="h-0.5" />;
 
         if (trimmed.startsWith('### ') || trimmed.startsWith('## ')) {
           return (
-            <div key={idx} className="font-bold text-slate-900 text-[13.5px] mt-1 mb-0.5">
+            <div key={idx} className="font-bold text-slate-900 dark:text-slate-100 text-[13.5px] mt-1 mb-0.5">
               {renderFormattedInline(trimmed.replace(/^#+\s*/, ''))}
             </div>
           );
@@ -115,20 +115,64 @@ function renderFormattedInline(str: string): React.ReactNode {
   const parts = str.split(/(\*\*.*?\*\*|`.*?`|\*.*?\*)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
-      return <strong key={i} className="text-slate-950 font-bold">{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="text-slate-950 dark:text-white font-bold">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
       return (
-        <code key={i} className="bg-slate-100 text-blue-700 px-1 py-0.5 rounded text-xs font-mono font-medium">
+        <code key={i} className="bg-slate-100 dark:bg-slate-800 text-blue-700 dark:text-blue-300 px-1 py-0.5 rounded text-xs font-mono font-medium">
           {part.slice(1, -1)}
         </code>
       );
     }
     if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
-      return <em key={i} className="italic text-slate-700">{part.slice(1, -1)}</em>;
+      return <em key={i} className="italic text-slate-700 dark:text-slate-300">{part.slice(1, -1)}</em>;
     }
     return part;
   });
+}
+
+// ─── Tabla Generativa: arrays JSON de productos → <table> visual ────────
+function ProductTable({ items }: { items: Array<Record<string, any>> }) {
+  const rows = items.slice(0, 8);
+  const covOf = (p: Record<string, any>): number =>
+    Number(p.coverageDays ?? p.cobertura ?? 0);
+  return (
+    <div className="w-full max-w-full overflow-x-auto rounded-lg border border-slate-200/80 dark:border-slate-700">
+      <table className="w-full min-w-[320px] border-collapse text-xs">
+        <caption className="text-left font-bold text-slate-900 dark:text-slate-100 px-2.5 py-2 border-b border-slate-200/80 dark:border-slate-700">
+          Detalle por producto
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col" className="text-left px-2.5 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 whitespace-nowrap">SKU</th>
+            <th scope="col" className="text-left px-2.5 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 whitespace-nowrap">Producto</th>
+            <th scope="col" className="text-left px-2.5 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 whitespace-nowrap">Stock</th>
+            <th scope="col" className="text-left px-2.5 py-2 text-[10px] uppercase tracking-wide text-slate-500 dark:text-slate-400 border-b border-slate-200/80 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 whitespace-nowrap">Cobertura</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((p, i) => {
+            const cov = covOf(p);
+            return (
+              <tr key={String(p.sku ?? p.id ?? i)} className="border-b border-slate-100 dark:border-slate-800 last:border-0">
+                <td className="px-2.5 py-2 font-mono font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">{String(p.sku ?? '—')}</td>
+                <td className="px-2.5 py-2 text-slate-800 dark:text-slate-200 break-words">{String(p.name ?? p.producto ?? '—')}</td>
+                <td className="px-2.5 py-2 font-mono text-slate-800 dark:text-slate-200 whitespace-nowrap">{p.stock ?? p.currentStock ?? '—'} u</td>
+                <td className={`px-2.5 py-2 font-mono font-bold whitespace-nowrap ${cov < 3.5 ? 'text-red-700 dark:text-red-300' : cov <= 7 ? 'text-amber-700 dark:text-amber-300' : 'text-emerald-700 dark:text-emerald-300'}`}>
+                  {cov}d
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function cardHasTable(card: NonNullable<ChatMessage['cards']>[number]): Array<Record<string, any>> | null {
+  const items = card.payload?.items ?? card.payload?.products ?? card.payload?.skus ?? card.payload?.lines;
+  return Array.isArray(items) && items.length > 0 ? items : null;
 }
 
 // ═══════════════════════════════════════════════════════════════════════
@@ -439,6 +483,7 @@ export function NexoChat() {
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         aria-label="Abrir asistente Nexo"
+        aria-expanded={isOpen}
         title="Abrir Nexo Copilot (Ctrl+K)"
         className={`fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full p-0 border-0 bg-transparent cursor-pointer transition-all duration-300 transform hover:scale-105 active:scale-95 focus:outline-none ${
           isOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100 shadow-xl'
@@ -484,11 +529,11 @@ export function NexoChat() {
                 stiffness: 300, 
                 mass: 0.8 
               }}
-              className="relative w-full sm:w-[440px] md:w-[460px] h-[85dvh] sm:h-[580px] max-h-[85dvh] sm:max-h-[min(580px,calc(100dvh-3.5rem))] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden font-sans z-10"
+              className="relative w-full sm:w-[440px] md:w-[460px] h-[85dvh] sm:h-[580px] max-h-[85dvh] sm:max-h-[min(580px,calc(100dvh-3.5rem))] bg-white dark:bg-slate-900 rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200/90 dark:border-slate-700 flex flex-col overflow-hidden font-sans z-10"
             >
               
               {/* ── HEADER DEL CHAT ────────────────────────────────────── */}
-              <motion.div layout="position" className="px-4 py-3 bg-white border-b border-slate-200/80 flex items-center justify-between flex-shrink-0 z-20 relative">
+              <motion.div layout="position" className="px-4 py-3 bg-white dark:bg-slate-900 border-b border-slate-200/80 dark:border-slate-700 flex items-center justify-between flex-shrink-0 z-20 relative">
               <div className="flex items-center gap-2.5">
                 <div className="relative w-8 h-8 rounded-full flex items-center justify-center bg-white border border-slate-200 shadow-xs">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -538,7 +583,7 @@ export function NexoChat() {
                   <X size={17} />
                 </button>
               </div>
-            </div>
+              </motion.div>
 
             {/* ── ÁREA DE MENSAJES (HISTORIAL SCROLLABLE CON MIN-H-0) ──── */}
             <div
@@ -626,13 +671,14 @@ export function NexoChat() {
                         className="rounded-full object-contain flex-shrink-0 mt-0.5"
                       />
                       <div className="flex-1 min-w-0">
-                        <motion.div layout="position" className="bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-3 text-[13px] text-slate-800 shadow-2xs space-y-2">
+                        <motion.div layout="position" aria-live="polite" className="bg-white dark:bg-slate-900 border border-slate-200/90 dark:border-slate-700 rounded-2xl rounded-tl-xs p-3 text-[13px] text-slate-800 dark:text-slate-200 shadow-2xs space-y-2">
                           
                           {/* ── INTERFAZ DE RAZONAMIENTO VISIBLE (THINKING STEPS) ── */}
                           {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
                             <motion.div 
                               layout="position"
-                              className="mb-3 space-y-1.5 bg-slate-50 border border-slate-100 rounded-xl p-2.5"
+                              className="mb-3 space-y-1.5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl p-2.5"
+                              role="status"
                             >
                               <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1 pl-1 flex items-center gap-1.5">
                                 <Sparkles size={10} className="text-blue-500" />
@@ -671,11 +717,11 @@ export function NexoChat() {
                             <motion.div 
                               initial={{ opacity: 0, height: 0 }} 
                               animate={{ opacity: 1, height: 'auto' }} 
-                              className="p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl flex items-center justify-between gap-2 mt-1"
+                              className="p-2.5 bg-blue-50/90 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 rounded-xl flex items-center justify-between gap-2 mt-1"
                             >
                               <div className="flex items-center gap-1.5 min-w-0">
                                 <ExternalLink size={13} className="text-blue-600 flex-shrink-0" />
-                                <span className="text-xs font-semibold text-slate-800 truncate">
+                                <span className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate">
                                   {msg.toolCall.route}
                                 </span>
                               </div>
@@ -731,12 +777,13 @@ export function NexoChat() {
                                   );
                                 }
 
-                                // --- Fallback a Tarjeta Estándar ---
+                                // --- Fallback a Tarjeta Estándar (con tabla si hay array) ---
+                                const tableItems = cardHasTable(card);
                                 return (
                                   <motion.div
                                     layout
                                     key={card.id}
-                                    className="bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:shadow-sm transition-all duration-200 text-xs flex flex-col gap-2 relative overflow-hidden"
+                                    className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-xl p-3 shadow-xs hover:shadow-sm transition-all duration-200 text-xs flex flex-col gap-2 relative overflow-hidden"
                                   >
                                     {/* Efecto de carga en fondo */}
                                     {isRunning && (
@@ -745,26 +792,28 @@ export function NexoChat() {
                                     
                                     <div className="flex justify-between items-start gap-2 relative z-10">
                                       <div className="flex items-start gap-2.5 min-w-0">
-                                        <div className="mt-0.5 p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex-shrink-0">
+                                        <div className="mt-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-100 dark:border-slate-700 flex-shrink-0">
                                           {getCardIcon(card.kind)}
                                         </div>
                                         <div className="min-w-0">
-                                          <div className="font-semibold text-slate-900 truncate text-[12.5px]">
+                                          <div className="font-semibold text-slate-900 dark:text-slate-100 truncate text-[12.5px]">
                                             {card.title}
                                           </div>
                                           {card.subtitle && (
-                                            <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                                            <div className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                                               {card.subtitle}
                                             </div>
                                           )}
                                         </div>
                                       </div>
                                       {card.metric && (
-                                        <div className="font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 font-mono text-[11px] flex-shrink-0">
+                                        <div className="font-bold text-slate-900 dark:text-slate-100 bg-slate-50 dark:bg-slate-800 px-2 py-1 rounded-md border border-slate-100 dark:border-slate-700 font-mono text-[11px] flex-shrink-0">
                                           {card.metric}
                                         </div>
                                       )}
                                     </div>
+
+                                    {tableItems && <ProductTable items={tableItems} />}
 
                                     {card.action && (
                                       <div className="mt-1 relative z-10 border-t border-slate-100 pt-2 flex justify-end">
@@ -792,7 +841,7 @@ export function NexoChat() {
                         </motion.div>
 
                         {/* Timestamp sutil */}
-                        <motion.div layout="position" className="text-[10px] text-slate-400 mt-1 pl-1">
+                        <motion.div layout="position" className="text-[10px] text-slate-400 dark:text-slate-500 mt-1 pl-1">
                           {msg.timestamp}
                         </motion.div>
                       </div>
@@ -818,7 +867,7 @@ export function NexoChat() {
                       height={20}
                       className="rounded-full object-contain flex-shrink-0"
                     />
-                    <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs px-3.5 py-2.5 flex items-center gap-1.5 shadow-2xs">
+                      <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-700 rounded-2xl rounded-tl-xs px-3.5 py-2.5 flex items-center gap-1.5 shadow-2xs">
                       <motion.span
                         animate={{ y: [0, -3, 0] }}
                         transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0 }}
@@ -843,7 +892,7 @@ export function NexoChat() {
             </div>
 
             {/* ── FOOTER: INPUT ANCLADO EN LA PARTE INFERIOR (STICKY) ───── */}
-            <div className="p-3 bg-white border-t border-slate-200/80 flex flex-col gap-1.5 flex-shrink-0 sticky bottom-0 z-10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            <div className="p-3 bg-white dark:bg-slate-900 border-t border-slate-200/80 dark:border-slate-700 flex flex-col gap-1.5 flex-shrink-0 sticky bottom-0 z-10 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -859,7 +908,9 @@ export function NexoChat() {
                   placeholder="Pregunta a Nexo o escribe una acción..."
                   autoComplete="off"
                   disabled={isLoading}
-                  className="flex-1 bg-slate-50 hover:bg-slate-100/70 focus:bg-white border border-slate-200 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-[13.5px] text-slate-900 outline-none transition-all placeholder:text-slate-400 font-sans shadow-2xs"
+                  enterKeyHint="send"
+                  aria-label="Escribe tu consulta para Nexo"
+                  className="flex-1 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100/70 dark:hover:bg-slate-700 focus:bg-white dark:focus:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:border-blue-500 rounded-xl px-3.5 py-2.5 text-[13.5px] text-slate-900 dark:text-slate-100 outline-none transition-all placeholder:text-slate-400 dark:placeholder:text-slate-500 font-sans shadow-2xs"
                 />
 
                 <button
@@ -885,8 +936,9 @@ export function NexoChat() {
               </div>
             </div>
           </motion.div>
-        </AnimatePresence>
-      )}
+        </div>
+        )}
+      </AnimatePresence>
 
       {/* Animación flotante global */}
       <style>{`
