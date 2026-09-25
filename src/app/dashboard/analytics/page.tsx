@@ -75,15 +75,16 @@ export default function AnalyticsPage() {
     fetchAnalytics();
   }, []);
 
-  // Coordenadas calculadas para el gráfico SVG responsivo
-  // El ancho total es 600, alto 200. Margen izquierdo 50, derecho 50 -> ancho útil 500.
-  // 6 puntos distribuidos en x: 50, 150, 250, 350, 450, 550.
-  // Precisión mapeada de 80% (y = 180) a 100% (y = 30) -> rango 150 px para 20% -> 7.5 px por cada 1%.
+  // Calculamos coordenadas tanto absolutas (para el SVG path) como relativas en % (para HTML overlays)
   const getPointCoords = (precision: number, index: number) => {
-    const x = 50 + index * 100;
+    const xAbs = 50 + index * 100; // 50, 150, 250...
+    const xPercent = (xAbs / 600) * 100;
+    
     const clampedPrecision = Math.max(80, Math.min(100, precision));
-    const y = 180 - (clampedPrecision - 80) * 7.5;
-    return { x, y };
+    const yAbs = 180 - (clampedPrecision - 80) * 7.5;
+    const yPercent = (yAbs / 210) * 100;
+    
+    return { xAbs, yAbs, xPercent, yPercent };
   };
 
   const trendPoints = data?.trend || [
@@ -95,12 +96,11 @@ export default function AnalyticsPage() {
     { month: 'Oct', label: 'Oct (94.5%)', precision: 94.5, mape: 5.5, isCurrent: true },
   ];
 
-  // Construir el path de la línea y del área
   const coords = trendPoints.map((pt, idx) => getPointCoords(pt.precision, idx));
   const linePathD = coords.reduce((acc, curr, idx) => {
-    return idx === 0 ? `M ${curr.x} ${curr.y}` : `${acc} L ${curr.x} ${curr.y}`;
+    return idx === 0 ? `M ${curr.xAbs} ${curr.yAbs}` : `${acc} L ${curr.xAbs} ${curr.yAbs}`;
   }, '');
-  const areaPathD = `${linePathD} L ${coords[coords.length - 1].x} 180 L ${coords[0].x} 180 Z`;
+  const areaPathD = `${linePathD} L ${coords[coords.length - 1].xAbs} 180 L ${coords[0].xAbs} 180 Z`;
 
   return (
     <div className={styles.container}>
@@ -174,14 +174,11 @@ export default function AnalyticsPage() {
           </div>
 
           <div className={styles.chartContainer}>
+            {/* 1. SVG Base para Líneas y Áreas (Escala asimétrica con preserveAspectRatio="none") */}
             <svg
               className={styles.chartSvg}
               viewBox="0 0 600 210"
               preserveAspectRatio="none"
-              onMouseLeave={() => {
-                setHoveredPoint(null);
-                setTooltipPos(null);
-              }}
             >
               <defs>
                 <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
@@ -190,90 +187,85 @@ export default function AnalyticsPage() {
                 </linearGradient>
               </defs>
 
-              {/* Líneas tenues de cuadrícula horizontal */}
-              <line x1="30" y1="50" x2="570" y2="50" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="30" y1="100" x2="570" y2="100" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
-              <line x1="30" y1="150" x2="570" y2="150" stroke="#f1f5f9" strokeWidth="1" strokeDasharray="4 4" />
+              {/* Líneas tenues de cuadrícula horizontal (vectorEffect evita deformación del grosor) */}
+              <line x1="0" y1="50" x2="600" y2="50" stroke="var(--line)" strokeWidth="1" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+              <line x1="0" y1="100" x2="600" y2="100" stroke="var(--line)" strokeWidth="1" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+              <line x1="0" y1="150" x2="600" y2="150" stroke="var(--line)" strokeWidth="1" strokeDasharray="4 4" vectorEffect="non-scaling-stroke" />
+              <line x1="0" y1="200" x2="600" y2="200" stroke="var(--line)" strokeWidth="1" vectorEffect="non-scaling-stroke" />
 
               {/* Área con gradiente azul */}
               <path d={areaPathD} fill="url(#analyticsGradient)" />
 
-              {/* Línea sólida de tendencia */}
+              {/* Línea sólida de tendencia (vectorEffect="non-scaling-stroke" evita engrosamiento horizontal) */}
               <path
                 d={linePathD}
                 fill="none"
                 stroke="#2563eb"
-                strokeWidth="3"
+                strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                vectorEffect="non-scaling-stroke"
               />
+            </svg>
 
-              {/* Puntos de datos interactivos */}
+            {/* 2. Overlays HTML para Puntos y Textos (Mantienen círculos perfectos sin deformarse) */}
+            <div 
+              className="absolute inset-0"
+              onMouseLeave={() => {
+                setHoveredPoint(null);
+                setTooltipPos(null);
+              }}
+            >
               {coords.map((c, idx) => {
                 const pt = trendPoints[idx];
                 const isCurrent = idx === trendPoints.length - 1;
 
                 return (
-                  <g key={pt.month}>
-                    {/* Área invisible para captura de hover más cómoda */}
-                    <circle
-                      cx={c.x}
-                      cy={c.y}
-                      r="16"
-                      fill="transparent"
-                      style={{ cursor: 'pointer' }}
-                      onMouseEnter={() => {
-                        setHoveredPoint(pt);
-                        setTooltipPos({ x: c.x, y: c.y });
-                      }}
+                  <div
+                    key={pt.month}
+                    className="absolute"
+                    style={{ left: `${c.xPercent}%`, top: 0, bottom: 0, width: '40px', transform: 'translateX(-50%)' }}
+                    onMouseEnter={() => {
+                      setHoveredPoint(pt);
+                      setTooltipPos({ x: c.xPercent, y: c.yPercent });
+                    }}
+                  >
+                    {/* Punto Visible (centrado verticalmente por % sobre la línea) */}
+                    <div 
+                      className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-all duration-200 ${
+                        isCurrent ? 'w-3 h-3 bg-slate-900 border-white shadow-sm' : 'w-2 h-2 bg-blue-600 border-white'
+                      }`}
+                      style={{ top: `${c.yPercent}%` }}
                     />
-
-                    {/* Halo para el punto actual */}
+                    
+                    {/* Halo azul de foco para el mes actual */}
                     {isCurrent && (
-                      <circle
-                        cx={c.x}
-                        cy={c.y}
-                        r="8"
-                        fill="#2563eb"
-                        fillOpacity="0.18"
+                      <div 
+                        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-600/20 rounded-full"
+                        style={{ top: `${c.yPercent}%` }}
                       />
                     )}
 
-                    {/* Punto visible */}
-                    <circle
-                      cx={c.x}
-                      cy={c.y}
-                      r={isCurrent ? 5.5 : 4}
-                      fill={isCurrent ? 'var(--ink)' : '#2563eb'}
-                      stroke="var(--bg)"
-                      strokeWidth={isCurrent ? 2 : 1.5}
-                      style={{ transition: 'r 0.15s ease' }}
-                    />
-
-                    {/* Etiquetas en el eje X */}
-                    <text
-                      x={c.x}
-                      y="200"
-                      fill={isCurrent ? 'var(--ink)' : 'var(--muted)'}
-                      fontWeight={isCurrent ? '700' : '500'}
-                      fontSize="11"
-                      textAnchor="middle"
-                      fontFamily="inherit"
+                    {/* Etiqueta del Eje X anclada al fondo (100%) */}
+                    <div 
+                      className={`absolute bottom-0 w-full text-center text-[10px] sm:text-[11px] whitespace-nowrap -translate-x-1/2 left-1/2 ${
+                        isCurrent ? 'font-bold text-slate-900' : 'font-medium text-slate-500'
+                      }`}
                     >
                       {pt.label}
-                    </text>
-                  </g>
+                    </div>
+                  </div>
                 );
               })}
-            </svg>
+            </div>
 
             {/* Tooltip interactivo flotante */}
             {hoveredPoint && tooltipPos && (
               <div
                 className={styles.tooltip}
                 style={{
-                  left: `${(tooltipPos.x / 600) * 100}%`,
-                  top: `${tooltipPos.y - 12}px`,
+                  left: `${tooltipPos.x}%`,
+                  top: `calc(${tooltipPos.y}% - 12px)`,
                 }}
               >
                 <div className={styles.tooltipMonth}>{hoveredPoint.month} 2026</div>

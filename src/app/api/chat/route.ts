@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { nexoSystemPrompt } from '@/ai/prompt';
 import { SessionManager } from '@/lib/session';
 import { NexoEngineService, resolveNavigation, hasNavVerb, isOffDomain } from '@/services/NexoEngineService';
+import { NexoMemoryService } from '@/services/NexoMemoryService';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -72,13 +73,24 @@ export async function POST(req: Request) {
         const { FinancingService } = await import('@/services/FinancingService');
         const { NotificationService } = await import('@/services/NotificationService');
 
-        const [restockData, creditSummary, alertSummary] = await Promise.all([
+        // Mock de Workspace ID (En un entorno real vendría del JWT / SessionAuth)
+        const currentWorkspaceId = '00000000-0000-0000-0000-000000000000';
+
+        // Ejecución Concurrente Extrema (<150ms total)
+        const [restockData, creditSummary, alertSummary, memories] = await Promise.all([
           RestockCalculatorService.calculateRestockItems().catch(() => ({ items: [], criticalCount: 0, warningCount: 0, totalCapitalRequired: 0 })),
           Promise.resolve(FinancingService.getCreditSummary()).catch(() => null),
           NotificationService.getAlertSummary().catch(() => null),
+          NexoMemoryService.retrieveRelevantMemories(userMessage, currentWorkspaceId, 0.75, 3), // Búsqueda RAG (Cosine Similarity)
         ]);
 
         const criticalList = restockData.items.filter((i) => i.status !== 'optimal');
+        
+        // Bloque de RAG (Contexto Semántico a Largo Plazo)
+        const memoryContextString = memories.length > 0 
+          ? `[MEMORIA A LARGO PLAZO Y CONTEXTO HISTÓRICO]:\n${memories.map((m, i) => `Recuerdo ${i + 1}: ${m.content} (Metadata: ${JSON.stringify(m.metadata)})`).join('\n')}`
+          : `[MEMORIA A LARGO PLAZO]: Sin eventos históricos relevantes para esta consulta.`;
+
         const realTimeContext = `
 [CONTEXTO EN TIEMPO REAL DEL ERP INVENTA.AI - DATOS OPERATIVOS ACTUALES]:
 - Pantalla actual del usuario: ${pathname || '/overview'}
@@ -91,6 +103,8 @@ export async function POST(req: Request) {
 - Top SKUs Críticos en riesgo inminente:
 ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | Cobertura: ${i.coverageDays} días | ROP: ${i.rop} | Sugerido: ${i.suggestedQty} u | Inversión: S/ ${i.investment.toLocaleString()} | Proveedor: ${i.provider}`).join('\n')}
 - Alertas del sistema: Quiebres de stock: ${alertSummary?.riesgoQuiebre ?? 0}, Órdenes pendientes: ${alertSummary?.ordenes ?? 0}, Inventario en riesgo: ${alertSummary?.inventario ?? 0}
+
+${memoryContextString}
 `;
 
         const result = await streamText({

@@ -3,10 +3,15 @@
 import React, { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
+import dynamic from 'next/dynamic';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
-import { NexoChat } from '@/components/nexo/NexoChat';
 import { useAppShell } from '@/hooks/useAppShell';
+
+// Carga diferida (Lazy Loading) de NexoChat para no penalizar el FCP del Dashboard
+const NexoChat = dynamic(() => import('@/components/nexo/NexoChat').then(mod => mod.NexoChat), {
+  ssr: false, // Desactivar SSR previene hidrataciones pesadas en el servidor y optimiza framer-motion
+});
 import { NotificationProvider } from '@/context/NotificationContext';
 import styles from './AppShell.module.css';
 
@@ -68,7 +73,7 @@ export function AppShell({ children }: AppShellProps) {
           />
 
           {/* Área principal fluida: flex-1 overflow-auto ocupando el 100% del espacio sobrante */}
-          <main className={`flex-1 overflow-auto w-full p-4 sm:p-6 lg:p-8 pb-24 ${styles.contentArea}`}>
+          <main className={`flex-1 overflow-auto w-full ${styles.contentArea}`}>
             {children}
           </main>
         </div>

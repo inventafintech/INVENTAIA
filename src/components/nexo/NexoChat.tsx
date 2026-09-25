@@ -11,7 +11,17 @@ import {
   CheckCircle2,
   Loader2,
   ChevronRight,
+  Package,
+  ShoppingCart,
+  Wallet,
+  Info,
+  Link as LinkIcon,
+  BarChart,
+  Clock,
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RiskDashboard } from './cards/RiskDashboard';
+import { POApprovalCard } from './cards/POApprovalCard';
 
 // ─── Interfaces ────────────────────────────────────────────────────────
 export interface ChatMessage {
@@ -19,12 +29,18 @@ export interface ChatMessage {
   role: 'user' | 'nexo';
   content: string;
   timestamp: string;
+  thinkingSteps?: Array<{
+    id: string;
+    text: string;
+    status: 'pending' | 'success';
+  }>;
   cards?: Array<{
     id: string;
-    kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info' | 'summary' | 'history';
+    kind: 'sku' | 'oc' | 'financing' | 'connector' | 'info' | 'summary' | 'history' | 'dashboard' | 'po_approval';
     title: string;
     subtitle?: string;
     metric?: string;
+    payload?: any;
     action?: {
       type: 'generate_oc' | 'request_disbursement' | 'navigate';
       label: string;
@@ -37,6 +53,21 @@ export interface ChatMessage {
     reason?: string;
     destination_intent?: string;
   };
+}
+
+// ─── Helpers Visuales ──────────────────────────────────────────────────
+function getCardIcon(kind: string) {
+  switch (kind) {
+    case 'sku': return <Package size={14} className="text-blue-600" />;
+    case 'oc': return <ShoppingCart size={14} className="text-emerald-600" />;
+    case 'financing': return <Wallet size={14} className="text-indigo-600" />;
+    case 'connector': return <LinkIcon size={14} className="text-orange-600" />;
+    case 'summary': return <BarChart size={14} className="text-purple-600" />;
+    case 'history': return <Clock size={14} className="text-slate-500" />;
+    case 'info':
+    default:
+      return <Info size={14} className="text-slate-400" />;
+  }
 }
 
 // ─── Sugerencias Iniciales Rápidas ─────────────────────────────────────
@@ -215,6 +246,18 @@ export function NexoChat() {
       let streamedContent = '';
       let detectedToolRoute: string | undefined;
       let detectedCards: any[] = [];
+      let currentThinkingSteps: NonNullable<ChatMessage['thinkingSteps']> = [];
+
+      const getThinkingText = (toolName: string) => {
+        const dictionary: Record<string, string> = {
+          analyze_stock_risk: 'Analizando riesgo logístico e inventario...',
+          calculate_financing: 'Consultando proyecciones de capital y tasas...',
+          navigate_platform: 'Enrutando hacia módulo estratégico...',
+          approve_purchase_orders: 'Orquestando generación de órdenes...',
+          generative_cards: 'Compilando micro-aplicaciones en UI...',
+        };
+        return dictionary[toolName] || `Ejecutando proceso: ${toolName}...`;
+      };
 
       while (true) {
         const { done, value } = await reader.read();
@@ -239,10 +282,22 @@ export function NexoChat() {
             }
           }
 
-          // 9: Invocación de tool
+          // 9: Invocación de tool (Inicio del Razonamiento Visible)
           if (line.startsWith('9:')) {
             try {
               const toolData = JSON.parse(line.slice(2));
+              
+              currentThinkingSteps = [
+                ...currentThinkingSteps,
+                { id: toolData.toolCallId, text: getThinkingText(toolData.toolName), status: 'pending' }
+              ];
+              
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === nexoMessageId ? { ...msg, thinkingSteps: currentThinkingSteps } : msg
+                )
+              );
+
               if (toolData.toolName === 'navigate_platform' && toolData.args?.route) {
                 detectedToolRoute = toolData.args.route;
               }
@@ -251,10 +306,21 @@ export function NexoChat() {
             }
           }
 
-          // a: Resultado de tool (tarjetas generativas)
+          // a: Resultado de tool (Fin del Razonamiento Visible)
           if (line.startsWith('a:')) {
             try {
               const toolResult = JSON.parse(line.slice(2));
+              
+              currentThinkingSteps = currentThinkingSteps.map(step => 
+                step.id === toolResult.toolCallId ? { ...step, status: 'success' } : step
+              );
+              
+              setMessages((prev) =>
+                prev.map((msg) =>
+                  msg.id === nexoMessageId ? { ...msg, thinkingSteps: currentThinkingSteps } : msg
+                )
+              );
+
               if (Array.isArray(toolResult.result?.cards)) {
                 detectedCards = toolResult.result.cards;
               }
@@ -393,19 +459,36 @@ export function NexoChat() {
       </button>
 
       {/* ── VENTANA DE CHAT CONVERSACIONAL ───────────────────────────── */}
-      {isOpen && (
-        <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 flex flex-col justify-end pointer-events-auto">
-          {/* Backdrop en móviles para cerrar al tocar afuera */}
-          <div
-            className="sm:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
-            onClick={() => setIsOpen(false)}
-          />
+      <AnimatePresence>
+        {isOpen && (
+          <div className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 flex flex-col justify-end pointer-events-auto">
+            {/* Backdrop en móviles para cerrar al tocar afuera */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="sm:hidden fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+              onClick={() => setIsOpen(false)}
+            />
 
-          {/* Contenedor del Chat: Drawer en mobile y tarjeta flotante en desktop */}
-          <div className="relative w-full sm:w-[440px] md:w-[460px] h-[85dvh] sm:h-[580px] max-h-[85dvh] sm:max-h-[min(580px,calc(100dvh-3.5rem))] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden font-sans z-10 transition-all duration-200">
-            
-            {/* ── HEADER DEL CHAT ────────────────────────────────────── */}
-            <div className="px-4 py-3 bg-white border-b border-slate-200/80 flex items-center justify-between flex-shrink-0">
+            {/* Contenedor del Chat: Drawer en mobile y tarjeta flotante en desktop */}
+            <motion.div 
+              layout
+              initial={{ opacity: 0, y: 40, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              transition={{ 
+                type: 'spring', 
+                damping: 25, 
+                stiffness: 300, 
+                mass: 0.8 
+              }}
+              className="relative w-full sm:w-[440px] md:w-[460px] h-[85dvh] sm:h-[580px] max-h-[85dvh] sm:max-h-[min(580px,calc(100dvh-3.5rem))] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl border border-slate-200/90 flex flex-col overflow-hidden font-sans z-10"
+            >
+              
+              {/* ── HEADER DEL CHAT ────────────────────────────────────── */}
+              <motion.div layout="position" className="px-4 py-3 bg-white border-b border-slate-200/80 flex items-center justify-between flex-shrink-0 z-20 relative">
               <div className="flex items-center gap-2.5">
                 <div className="relative w-8 h-8 rounded-full flex items-center justify-center bg-white border border-slate-200 shadow-xs">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -504,147 +587,257 @@ export function NexoChat() {
               )}
 
               {/* Mensajes del Historial */}
-              {messages.map((msg) => {
-                // 1. Mensaje del Usuario (Alineado a la derecha, tono corporativo)
-                if (msg.role === 'user') {
+              <AnimatePresence initial={false}>
+                {messages.map((msg) => {
+                  // 1. Mensaje del Usuario (Alineado a la derecha, tono corporativo)
+                  if (msg.role === 'user') {
+                    return (
+                      <motion.div 
+                        layout="position"
+                        initial={{ opacity: 0, y: 15, scale: 0.95, originX: 1, originY: 1 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                        key={msg.id} 
+                        className="flex justify-end"
+                      >
+                        <div className="max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 text-[13px] leading-relaxed shadow-xs break-words">
+                          {msg.content}
+                        </div>
+                      </motion.div>
+                    );
+                  }
+
+                  // 2. Mensaje de Nexo (Alineado a la izquierda con Avatar)
                   return (
-                    <div key={msg.id} className="flex justify-end">
-                      <div className="max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-tr-xs px-3.5 py-2.5 text-[13px] leading-relaxed shadow-xs break-words">
-                        {msg.content}
-                      </div>
-                    </div>
-                  );
-                }
-
-                // 2. Mensaje de Nexo (Alineado a la izquierda con Avatar)
-                return (
-                  <div key={msg.id} className="flex items-start gap-2.5 max-w-[92%] sm:max-w-[90%]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/nexo-orb.png"
-                      alt=""
-                      width={22}
-                      height={22}
-                      className="rounded-full object-contain flex-shrink-0 mt-0.5"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <div className="bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-3 text-[13px] text-slate-800 shadow-2xs space-y-2">
-                        {/* Contenido Markdown Renderizado */}
-                        <div>{renderMarkdown(msg.content)}</div>
-
-                        {/* Redirección automática sugerida */}
-                        {msg.toolCall?.route && (
-                          <div className="p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl flex items-center justify-between gap-2 mt-1">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <ExternalLink size={13} className="text-blue-600 flex-shrink-0" />
-                              <span className="text-xs font-semibold text-slate-800 truncate">
-                                {msg.toolCall.route}
-                              </span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setIsOpen(false);
-                                router.push(msg.toolCall!.route!);
-                              }}
-                              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 py-1 text-[11px] font-semibold cursor-pointer transition-colors flex-shrink-0"
+                    <motion.div 
+                      layout="position"
+                      initial={{ opacity: 0, y: 15, scale: 0.95, originX: 0, originY: 1 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+                      key={msg.id} 
+                      className="flex items-start gap-2.5 max-w-[92%] sm:max-w-[90%]"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src="/nexo-orb.png"
+                        alt=""
+                        width={22}
+                        height={22}
+                        className="rounded-full object-contain flex-shrink-0 mt-0.5"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <motion.div layout="position" className="bg-white border border-slate-200/90 rounded-2xl rounded-tl-xs p-3 text-[13px] text-slate-800 shadow-2xs space-y-2">
+                          
+                          {/* ── INTERFAZ DE RAZONAMIENTO VISIBLE (THINKING STEPS) ── */}
+                          {msg.thinkingSteps && msg.thinkingSteps.length > 0 && (
+                            <motion.div 
+                              layout="position"
+                              className="mb-3 space-y-1.5 bg-slate-50 border border-slate-100 rounded-xl p-2.5"
                             >
-                              Ir →
-                            </button>
-                          </div>
-                        )}
+                              <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1 pl-1 flex items-center gap-1.5">
+                                <Sparkles size={10} className="text-blue-500" />
+                                Cadena de Razonamiento
+                              </div>
+                              <AnimatePresence>
+                                {msg.thinkingSteps.map((step) => (
+                                  <motion.div
+                                    key={step.id}
+                                    initial={{ opacity: 0, height: 0, x: -5 }}
+                                    animate={{ opacity: 1, height: 'auto', x: 0 }}
+                                    transition={{ duration: 0.2 }}
+                                    className="flex items-center gap-2 text-[11.5px] font-medium"
+                                  >
+                                    {step.status === 'pending' ? (
+                                      <Loader2 size={13} className="text-blue-600 animate-spin" />
+                                    ) : (
+                                      <CheckCircle2 size={13} className="text-emerald-500" />
+                                    )}
+                                    <span className={step.status === 'pending' ? 'text-blue-800' : 'text-slate-600'}>
+                                      {step.text}
+                                    </span>
+                                  </motion.div>
+                                ))}
+                              </AnimatePresence>
+                            </motion.div>
+                          )}
 
-                        {/* Micro-tarjetas Generativas */}
-                        {msg.cards && msg.cards.length > 0 && (
-                          <div className="space-y-1.5 mt-2 pt-1 border-t border-slate-200/60">
-                            {msg.cards.map((card) => {
-                              const isRunning = executingActionId === card.id;
-                              const isDone = actionSuccessId === card.id;
+                          {/* Contenido Markdown Renderizado */}
+                          <motion.div layout="position">
+                            {renderMarkdown(msg.content)}
+                          </motion.div>
 
-                              return (
-                                <div
-                                  key={card.id}
-                                  className="bg-slate-50 border border-slate-200/90 rounded-xl p-2.5 shadow-2xs text-xs"
-                                >
-                                  <div className="flex justify-between items-start gap-2">
-                                    <div className="min-w-0">
-                                      <div className="font-semibold text-slate-900 truncate">
-                                        {card.title}
+                          {/* Redirección automática sugerida */}
+                          {msg.toolCall?.route && (
+                            <motion.div 
+                              initial={{ opacity: 0, height: 0 }} 
+                              animate={{ opacity: 1, height: 'auto' }} 
+                              className="p-2.5 bg-blue-50/90 border border-blue-200 rounded-xl flex items-center justify-between gap-2 mt-1"
+                            >
+                              <div className="flex items-center gap-1.5 min-w-0">
+                                <ExternalLink size={13} className="text-blue-600 flex-shrink-0" />
+                                <span className="text-xs font-semibold text-slate-800 truncate">
+                                  {msg.toolCall.route}
+                                </span>
+                              </div>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setIsOpen(false);
+                                  router.push(msg.toolCall!.route!);
+                                }}
+                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-2.5 py-1 text-[11px] font-semibold cursor-pointer transition-colors flex-shrink-0"
+                              >
+                                Ir →
+                              </button>
+                            </motion.div>
+                          )}
+
+                          {/* Micro-tarjetas Generativas */}
+                          {msg.cards && msg.cards.length > 0 && (
+                            <motion.div 
+                              initial={{ opacity: 0 }} 
+                              animate={{ opacity: 1 }}
+                              className="space-y-2 mt-2 pt-2 border-t border-slate-200/60"
+                            >
+                              {msg.cards.map((card) => {
+                                const isRunning = executingActionId === card.id;
+                                const isDone = actionSuccessId === card.id;
+
+                                // --- Renderizado de Componentes UI Complejos ---
+                                if (card.kind === 'dashboard') {
+                                  return (
+                                    <div key={card.id}>
+                                      <RiskDashboard data={card.payload?.items || []} title={card.title} />
+                                    </div>
+                                  );
+                                }
+
+                                if (card.kind === 'po_approval') {
+                                  return (
+                                    <div key={card.id}>
+                                      <POApprovalCard 
+                                        cardId={card.id}
+                                        title={card.title}
+                                        skusCount={card.payload?.skusCount || 0}
+                                        totalInvestment={card.payload?.totalInvestment || 0}
+                                        onApprove={async (id) => {
+                                          if (card.action) {
+                                            await handleExecuteCardAction(id, card.action);
+                                          }
+                                        }}
+                                        status={isRunning ? 'loading' : isDone ? 'success' : 'idle'}
+                                      />
+                                    </div>
+                                  );
+                                }
+
+                                // --- Fallback a Tarjeta Estándar ---
+                                return (
+                                  <motion.div
+                                    layout
+                                    key={card.id}
+                                    className="bg-white border border-slate-200/80 rounded-xl p-3 shadow-xs hover:shadow-sm transition-all duration-200 text-xs flex flex-col gap-2 relative overflow-hidden"
+                                  >
+                                    {/* Efecto de carga en fondo */}
+                                    {isRunning && (
+                                      <div className="absolute inset-0 bg-blue-50/50 backdrop-blur-[1px] z-0 animate-pulse" />
+                                    )}
+                                    
+                                    <div className="flex justify-between items-start gap-2 relative z-10">
+                                      <div className="flex items-start gap-2.5 min-w-0">
+                                        <div className="mt-0.5 p-1.5 bg-slate-50 rounded-lg border border-slate-100 flex-shrink-0">
+                                          {getCardIcon(card.kind)}
+                                        </div>
+                                        <div className="min-w-0">
+                                          <div className="font-semibold text-slate-900 truncate text-[12.5px]">
+                                            {card.title}
+                                          </div>
+                                          {card.subtitle && (
+                                            <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                                              {card.subtitle}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
-                                      {card.subtitle && (
-                                        <div className="text-[11px] text-slate-500 truncate mt-0.5">
-                                          {card.subtitle}
+                                      {card.metric && (
+                                        <div className="font-bold text-slate-900 bg-slate-50 px-2 py-1 rounded-md border border-slate-100 font-mono text-[11px] flex-shrink-0">
+                                          {card.metric}
                                         </div>
                                       )}
                                     </div>
-                                    {card.metric && (
-                                      <div className="font-bold text-blue-600 font-mono text-xs flex-shrink-0">
-                                        {card.metric}
+
+                                    {card.action && (
+                                      <div className="mt-1 relative z-10 border-t border-slate-100 pt-2 flex justify-end">
+                                        <button
+                                          type="button"
+                                          disabled={isRunning || isDone}
+                                          onClick={() => handleExecuteCardAction(card.id, card.action)}
+                                          className={`rounded-lg px-3.5 py-1.5 text-[11.5px] font-semibold inline-flex items-center gap-1.5 transition-all duration-200 cursor-pointer shadow-xs ${
+                                            isDone
+                                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default'
+                                              : 'bg-slate-900 hover:bg-blue-600 text-white border border-transparent hover:shadow-blue-500/20'
+                                          }`}
+                                        >
+                                          {isRunning && <Loader2 size={12} className="animate-spin" />}
+                                          {isDone && <CheckCircle2 size={12} className="text-emerald-600" />}
+                                          <span>{isDone ? 'Completado exitosamente' : card.action.label}</span>
+                                        </button>
                                       </div>
                                     )}
-                                  </div>
+                                  </motion.div>
+                                );
+                              })}
+                            </motion.div>
+                          )}
+                        </motion.div>
 
-                                  {card.action && (
-                                    <div className="mt-2">
-                                      <button
-                                        type="button"
-                                        disabled={isRunning || isDone}
-                                        onClick={() => handleExecuteCardAction(card.id, card.action)}
-                                        className={`rounded-lg px-3 py-1.5 text-[11px] font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
-                                          isDone
-                                            ? 'bg-emerald-600 text-white cursor-default'
-                                            : 'bg-blue-600 hover:bg-blue-700 text-white'
-                                        }`}
-                                      >
-                                        {isRunning && <Loader2 size={11} className="animate-spin" />}
-                                        {isDone && <CheckCircle2 size={11} />}
-                                        <span>{isDone ? 'Completado' : card.action.label}</span>
-                                      </button>
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            })}
-                          </div>
-                        )}
+                        {/* Timestamp sutil */}
+                        <motion.div layout="position" className="text-[10px] text-slate-400 mt-1 pl-1">
+                          {msg.timestamp}
+                        </motion.div>
                       </div>
-
-                      {/* Timestamp sutil */}
-                      <div className="text-[10px] text-slate-400 mt-1 pl-1">
-                        {msg.timestamp}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
 
               {/* Indicador de escritura animado (Typing Indicator con 3 puntos rebotando) */}
-              {isLoading && (
-                <div className="flex items-center gap-2 self-start mr-auto">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src="/nexo-orb.png"
-                    alt="Nexo"
-                    width={20}
-                    height={20}
-                    className="rounded-full object-contain flex-shrink-0"
-                  />
-                  <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs px-3.5 py-2.5 flex items-center gap-1.5 shadow-2xs">
-                    <span
-                      className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"
-                      style={{ animationDuration: '0.9s', animationDelay: '0ms' }}
+              <AnimatePresence>
+                {isLoading && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
+                    className="flex items-center gap-2 self-start mr-auto mt-1"
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src="/nexo-orb.png"
+                      alt="Nexo"
+                      width={20}
+                      height={20}
+                      className="rounded-full object-contain flex-shrink-0"
                     />
-                    <span
-                      className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"
-                      style={{ animationDuration: '0.9s', animationDelay: '150ms' }}
-                    />
-                    <span
-                      className="w-1.5 h-1.5 bg-blue-600 rounded-full animate-bounce"
-                      style={{ animationDuration: '0.9s', animationDelay: '300ms' }}
-                    />
-                  </div>
-                </div>
-              )}
+                    <div className="bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs px-3.5 py-2.5 flex items-center gap-1.5 shadow-2xs">
+                      <motion.span
+                        animate={{ y: [0, -3, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0 }}
+                        className="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                      />
+                      <motion.span
+                        animate={{ y: [0, -3, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.15 }}
+                        className="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                      />
+                      <motion.span
+                        animate={{ y: [0, -3, 0] }}
+                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.3 }}
+                        className="w-1.5 h-1.5 bg-blue-600 rounded-full"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div ref={messagesEndRef} />
             </div>
@@ -691,8 +884,8 @@ export function NexoChat() {
                 </span>
               </div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </AnimatePresence>
       )}
 
       {/* Animación flotante global */}
