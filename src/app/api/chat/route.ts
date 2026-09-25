@@ -3,7 +3,7 @@ import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { nexoSystemPrompt } from '@/ai/prompt';
 import { SessionManager } from '@/lib/session';
-import { NexoEngineService, resolveNavigation, hasNavVerb } from '@/services/NexoEngineService';
+import { NexoEngineService, resolveNavigation, hasNavVerb, isOffDomain } from '@/services/NexoEngineService';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -20,19 +20,91 @@ export async function POST(req: Request) {
     const session = await SessionManager.getSession().catch(() => null);
     const email = session?.email || 'sistema@inventa.ai';
 
-    // 1. Si está configurada la API KEY de OpenAI, usamos streamText con herramientas reales conectadas al ERP
+    // 0. Confinamiento Estricto de Dominio (Anti-Alucinaciones) a nivel API:
+    // Si la consulta es ajena al ecosistema de inventario/finanzas, responder inmediatamente con la frase canónica.
+    if (isOffDomain(userMessage)) {
+      const refusalText = 'Mi enfoque está optimizado exclusivamente para la gestión de su inventario y operaciones en la plataforma. ¿En qué módulo operativo puedo asistirle?';
+      const encoder = new TextEncoder();
+      const refusalStream = new ReadableStream({
+        async start(controller) {
+          const words = refusalText.split(' ');
+          for (let i = 0; i < words.length; i += 3) {
+            const chunk = words.slice(i, i + 3).join(' ') + (i + 3 < words.length ? ' ' : '');
+            controller.enqueue(encoder.encode(`0:${JSON.stringify(chunk)}\n`));
+            await new Promise((r) => setTimeout(r, 20));
+          }
+          // Enviar tarjetas de navegación a módulos seguros
+          const toolCallId = `cards_${Date.now()}`;
+          const refusalCards = [
+            { id: 'nav-restock', kind: 'info', title: 'Reabastecimiento Inteligente', subtitle: 'Ver análisis de cobertura y quiebres', action: { type: 'navigate', label: 'Ir a Reabastecimiento', payload: { href: '/dashboard/reabastecimiento' }, requiresConfirm: false } },
+            { id: 'nav-inv', kind: 'info', title: 'Inventario de Existencias', subtitle: 'Catálogo de SKUs y Puntos de Reorden', action: { type: 'navigate', label: 'Ir a Inventario', payload: { href: '/inventory/inventory-items' }, requiresConfirm: false } },
+            { id: 'nav-plans', kind: 'info', title: 'Línea de Financiamiento', subtitle: 'Línea de crédito para compras de inventario', action: { type: 'navigate', label: 'Ver Financiamiento', payload: { href: '/plans' }, requiresConfirm: false } },
+          ];
+          controller.enqueue(
+            encoder.encode(
+              `9:${JSON.stringify({ toolCallId, toolName: 'generative_cards', args: { count: refusalCards.length } })}\n`
+            )
+          );
+          controller.enqueue(
+            encoder.encode(
+              `a:${JSON.stringify({ toolCallId, result: { cards: refusalCards, intent: 'help' } })}\n`
+            )
+          );
+          controller.enqueue(
+            encoder.encode(`d:${JSON.stringify({ finishReason: 'stop', usage: { promptTokens: 10, completionTokens: 30 } })}\n`)
+          );
+          controller.close();
+        },
+      });
+
+      return new Response(refusalStream, {
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'X-Vercel-AI-Data-Stream': 'v1',
+        },
+      });
+    }
+
+    // 1. Si está configurada la API KEY de OpenAI, inyectamos contexto real del ERP y usamos streamText
     if (process.env.OPENAI_API_KEY) {
       try {
+        const { RestockCalculatorService } = await import('@/services/RestockCalculatorService');
+        const { FinancingService } = await import('@/services/FinancingService');
+        const { NotificationService } = await import('@/services/NotificationService');
+
+        const [restockData, creditSummary, alertSummary] = await Promise.all([
+          RestockCalculatorService.calculateRestockItems().catch(() => ({ items: [], criticalCount: 0, warningCount: 0, totalCapitalRequired: 0 })),
+          Promise.resolve(FinancingService.getCreditSummary()).catch(() => null),
+          NotificationService.getAlertSummary().catch(() => null),
+        ]);
+
+        const criticalList = restockData.items.filter((i) => i.status !== 'optimal');
+        const realTimeContext = `
+[CONTEXTO EN TIEMPO REAL DEL ERP INVENTA.AI - DATOS OPERATIVOS ACTUALES]:
+- Pantalla actual del usuario: ${pathname || '/overview'}
+- Total SKUs monitoreados: ${restockData.items.length}
+- SKUs en Quiebre Crítico (< 3.5 días): ${restockData.criticalCount}
+- SKUs en Advertencia de Reorden: ${criticalList.length - Math.min(restockData.criticalCount, criticalList.length)}
+- Capital Total Requerido para reposición: S/ ${restockData.totalCapitalRequired.toLocaleString()}
+- Línea de Crédito Disponible: S/ ${creditSummary?.available_amount?.toLocaleString() || 'N/A'} (${creditSummary?.partner_bank_name || 'B2B Capital'})
+- Tasa Mensual de Financiamiento: ${(((creditSummary?.monthly_interest_rate ?? 0.0145)) * 100).toFixed(2)}%
+- Top SKUs Críticos en riesgo inminente:
+${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | Cobertura: ${i.coverageDays} días | ROP: ${i.rop} | Sugerido: ${i.suggestedQty} u | Inversión: S/ ${i.investment.toLocaleString()} | Proveedor: ${i.provider}`).join('\n')}
+- Alertas del sistema: Quiebres de stock: ${alertSummary?.riesgoQuiebre ?? 0}, Órdenes pendientes: ${alertSummary?.ordenes ?? 0}, Inventario en riesgo: ${alertSummary?.inventario ?? 0}
+`;
+
         const result = await streamText({
           model: openai(process.env.OPENAI_MODEL || 'gpt-4o'),
-          system: nexoSystemPrompt,
+          system: `${nexoSystemPrompt}\n\n${realTimeContext}`,
           messages,
+          maxTokens: 1500,
+          temperature: 0.3,
           tools: {
             navigate_platform: tool({
               description: 'Navega al usuario a una pantalla o módulo específico de INVENTA.AI.',
               parameters: z.object({
                 destination_intent: z.string().describe('Intención de navegación del usuario'),
-                route: z.string().describe('Ruta relativa validada (ej. /stock-alerts, /products/products, /inventory/inventory-items, /dashboard/integraciones)'),
+                route: z.string().describe('Ruta relativa validada (ej. /dashboard/reabastecimiento, /inventory/inventory-items, /plans, /dashboard/integraciones)'),
                 reason: z.string().describe('Motivo breve de la redirección'),
               }),
               execute: async ({ route, reason }) => {

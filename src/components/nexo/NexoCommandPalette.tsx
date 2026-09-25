@@ -172,24 +172,54 @@ function localSearch(query: string, items: FlatItem[]): FlatItem[] {
 
 const QUESTION_REGEX = /^(¿|\?|que |qué |cual |cuál |como |cómo |cuanto |cuánto |muestrame |muéstrame |dime |explica |analiza |financia |genera |recomienda |hola|buenos|saludos)/i;
 
-// Formatea texto con soporte básico de markdown seguro sin dependencias
+// Formatea texto con soporte completo de markdown (encabezados, listas, negritas, código)
 function renderMarkdown(text: string) {
   if (!text) return null;
   const lines = text.split('\n');
   return (
-    <div className="flex flex-col gap-1.5 text-[13px] leading-relaxed break-words">
+    <div className="flex flex-col gap-1.5 text-[13px] leading-relaxed break-words text-slate-800">
       {lines.map((line, idx) => {
-        if (!line.trim()) return <div key={idx} className="h-1" />;
-        // Bullet list
-        if (line.trim().startsWith('- ') || line.trim().startsWith('• ') || line.trim().startsWith('* ')) {
-          const content = line.trim().replace(/^[-•*]\s*/, '');
+        const trimmed = line.trim();
+        if (!trimmed) return <div key={idx} className="h-1" />;
+
+        // Encabezados H1, H2, H3
+        if (trimmed.startsWith('### ')) {
           return (
-            <div key={idx} className="flex items-start gap-2 pl-1">
-              <span className="text-blue-600 font-bold leading-5">•</span>
-              <span className="flex-1">{renderFormattedInline(content)}</span>
+            <div key={idx} className="font-bold text-slate-950 text-[13.5px] mt-2 pb-0.5 border-b border-slate-200/70 flex items-center gap-1.5">
+              <span>{renderFormattedInline(trimmed.replace(/^###\s*/, ''))}</span>
             </div>
           );
         }
+        if (trimmed.startsWith('## ') || trimmed.startsWith('# ')) {
+          return (
+            <div key={idx} className="font-extrabold text-slate-950 text-[14px] mt-2.5 mb-0.5">
+              {renderFormattedInline(trimmed.replace(/^#+\s*/, ''))}
+            </div>
+          );
+        }
+
+        // Listas numeradas (ej. 1. 2. 3.)
+        const numMatch = trimmed.match(/^(\d+)\.\s+(.*)$/);
+        if (numMatch) {
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-0.5 mt-1">
+              <span className="text-blue-600 font-bold text-xs leading-5 min-w-[16px]">{numMatch[1]}.</span>
+              <span className="flex-1 leading-normal">{renderFormattedInline(numMatch[2])}</span>
+            </div>
+          );
+        }
+
+        // Listas con viñetas (- o • o *)
+        if (trimmed.startsWith('- ') || trimmed.startsWith('• ') || trimmed.startsWith('* ')) {
+          const content = trimmed.replace(/^[-•*]\s*/, '');
+          return (
+            <div key={idx} className="flex items-start gap-2 pl-1">
+              <span className="text-blue-600 font-bold leading-5">•</span>
+              <span className="flex-1 leading-normal">{renderFormattedInline(content)}</span>
+            </div>
+          );
+        }
+
         return <p key={idx} className="m-0 leading-normal">{renderFormattedInline(line)}</p>;
       })}
     </div>
@@ -197,17 +227,21 @@ function renderMarkdown(text: string) {
 }
 
 function renderFormattedInline(str: string): React.ReactNode {
-  const parts = str.split(/(\*\*.*?\*\*|`.*?`)/g);
+  // Soporta **negrita**, `codigo`, *cursiva*
+  const parts = str.split(/(\*\*.*?\*\*|`.*?`|\*.*?\*)/g);
   return parts.map((part, i) => {
-    if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} className="text-slate-900 font-semibold">{part.slice(2, -2)}</strong>;
+    if (part.startsWith('**') && part.endsWith('**') && part.length >= 4) {
+      return <strong key={i} className="text-slate-950 font-bold">{part.slice(2, -2)}</strong>;
     }
-    if (part.startsWith('`') && part.endsWith('`')) {
+    if (part.startsWith('`') && part.endsWith('`') && part.length >= 2) {
       return (
-        <code key={i} className="bg-slate-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-mono">
+        <code key={i} className="bg-slate-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-mono font-medium">
           {part.slice(1, -1)}
         </code>
       );
+    }
+    if (part.startsWith('*') && part.endsWith('*') && part.length >= 2) {
+      return <em key={i} className="italic text-slate-700">{part.slice(1, -1)}</em>;
     }
     return part;
   });
