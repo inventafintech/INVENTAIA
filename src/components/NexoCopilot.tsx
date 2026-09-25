@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from "ai/react";
+import { useChat } from "@ai-sdk/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Send, Terminal, TrendingDown, MessageSquare } from "lucide-react";

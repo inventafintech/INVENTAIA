@@ -8,7 +8,7 @@ export const maxDuration = 60; // Necesario para queries complejas en Vercel
 export async function POST(req: Request) {
   const { messages } = await req.json();
 
-  const result = streamText({
+  const result = await streamText({
     model: openai('gpt-4o'), // O el modelo de tu preferencia
     system: nexoSystemPrompt,
     messages,

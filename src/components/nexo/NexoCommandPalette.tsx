@@ -412,12 +412,12 @@ export function NexoCommandPalette() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src="/nexo-orb.jpg"
+          src="/nexo-orb.png"
           alt="Nexo"
           width={56}
           height={56}
           style={{
-            borderRadius: '50%', objectFit: 'cover',
+            borderRadius: '50%', objectFit: 'contain',
             animation: 'nexo-float 3s ease-in-out infinite',
           }}
         />
@@ -622,7 +622,7 @@ export function NexoCommandPalette() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/nexo-orb.jpg" alt="" width={16} height={16} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                <img src="/nexo-orb.png" alt="Nexo" width={18} height={18} style={{ borderRadius: '50%', objectFit: 'contain' }} />
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nexo</span>
               </div>
               {apiResponse.reply}
@@ -660,7 +660,7 @@ export function NexoCommandPalette() {
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/nexo-orb.jpg" alt="" width={16} height={16} style={{ borderRadius: '50%', objectFit: 'cover' }} />
+            <img src="/nexo-orb.png" alt="Nexo" width={18} height={18} style={{ borderRadius: '50%', objectFit: 'contain' }} />
             <span style={{ fontWeight: 500, color: '#6366f1' }}>Nexo</span>
           </div>
         </div>
