@@ -86,9 +86,15 @@ export default function NexoCopilot() {
       {/* Botón flotante para abrir/cerrar */}
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-6 right-6 w-14 h-14 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-xl flex items-center justify-center transition-all z-[60]"
+        className="fixed bottom-6 right-6 w-14 h-14 bg-transparent border-none p-0 rounded-full flex items-center justify-center transition-all z-[60] hover:scale-110"
+        title="Nexo Copilot"
       >
-        <MessageSquare className="w-6 h-6" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/nexo-orb.png"
+          alt="Nexo"
+          className="w-14 h-14 object-contain rounded-full drop-shadow-[0_4px_18px_rgba(99,102,241,0.5)]"
+        />
       </button>
 
       {/* Ventana de chat flotante */}
@@ -96,9 +102,13 @@ export default function NexoCopilot() {
         <div className="fixed bottom-24 right-6 w-[400px] h-[600px] flex flex-col bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl z-50">
           {/* Header Minimalista Vercel-style */}
           <div className="px-5 py-4 bg-slate-800/80 backdrop-blur border-b border-slate-700 flex justify-between items-center rounded-t-2xl">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <h3 className="text-sm font-medium text-slate-100">Nexo Copilot</h3>
+            <div className="flex items-center gap-2.5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/nexo-orb.png" alt="Nexo" className="w-6 h-6 rounded-full object-contain" />
+              <div>
+                <h3 className="text-sm font-semibold text-slate-100 leading-none">Nexo Copilot</h3>
+                <span className="text-[10px] text-emerald-400 font-medium">En línea</span>
+              </div>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-slate-200">
               Cerrar

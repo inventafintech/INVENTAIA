@@ -281,6 +281,13 @@ export function NexoCopilot() {
                   onError={() => setOrbVideoOk(false)}
                   style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', pointerEvents: 'none' }}
                 />
+              ) : orbPosterOk ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={ORB_POSTER_SRC}
+                  alt="Nexo"
+                  style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '50%' }}
+                />
               ) : (
                 <Sparkles size={16} color="#ffffff" />
               )}
