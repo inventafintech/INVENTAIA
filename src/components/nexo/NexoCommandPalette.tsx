@@ -402,17 +402,25 @@ export function NexoCommandPalette() {
         title="Nexo · Cmd+K"
         style={{
           position: 'fixed', bottom: '24px', right: '24px', zIndex: 90,
-          width: '48px', height: '48px', borderRadius: '14px',
-          background: 'linear-gradient(135deg, #1e1b4b 0%, #4338ca 50%, #6366f1 100%)',
-          color: 'white', border: 'none',
-          boxShadow: '0 4px 24px rgba(99,102,241,0.4), 0 0 0 1px rgba(255,255,255,0.1) inset',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', transition: 'all 0.15s ease', padding: 0,
+          width: '56px', height: '56px', borderRadius: '50%',
+          background: 'transparent', border: 'none', padding: 0,
+          cursor: 'pointer', transition: 'all 0.2s ease',
+          filter: 'drop-shadow(0 4px 20px rgba(99,102,241,0.45))',
         }}
-        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.08)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(99,102,241,0.5), 0 0 0 1px rgba(255,255,255,0.15) inset'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 4px 24px rgba(99,102,241,0.4), 0 0 0 1px rgba(255,255,255,0.1) inset'; }}
+        onMouseEnter={(e) => { e.currentTarget.style.transform = 'scale(1.12)'; e.currentTarget.style.filter = 'drop-shadow(0 6px 28px rgba(99,102,241,0.6))'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.filter = 'drop-shadow(0 4px 20px rgba(99,102,241,0.45))'; }}
       >
-        <Sparkles size={20} />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/nexo-orb.jpg"
+          alt="Nexo"
+          width={56}
+          height={56}
+          style={{
+            borderRadius: '50%', objectFit: 'cover',
+            animation: 'nexo-float 3s ease-in-out infinite',
+          }}
+        />
       </button>
     );
   }
@@ -613,7 +621,8 @@ export function NexoCommandPalette() {
               fontSize: '13px', lineHeight: '1.6', color: '#374151',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                <Sparkles size={13} color="#6366f1" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/nexo-orb.jpg" alt="" width={16} height={16} style={{ borderRadius: '50%', objectFit: 'cover' }} />
                 <span style={{ fontSize: '11px', fontWeight: 600, color: '#6366f1', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Nexo</span>
               </div>
               {apiResponse.reply}
@@ -650,7 +659,8 @@ export function NexoCommandPalette() {
             </span>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Zap size={10} color="#6366f1" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/nexo-orb.jpg" alt="" width={16} height={16} style={{ borderRadius: '50%', objectFit: 'cover' }} />
             <span style={{ fontWeight: 500, color: '#6366f1' }}>Nexo</span>
           </div>
         </div>
@@ -664,6 +674,10 @@ export function NexoCommandPalette() {
         @keyframes nexo-modal-in {
           from { opacity: 0; transform: translateY(-12px) scale(0.97); }
           to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes nexo-float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
         }
         @keyframes nexo-spin {
           to { transform: rotate(360deg); }
