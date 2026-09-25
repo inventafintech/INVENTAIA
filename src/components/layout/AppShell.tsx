@@ -48,15 +48,17 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <NotificationProvider>
-      <div className={styles.layout}>
-        {/* Sidebar adaptativo (Off-canvas Drawer en móvil, Estático en Desktop) */}
+      {/* Contenedor principal Flex de pantalla completa (100% fluido) */}
+      <div className={`flex h-screen w-full overflow-hidden ${styles.layout}`}>
+        {/* Sidebar adaptativo y colapsable (w-64 expandido / w-16 colapsado con transición fluida) */}
         <Sidebar
           pendingOrdersCount={state.pendingOrdersCount}
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
-        <div className={styles.mainWrapper}>
+        {/* Contenedor dinámico que se expande al colapsar el menú lateral */}
+        <div className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden ${styles.mainWrapper}`}>
           <TopBar
             pageTitle={pageTitle}
             hasActive={state.hasActiveIntegrations}
@@ -65,13 +67,17 @@ export function AppShell({ children }: AppShellProps) {
             onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
           />
 
-          <main className={styles.contentArea}>
+          {/* Área principal fluida: flex-1 overflow-auto ocupando el 100% del espacio sobrante */}
+          <main className={`flex-1 overflow-auto w-full p-4 sm:p-6 lg:p-8 pb-24 ${styles.contentArea}`}>
             {children}
           </main>
         </div>
       </div>
-      {/* Nexo: copiloto flotante global (fuera del flujo del layout) */}
+
+      {/* Nexo: copiloto flotante en la esquina inferior DERECHA (fixed bottom-6 right-6 z-50) */}
       <NexoCommandPalette />
     </NotificationProvider>
   );
 }
+
+export default AppShell;

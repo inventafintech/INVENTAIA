@@ -557,8 +557,19 @@ export function NexoCommandPalette() {
         }}
         title="Nexo AI · Cmd+K"
         aria-label="Abrir Asistente Nexo"
-        className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full p-0 border-0 bg-transparent cursor-pointer transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full p-0 border-0 bg-transparent cursor-pointer transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
         style={{
+          position: 'fixed',
+          bottom: '24px',
+          right: '24px',
+          zIndex: 50,
+          width: '56px',
+          height: '56px',
+          borderRadius: '50%',
+          border: 'none',
+          padding: 0,
+          background: 'transparent',
+          cursor: 'pointer',
           filter: 'drop-shadow(0 8px 24px rgba(37, 99, 235, 0.4)) drop-shadow(0 0 10px rgba(56, 189, 248, 0.3))',
         }}
       >

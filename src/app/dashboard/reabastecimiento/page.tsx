@@ -163,7 +163,7 @@ export default function ReabastecimientoPage() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className={`w-full max-w-full transition-all duration-300 ${styles.container}`}>
       {/* Header y KPIs */}
       <header className={styles.header}>
         <div>
@@ -268,8 +268,8 @@ export default function ReabastecimientoPage() {
       </div>
 
       {/* Tabla de Datos (Data Grid) */}
-      <div className={styles.tableCard}>
-        <table className={styles.table}>
+      <div className={`w-full overflow-x-auto ${styles.tableCard}`}>
+        <table className={`w-full ${styles.table}`}>
           <thead>
             <tr>
               <th>SKU / PRODUCTO</th>

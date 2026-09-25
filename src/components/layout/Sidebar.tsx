@@ -164,7 +164,8 @@ export function Sidebar({
         className={`
           ${styles.sidebar}
           ${isMobileOpen ? styles.sidebarOpen : ''}
-          ${isCollapsed ? styles.sidebarCollapsed : ''}
+          ${isCollapsed ? `${styles.sidebarCollapsed} w-16` : 'w-64'}
+          transition-all duration-300 ease-in-out
           ${className}
         `}
         aria-label="Navegación lateral de la plataforma"
