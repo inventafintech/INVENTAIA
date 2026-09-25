@@ -10,6 +10,7 @@ import {
   Bell, History, Download, ArrowDownLeft, ArrowUpRight, Boxes,
   GraduationCap, FileQuestion, Headset, MessageCircleQuestion, BookOpen,
   BellPlus, Shapes, Repeat, RotateCcw, Send, CheckCircle2, ArrowLeft,
+  Trash2, MessageSquare
 } from 'lucide-react';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 
@@ -169,42 +170,41 @@ function localSearch(query: string, items: FlatItem[]): FlatItem[] {
     .slice(0, 8);
 }
 
-const QUESTION_REGEX = /^(¿|\?|que |qué |cual |cuál |como |cómo |cuanto |cuánto |muestrame |muéstrame |dime |explica |analiza |financia |genera |recomienda )/i;
+const QUESTION_REGEX = /^(¿|\?|que |qué |cual |cuál |como |cómo |cuanto |cuánto |muestrame |muéstrame |dime |explica |analiza |financia |genera |recomienda |hola|buenos|saludos)/i;
 
 // Formatea texto con soporte básico de markdown seguro sin dependencias
 function renderMarkdown(text: string) {
   if (!text) return null;
   const lines = text.split('\n');
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+    <div className="flex flex-col gap-1.5 text-[13px] leading-relaxed break-words">
       {lines.map((line, idx) => {
-        if (!line.trim()) return <div key={idx} style={{ height: '4px' }} />;
+        if (!line.trim()) return <div key={idx} className="h-1" />;
         // Bullet list
         if (line.trim().startsWith('- ') || line.trim().startsWith('• ') || line.trim().startsWith('* ')) {
           const content = line.trim().replace(/^[-•*]\s*/, '');
           return (
-            <div key={idx} style={{ display: 'flex', gap: '8px', paddingLeft: '4px' }}>
-              <span style={{ color: '#6366f1', fontWeight: 700 }}>•</span>
-              <span>{renderFormattedInline(content)}</span>
+            <div key={idx} className="flex items-start gap-2 pl-1">
+              <span className="text-blue-600 font-bold leading-5">•</span>
+              <span className="flex-1">{renderFormattedInline(content)}</span>
             </div>
           );
         }
-        return <p key={idx} style={{ margin: 0, lineHeight: 1.55 }}>{renderFormattedInline(line)}</p>;
+        return <p key={idx} className="m-0 leading-normal">{renderFormattedInline(line)}</p>;
       })}
     </div>
   );
 }
 
 function renderFormattedInline(str: string): React.ReactNode {
-  // Parsing simple de **bold** e inline `code`
   const parts = str.split(/(\*\*.*?\*\*|`.*?`)/g);
   return parts.map((part, i) => {
     if (part.startsWith('**') && part.endsWith('**')) {
-      return <strong key={i} style={{ color: '#0f172a', fontWeight: 650 }}>{part.slice(2, -2)}</strong>;
+      return <strong key={i} className="text-slate-900 font-semibold">{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith('`') && part.endsWith('`')) {
       return (
-        <code key={i} style={{ background: 'rgba(99, 102, 241, 0.08)', color: '#4f46e5', padding: '1px 5px', borderRadius: '4px', fontSize: '0.9em' }}>
+        <code key={i} className="bg-slate-100 text-blue-700 px-1.5 py-0.5 rounded text-xs font-mono">
           {part.slice(1, -1)}
         </code>
       );
@@ -214,7 +214,7 @@ function renderFormattedInline(str: string): React.ReactNode {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// COMPONENT
+// COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════════
 
 export function NexoCommandPalette() {
@@ -224,7 +224,7 @@ export function NexoCommandPalette() {
   // Modal Visibility
   const [isOpen, setIsOpen] = useState(false);
 
-  // Mode: Navigation vs Conversational Chat
+  // Mode: Navigation (Acceso Rápido) vs Conversational Chat
   const [isChatMode, setIsChatMode] = useState(false);
 
   // Inputs & Selection
@@ -236,7 +236,7 @@ export function NexoCommandPalette() {
   const [localResults, setLocalResults] = useState<FlatItem[]>([]);
   const flatNav = useMemo(() => buildLocalNav(), []);
 
-  // Conversational Session Memory
+  // Conversational Session Memory (persists during open modal)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [executingActionId, setExecutingActionId] = useState<string | null>(null);
   const [actionSuccessId, setActionSuccessId] = useState<string | null>(null);
@@ -246,7 +246,7 @@ export function NexoCommandPalette() {
   const listRef = useRef<HTMLDivElement>(null);
   const chatScrollRef = useRef<HTMLDivElement>(null);
 
-  // ─── Default 6 Items as shown in the screenshot ──────────────────────
+  // ─── Default 6 Items as shown in image_d2d0dc.png ─────────────────────
   const defaultItems: FlatItem[] = useMemo(() => [
     { href: '/stock-alerts', label: 'Alertas de stock', group: 'PANEL', id: 'alertas-stock', keywords: [] },
     { href: '/activity-log', label: 'Actividad reciente', group: 'PANEL', id: 'actividad-reciente', keywords: [] },
@@ -288,11 +288,11 @@ export function NexoCommandPalette() {
   // Auto-focus on input when opened
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => inputRef.current?.focus(), 40);
+      setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [isOpen, isChatMode]);
 
-  // Scroll chat to bottom on new message
+  // Scroll chat to bottom on new message or token
   useEffect(() => {
     if (isChatMode && chatScrollRef.current) {
       chatScrollRef.current.scrollTop = chatScrollRef.current.scrollHeight;
@@ -358,7 +358,10 @@ export function NexoCommandPalette() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: newHistory.filter(m => m.id !== nexoMsgId).map(m => ({ role: m.role === 'nexo' ? 'assistant' : 'user', content: m.content })),
+          messages: newHistory.filter(m => m.id !== nexoMsgId).map(m => ({
+            role: m.role === 'nexo' ? 'assistant' : 'user',
+            content: m.content
+          })),
           pathname,
         }),
       });
@@ -383,7 +386,7 @@ export function NexoCommandPalette() {
         for (const line of lines) {
           if (!line.trim()) continue;
 
-          // AI SDK / Custom protocol parsing
+          // AI SDK streaming format: 0:"token"
           if (line.startsWith('0:')) {
             try {
               const textChunk = JSON.parse(line.slice(2));
@@ -394,7 +397,7 @@ export function NexoCommandPalette() {
                 )
               );
             } catch {
-              // fallback
+              // fallback ignore malformed chunk
             }
           } else if (line.startsWith('a:')) {
             try {
@@ -410,7 +413,7 @@ export function NexoCommandPalette() {
                 };
               }
             } catch {
-              // fallback
+              // fallback ignore
             }
           }
         }
@@ -435,7 +438,7 @@ export function NexoCommandPalette() {
       setChatMessages((prev) =>
         prev.map((msg) =>
           msg.id === nexoMsgId
-            ? { ...msg, content: 'Hubo un inconveniente temporal conectando con el orbe. Consulta nuevamente en segundos.' }
+            ? { ...msg, content: 'Hubo un inconveniente temporal conectando con el motor de Nexo. Por favor, reintenta en unos instantes.' }
             : msg
         )
       );
@@ -456,48 +459,50 @@ export function NexoCommandPalette() {
       const res = await fetch('/api/nexo/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action, confirm: true }),
+        body: JSON.stringify({
+          action: action.type,
+          params: action.payload,
+        }),
       });
+
       const data = await res.json();
       if (data.success) {
         setActionSuccessId(card.id);
-        setChatMessages((prev) => [
-          ...prev,
-          {
-            id: `sys-${Date.now()}`,
-            role: 'nexo',
-            content: `✅ Acción ejecutada con éxito: **${action.label}**. ${data.message || ''}`,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          },
-        ]);
+        // Agregar confirmación de auditoría en el chat
+        const auditMsg: ChatMessage = {
+          id: `audit-${Date.now()}`,
+          role: 'nexo',
+          content: `✅ **Acción ejecutada exitosamente**: ${data.message || action.label}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setChatMessages((prev) => [...prev, auditMsg]);
+      } else {
+        alert(data.error || 'Error al ejecutar la acción');
       }
-    } catch (err) {
-      console.error('Error al ejecutar acción:', err);
+    } catch (err: any) {
+      alert('Error de red al ejecutar acción: ' + err.message);
     } finally {
       setExecutingActionId(null);
     }
   };
 
-  // ─── List of items displayed in Navigation Mode ──────────────────────
-  const isQueryingQuestion = useMemo(() => {
-    const trimmed = input.trim();
-    return trimmed.length > 0 && (QUESTION_REGEX.test(trimmed) || trimmed.split(/\s+/).length >= 4);
-  }, [input]);
-
-  const navItemsToShow = useMemo(() => {
+  // ─── Filtered Items & Keyboard Logic ─────────────────────────────────
+  const navItemsToShow: FlatItem[] = useMemo(() => {
     if (!input.trim()) return defaultItems;
     return localResults;
   }, [input, defaultItems, localResults]);
 
-  // Total selectable items count in navigation mode
-  // (Items in list + the "Preguntar a Nexo" prompt option)
-  const hasAIPromptOption = input.trim().length > 0;
+  const isQueryingQuestion = useMemo(() => {
+    return QUESTION_REGEX.test(input.trim()) || input.trim().length > 25;
+  }, [input]);
+
+  const hasAIPromptOption = useMemo(() => {
+    return input.trim().length > 0;
+  }, [input]);
+
   const totalNavigationItems = navItemsToShow.length + (hasAIPromptOption ? 1 : 0);
 
-  // ─── Keyboard Navigation in List ─────────────────────────────────────
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isOpen) return;
-
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     // In Chat Mode
     if (isChatMode) {
       if (e.key === 'Enter' && !e.shiftKey) {
@@ -516,7 +521,7 @@ export function NexoCommandPalette() {
       setSelectedIndex((prev) => (prev - 1 + totalNavigationItems) % Math.max(1, totalNavigationItems));
     } else if (e.key === 'Enter') {
       e.preventDefault();
-      // If AI prompt option is selected OR query has no nav matches OR is a question
+      // Si la consulta es una pregunta o seleccionó el chip de IA
       if (isQueryingQuestion || navItemsToShow.length === 0 || selectedIndex === navItemsToShow.length) {
         sendChatMessage(input);
       } else {
@@ -533,7 +538,7 @@ export function NexoCommandPalette() {
     }
   };
 
-  // Scroll selected into view
+  // Scroll selected into view in Navigation mode
   useEffect(() => {
     if (!isChatMode) {
       const el = listRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
@@ -550,43 +555,21 @@ export function NexoCommandPalette() {
           setInput('');
           setSelectedIndex(0);
         }}
-        title="Nexo · Cmd+K"
+        title="Nexo AI · Cmd+K"
         aria-label="Abrir Asistente Nexo"
+        className="fixed bottom-6 right-6 z-[90] w-14 h-14 rounded-full p-0 border-0 bg-transparent cursor-pointer transition-transform hover:scale-105 active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
         style={{
-          position: 'fixed',
-          bottom: '24px',
-          right: '24px',
-          zIndex: 90,
-          width: '58px',
-          height: '58px',
-          borderRadius: '50%',
-          background: 'transparent',
-          border: 'none',
-          padding: 0,
-          cursor: 'pointer',
-          transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-          filter: 'drop-shadow(0 6px 22px rgba(79, 70, 229, 0.45)) drop-shadow(0 0 10px rgba(56, 189, 248, 0.3))',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'scale(1.1)';
-          e.currentTarget.style.filter = 'drop-shadow(0 8px 30px rgba(79, 70, 229, 0.65)) drop-shadow(0 0 16px rgba(56, 189, 248, 0.5))';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'scale(1)';
-          e.currentTarget.style.filter = 'drop-shadow(0 6px 22px rgba(79, 70, 229, 0.45)) drop-shadow(0 0 10px rgba(56, 189, 248, 0.3))';
+          filter: 'drop-shadow(0 8px 24px rgba(37, 99, 235, 0.4)) drop-shadow(0 0 10px rgba(56, 189, 248, 0.3))',
         }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/nexo-orb.png"
           alt="Nexo AI"
-          width={58}
-          height={58}
-          style={{
-            borderRadius: '50%',
-            objectFit: 'contain',
-            animation: 'nexo-float 3s ease-in-out infinite',
-          }}
+          width={56}
+          height={56}
+          className="rounded-full object-contain pointer-events-none"
+          style={{ animation: 'nexo-float 3s ease-in-out infinite' }}
         />
       </button>
     );
@@ -594,79 +577,42 @@ export function NexoCommandPalette() {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 9999,
-        display: 'flex',
-        alignItems: 'flex-start',
-        justifyContent: 'center',
-        paddingTop: '13vh',
-        backgroundColor: 'rgba(15, 23, 42, 0.42)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-        animation: 'nexo-overlay-in 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
-      }}
+      className="nexo-overlay fixed inset-0 z-[9999] bg-slate-900/40 backdrop-blur-sm flex items-end sm:items-start justify-center p-0 sm:pt-[12vh] sm:px-4"
       onClick={() => setIsOpen(false)}
     >
+      {/* 
+        CONTAINER DUAL:
+        - Mobile: Drawer anclado al fondo (items-end, w-full, h-[85vh], rounded-t-3xl)
+        - Desktop: Modal centrado (sm:max-w-[620px], sm:h-auto sm:max-h-[82vh], sm:rounded-2xl)
+      */}
       <div
         onClick={(e) => e.stopPropagation()}
+        className="nexo-container w-full sm:max-w-[620px] bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl border-t sm:border border-slate-200/90 overflow-hidden flex flex-col h-[85vh] sm:h-auto sm:max-h-[82vh] transition-all"
         style={{
-          width: '100%',
-          maxWidth: '580px',
-          background: '#ffffff',
-          borderRadius: '18px',
-          boxShadow: '0 24px 60px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06)',
-          overflow: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          animation: 'nexo-modal-in 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
-          minHeight: '430px',
-          maxHeight: '82vh',
+          boxShadow: '0 24px 60px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05)',
         }}
       >
-        {/* ── Chat Mode Context Bar (when in Chat Mode) ──────────────── */}
+        {/* Barra superior de arrastre (Handle Bar) solo visible en móviles */}
+        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mt-2.5 mb-1 sm:hidden flex-shrink-0" />
+
+        {/* ── Subheader de Modo Chat (cuando está en Chat) ───────────── */}
         {isChatMode && (
-          <div
-            style={{
-              padding: '8px 16px',
-              background: '#f8fafc',
-              borderBottom: '1px solid #e2e8f0',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              fontSize: '12px',
-              color: '#475569',
-            }}
-          >
+          <div className="px-4 py-2 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between text-xs text-slate-600 flex-shrink-0">
             <button
               type="button"
               onClick={() => {
                 setIsChatMode(false);
                 setInput('');
               }}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                background: 'transparent',
-                border: 'none',
-                color: '#6366f1',
-                fontWeight: 600,
-                cursor: 'pointer',
-                padding: '4px 8px',
-                borderRadius: '6px',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = '#eef2ff')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              className="inline-flex items-center gap-1.5 bg-transparent border-0 text-blue-600 font-semibold cursor-pointer px-2 py-1 rounded-md hover:bg-blue-50 transition-colors"
             >
               <ArrowLeft size={13} />
               <span>Volver a accesos rápidos</span>
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11px', color: '#10b981', fontWeight: 600 }}>
-                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#10b981', display: 'inline-block' }} />
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-[11px] text-emerald-600 font-semibold">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
                 Nexo Activo
               </span>
               {chatMessages.length > 0 && (
@@ -674,20 +620,7 @@ export function NexoCommandPalette() {
                   type="button"
                   onClick={() => setChatMessages([])}
                   title="Limpiar conversación"
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    fontSize: '11px',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#ef4444')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#94a3b8')}
+                  className="flex items-center gap-1 bg-transparent border-0 text-slate-400 hover:text-red-500 cursor-pointer text-[11px] px-1.5 py-0.5 rounded transition-colors"
                 >
                   <RotateCcw size={11} />
                   <span>Limpiar</span>
@@ -697,18 +630,9 @@ export function NexoCommandPalette() {
           </div>
         )}
 
-        {/* ── Top Search / Query Input Bar (Exact match to image) ────── */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            padding: '0 16px',
-            borderBottom: '1px solid #eef2f6',
-            background: '#ffffff',
-          }}
-        >
-          <Search size={18} color="#9ca3af" style={{ flexShrink: 0, marginRight: '10px' }} />
+        {/* ── Input Bar (Búsqueda o Prompt Conversacional) ───────────── */}
+        <div className="relative flex items-center px-4 border-b border-slate-100 bg-white flex-shrink-0">
+          <Search size={18} className="text-slate-400 flex-shrink-0 mr-2.5" />
           <input
             ref={inputRef}
             value={input}
@@ -718,80 +642,48 @@ export function NexoCommandPalette() {
             autoComplete="off"
             autoCorrect="off"
             spellCheck={false}
-            style={{
-              width: '100%',
-              padding: '16px 0',
-              border: 'none',
-              outline: 'none',
-              fontSize: '15px',
-              color: '#111827',
-              background: 'transparent',
-              fontFamily: 'inherit',
-            }}
+            className="w-full py-4 text-[15px] text-slate-900 bg-transparent border-0 outline-none placeholder:text-slate-400 font-sans"
           />
           {isLoading ? (
-            <Loader2 size={16} color="#6366f1" style={{ animation: 'nexo-spin 0.8s linear infinite', flexShrink: 0 }} />
+            <Loader2 size={16} className="text-blue-600 animate-spin flex-shrink-0" />
           ) : isChatMode ? (
             <button
               type="button"
               onClick={() => sendChatMessage(input)}
               disabled={!input.trim()}
-              style={{
-                background: input.trim() ? '#4f46e5' : '#e2e8f0',
-                color: '#ffffff',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: input.trim() ? 'pointer' : 'default',
-                transition: 'all 0.15s ease',
-              }}
+              className={`rounded-lg px-2.5 py-1.5 flex items-center justify-center transition-all ${
+                input.trim()
+                  ? 'bg-blue-600 text-white cursor-pointer hover:bg-blue-700'
+                  : 'bg-slate-100 text-slate-400 cursor-default'
+              }`}
             >
               <Send size={13} />
             </button>
           ) : (
-            <div style={{ display: 'flex', gap: '3px', alignItems: 'center', flexShrink: 0 }}>
-              <kbd style={kbdStyle}>⌘</kbd>
-              <kbd style={kbdStyle}>K</kbd>
+            <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
+              <kbd className="bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold text-slate-500 shadow-sm">
+                ⌘
+              </kbd>
+              <kbd className="bg-slate-100 border border-slate-200 rounded px-1.5 py-0.5 text-[11px] font-semibold text-slate-500 shadow-sm">
+                K
+              </kbd>
             </div>
           )}
         </div>
 
-        {/* ── BODY 1: Navigation / Command Mode ──────────────────────── */}
+        {/* ── MODO 1: Acceso Rápido / Navegación (Coincidencia con Imagen) ─ */}
         {!isChatMode && (
           <div
             ref={listRef}
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              padding: '8px 10px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2px',
-            }}
+            className="flex-1 overflow-y-auto overflow-x-hidden p-2 flex flex-col gap-0.5"
           >
-            {/* Section label exactly as shown in screenshot */}
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '8px 12px 6px',
-                fontSize: '11px',
-                fontWeight: 650,
-                color: '#94a3b8',
-                letterSpacing: '0.6px',
-                textTransform: 'uppercase',
-              }}
-            >
-              <Zap size={11} color="#94a3b8" />
+            {/* Header de sección idéntico a la imagen */}
+            <div className="flex items-center gap-1.5 px-3 py-2 text-[11px] font-bold text-slate-400 tracking-wider uppercase">
+              <Zap size={12} className="text-slate-400" />
               <span>{input.trim() ? 'Resultados' : 'ACCESO RÁPIDO'}</span>
             </div>
 
-            {/* Navigation rows matching image */}
+            {/* Filas de navegación */}
             {navItemsToShow.map((item, idx) => {
               const isSelected = idx === selectedIndex;
               const Icon = getIconForHref(item.href);
@@ -802,76 +694,35 @@ export function NexoCommandPalette() {
                   data-index={idx}
                   onClick={() => executeNavigation(item.href)}
                   onMouseEnter={() => setSelectedIndex(idx)}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    padding: '10px 12px',
-                    borderRadius: '12px',
-                    cursor: 'pointer',
-                    background: isSelected ? '#eff6ff' : 'transparent',
-                    transition: 'all 0.1s ease',
-                  }}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl cursor-pointer transition-colors ${
+                    isSelected ? 'bg-blue-50/80 text-blue-950' : 'bg-transparent hover:bg-slate-50 text-slate-800'
+                  }`}
                 >
-                  {/* Left Icon Squircle */}
+                  {/* Icono en squircle suave */}
                   <div
-                    style={{
-                      width: '36px',
-                      height: '36px',
-                      borderRadius: '10px',
-                      background: isSelected ? '#e0e7ff' : '#f8fafc',
-                      border: `1px solid ${isSelected ? '#c7d2fe' : '#e2e8f0'}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      transition: 'all 0.1s ease',
-                    }}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 border transition-colors ${
+                      isSelected
+                        ? 'bg-blue-100 border-blue-200 text-blue-600'
+                        : 'bg-slate-50 border-slate-200/70 text-slate-500'
+                    }`}
                   >
-                    <Icon size={16} color={isSelected ? '#4f46e5' : '#64748b'} strokeWidth={1.8} />
+                    <Icon size={16} strokeWidth={1.8} />
                   </div>
 
-                  {/* Label & Group Subtitle */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: '14px',
-                        fontWeight: isSelected ? 600 : 500,
-                        color: isSelected ? '#1e1b4b' : '#1e293b',
-                        whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                      }}
-                    >
+                  {/* Etiqueta y Subtítulo de Grupo */}
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm truncate ${isSelected ? 'font-semibold text-slate-950' : 'font-medium text-slate-800'}`}>
                       {item.label}
                     </div>
-                    <div
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        color: isSelected ? '#6366f1' : '#94a3b8',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.4px',
-                        marginTop: '1px',
-                      }}
-                    >
+                    <div className={`text-[11px] font-semibold uppercase tracking-wider mt-0.5 ${isSelected ? 'text-blue-600' : 'text-slate-400'}`}>
                       {item.group}
                     </div>
                   </div>
 
-                  {/* Enter Badge (only on selected item) */}
+                  {/* Enter Badge */}
                   {isSelected && (
-                    <div style={{ display: 'flex', alignItems: 'center', flexShrink: 0 }}>
-                      <kbd
-                        style={{
-                          ...kbdStyle,
-                          background: '#ffffff',
-                          border: '1px solid #c7d2fe',
-                          color: '#4f46e5',
-                          fontSize: '11px',
-                          padding: '2px 6px',
-                        }}
-                      >
+                    <div className="hidden sm:flex items-center flex-shrink-0">
+                      <kbd className="bg-white border border-blue-200 text-blue-600 text-[11px] px-1.5 py-0.5 rounded shadow-sm font-sans">
                         ↵
                       </kbd>
                     </div>
@@ -880,95 +731,65 @@ export function NexoCommandPalette() {
               );
             })}
 
-            {/* AI Prompt suggestion item when typing */}
+            {/* Tarjeta de Sugerencia AI al escribir */}
             {hasAIPromptOption && (
               <div
                 data-index={navItemsToShow.length}
                 onClick={() => sendChatMessage(input)}
                 onMouseEnter={() => setSelectedIndex(navItemsToShow.length)}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  padding: '10px 12px',
-                  marginTop: '4px',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  background: selectedIndex === navItemsToShow.length ? '#f5f3ff' : '#faf5ff',
-                  border: `1px dashed ${selectedIndex === navItemsToShow.length ? '#8b5cf6' : '#ddd6fe'}`,
-                  transition: 'all 0.1s ease',
-                }}
+                className={`flex items-center gap-3 px-3 py-2.5 mt-1 rounded-xl cursor-pointer border border-dashed transition-all ${
+                  selectedIndex === navItemsToShow.length
+                    ? 'bg-blue-50/90 border-blue-400 text-blue-950'
+                    : 'bg-slate-50 border-slate-300 text-slate-800'
+                }`}
               >
-                <div
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '10px',
-                    background: '#ede9fe',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  <Sparkles size={16} color="#7c3aed" />
+                <div className="w-9 h-9 rounded-xl bg-blue-100/80 border border-blue-200 flex items-center justify-center flex-shrink-0 text-blue-600">
+                  <Sparkles size={16} />
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#4c1d95' }}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[13px] font-semibold text-blue-900 truncate">
                     Preguntar a Nexo: &quot;{input.slice(0, 42)}{input.length > 42 ? '...' : ''}&quot;
                   </div>
-                  <div style={{ fontSize: '11px', color: '#7c3aed' }}>
+                  <div className="text-[11px] text-blue-600/80 truncate">
                     Análisis en tiempo real de inventario, finanzas y órdenes
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-                  <span style={{ fontSize: '10px', color: '#7c3aed', fontWeight: 600 }}>Consultar</span>
-                  <kbd style={{ ...kbdStyle, background: '#ffffff', color: '#7c3aed', borderColor: '#c4b5fd' }}>↵</kbd>
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] text-blue-600 font-semibold hidden sm:inline">Consultar</span>
+                  <kbd className="bg-white text-blue-600 border border-blue-200 text-[10px] px-1.5 py-0.5 rounded">↵</kbd>
                 </div>
               </div>
             )}
           </div>
         )}
 
-        {/* ── BODY 2: Conversational Chat Mode & Generative UI ────────── */}
+        {/* ── MODO 2: Historial de Chat Conversacional (Map del Array) ─── */}
         {isChatMode && (
           <div
             ref={chatScrollRef}
-            style={{
-              flex: 1,
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              padding: '16px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
-            }}
+            className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4"
           >
-            {/* Initial Welcome if no messages */}
+            {/* Estado inicial de bienvenida si no hay mensajes */}
             {chatMessages.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '24px 12px' }}>
+              <div className="text-center py-6 px-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/nexo-orb.png"
                   alt="Nexo"
-                  width={48}
-                  height={48}
-                  style={{
-                    borderRadius: '50%',
-                    margin: '0 auto 12px',
-                    display: 'block',
-                    animation: 'nexo-float 3s ease-in-out infinite',
-                  }}
+                  width={44}
+                  height={44}
+                  className="rounded-full mx-auto mb-3 block"
+                  style={{ animation: 'nexo-float 3s ease-in-out infinite' }}
                 />
-                <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', margin: '0 0 6px' }}>
+                <h3 className="text-[15px] font-bold text-slate-900 mb-1">
                   ¿En qué puedo ayudarte hoy?
                 </h3>
-                <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 16px', lineHeight: 1.5 }}>
-                  Analizo métricas en vivo, quiebres inminentes de stock y ejecuto acciones transaccionales auditadas.
+                <p className="text-xs text-slate-500 mb-4 max-w-sm mx-auto leading-relaxed">
+                  Analizo métricas en vivo, quiebres inminentes de stock y ejecuto acciones auditadas.
                 </p>
 
-                {/* Prompt suggestions pills */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxWidth: '400px', margin: '0 auto' }}>
+                {/* Chips de sugerencias interactivas */}
+                <div className="flex flex-col gap-2 max-w-sm mx-auto">
                   {[
                     '¿Qué productos están por quebrar?',
                     '¿Cuánto capital de trabajo necesito financiar?',
@@ -978,143 +799,84 @@ export function NexoCommandPalette() {
                       key={chip}
                       type="button"
                       onClick={() => sendChatMessage(chip)}
-                      style={{
-                        padding: '8px 12px',
-                        background: '#f8fafc',
-                        border: '1px solid #e2e8f0',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        color: '#334151',
-                        textAlign: 'left',
-                        cursor: 'pointer',
-                        transition: 'all 0.12s ease',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#eef2ff';
-                        e.currentTarget.style.borderColor = '#c7d2fe';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#f8fafc';
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                      }}
+                      className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 text-left cursor-pointer hover:bg-blue-50/80 hover:border-blue-200 transition-colors flex items-center justify-between"
                     >
-                      <span>{chip}</span>
-                      <ChevronRight size={13} color="#94a3b8" />
+                      <span className="truncate">{chip}</span>
+                      <ChevronRight size={13} className="text-slate-400 flex-shrink-0 ml-2" />
                     </button>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Chat Thread */}
+            {/* Historial de Mensajes: Mapeo del array con burbujas minimalistas */}
             {chatMessages.map((msg) => {
+              // 1. Mensaje del Usuario (Alineado a la derecha, sin gradientes, tono gris neutro corporativo)
               if (msg.role === 'user') {
                 return (
                   <div
                     key={msg.id}
-                    style={{
-                      alignSelf: 'flex-end',
-                      maxWidth: '82%',
-                      background: 'linear-gradient(135deg, #4f46e5 0%, #4338ca 100%)',
-                      color: '#ffffff',
-                      padding: '10px 14px',
-                      borderRadius: '14px 14px 2px 14px',
-                      fontSize: '13px',
-                      lineHeight: 1.5,
-                      boxShadow: '0 4px 14px rgba(79, 70, 229, 0.25)',
-                    }}
+                    className="self-end max-w-[85%] bg-slate-100 text-slate-900 border border-slate-200/80 rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] leading-relaxed break-words shadow-sm ml-auto"
                   >
                     {msg.content}
                   </div>
                 );
               }
 
-              // Nexo Assistant Bubble
+              // 2. Mensaje del Asistente Nexo (Alineado a la izquierda con Avatar azul corporativo)
               return (
                 <div
                   key={msg.id}
-                  style={{
-                    alignSelf: 'flex-start',
-                    maxWidth: '92%',
-                    background: '#f8fafc',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '14px 14px 14px 2px',
-                    padding: '12px 14px',
-                    fontSize: '13px',
-                    color: '#1e293b',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px',
-                  }}
+                  className="self-start max-w-[92%] sm:max-w-[90%] bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-sm p-4 text-[13px] text-slate-800 space-y-2.5 mr-auto shadow-sm"
                 >
-                  {/* Nexo Header in Bubble */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                  {/* Header de la burbuja Nexo */}
+                  <div className="flex items-center gap-2">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src="/nexo-orb.png"
                       alt=""
                       width={18}
                       height={18}
-                      style={{ borderRadius: '50%', objectFit: 'contain' }}
+                      className="rounded-full object-contain flex-shrink-0"
                     />
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#4f46e5', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    <span className="text-[11px] font-bold text-blue-600 uppercase tracking-wider">
                       Nexo
                     </span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', marginLeft: 'auto' }}>
+                    <span className="text-[10px] text-slate-400 ml-auto">
                       {msg.timestamp}
                     </span>
                   </div>
 
-                  {/* Rendered Markdown Content */}
-                  <div>{renderMarkdown(msg.content)}</div>
+                  {/* Contenido Markdown Renderizado */}
+                  <div className="pt-0.5">
+                    {renderMarkdown(msg.content)}
+                  </div>
 
-                  {/* Generative UI Navigation Tool Call */}
+                  {/* Redirección automática sugerida */}
                   {msg.toolCall?.route && (
-                    <div
-                      style={{
-                        padding: '10px 12px',
-                        background: '#eef2ff',
-                        border: '1px solid #c7d2fe',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <ExternalLink size={15} color="#4f46e5" />
-                        <div>
-                          <div style={{ fontSize: '12px', fontWeight: 600, color: '#1e1b4b' }}>
-                            Redirección sugerida
+                    <div className="p-2.5 bg-blue-50/80 border border-blue-200 rounded-xl flex items-center justify-between gap-2 mt-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <ExternalLink size={14} className="text-blue-600 flex-shrink-0" />
+                        <div className="truncate">
+                          <div className="text-xs font-semibold text-slate-900 truncate">
+                            Módulo sugerido
                           </div>
-                          <div style={{ fontSize: '11px', color: '#4f46e5' }}>{msg.toolCall.route}</div>
+                          <div className="text-[11px] text-blue-600 truncate">{msg.toolCall.route}</div>
                         </div>
                       </div>
                       <button
                         type="button"
                         onClick={() => executeNavigation(msg.toolCall!.route!)}
-                        style={{
-                          background: '#4f46e5',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '6px',
-                          padding: '6px 10px',
-                          fontSize: '11px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                        }}
+                        className="bg-blue-600 text-white border-0 rounded-md px-2.5 py-1 text-[11px] font-semibold cursor-pointer hover:bg-blue-700 flex-shrink-0 transition-colors"
                       >
                         Ir ahora →
                       </button>
                     </div>
                   )}
 
-                  {/* Generative UI Cards (SKUs, Financing, OCs) */}
+                  {/* Generative UI Cards (Stock Crítico, Financiamiento, Órdenes Reales) */}
                   {msg.cards && msg.cards.length > 0 && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginTop: '4px' }}>
+                    <div className="space-y-2 mt-2">
                       {msg.cards.map((card) => {
                         const isActionRunning = executingActionId === card.id;
                         const isActionDone = actionSuccessId === card.id;
@@ -1122,54 +884,40 @@ export function NexoCommandPalette() {
                         return (
                           <div
                             key={card.id}
-                            style={{
-                              background: '#ffffff',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '10px',
-                              padding: '10px 12px',
-                              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                            }}
+                            className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs"
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                              <div>
-                                <div style={{ fontSize: '13px', fontWeight: 650, color: '#0f172a' }}>
+                            <div className="flex justify-between items-start gap-2">
+                              <div className="min-w-0">
+                                <div className="text-[13px] font-semibold text-slate-900 truncate">
                                   {card.title}
                                 </div>
                                 {card.subtitle && (
-                                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                                  <div className="text-[11px] text-slate-500 mt-0.5">
                                     {card.subtitle}
                                   </div>
                                 )}
                               </div>
                               {card.metric && (
-                                <div style={{ fontSize: '14px', fontWeight: 700, color: '#4f46e5', fontVariantNumeric: 'tabular-nums' }}>
+                                <div className="text-sm font-bold text-blue-600 font-mono flex-shrink-0">
                                   {card.metric}
                                 </div>
                               )}
                             </div>
 
-                            {/* Generative Card Action Button */}
+                            {/* Botón de Acción Transaccional */}
                             {card.action && (
-                              <div style={{ marginTop: '8px', display: 'flex', gap: '6px' }}>
+                              <div className="mt-2 flex gap-2">
                                 <button
                                   type="button"
                                   disabled={isActionRunning || isActionDone}
                                   onClick={() => handleExecuteCardAction(card, card.action!)}
-                                  style={{
-                                    background: isActionDone ? '#10b981' : '#4f46e5',
-                                    color: '#ffffff',
-                                    border: 'none',
-                                    borderRadius: '6px',
-                                    padding: '6px 12px',
-                                    fontSize: '11px',
-                                    fontWeight: 650,
-                                    cursor: isActionRunning || isActionDone ? 'default' : 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                  }}
+                                  className={`border-0 rounded-md px-3 py-1.5 text-xs font-semibold inline-flex items-center gap-1.5 transition-colors ${
+                                    isActionDone
+                                      ? 'bg-emerald-600 text-white cursor-default'
+                                      : 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+                                  }`}
                                 >
-                                  {isActionRunning && <Loader2 size={11} style={{ animation: 'nexo-spin 0.8s linear infinite' }} />}
+                                  {isActionRunning && <Loader2 size={12} className="animate-spin" />}
                                   {isActionDone && <CheckCircle2 size={12} />}
                                   <span>{isActionDone ? 'Completado' : card.action.label}</span>
                                 </button>
@@ -1184,126 +932,104 @@ export function NexoCommandPalette() {
               );
             })}
 
-            {/* Live Streaming Dots Indicator */}
+            {/* Indicador de Análisis Progresivo (Streaming activo) */}
             {isLoading && (
-              <div
-                style={{
-                  alignSelf: 'flex-start',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  padding: '8px 12px',
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '10px',
-                  fontSize: '12px',
-                  color: '#6366f1',
-                }}
-              >
+              <div className="self-start flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-600 mr-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/nexo-orb.png" alt="" width={15} height={15} style={{ borderRadius: '50%', objectFit: 'contain' }} />
-                <span>Nexo está analizando métricas...</span>
+                <img src="/nexo-orb.png" alt="" width={15} height={15} className="rounded-full object-contain" />
+                <span>Nexo está procesando métricas en vivo...</span>
               </div>
             )}
           </div>
         )}
 
-        {/* ── FOOTER: Exact structure matching image & context ───────── */}
-        <div
-          style={{
-            padding: '9px 16px',
-            background: '#fafafa',
-            borderTop: '1px solid #eef2f6',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: '11px',
-            color: '#94a3b8',
-            borderRadius: '0 0 18px 18px',
-          }}
-        >
+        {/* ── FOOTER: Barra de estado y atajos ────────────────────────── */}
+        <div className="px-4 py-2.5 bg-slate-50/90 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400 rounded-b-none sm:rounded-b-2xl flex-shrink-0 pb-[max(0.6rem,env(safe-area-inset-bottom))]">
           {/* Shortcuts Info */}
-          <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
+          <div className="hidden sm:flex gap-3.5 items-center">
             {!isChatMode ? (
               <>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span className="flex items-center gap-1">
                   <ArrowUp size={11} /><ArrowDown size={11} /> Navegar
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span className="flex items-center gap-1">
                   <CornerDownLeft size={11} /> Abrir
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '10px' }}>esc</span> Cerrar
+                <span className="flex items-center gap-1">
+                  <span className="text-[10px] font-mono">esc</span> Cerrar
                 </span>
               </>
             ) : (
               <>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span className="flex items-center gap-1">
                   <CornerDownLeft size={11} /> Enviar
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span style={{ fontSize: '10px' }}>esc</span> Volver
+                <span className="flex items-center gap-1">
+                  <span className="text-[10px] font-mono">esc</span> Volver
                 </span>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <kbd style={{ fontSize: '9px' }}>Tab</kbd> Modo Navegación
+                <span className="flex items-center gap-1">
+                  <kbd className="text-[9px] bg-slate-200/80 px-1 py-0.5 rounded">Tab</kbd> Modo Navegación
                 </span>
               </>
             )}
           </div>
 
+          {/* Versión móvil de atajos */}
+          <div className="sm:hidden flex items-center gap-2 text-[10px] text-slate-400">
+            {isChatMode ? (
+              <span>Presiona <strong>Enviar</strong> para consultar</span>
+            ) : (
+              <span>Toca cualquier opción para ingresar</span>
+            )}
+          </div>
+
           {/* Right Brand Badge: Orb + Nexo */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div className="flex items-center gap-1.5 ml-auto">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/nexo-orb.png"
               alt="Nexo"
-              width={17}
-              height={17}
-              style={{
-                borderRadius: '50%',
-                objectFit: 'contain',
-                filter: 'drop-shadow(0 0 6px rgba(99, 102, 241, 0.5))',
-              }}
+              width={16}
+              height={16}
+              className="rounded-full object-contain"
             />
-            <span style={{ fontWeight: 650, color: '#4f46e5' }}>
+            <span className="font-semibold text-blue-600">
               {isChatMode ? 'Nexo Copilot' : 'Nexo'}
             </span>
           </div>
         </div>
       </div>
 
+      {/* 
+        Estilos Scoped para animaciones y compatibilidad garantizada en Next.js
+        Garantiza Drawer en < 640px / < 768px y Modal centrado en Desktop
+      */}
       <style>{`
-        @keyframes nexo-overlay-in {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-        @keyframes nexo-modal-in {
-          from { opacity: 0; transform: translateY(-12px) scale(0.97); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
-        }
         @keyframes nexo-float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-4px); }
         }
-        @keyframes nexo-spin {
-          to { transform: rotate(360deg); }
+        @keyframes nexo-drawer-up {
+          from { transform: translateY(100%); opacity: 0.8; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes nexo-modal-in {
+          from { transform: translateY(-12px) scale(0.97); opacity: 0; }
+          to { transform: translateY(0) scale(1); opacity: 1; }
+        }
+        @media (max-width: 639px) {
+          .nexo-container {
+            animation: nexo-drawer-up 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          }
+        }
+        @media (min-width: 640px) {
+          .nexo-container {
+            animation: nexo-modal-in 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
+          }
         }
       `}</style>
     </div>
   );
 }
-
-const kbdStyle: React.CSSProperties = {
-  background: '#f3f4f6',
-  border: '1px solid #d1d5db',
-  borderRadius: '4px',
-  padding: '2px 5px',
-  fontSize: '11px',
-  fontWeight: 600,
-  color: '#6b7280',
-  boxShadow: '0 1px 0 rgba(0, 0, 0, 0.05)',
-  lineHeight: '1',
-  fontFamily: 'system-ui, sans-serif',
-};
 
 export default NexoCommandPalette;
