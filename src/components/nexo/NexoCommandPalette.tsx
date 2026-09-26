@@ -411,58 +411,21 @@ export function NexoCommandPalette() {
       let navToolCall: { name: string; route?: string; label?: string } | undefined = undefined;
 
       while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const raw = decoder.decode(value, { stream: true });
-        const lines = raw.split('\n');
-
-        for (const line of lines) {
-          if (!line.trim()) continue;
-
-          // AI SDK streaming format: 0:"token"
-          if (line.startsWith('0:')) {
-            try {
-              const textChunk = JSON.parse(line.slice(2));
-              accumulatedReply += textChunk;
-              setChatMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === nexoMsgId ? { ...msg, content: accumulatedReply } : msg
-                )
-              );
-            } catch {
-              // fallback ignore malformed chunk
-            }
-          } else if (line.startsWith('a:')) {
-            try {
-              const data = JSON.parse(line.slice(2));
-              if (data?.result?.cards) {
-                generativeCards = data.result.cards;
-              }
-              if (data?.result?.route) {
-                navToolCall = {
-                  name: 'navigate_platform',
-                  route: data.result.route,
-                  label: data.result.label || data.result.route,
-                };
-              }
-            } catch {
-              // fallback ignore
-            }
+          const { done, value } = await reader.read();
+          if (done) break;
+  
+          const raw = decoder.decode(value, { stream: true });
+          if (raw) {
+            accumulatedReply += raw;
+            setChatMessages((prev) =>
+              prev.map((msg) =>
+                msg.id === nexoMsgId ? { ...msg, content: accumulatedReply } : msg
+              )
+            );
           }
         }
-      }
 
-      // Final update with any collected cards or navigation tools
-      setChatMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === nexoMsgId
-            ? { ...msg, content: accumulatedReply || 'Análisis completado.', cards: generativeCards, toolCall: navToolCall }
-            : msg
-        )
-      );
-
-      // Si el backend disparó una navegación directa
+        // Si el backend disparó una navegación directa
       if (navToolCall?.route) {
         setTimeout(() => {
           if (navToolCall?.route) executeNavigation(navToolCall.route);
