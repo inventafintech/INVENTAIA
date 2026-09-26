@@ -42,18 +42,39 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const result = PurchaseOrderService.createOrder(
-      supplierId,
+    const supabase = await createClient();
+    
+    // Calcular el total amount
+    const totalAmount = lines.reduce((acc: number, line: any) => acc + (Number(line.quantity) * Number(line.unitPrice)), 0);
+    const orderNumber = `OC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const { data: order, error: orderError } = await supabase.from('purchase_orders').insert({
+      order_number: orderNumber,
+      supplier_id: supplierId,
       condition,
-      estimatedArrival,
-      lines
-    );
+      estimated_arrival: estimatedArrival,
+      total_amount: totalAmount,
+      status: 'draft'
+    }).select().single();
+
+    if (orderError || !order) {
+      throw new Error(orderError?.message || "Error al crear la orden de compra");
+    }
+
+    const orderLines = lines.map((line: any) => ({
+      po_id: order.id,
+      sku: line.sku,
+      quantity: Number(line.quantity),
+      unit_price: Number(line.unitPrice)
+    }));
+
+    await supabase.from('purchase_order_lines').insert(orderLines);
 
     return NextResponse.json({
       success: true,
-      order: result.po,
-      lines: result.lines,
-      message: `Orden ${result.po.order_number} creada exitosamente en estado Borrador.`,
+      order: order,
+      lines: orderLines,
+      message: `Orden ${order.order_number} creada y lista para aprobación.`,
     });
   } catch (error: any) {
     return NextResponse.json(
