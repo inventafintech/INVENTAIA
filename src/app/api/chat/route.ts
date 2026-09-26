@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { streamText, tool } from 'ai';
+import { streamText, tool, isStepCount } from 'ai';
 import { z } from 'zod';
 import { NEXO_SYSTEM_PROMPT } from '@/ai/prompt';
 import { getServerSession } from 'next-auth';
@@ -38,7 +38,7 @@ ${memoryContext}
 
   const result = streamText({
     model: google((process.env.GEMINI_MODEL || 'gemini-3.8-flash').replace(/[^a-zA-Z0-9.-]/g, '')),
-    maxSteps: 5,
+    stopWhen: isStepCount(5),
     instructions: dynamicSystemPrompt,
     messages,
     tools: {
