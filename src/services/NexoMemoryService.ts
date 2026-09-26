@@ -50,7 +50,7 @@ export const NexoMemoryService = {
     try {
       // 1. Convertir el texto en un vector con el modelo de Google Gemini
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004') as any,
+        model: google.textEmbeddingModel('text-embedding-004'),
         value: payload.content,
       });
 
@@ -85,7 +85,7 @@ export const NexoMemoryService = {
 
     try {
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004') as any,
+        model: google.textEmbeddingModel('text-embedding-004'),
         value: query,
       });
 
