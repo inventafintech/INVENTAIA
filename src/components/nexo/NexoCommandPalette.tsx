@@ -407,8 +407,8 @@ export function NexoCommandPalette() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedReply = '';
-      let generativeCards: NexoCard[] | undefined = undefined;
-      let navToolCall: { name: string; route?: string; label?: string } | undefined = undefined;
+      let generativeCards: any = undefined;
+      let navToolCall: any = undefined;
 
       while (true) {
           const { done, value } = await reader.read();
