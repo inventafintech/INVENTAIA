@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { google } from '@ai-sdk/google';
 import { streamText, tool } from 'ai';
 import { z } from 'zod';
 import { NEXO_SYSTEM_PROMPT } from '@/ai/prompt';
@@ -37,7 +37,7 @@ ${memoryContext}
   `;
 
   const result = streamText({
-    model: openai('gpt-4o'),
+    model: google('gemini-1.5-pro-latest'),
     instructions: dynamicSystemPrompt,
     messages,
     tools: {
