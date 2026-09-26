@@ -1,4 +1,4 @@
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createGroq } from '@ai-sdk/groq';
 import { streamText, tool, isStepCount } from 'ai';
 import { z } from 'zod';
 import { NEXO_SYSTEM_PROMPT } from '@/ai/prompt';
@@ -7,14 +7,7 @@ import { authOptions } from '@/lib/auth';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { NexoMemoryService } from '@/services/NexoMemoryService';
 
-export const maxDuration = 60; // Extendido al máximo gratuito de Vercel
-
-// Función para balancear carga entre múltiples API Keys gratuitas
-function getAvailableApiKey() {
-  const keys = (process.env.GOOGLE_GENERATIVE_AI_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
-  if (keys.length === 0) return undefined;
-  return keys[Math.floor(Math.random() * keys.length)];
-}
+export const maxDuration = 60; 
 
 export async function POST(req: Request) {
   const { messages, currentPath } = await req.json();
@@ -44,13 +37,12 @@ Si el usuario hace una pregunta ambigua como "¿Cómo voy aquí?" o "Analiza est
 ${memoryContext}
   `;
 
-  const randomApiKey = getAvailableApiKey();
-  const google = createGoogleGenerativeAI({
-    apiKey: randomApiKey,
+  const groq = createGroq({
+    apiKey: process.env.GROQ_API_KEY,
   });
 
   const result = streamText({
-    model: google((process.env.GEMINI_MODEL || 'gemini-3.8-flash').replace(/[^a-zA-Z0-9.-]/g, '')),
+    model: groq('llama-3.3-70b-versatile'),
     stopWhen: isStepCount(5),
     maxRetries: 0,
     instructions: dynamicSystemPrompt,
