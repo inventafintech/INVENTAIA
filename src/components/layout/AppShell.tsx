@@ -10,8 +10,8 @@ import { useAppShell } from '@/hooks/useAppShell';
 import { AnimatePresence, motion } from 'framer-motion';
 import { NotificationProvider } from '@/context/NotificationContext';
 
-// Carga diferida (Lazy Loading) de NexoChat para no penalizar el FCP del Dashboard
-const NexoChat = dynamic(() => import('@/components/nexo/NexoChat').then(mod => mod.NexoChat), {
+// Carga diferida (Lazy Loading) de NexoCommandPalette para no penalizar el FCP del Dashboard
+const NexoCommandPalette = dynamic(() => import('@/components/nexo/NexoCommandPalette').then(mod => mod.NexoCommandPalette), {
   ssr: false, // Desactivar SSR previene hidrataciones pesadas en el servidor y optimiza framer-motion
 });
 
@@ -54,7 +54,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <NotificationProvider>
       {/* Contenedor principal Flex de pantalla completa (100% fluido) con CSS nativo optimizado */}
-      <div className="flex h-[100dvh] w-full max-w-[1920px] mx-auto overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative selection:bg-amber-400 selection:text-slate-900">
+      <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative selection:bg-amber-400 selection:text-slate-900">
 
         {/* Sidebar adaptativo y colapsable (w-64 expandido / w-16 colapsado con transición fluida) */}
         <Sidebar
@@ -89,8 +89,8 @@ export function AppShell({ children }: AppShellProps) {
         </div>
       </div>
 
-      {/* Nexo: copiloto conversacional flotante en la esquina inferior DERECHA (fixed bottom-6 right-6 z-50) */}
-      <NexoChat />
+      {/* Nexo: copiloto conversacional (Modal Híbrido / Command Palette) */}
+      <NexoCommandPalette />
     </NotificationProvider>
   );
 }
