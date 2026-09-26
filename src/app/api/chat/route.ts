@@ -37,7 +37,7 @@ ${memoryContext}
   `;
 
   const result = streamText({
-    model: google('gemini-1.5-pro-latest'),
+    model: google(process.env.GEMINI_MODEL || 'gemini-3.8-flash'),
     instructions: dynamicSystemPrompt,
     messages,
     tools: {
