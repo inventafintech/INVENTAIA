@@ -49,10 +49,8 @@ export const NexoMemoryService = {
 
     try {
       // 1. Convertir el texto en un vector con el modelo de Google Gemini
-      // NOTA: cast por drift de majors (@ai-sdk/google v4 vs ai v3). Si el
-      // runtime rechaza el modelo, el catch degrada a [] (fail-safe existente).
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004') as any,
+        model: google.textEmbeddingModel('text-embedding-004'),
         value: payload.content,
       });
 
@@ -86,9 +84,8 @@ export const NexoMemoryService = {
     if (!supabase) return [];
 
     try {
-      // Mismo cast por drift de majors (ver storeNexoMemory).
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004') as any,
+        model: google.textEmbeddingModel('text-embedding-004'),
         value: query,
       });
 

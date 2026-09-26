@@ -137,9 +137,7 @@ INSTRUCCIÓN: usa SIEMPRE check_inventory_status o analyze_stock_risk antes de a
 `;
 
         const result = await streamText({
-          // NOTA: cast por drift de majors (@ai-sdk/google v4 vs ai v3).
-          // Si el runtime lo rechaza, el catch degrada al motor determinista.
-          model: google(process.env.GEMINI_MODEL || 'gemini-1.5-pro-latest') as any,
+          model: google(process.env.GEMINI_MODEL || 'gemini-1.5-pro-latest'),
           system: `${nexoSystemPrompt}\n\n${realTimeContext}`,
           messages,
           maxTokens: 1200,
