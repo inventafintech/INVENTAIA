@@ -37,7 +37,7 @@ ${memoryContext}
   `;
 
   const result = streamText({
-    model: google('gemini-1.5-pro-latest'),
+    model: google('gemini-1.5-pro-latest') as any,
     instructions: dynamicSystemPrompt,
     messages,
     tools: {
