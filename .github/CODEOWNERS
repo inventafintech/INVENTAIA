@@ -1,0 +1,25 @@
+# CODEOWNERS — IngenAI / INVENTA.AI
+# Todo cambio en estas rutas exige revisión y aprobación de @Juzakito
+# antes de poder fusionarse a main (ver protección de rama).
+#
+# Reglas:
+# - El orden importa: la última coincidencia gana.
+# - Producto y plataforma completa bajo revisión obligatoria.
+
+* @Juzakito
+
+# Núcleo sensible: código, IA, datos e infra
+/src/ @Juzakito
+/ai-engine/ @Juzakito
+/prisma/ @Juzakito
+/db/ @Juzakito
+/api/ @Juzakito
+/mobile/ @Juzakito
+
+# Secretos y despliegue (nunca deben salir del repo privado)
+/.env* @Juzakito
+/vercel.json @Juzakito
+/next.config.mjs @Juzakito
+/Dockerfile* @Juzakito
+/docker-compose* @Juzakito
+/.github/ @Juzakito
