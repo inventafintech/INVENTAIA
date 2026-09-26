@@ -38,6 +38,7 @@ ${memoryContext}
 
   const result = streamText({
     model: google((process.env.GEMINI_MODEL || 'gemini-3.8-flash').replace(/[^a-zA-Z0-9.-]/g, '')),
+    maxSteps: 5,
     instructions: dynamicSystemPrompt,
     messages,
     tools: {
