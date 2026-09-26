@@ -42,7 +42,7 @@ ${memoryContext}
   });
 
   const result = streamText({
-    model: groq('llama-3.1-70b-versatile'),
+    model: groq('openai/gpt-oss-120b'),
     stopWhen: isStepCount(5),
     maxRetries: 0,
     instructions: dynamicSystemPrompt,
