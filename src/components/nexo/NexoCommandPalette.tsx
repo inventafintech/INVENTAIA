@@ -442,7 +442,12 @@ export function NexoCommandPalette() {
 
       while (true) {
           const { done, value } = await reader.read();
-          if (done) break;
+          if (done) {
+            if (!accumulatedReply.trim()) {
+              throw new Error('Empty response');
+            }
+            break;
+          }
   
           const raw = decoder.decode(value, { stream: true });
           if (raw) {
