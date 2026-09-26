@@ -7,6 +7,7 @@ import { useSession } from 'next-auth/react';
 import { useTheme } from '@/hooks/useTheme';
 import { Logo } from '@/components/brand/Logo';
 import styles from './page.module.css';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   IconGlobe,
   IconShieldCheck,
@@ -106,228 +107,136 @@ export default function LandingPage() {
 
   return (
     <div className={styles.containerDark}>
-      {/* 1. Barra de Navegación Superior */}
-      <header className={styles.navDark}>
-        <div className={styles.navContent}>
-          {/* Logo a la izquierda */}
-          <div className={styles.logoGroup}>
-            <Link href="/" className={styles.logoDark} aria-label="INVENTA.AI - Inicio">
-              <Logo height={26} />
+      {/* 1. Barra de Navegación Superior Refactorizada (Tailwind + Cero JS para dropdowns) */}
+      <header className="fixed top-0 inset-x-0 z-50 bg-[#0f172a]/80 backdrop-blur-md border-b border-white/10 text-slate-200 transition-all duration-300">
+        <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <Link href="/" aria-label="INVENTA.AI">
+              <Logo height={24} />
             </Link>
-            <span className={styles.tagEnterpriseDark}>Enterprise B2B</span>
+            <span className="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 tracking-wider uppercase">
+              Enterprise B2B
+            </span>
           </div>
 
-          {/* Enlaces de navegación centrales con dropdowns */}
-          <nav className={styles.linksDark}>
-            {/* Plataforma */}
-            <div className={styles.navDropdownWrapper} data-dropdown="platform">
-              <button
-                type="button"
-                className={styles.navDropdownTrigger}
-                aria-haspopup="true"
-                aria-expanded={platformDropdownOpen}
-                onClick={() => {
-                  setPlatformDropdownOpen(!platformDropdownOpen);
-                  setSolutionsDropdownOpen(false);
-                }}
-              >
-                <span>{t.nav_plataforma}</span>
-                <span className={styles.chevronIcon}>⌄</span>
-              </button>
-              {platformDropdownOpen && (
-                <div className={styles.dropdownMenuDark}>
-                  <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>{t.nav_motor}</strong>
-                    <span>{t.nav_motor_desc}</span>
-                  </a>
-                  <a href="#soluciones" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>{t.nav_jit}</strong>
-                    <span>{t.nav_jit_desc}</span>
-                  </a>
-                  <a href="#tecnologia" onClick={() => setPlatformDropdownOpen(false)}>
-                    <strong>{t.nav_erp}</strong>
-                    <span>{t.nav_erp_desc}</span>
-                  </a>
-                </div>
-              )}
+          {/* Nav Central (CSS-only Dropdowns) */}
+          <nav className="hidden md:flex items-center gap-8 text-[13px] font-semibold tracking-wide">
+            <div className="relative group py-5 cursor-pointer">
+              <span className="flex items-center gap-1.5 hover:text-white transition-colors">
+                {t.nav_plataforma} <span className="opacity-50 text-[9px] group-hover:rotate-180 transition-transform">▼</span>
+              </span>
+              <div className="absolute top-[60px] left-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 flex flex-col">
+                <a href="#soluciones" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_motor}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_motor_desc}</span>
+                </a>
+                <a href="#soluciones" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_jit}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_jit_desc}</span>
+                </a>
+                <a href="#tecnologia" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_erp}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_erp_desc}</span>
+                </a>
+              </div>
             </div>
 
-            {/* Soluciones */}
-            <div className={styles.navDropdownWrapper} data-dropdown="solutions">
-              <button
-                type="button"
-                className={styles.navDropdownTrigger}
-                aria-haspopup="true"
-                aria-expanded={solutionsDropdownOpen}
-                onClick={() => {
-                  setSolutionsDropdownOpen(!solutionsDropdownOpen);
-                  setPlatformDropdownOpen(false);
-                }}
-              >
-                <span>{t.nav_soluciones}</span>
-                <span className={styles.chevronIcon}>⌄</span>
-              </button>
-              {solutionsDropdownOpen && (
-                <div className={styles.dropdownMenuDark}>
-                  <a href="#problema" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>{t.nav_dist}</strong>
-                    <span>{t.nav_dist_desc}</span>
-                  </a>
-                  <a href="#roi" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>{t.nav_fin}</strong>
-                    <span>{t.nav_fin_desc}</span>
-                  </a>
-                  <a href="#casos" onClick={() => setSolutionsDropdownOpen(false)}>
-                    <strong>{t.nav_consorcios}</strong>
-                    <span>{t.nav_consorcios_desc}</span>
-                  </a>
-                </div>
-              )}
+            <div className="relative group py-5 cursor-pointer">
+              <span className="flex items-center gap-1.5 hover:text-white transition-colors">
+                {t.nav_soluciones} <span className="opacity-50 text-[9px] group-hover:rotate-180 transition-transform">▼</span>
+              </span>
+              <div className="absolute top-[60px] left-0 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-2 flex flex-col">
+                <a href="#problema" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_dist}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_dist_desc}</span>
+                </a>
+                <a href="#roi" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_fin}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_fin_desc}</span>
+                </a>
+                <a href="#casos" className="p-3 rounded-lg hover:bg-slate-800/80 transition-colors">
+                  <strong className="block text-white text-[13px]">{t.nav_consorcios}</strong>
+                  <span className="block text-slate-400 text-[11px] mt-1 leading-tight">{t.nav_consorcios_desc}</span>
+                </a>
+              </div>
             </div>
 
-            <a href="#roi" className={styles.navLinkDark}>{t.nav_precios}</a>
-            <a href="#tecnologia" className={styles.navLinkDark}>{t.nav_recursos}</a>
+            <a href="#roi" className="hover:text-white transition-colors">{t.nav_precios}</a>
+            <a href="#tecnologia" className="hover:text-white transition-colors">{t.nav_recursos}</a>
           </nav>
 
-          {/* Extremo derecho: idioma, tema, login/CTAs */}
-          <div className={styles.actionsDark}>
-            {/* Selector de idioma con ícono vectorial */}
-            <div className={styles.langSelectorWrapper} data-dropdown="lang">
-              <button
-                type="button"
-                className={styles.langSelectorBtn}
-                aria-haspopup="true"
-                aria-expanded={langDropdownOpen}
-                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                aria-label={t.nav_lang_label}
-              >
-                <IconGlobe size={14} className={styles.langGlobeIcon} />
-                <span>{selectedLang === 'es' ? 'Español' : 'English'}</span>
-                <span className={styles.chevronIcon}>⌄</span>
+          {/* Acciones Derecha */}
+          <div className="flex items-center gap-3">
+            {/* Language Selector CSS-only */}
+            <div className="relative group py-5 hidden sm:block">
+              <button className="flex items-center gap-2 hover:text-white transition-colors text-[13px] font-medium" aria-label={t.nav_lang_label}>
+                <IconGlobe size={14} className="opacity-70" />
+                <span>{selectedLang === 'es' ? 'ES' : 'EN'}</span>
               </button>
-              {langDropdownOpen && (
-                <div className={styles.langDropdownMenu}>
-                  <button
-                    type="button"
-                    className={`${styles.langOption} ${selectedLang === 'es' ? styles.langActive : ''}`}
-                    onClick={() => changeLang('es')}
-                  >
-                    Español
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.langOption} ${selectedLang === 'en' ? styles.langActive : ''}`}
-                    onClick={() => changeLang('en')}
-                  >
-                    English
-                  </button>
-                </div>
-              )}
+              <div className="absolute top-[60px] right-0 w-32 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 bg-slate-900 border border-slate-800 rounded-xl shadow-2xl p-1 flex flex-col">
+                <button onClick={() => changeLang('es')} className={`p-2 text-left rounded-lg text-[13px] transition-colors ${selectedLang === 'es' ? 'bg-amber-500/10 text-amber-400 font-bold' : 'text-slate-300 hover:bg-slate-800'}`}>Español</button>
+                <button onClick={() => changeLang('en')} className={`p-2 text-left rounded-lg text-[13px] transition-colors ${selectedLang === 'en' ? 'bg-amber-500/10 text-amber-400 font-bold' : 'text-slate-300 hover:bg-slate-800'}`}>English</button>
+              </div>
             </div>
 
-            {/* Tema claro/oscuro (mismo sistema que el dashboard) */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className={styles.langSelectorBtn}
-              aria-label={theme === 'dark' ? (selectedLang === 'es' ? 'Cambiar a modo claro' : 'Switch to light mode') : (selectedLang === 'es' ? 'Cambiar a modo oscuro' : 'Switch to dark mode')}
-              title={theme === 'dark' ? '☀' : '☾'}
-            >
-              {theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />}
+            <button onClick={toggleTheme} className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-full transition-colors hidden sm:block">
+              {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
             </button>
 
             {isAuthenticated ? (
-              <Link href="/overview" className={styles.btnAmberNav}>
+              <Link href="/overview" prefetch={true} className="hidden lg:inline-flex items-center justify-center h-9 px-5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[13px] transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]">
                 {t.nav_dashboard}
               </Link>
             ) : (
               <>
-                {/* Iniciar sesión */}
-                <Link href="/login" className={styles.navLoginLinkDark}>
+                <Link href="/login" prefetch={true} className="hidden xl:block text-[13px] font-semibold text-slate-300 hover:text-white transition-colors mr-2">
                   {t.nav_login}
                 </Link>
-
-                {/* Reservar una demo */}
-                <button
-                  type="button"
-                  className={styles.btnOutlineNav}
-                  onClick={() => setIsDemoModalOpen(true)}
-                >
+                <button onClick={() => setIsDemoModalOpen(true)} className="hidden lg:inline-flex items-center justify-center h-9 px-4 rounded-lg border border-slate-700 hover:bg-slate-800 text-white text-[13px] font-semibold transition-colors">
                   {t.nav_demo}
                 </button>
-
-                {/* Iniciar prueba gratis de 7 días (Botón principal destacado) */}
-                <Link href="/login" className={styles.btnAmberNav}>
+                <Link href="/login" prefetch={true} className="hidden sm:inline-flex items-center justify-center h-9 px-5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-[13px] transition-all shadow-[0_0_15px_rgba(245,158,11,0.2)] hover:shadow-[0_0_20px_rgba(245,158,11,0.4)]">
                   {t.nav_trial}
-                </Link>
-
-                {/* Empezar gratis (Enlace sutil) */}
-                <Link href="/login" className={styles.linkEmpezarGratis}>
-                  {t.nav_start}
                 </Link>
               </>
             )}
-          </div>
 
-          {/* Botón menú hamburguesa en móvil */}
-          <button
-            type="button"
-            className={styles.hamburgerBtnDark}
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label={t.nav_menu}
-            aria-expanded={mobileMenuOpen}
-          >
-            {mobileMenuOpen ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
-                <line x1="4" y1="7" x2="20" y2="7" />
-                <line x1="4" y1="12" x2="20" y2="12" />
-                <line x1="4" y1="17" x2="20" y2="17" />
-              </svg>
-            )}
-          </button>
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-slate-300 hover:text-white bg-slate-800/50 rounded-lg">
+              {mobileMenuOpen ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="4" y1="7" x2="20" y2="7" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="17" x2="20" y2="17" /></svg>}
+            </button>
+          </div>
         </div>
 
-        {/* Menú móvil desplegable */}
-        {mobileMenuOpen && (
-          <div className={styles.mobileMenuDark}>
-            <nav className={styles.mobileNavLinksDark}>
-              <a href="#soluciones" onClick={() => setMobileMenuOpen(false)}>{t.nav_plataforma}</a>
-              <a href="#problema" onClick={() => setMobileMenuOpen(false)}>{t.nav_soluciones}</a>
-              <a href="#roi" onClick={() => setMobileMenuOpen(false)}>{t.nav_precios}</a>
-              <a href="#tecnologia" onClick={() => setMobileMenuOpen(false)}>{t.nav_recursos}</a>
-            </nav>
-            <div className={styles.mobileMenuDividerDark} />
-            <div className={styles.mobileMenuActionsDark}>
-              {isAuthenticated ? (
-                <Link href="/overview" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
-                  {t.nav_dashboard}
-                </Link>
-              ) : (
-                <>
-                  <Link href="/login" className={styles.btnAmberNav} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
-                    {t.nav_trial}
-                  </Link>
-                  <button
-                    type="button"
-                    className={styles.btnOutlineNav}
-                    onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }}
-                    style={{ width: '100%', justifyContent: 'center' }}
-                  >
-                    {t.nav_demo}
-                  </button>
-                  <Link href="/login" className={styles.navLoginLinkDark} onClick={() => setMobileMenuOpen(false)} style={{ textAlign: 'center' }}>
-                    {t.nav_login}
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+        {/* Mobile Menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="md:hidden border-t border-slate-800 bg-slate-950 overflow-hidden"
+            >
+              <div className="flex flex-col p-4 gap-2 text-[14px] font-medium">
+                <a href="#soluciones" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-900">{t.nav_plataforma}</a>
+                <a href="#problema" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-900">{t.nav_soluciones}</a>
+                <a href="#roi" onClick={() => setMobileMenuOpen(false)} className="block p-3 rounded-lg text-slate-300 hover:text-white hover:bg-slate-900">{t.nav_precios}</a>
+                
+                <div className="h-px bg-slate-800 my-2" />
+                
+                {isAuthenticated ? (
+                  <Link href="/overview" className="flex items-center justify-center h-11 rounded-lg bg-amber-500 text-slate-950 font-bold">{t.nav_dashboard}</Link>
+                ) : (
+                  <>
+                    <Link href="/login" className="flex items-center justify-center h-11 rounded-lg bg-amber-500 text-slate-950 font-bold">{t.nav_trial}</Link>
+                    <button onClick={() => { setMobileMenuOpen(false); setIsDemoModalOpen(true); }} className="flex items-center justify-center h-11 rounded-lg border border-slate-700 text-white font-medium">{t.nav_demo}</button>
+                  </>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       <main className={styles.main}>

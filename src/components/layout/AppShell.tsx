@@ -7,13 +7,13 @@ import dynamic from 'next/dynamic';
 import { Sidebar } from './Sidebar';
 import { TopBar } from './TopBar';
 import { useAppShell } from '@/hooks/useAppShell';
+import { AnimatePresence, motion } from 'framer-motion';
+import { NotificationProvider } from '@/context/NotificationContext';
 
 // Carga diferida (Lazy Loading) de NexoChat para no penalizar el FCP del Dashboard
 const NexoChat = dynamic(() => import('@/components/nexo/NexoChat').then(mod => mod.NexoChat), {
   ssr: false, // Desactivar SSR previene hidrataciones pesadas en el servidor y optimiza framer-motion
 });
-import { NotificationProvider } from '@/context/NotificationContext';
-import styles from './AppShell.module.css';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -53,8 +53,9 @@ export function AppShell({ children }: AppShellProps) {
 
   return (
     <NotificationProvider>
-      {/* Contenedor principal Flex de pantalla completa (100% fluido) */}
-      <div className={`flex h-screen w-full overflow-hidden ${styles.layout}`}>
+      {/* Contenedor principal Flex de pantalla completa (100% fluido) con CSS nativo optimizado */}
+      <div className="flex h-[100dvh] w-full max-w-[1920px] mx-auto overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative selection:bg-amber-400 selection:text-slate-900">
+
         {/* Sidebar adaptativo y colapsable (w-64 expandido / w-16 colapsado con transición fluida) */}
         <Sidebar
           pendingOrdersCount={state.pendingOrdersCount}
@@ -63,7 +64,7 @@ export function AppShell({ children }: AppShellProps) {
         />
 
         {/* Contenedor dinámico que se expande al colapsar el menú lateral */}
-        <div className={`flex-1 flex flex-col min-w-0 h-full overflow-hidden ${styles.mainWrapper}`}>
+        <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]">
           <TopBar
             pageTitle={pageTitle}
             hasActive={state.hasActiveIntegrations}
@@ -73,9 +74,18 @@ export function AppShell({ children }: AppShellProps) {
           />
 
           {/* Área principal fluida: flex-1 overflow-auto ocupando el 100% del espacio sobrante */}
-          <main className={`flex-1 overflow-auto w-full ${styles.contentArea}`}>
-            {children}
-          </main>
+          <AnimatePresence mode="wait">
+            <motion.main
+              key={pathname}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="flex-1 overflow-y-auto overflow-x-hidden w-full p-4 sm:p-6 lg:p-8 pb-24"
+            >
+              {children}
+            </motion.main>
+          </AnimatePresence>
         </div>
       </div>
 

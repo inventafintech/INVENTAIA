@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS public.nexo_memory_embeddings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     workspace_id UUID NOT NULL, -- Para seguridad y aislamiento multitenant
     content TEXT NOT NULL,      -- Texto original del recuerdo
-    embedding VECTOR(1536),     -- Vector de OpenAI text-embedding-3-small
+    embedding VECTOR(768),      -- Vector de Google Gemini text-embedding-004
     metadata JSONB DEFAULT '{}'::jsonb, -- Tags, tipo de evento, autor, etc.
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
@@ -24,7 +24,7 @@ ON public.nexo_memory_embeddings (workspace_id);
 
 -- 5. Crear la función de búsqueda de similitud (RPC) para invocarla desde Supabase Client
 CREATE OR REPLACE FUNCTION match_nexo_memories (
-  query_embedding vector(1536),
+  query_embedding vector(768),
   match_threshold float,
   match_count int,
   p_workspace_id uuid

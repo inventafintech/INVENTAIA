@@ -15,10 +15,11 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^1.2.22",
-    "@ai-sdk/openai": "^0.0.60",
+    "@ai-sdk/openai": "^4.0.78",
+    "@ai-sdk/react": "^4.0.119",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
-    "ai": "^4.3.19",
+    "ai": "^7.0.116",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^13.4.4",
     "lucide-react": "^1.48.0",

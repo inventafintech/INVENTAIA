@@ -1,17 +1,22 @@
 'use client';
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
+import { TextStreamChatTransport } from 'ai';
+import type { UIMessage } from 'ai';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { InventoryCard } from '@/components/ui/InventoryCard';
 import { TrendAnalysisCard } from '@/components/ui/TrendAnalysisCard';
 
 export default function NexoChatContainer() {
   const currentPath = usePathname();
   const scrollRef = useRef<HTMLDivElement>(null);
-  
-  const { messages, input, handleInputChange, handleSubmit } = useChat({ 
-    api: '/api/chat',
-    body: { currentPath }
+  const [inputValue, setInputValue] = useState('');
+
+  const { messages, sendMessage, status } = useChat({
+    transport: new TextStreamChatTransport({
+      api: '/api/chat',
+      body: { currentPath },
+    }),
   });
 
   useEffect(() => {
@@ -20,31 +25,51 @@ export default function NexoChatContainer() {
     }
   }, [messages]);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputValue.trim() || status === 'streaming') return;
+    const text = inputValue;
+    setInputValue('');
+    await sendMessage({ text });
+  };
+
   return (
     <div className="fixed inset-0 sm:static flex flex-col h-[100dvh] sm:h-screen bg-neutral-50 overflow-hidden text-base">
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none p-4 space-y-6 pb-24">
-        {messages.map(m => (
+        {messages.map((m: UIMessage) => (
           <div key={m.id} className={m.role === 'user' ? 'text-right' : 'text-left'}>
-            {m.content && (
-              <div className={`inline-block p-3 rounded-2xl max-w-[90%] sm:max-w-[75%] shadow-sm ${
-                m.role === 'user' ? 'bg-black text-white' : 'bg-white border border-neutral-100 text-neutral-800'
-              }`}>
-                {m.content}
-              </div>
-            )}
-            
-            {m.toolInvocations?.map(tool => {
-              if (tool.toolName === 'get_inventory_status' && 'result' in tool) {
+            {m.parts.map((part, index) => {
+              if (part.type === 'text' && part.text) {
                 return (
-                  <div key={tool.toolCallId} className="mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <InventoryCard items={tool.result.data} insight={tool.result.insight} />
+                  <div key={index} className={`inline-block p-3 rounded-2xl max-w-[90%] sm:max-w-[75%] shadow-sm ${
+                    m.role === 'user' ? 'bg-black text-white' : 'bg-white border border-neutral-100 text-neutral-800'
+                  }`}>
+                    {part.text}
                   </div>
                 );
               }
-              if (tool.toolName === 'analyze_sales_trend' && 'result' in tool) {
+              if (part.type === 'tool-invocation' && part.state === 'output-available') {
+                const output = part.output as any;
+                const toolName = (part as any).toolName;
+                if (toolName === 'get_inventory_status') {
+                  return (
+                    <div key={index} className="mt-3">
+                      <InventoryCard items={output.data} insight={output.insight} />
+                    </div>
+                  );
+                }
+                if (toolName === 'analyze_sales_trend') {
+                  return (
+                    <div key={index} className="mt-3">
+                      <TrendAnalysisCard result={output} />
+                    </div>
+                  );
+                }
+              }
+              if (part.type === 'tool-invocation' && (part.state === 'input-available' || part.state === 'input-streaming')) {
                 return (
-                  <div key={tool.toolCallId} className="mt-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                    <TrendAnalysisCard result={tool.result} />
+                  <div key={index} className="text-sm text-neutral-400 animate-pulse mt-2">
+                    Consultando la base de datos...
                   </div>
                 );
               }
@@ -57,11 +82,15 @@ export default function NexoChatContainer() {
         <form onSubmit={handleSubmit} className="flex gap-2 relative max-w-3xl mx-auto">
           <input
             className="w-full p-3 sm:p-4 pl-4 border border-neutral-300 rounded-full bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all text-[16px]"
-            value={input}
+            value={inputValue}
             placeholder="Analizar datos..."
-            onChange={handleInputChange}
+            onChange={(e) => setInputValue(e.target.value)}
           />
-          <button type="submit" className="absolute right-1.5 top-1.5 bottom-1.5 aspect-square bg-black text-white rounded-full flex items-center justify-center hover:bg-neutral-800 transition-transform active:scale-95">
+          <button
+            type="submit"
+            disabled={status === 'streaming'}
+            className="absolute right-1.5 top-1.5 bottom-1.5 aspect-square bg-black text-white rounded-full flex items-center justify-center hover:bg-neutral-800 transition-transform active:scale-95 disabled:opacity-50"
+          >
             ↗
           </button>
         </form>
