@@ -12,7 +12,7 @@ export async function POST(
     const body = await req.json().catch(() => ({}));
     const userEmail = body?.userEmail || 'operaciones@distribuidorasanmartin.pe';
 
-    const result = await PurchaseOrderService.approveOrder(id, userEmail);
+    const result = await PurchaseOrderService.approveOrder('ws-default', id, userEmail);
 
     return NextResponse.json(result);
   } catch (error: any) {

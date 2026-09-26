@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
 import { db } from '@/lib/db';
-
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -227,14 +226,16 @@ export async function PUT(req: NextRequest) {
       },
     });
 
-    db.addLog(
-      'system',
-      'INFO',
-      'WORKSPACE_SETTINGS_UPDATED',
-      'EXITOSO',
-      `Configuración actualizada para "${targetName}" (RUC: ${targetRuc || 'N/A'}) en base de datos.`,
-      baseSession.email
-    );
+    if (typeof (db as any)?.addLog === 'function') {
+      await (db as any).addLog(
+        'system',
+        'INFO',
+        'WORKSPACE_SETTINGS_UPDATED',
+        'EXITOSO',
+        `Configuración actualizada para "${targetName}" (RUC: ${targetRuc || 'N/A'}) en base de datos.`,
+        baseSession.email
+      );
+    }
 
     const normalizedSettings = {
       razonSocial: targetName,

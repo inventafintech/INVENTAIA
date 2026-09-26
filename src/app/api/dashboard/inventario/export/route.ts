@@ -9,22 +9,35 @@ export async function GET(req: NextRequest) {
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || 'all';
 
-    let items = InventoryMasterService.getInventoryItems();
+    let items = await InventoryMasterService.getInventoryItems();
 
     if (search) {
       const q = search.toLowerCase();
       items = items.filter(
-        (i) => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q)
+        (i: any) => i.name.toLowerCase().includes(q) || i.sku.toLowerCase().includes(q)
       );
     }
 
     if (category !== 'all') {
       items = items.filter(
-        (i) => i.category.toLowerCase() === category.toLowerCase()
+        (i: any) => i.category.toLowerCase() === category.toLowerCase()
       );
     }
 
-    const csvContent = InventoryMasterService.generateCsv(items);
+    const headers = ['SKU', 'Nombre', 'Categoría', 'Stock Físico', 'Stock Seguridad', 'Costo Unitario', 'Precio Unitario', 'Valor Total', 'GMROI', 'Estado Salud'];
+    const rows = items.map((item: any) => [
+      item.sku,
+      `"${item.name}"`,
+      `"${item.category}"`,
+      item.physicalStock,
+      item.safetyStock,
+      item.unitCost,
+      item.unitPrice,
+      item.totalValue,
+      item.gmroi,
+      item.healthLabel
+    ]);
+    const csvContent = [headers.join(','), ...rows.map((row: any) => row.join(','))].join('\n');
     const dateStr = new Date().toISOString().split('T')[0];
 
     return new NextResponse(csvContent, {

@@ -46,14 +46,14 @@ export class NotificationService {
       // 3. Inventario:
       // Conteo de SKUs con estado "Stock Bajo" y "Stock Inmovilizado / Exceso"
       // REGLA ANTIGRAVITY: cero fallbacks. 0 si DB vacía, nunca valor inventado.
-      Promise.resolve().then(() => {
-        const items = InventoryMasterService.getInventoryItems();
+      Promise.resolve().then(async () => {
+        const items = await InventoryMasterService.getInventoryItems();
         if (!items || items.length === 0) return { lowStock: 0, inmovilizado: 0 };
         const lowStock = items.filter(
-          (item) => item.health === 'low' || item.healthLabel === 'Stock Bajo'
+          (item: any) => item.health === 'low' || item.healthLabel === 'Stock Bajo'
         ).length;
         const inmovilizado = items.filter(
-          (item) => (item.physicalStock ?? 0) > 500 && item.health === 'healthy'
+          (item: any) => (item.physicalStock ?? 0) > 500 && item.health === 'healthy'
         ).length;
         return { lowStock, inmovilizado };
       }),

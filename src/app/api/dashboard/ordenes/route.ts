@@ -1,14 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PurchaseOrderService } from '@/services/PurchaseOrderService';
-import { db } from '@/lib/db';
+import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    const orders = PurchaseOrderService.getAllOrders();
-    const metrics = PurchaseOrderService.getMetrics();
-    const suppliers = db.getSuppliers();
+    const orders = await PurchaseOrderService.getAllOrders();
+    const metrics = await PurchaseOrderService.getMetrics();
+    
+    const supabase = await createClient();
+    const { data: suppliers } = await supabase.from('suppliers').select('*');
 
     return NextResponse.json({
       success: true,

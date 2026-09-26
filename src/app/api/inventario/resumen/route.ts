@@ -11,8 +11,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET() {
   try {
-    const summary = InventoryMasterService.getInventorySummary();
-    return NextResponse.json(summary, { status: 200 });
+    const metrics = await InventoryMasterService.getInventoryMetrics();
+    return NextResponse.json({ success: true, ...metrics }, { status: 200 });
   } catch (error: unknown) {
     const message =
       error instanceof Error ? error.message : 'Error al consolidar resumen de inventario';
