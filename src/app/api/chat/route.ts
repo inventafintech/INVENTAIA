@@ -6,6 +6,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { NexoMemoryService } from '@/services/NexoMemoryService';
+import { createClient } from '@/utils/supabase/server';
 
 export const maxDuration = 60; 
 
@@ -107,6 +108,41 @@ ${memoryContext}
           initialStock: z.number().default(0).describe('Cantidad inicial en stock'),
         }),
         execute: async ({ name, category, initialStock }) => {
+          const supabase = await createClient();
+          const skuCode = name.substring(0, 3).toUpperCase() + Math.floor(Math.random() * 1000);
+          
+          let catId = null;
+          if (category) {
+             const { data: catData } = await supabase.from('categories').select('id').ilike('name', `%${category}%`).limit(1);
+             if (catData && catData.length > 0) catId = catData[0].id;
+             else {
+               const { data: newCat } = await supabase.from('categories').insert({ name: category }).select('id').single();
+               if (newCat) catId = newCat.id;
+             }
+          }
+          if (!catId) {
+             const { data: fallbackCat } = await supabase.from('categories').select('id').limit(1);
+             if (fallbackCat && fallbackCat.length > 0) catId = fallbackCat[0].id;
+          }
+
+          if (catId) {
+            const { data: newProd, error } = await supabase.from('products').insert({
+              sku_code: skuCode,
+              name,
+              category_id: catId,
+              unit_cost: 0,
+              unit_price: 0
+            }).select('id').single();
+            
+            if (newProd) {
+              await supabase.from('inventory_levels').insert({
+                product_id: newProd.id,
+                physical_stock: initialStock,
+                safety_stock: 5
+              });
+            }
+          }
+
           return {
             status: 'success',
             message: `El producto "${name}" ha sido agregado exitosamente al catálogo con ${initialStock} unidades.`,
@@ -122,6 +158,17 @@ ${memoryContext}
           reason: z.string().optional().describe('Razón del ajuste (ej. merma, compra, corrección)'),
         }),
         execute: async ({ productName, quantityToAdjust, reason }) => {
+          const supabase = await createClient();
+          const { data: prodData } = await supabase.from('products').select('id, name').ilike('name', `%${productName}%`).limit(1);
+          
+          if (prodData && prodData.length > 0) {
+            const productId = prodData[0].id;
+            const { data: invLevel } = await supabase.from('inventory_levels').select('physical_stock, safety_stock').eq('product_id', productId).single();
+            if (invLevel) {
+               const newStock = Math.max(0, invLevel.physical_stock + quantityToAdjust);
+               await supabase.from('inventory_levels').update({ physical_stock: newStock }).eq('product_id', productId);
+            }
+          }
           return {
             status: 'success',
             message: `Se ha ajustado el inventario de "${productName}" en ${quantityToAdjust} unidades. (Razón: ${reason || 'No especificada'})`
@@ -145,7 +192,14 @@ ${memoryContext}
           vendorName: z.string().describe('Nombre del proveedor'),
           contactEmail: z.string().optional().describe('Email de contacto'),
         }),
-        execute: async ({ vendorName }) => {
+        execute: async ({ vendorName, contactEmail }) => {
+          const supabase = await createClient();
+          await supabase.from('suppliers').insert({
+            name: vendorName,
+            contact_info: contactEmail ? { email: contactEmail } : {},
+            integration_type: 'traditional',
+            lead_time_days: 5
+          });
           return {
             status: 'success',
             message: `El proveedor "${vendorName}" ha sido registrado correctamente.`
@@ -160,6 +214,30 @@ ${memoryContext}
           quantity: z.number().describe('Cantidad solicitada'),
         }),
         execute: async ({ vendorName, productName, quantity }) => {
+          const supabase = await createClient();
+          const { data: supData } = await supabase.from('suppliers').select('id').ilike('name', `%${vendorName}%`).limit(1);
+          let supplierId = null;
+          if (supData && supData.length > 0) supplierId = supData[0].id;
+          else {
+             const { data: newSup } = await supabase.from('suppliers').insert({ name: vendorName, contact_info: {}, integration_type: 'traditional', lead_time_days: 5 }).select('id').single();
+             if (newSup) supplierId = newSup.id;
+          }
+
+          if (supplierId) {
+             const orderNumber = `PO-${Math.floor(Math.random() * 100000)}`;
+             const estimatedArrival = new Date();
+             estimatedArrival.setDate(estimatedArrival.getDate() + 5);
+             
+             await supabase.from('purchase_orders').insert({
+                order_number: orderNumber,
+                supplier_id: supplierId,
+                condition: 'Net 30',
+                total_amount: quantity * 10,
+                estimated_arrival: estimatedArrival.toISOString(),
+                status: 'draft'
+             });
+          }
+
           return {
             status: 'success',
             message: `Se ha creado una orden de compra en borrador para ${quantity} unidades de "${productName}" al proveedor "${vendorName}".`
