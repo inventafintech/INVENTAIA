@@ -51,7 +51,7 @@ ${memoryContext}
       get_inventory_status: tool({
         description: 'Consulta la base de datos para obtener el estado real del inventario y las alertas de stock.',
         inputSchema: z.object({
-          category: z.string().optional(),
+          category: z.string().nullable().optional(),
         }),
         execute: async ({ category }) => {
           const items = await InventoryMasterService.getInventoryItems();
