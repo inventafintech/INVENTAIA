@@ -91,6 +91,7 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState<'resumen' | 'predictiva'>(initialTab);
   const [data, setData] = useState<ExecutiveData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState(false);
   const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
 
@@ -119,15 +120,21 @@ function DashboardContent() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       const res = await fetch('/api/dashboard/cerebro', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.summary) {
           setData(json);
+        } else {
+          throw new Error(json.error || 'Respuesta inválida del servidor');
         }
+      } else {
+        throw new Error('Error al conectar con la base de datos');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error cargando métricas ejecutivas:', err);
+      setError(err.message || 'Error desconocido');
     } finally {
       setLoading(false);
     }
@@ -160,6 +167,28 @@ function DashboardContent() {
 
   const summary = data?.summary;
   const modules = data?.modules;
+
+  if (loading) {
+    return (
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4">
+        <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-slate-800 animate-spin"></div>
+        <p className="text-slate-500 font-medium text-sm animate-pulse">Analizando métricas ejecutivas...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full p-6 bg-red-50 border border-red-100 rounded-xl mt-6 flex items-start gap-4">
+        <div className="text-red-500 mt-1">⚠️</div>
+        <div>
+          <h3 className="font-bold text-red-800">Error de Conexión</h3>
+          <p className="text-red-600 text-sm">{error}</p>
+          <button onClick={loadData} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">Reintentar</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>

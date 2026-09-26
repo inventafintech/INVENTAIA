@@ -81,7 +81,7 @@ export function AppShell({ children }: AppShellProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="flex-1 overflow-y-auto overflow-x-hidden w-full p-4 sm:p-6 lg:p-8 pb-24"
+              className="flex-1 overflow-y-auto w-full p-4 sm:p-6 lg:p-8 pb-24 min-w-0"
             >
               {children}
             </motion.main>
