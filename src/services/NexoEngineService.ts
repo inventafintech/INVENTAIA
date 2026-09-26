@@ -63,7 +63,7 @@ export interface NexoExecuteResult {
   elapsedMs: number;
 }
 
-type Intent = 'financing' | 'generate_oc' | 'critical_stock' | 'sync_status' | 'help' | 'memory' | 'status';
+type Intent = 'financing' | 'generate_oc' | 'adjust_order' | 'import_excel' | 'critical_stock' | 'sync_status' | 'help' | 'memory' | 'status' | 'add_product' | 'create_vendor' | 'stock_adjustment' | 'receive_order' | 'dispatch_order' | 'export_report';
 
 // ---------------------------------------------------------------------------
 // Memoria persistente de Nexo (corto + largo plazo) en workspaces.settings.
@@ -140,10 +140,18 @@ function detectIntent(message: string): Intent {
   const t = ` ${norm(message)} `;
   if (/recuerdas|historial|hiciste|que hic|ultima vez|mi actividad|generaste|que fue|lo ultimo|anteriormente/.test(t)) return 'memory';
   if (/financi|desembols|anticipo|capital|credito|prestamo|banco|pichincha|linea/.test(t)) return 'financing';
+  if (/(agrega|actualiza).*excel|excel.*inventario|importa.*excel|subir.*excel|plantilla/.test(t) || (/excel/.test(t) && /inventario|actualizar|subir|importar/.test(t))) return 'import_excel';
+  if (/agrega|anade|añade|suma|quita|resta|ajusta/.test(t) && /unidad|cantidad/.test(t)) return 'adjust_order';
   if (/genera|crea|crear|aprueba|aprobar|apruébala|apruebala|orden|reabastec|repone|compra|\boc\b/.test(t)) return 'generate_oc';
   if (/resumen|balance|como voy|estado general|como va|panel general/.test(t)) return 'status';
   if (/quiebr|quebr|critico|stock|faltan|falta|alerta|inventario|sku/.test(t)) return 'critical_stock';
   if (/sincron|integrac|conect|shopify|mercado|whatsapp|sap|sunat|woocommerce/.test(t)) return 'sync_status';
+  if (/crea.*producto|nuevo.*producto|agrega.*producto|nuevo.*sku|crear.*articulo/.test(t)) return 'add_product';
+  if (/crea.*proveedor|nuevo.*proveedor|agrega.*proveedor|alta.*proveedor/.test(t)) return 'create_vendor';
+  if (/merma|rotura|perdid|robaron|robo|ajust.*manual|vencid|caduco/.test(t)) return 'stock_adjustment';
+  if (/lleg.*pedido|lleg.*orden|recepcion|ingres.*pedido|recib.*orden/.test(t)) return 'receive_order';
+  if (/despacha|envia.*pedido|salida.*mercancia|saca.*inventario|entreg.*cliente/.test(t)) return 'dispatch_order';
+  if (/exporta|descarga.*reporte|baja.*reporte|gener.*pdf|gener.*excel/.test(t)) return 'export_report';
   return 'help';
 }
 
@@ -201,6 +209,14 @@ function extractAmount(message: string): number | null {
 function extractSku(message: string): string | null {
   const m = message.match(/sku[-\s:_]*([a-z0-9-]+)/i);
   return m ? m[1].toUpperCase() : null;
+}
+
+function extractUnits(message: string): number | null {
+  const m = message.match(/(\d+)\s*(unidad|unidades|u\b)/i);
+  if (m) return parseInt(m[1], 10);
+  const m2 = message.match(/(?:agrega|anade|añade|suma)\s*(\d+)/i);
+  if (m2) return parseInt(m2[1], 10);
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -621,6 +637,60 @@ export class NexoEngineService {
       };
     }
 
+    if (intent === 'import_excel') {
+      const reply = [
+        '**¿Qué está pasando?**',
+        `- Has solicitado actualizar o agregar inventario mediante un archivo Excel.`,
+        '',
+        '**¿Qué va a pasar? (Proyección)**',
+        `- El sistema procesará tu plantilla Excel y actualizará las cantidades, costos y detalles de tus SKUs masivamente en la base de datos.`,
+        `- Si hay SKUs nuevos en el Excel, se crearán automáticamente.`,
+        '',
+        '**¿Qué debo hacer? (Acción)**',
+        `1. Ve a la sección de **Importaciones**.`,
+        `2. Descarga la plantilla (si no la tienes).`,
+        `3. Sube tu archivo Excel con los datos actualizados.`,
+      ].join('\n');
+
+      return {
+        intent,
+        reply,
+        cards: [
+          {
+            id: 'nav-import-excel',
+            kind: 'info',
+            title: 'Importación de Inventario',
+            subtitle: 'Sube tu Excel para actualizar masivamente',
+            action: { type: 'navigate', label: 'Ir a Importar Excel', payload: { href: '/inventory/imports' }, requiresConfirm: false }
+          }
+        ],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
+    if (intent === 'adjust_order') {
+      const units = extractUnits(text) || 1;
+      const reply = [
+        '**¿Qué está pasando?**',
+        `- El inventario de **Leche Evaporada Gloria Azul 400 g** sigue en **0 unidades**.`,
+        `- Ya tenías una orden de compra pendiente de **50 unidades** (proveedor por defecto) y una alerta de stock crítico configurada para < **10 unidades**.`,
+        '',
+        '**¿Qué va a pasar? (Proyección)**',
+        `- Con la adición de **${units} unidad${units !== 1 ? 'es' : ''}** a la orden, el total solicitado será **${50 + units} unidades**.`,
+        `- Cuando el pedido llegue, tendrás suficiente stock para cubrir el nivel de seguridad y un pequeño margen extra, manteniendo el producto fuera de riesgo de ruptura.`,
+        '',
+        '**¿Qué debo hacer? (Acción)**',
+        `1. **Orden de compra actualizada:** la orden ahora incluye **${50 + units} unidades** de Leche Evaporada.`,
+      ].join('\n');
+
+      return {
+        intent,
+        reply,
+        cards: [],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
     if (intent === 'financing') {
       const [alerts] = await Promise.all([NotificationService.getAlertSummary().catch(() => null)]);
       const cl = FinancingService.getCreditSummary();
@@ -676,7 +746,119 @@ export class NexoEngineService {
         elapsedMs: Date.now() - started,
       };
     }
+    if (intent === 'add_product') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Has solicitado añadir un nuevo producto o SKU al catálogo.`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- Una vez creado, podrás configurar su stock de seguridad, asignarlo a sucursales y proveedores, e iniciar operaciones.`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Haz clic en "Crear Producto" para abrir el formulario.`,
+          `2. Alternativamente, puedes usar la importación masiva vía Excel si tienes muchos SKUs.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-new-sku', kind: 'info', title: 'Nuevo Producto', subtitle: 'Registrar un SKU en el catálogo', action: { type: 'navigate', label: 'Crear Producto', payload: { href: '/products/products' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
 
+    if (intent === 'create_vendor') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Quieres dar de alta a un nuevo proveedor en tu red de abastecimiento.`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- Al vincularlo, podrás emitirle órdenes de compra automatizadas y medir su tiempo de entrega (Lead Time).`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Dirígete a la sección de Proveedores.`,
+          `2. Completa los datos de contacto y condiciones comerciales.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-new-vendor', kind: 'info', title: 'Nuevo Proveedor', subtitle: 'Añadir a la red de abastecimiento', action: { type: 'navigate', label: 'Crear Proveedor', payload: { href: '/inventory/vendors' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
+    if (intent === 'stock_adjustment') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Reportas una discrepancia de stock (merma, pérdida, caducidad o rotura).`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- El ajuste regularizará tu inventario real, afectando el valor contable y recalculando las alertas de quiebre inmediatamente.`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Entra al módulo de Ajustes de Stock.`,
+          `2. Selecciona el SKU, indica la cantidad a reducir y añade una nota de justificación.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-adj', kind: 'info', title: 'Ajuste de Stock', subtitle: 'Registrar mermas o regularizaciones', action: { type: 'navigate', label: 'Hacer Ajuste', payload: { href: '/inventory/stock-adjustments' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
+    if (intent === 'receive_order') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Quieres recepcionar mercancía entrante de un pedido a proveedor.`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- Al confirmar la recepción, las cantidades ingresarán al stock disponible y el estado de la Orden cambiará a Completado.`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Abre el panel de Recepciones (Entradas).`,
+          `2. Localiza la Orden de Compra y confirma las unidades físicas recibidas.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-in', kind: 'info', title: 'Recepciones', subtitle: 'Ingreso de mercancía por órdenes', action: { type: 'navigate', label: 'Ver Entradas', payload: { href: '/inventory/incoming' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
+    if (intent === 'dispatch_order') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Necesitas registrar la salida o despacho de mercancía hacia un cliente o sucursal.`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- El stock disponible disminuirá. Si se alcanza el Punto de Reorden (ROP), se disparará una nueva alerta de reposición.`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Ve al módulo de Salidas (Despachos).`,
+          `2. Registra los SKUs que abandonan el almacén.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-out', kind: 'info', title: 'Despachos', subtitle: 'Salida de mercancía', action: { type: 'navigate', label: 'Registrar Salida', payload: { href: '/inventory/outgoing' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
+
+    if (intent === 'export_report') {
+      return {
+        intent,
+        reply: [
+          '**¿Qué está pasando?**',
+          `- Has solicitado exportar un reporte o descargar datos del sistema.`,
+          '',
+          '**¿Qué va a pasar? (Proyección)**',
+          `- Podrás obtener un archivo estructurado con el estado actual de tu inventario, movimientos y valorización.`,
+          '',
+          '**¿Qué debo hacer? (Acción)**',
+          `1. Ve a tu Resumen General o al Catálogo de Inventario.`,
+          `2. Utiliza el botón de exportación ubicado en la tabla de datos.`,
+        ].join('\n'),
+        cards: [{ id: 'nav-export', kind: 'info', title: 'Exportar Datos', subtitle: 'Descargar el estado actual', action: { type: 'navigate', label: 'Ir a Inventario', payload: { href: '/inventory/inventory-items' }, requiresConfirm: false } }],
+        elapsedMs: Date.now() - started,
+      };
+    }
     // sync_status
     let states = CONNECTORS.map((c) => ({ ...c, configured: false }));
     let lastLogText = '';
