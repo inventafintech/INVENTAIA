@@ -1,4 +1,4 @@
-import { google } from '@ai-sdk/google';
+import { openai } from '@ai-sdk/openai';
 import { embed } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
@@ -48,9 +48,9 @@ export const NexoMemoryService = {
     if (!supabase) return; // Fail safe si no hay Supabase configurado
 
     try {
-      // 1. Convertir el texto en un vector con el modelo de Google Gemini
+      // 1. Convertir el texto en un vector con el modelo de OpenAI
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004'),
+        model: openai.embedding('text-embedding-3-small'),
         value: payload.content,
       });
 
@@ -85,7 +85,7 @@ export const NexoMemoryService = {
 
     try {
       const { embedding } = await embed({
-        model: google.textEmbeddingModel('text-embedding-004'),
+        model: openai.embedding('text-embedding-3-small'),
         value: query,
       });
 
