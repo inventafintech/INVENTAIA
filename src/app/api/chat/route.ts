@@ -1,4 +1,4 @@
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText, tool, isStepCount } from 'ai';
 import { z } from 'zod';
 import { NEXO_SYSTEM_PROMPT } from '@/ai/prompt';
@@ -7,7 +7,14 @@ import { authOptions } from '@/lib/auth';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { NexoMemoryService } from '@/services/NexoMemoryService';
 
-export const maxDuration = 30;
+export const maxDuration = 60; // Extendido al máximo gratuito de Vercel
+
+// Función para balancear carga entre múltiples API Keys gratuitas
+function getAvailableApiKey() {
+  const keys = (process.env.GOOGLE_GENERATIVE_AI_API_KEY || '').split(',').map(k => k.trim()).filter(Boolean);
+  if (keys.length === 0) return undefined;
+  return keys[Math.floor(Math.random() * keys.length)];
+}
 
 export async function POST(req: Request) {
   const { messages, currentPath } = await req.json();
@@ -19,7 +26,8 @@ export async function POST(req: Request) {
   const lastMessage = messages.filter((m: any) => m.role === 'user').pop()?.content || '';
   
   let memoryContext = '';
-  if (lastMessage) {
+  // OPTIMIZACIÓN FREE TIER: No hacer RAG (ahorra 1 petición) si es un saludo corto
+  if (lastMessage && lastMessage.length > 10) {
     const memories = await NexoMemoryService.retrieveRelevantMemories(lastMessage, targetWorkspaceId);
     if (memories.length > 0) {
       memoryContext = `[MEMORIA INSTITUCIONAL Y CONTEXTO HISTÓRICO RAG]\n` + memories.map(m => `- ${m.content} (Similitud: ${m.similarity.toFixed(2)})`).join('\n');
@@ -35,6 +43,11 @@ Si el usuario hace una pregunta ambigua como "¿Cómo voy aquí?" o "Analiza est
 
 ${memoryContext}
   `;
+
+  const randomApiKey = getAvailableApiKey();
+  const google = createGoogleGenerativeAI({
+    apiKey: randomApiKey,
+  });
 
   const result = streamText({
     model: google((process.env.GEMINI_MODEL || 'gemini-3.8-flash').replace(/[^a-zA-Z0-9.-]/g, '')),
