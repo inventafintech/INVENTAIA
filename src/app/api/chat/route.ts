@@ -1,5 +1,5 @@
 import { google } from '@ai-sdk/google';
-import { streamText, tool } from 'ai';
+import { streamText, tool, generateText } from 'ai';
 import { z } from 'zod';
 import { nexoSystemPrompt } from '@/ai/prompt';
 import { SessionManager } from '@/lib/session';
@@ -8,6 +8,41 @@ import { NexoMemoryService } from '@/services/NexoMemoryService';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
+
+// Modelos candidatos en orden de preferencia. Google retira nombres sin
+// aviso; la sonda elige el primero que responde y lo cachea por instancia.
+function modelCandidates(): string[] {
+  return [...new Set(
+    [
+      process.env.GEMINI_MODEL,
+      'gemini-3.8-flash',
+      'gemini-2.0-flash',
+      'gemini-1.5-flash',
+    ].filter((m): m is string => !!m)
+  )];
+}
+
+let cachedWorkingModel: string | null = null;
+
+async function resolveWorkingModel(): Promise<string> {
+  if (cachedWorkingModel) return cachedWorkingModel;
+  for (const m of modelCandidates()) {
+    try {
+      await generateText({
+        model: google(m),
+        prompt: 'Responde solo: ok',
+        maxTokens: 5,
+        abortSignal: AbortSignal.timeout(15000),
+      });
+      cachedWorkingModel = m;
+      console.log(`[Nexo] modelo activo: ${m}`);
+      return m;
+    } catch (e) {
+      console.warn(`[Nexo] modelo no disponible: ${m}`);
+    }
+  }
+  throw new Error('no-llm-model');
+}
 
 export async function POST(req: Request) {
   try {
@@ -66,7 +101,13 @@ export async function POST(req: Request) {
       });
     }
 
-    // 1. Si está configurada la API KEY de Google Gemini, inyectamos contexto real del ERP y usamos streamText
+    // 1. Motor determinista PRIMERO: datos reales + cards + intent en una
+    // sola llamada. El LLM solo redacta la síntesis (sin tools: inmune a
+    // thought-signatures y a cambios de spec del provider).
+    const nexoRes = await NexoEngineService.query(userMessage, pathname, email, { history: messages });
+
+    // 2. Si está configurada la API KEY de Google Gemini, el LLM sintetiza
+    // el análisis del motor en los 3 bloques. Sin key, degradación directa.
     if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
       try {
         const { RestockCalculatorService } = await import('@/services/RestockCalculatorService');
@@ -133,14 +174,36 @@ ${criticalList.slice(0, 5).map((i) => `  * SKU: ${i.sku} | Nombre: ${i.name} | C
 - Alertas del sistema: Quiebres de stock: ${alertSummary?.riesgoQuiebre ?? 0}, Órdenes pendientes: ${alertSummary?.ordenes ?? 0}, Inventario en riesgo: ${alertSummary?.inventario ?? 0}
 
 ${memoryContextString}
-INSTRUCCIÓN: usa SIEMPRE check_inventory_status o analyze_stock_risk antes de afirmar faltantes. Estructura tu respuesta en ¿Qué está pasando? / ¿Qué va a pasar? / ¿Qué debo hacer?
+INSTRUCCIÓN: convierte el ANÁLISIS DEL MOTOR (JSON abajo) en los 3 bloques. No afirmes cifras fuera de él.
 `;
 
+// Análisis determinista ya verificado (datos + cards). El LLM solo redacta.
+const engineBrief = JSON.stringify({
+  intent: nexoRes.intent,
+  reply: nexoRes.reply,
+  cards: (nexoRes.cards || []).slice(0, 8),
+});
+
         const result = await streamText({
-          model: google(process.env.GEMINI_MODEL || 'gemini-1.5-pro-latest'),
-          system: `${nexoSystemPrompt}\n\n${realTimeContext}`,
+          // Modelo verificado por sonda; si cae en streaming, onError lo
+          // registra y el catch degrada al motor determinista de abajo.
+          model: google(await resolveWorkingModel()),
+          // SIN tools en este paso (los thought-signatures de Gemini 3.x
+          // rompen el function calling con este provider): el motor ya
+          // calculó datos + cards; el LLM solo sintetiza el texto.
+          // Las tools quedan definidas abajo, dormidas, para futuro provider.
+          toolChoice: 'none',
+          onError: ({ error }: { error: unknown }) => {
+            const msg = String((error as any)?.message || error);
+            console.error('[Nexo] streamText error:', msg);
+          },
+          system: `${nexoSystemPrompt}\n\n${realTimeContext}\n\n[ANÁLISIS DEL MOTOR DETERMINISTA — datos ya verificados, no re-consultar NADA, solo redactar en los 3 bloques]:\n${engineBrief}`,
           messages,
           maxTokens: 1200,
+          // Multi-step: tras invocar tools el modelo continúa y SINTETIZA
+          // el texto final. Sin esto el stream muere en finishReason
+          // tool-calls y el chat queda mudo.
+          maxSteps: 5,
           temperature: 0.2,
           tools: {
             navigate_platform: tool({
@@ -340,14 +403,48 @@ INSTRUCCIÓN: usa SIEMPRE check_inventory_status o analyze_stock_risk antes de a
           },
         });
 
-        return result.toDataStreamResponse();
+        // Ensamblado manual del stream (mismo protocolo 0:/9:/a:/d: que el
+        // frontend ya parsea): texto del LLM + nav/cards deterministas.
+        const synthEncoder = new TextEncoder();
+        const llmStream = new ReadableStream({
+          async start(controller) {
+            try {
+              for await (const delta of result.textStream) {
+                if (delta) controller.enqueue(synthEncoder.encode(`0:${JSON.stringify(delta)}\n`));
+              }
+            } catch (e) {
+              console.error('[Nexo] error en texto LLM, se continúa solo con motor:', e);
+            }
+            if (hasNavVerb(userMessage)) {
+              const dest = resolveNavigation(userMessage);
+              if (dest) {
+                const toolCallId = `call_${Date.now()}`;
+                controller.enqueue(synthEncoder.encode(`9:${JSON.stringify({ toolCallId, toolName: 'navigate_platform', args: { route: dest.href, reason: `Navegando a ${dest.label}`, destination_intent: userMessage } })}\n`));
+                controller.enqueue(synthEncoder.encode(`a:${JSON.stringify({ toolCallId, result: { success: true, route: dest.href, label: dest.label } })}\n`));
+              }
+            }
+            if (nexoRes.cards && nexoRes.cards.length > 0) {
+              const toolCallId = `cards_${Date.now()}`;
+              controller.enqueue(synthEncoder.encode(`9:${JSON.stringify({ toolCallId, toolName: 'generative_cards', args: { count: nexoRes.cards.length } })}\n`));
+              controller.enqueue(synthEncoder.encode(`a:${JSON.stringify({ toolCallId, result: { cards: nexoRes.cards, intent: nexoRes.intent } })}\n`));
+            }
+            controller.enqueue(synthEncoder.encode(`d:${JSON.stringify({ finishReason: 'stop', usage: { promptTokens: 0, completionTokens: 0 } })}\n`));
+            controller.close();
+          },
+        });
+
+        return new Response(llmStream, {
+          headers: {
+            'Content-Type': 'text/plain; charset=utf-8',
+            'X-Vercel-AI-Data-Stream': 'v1',
+          },
+        });
       } catch (aiErr) {
         console.warn('OpenAI stream failed, falling back to NexoEngineService:', aiErr);
       }
     }
 
-    // 2. Fallback determinista y resiliente con NexoEngineService (100% CÓDIGO FUNCIONAL - DATOS REALES DE SUPABASE)
-    const nexoRes = await NexoEngineService.query(userMessage, pathname, email, { history: messages });
+    // 3. Fallback: el reply del motor tal cual (ya calculado arriba).
     const replyText = nexoRes.reply || 'He procesado tu solicitud sobre las métricas actuales.';
 
     // Creamos un stream compatible con el protocolo Vercel AI SDK DataStream (partes 0:, 9:, a:, d:)
