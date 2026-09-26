@@ -95,5 +95,5 @@ ${memoryContext}
     },
   });
 
-  return result.toTextStreamResponse();
+  return result.toDataStreamResponse();
 }
