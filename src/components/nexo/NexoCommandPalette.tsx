@@ -248,6 +248,35 @@ function renderFormattedInline(str: string): React.ReactNode {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
+// HOOK DE LATENCIA PSICOLÓGICA (UX)
+// ═══════════════════════════════════════════════════════════════════════
+function useLoadingMessage(isLoading: boolean) {
+  const [msg, setMsg] = useState('Inicializando motor Nexo...');
+  
+  useEffect(() => {
+    if (!isLoading) {
+      setMsg('Inicializando motor Nexo...');
+      return;
+    }
+    const msgs = [
+      'Inicializando motor Nexo...',
+      'Recuperando memoria institucional (RAG)...',
+      'Consultando base de datos en tiempo real...',
+      'Analizando datos e integraciones...',
+      'Sintetizando análisis predictivo...',
+    ];
+    let i = 0;
+    const interval = setInterval(() => {
+      i = (i + 1) % msgs.length;
+      setMsg(msgs[i]);
+    }, 1500); // Cambia cada 1.5s
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
+  return msg;
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // COMPONENTE PRINCIPAL
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -265,6 +294,7 @@ export function NexoCommandPalette() {
   const [input, setInput] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const loadingText = useLoadingMessage(isLoading);
 
   // Navigation Items
   const [localResults, setLocalResults] = useState<FlatItem[]>([]);
@@ -945,7 +975,7 @@ export function NexoCommandPalette() {
               <div className="self-start flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-600 mr-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/nexo-orb.png" alt="" width={15} height={15} className="rounded-full object-contain" />
-                <span>Nexo está procesando métricas en vivo...</span>
+                <span>{loadingText}</span>
               </div>
             )}
           </div>
