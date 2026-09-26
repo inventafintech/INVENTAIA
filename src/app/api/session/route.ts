@@ -45,19 +45,19 @@ export async function GET() {
     const workspaceId =
       session?.workspaceId ||
       (nextAuthSession?.user as any)?.workspace?.id ||
-      'ws-default';
+      null;
 
-    let workspace;
-    if (workspaceId !== 'ws-default') {
-      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).single();
-      workspace = data;
+    let workspace = null;
+    if (workspaceId && workspaceId !== 'ws-default') {
+      const { data } = await supabase.from('workspaces').select('*').eq('id', workspaceId).maybeSingle();
+      if (data) {
+        workspace = {
+          id: data.id,
+          name: data.name,
+          slug_url: data.slug_url,
+        };
+      }
     }
-    
-    workspace = workspace || {
-      id: workspaceId,
-      name: session?.workspaceName || (nextAuthSession?.user as any)?.workspace?.name || '',
-      slug_url: session?.workspaceSlug || '',
-    };
 
     return NextResponse.json({
       authenticated: true,
@@ -83,11 +83,7 @@ export async function GET() {
             expiresAt: new Date(session.createdAt + 14 * 24 * 60 * 60 * 1000).toISOString(),
           }
         : null,
-      workspace: {
-        id: workspace.id,
-        name: workspace.name,
-        slug_url: workspace.slug_url,
-      },
+      workspace,
     });
   } catch (error: any) {
     console.error('Error fetching session:', error);

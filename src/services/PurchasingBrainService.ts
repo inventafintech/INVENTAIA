@@ -1,4 +1,4 @@
-import { db } from '@/lib/db';
+import { createClient } from '@/utils/supabase/server';
 import { PurchasingBrainSummary } from '@/types';
 
 export class PurchasingBrainService {
@@ -8,12 +8,17 @@ export class PurchasingBrainService {
    * it returns unconfigured / pending states.
    */
   public static async getSummary(): Promise<PurchasingBrainSummary> {
-    const integrations = db.getIntegrations();
-    const activeIntegrations = integrations.filter(
-      i => i.status === 'configured' || i.status === 'active'
+    const supabase = await createClient();
+
+    // Consultar Integraciones
+    const { data: integrations } = await supabase.from('integrations').select('*');
+    const activeIntegrations = (integrations || []).filter(
+      i => i.status === 'configured' || i.status === 'ACTIVE'
     );
-    const logs = db.getLogs(10);
-    const latestSuccessLog = logs.find(l => l.level === 'SUCCESS');
+
+    // Consultar Logs
+    const { data: logs } = await supabase.from('integration_logs').select('*').order('fecha', { ascending: false }).limit(1);
+    const latestSuccessLog = logs?.find(l => l.resultado === 'SUCCESS');
 
     // If no integrations are active
     if (activeIntegrations.length === 0) {
@@ -23,124 +28,126 @@ export class PurchasingBrainService {
         statusText: 'Pendiente de configuración (Sin integraciones activas)',
         lastSyncTimestamp: null,
 
-        // 1. Riesgo de Quiebre
         skusEnRiesgoCount: 0,
         ventasEnRiesgoMonto: 0,
         skusEnRiesgoDetalles: [],
 
-        // 2. Inventario Inmovilizado
         inventarioInmovilizadoMonto: 0,
         porcentajeVariacionMensual: 0,
 
-        // 3. Compras Recomendadas
         ordenesRecomendadasCount: 0,
         ordenesRecomendadasDetalles: [],
         confianzaForecastPromedio: 0,
 
-        // 4. Capital Requerido
         capitalRequeridoMonto: 0,
         diasPlazo: 30,
         porcentajeEjecucion: 0,
 
-        // 5. Financiamiento Disponible
         financiamientoDisponibleMonto: 0,
         tasaMensual: 0,
         entidadFinanciera: 'Pendiente de conexión',
         estadoFinanciamiento: 'no_disponible',
 
-        // 6. Forecast
         forecast90Dias: [],
-
-        // 7. Rentabilidad por SKU
         rentabilidadSKUs: [],
-
-        // 8. Proveedores Críticos
         proveedoresCriticos: [],
       };
     }
 
-    // When integrations ARE configured, calculate from real sync_results
-    // Find all sync results from the database store
-    const store = (db as any).getStore ? (db as any).getStore() : null;
-    const syncResults = store?.sync_results || [];
+    // Datos Reales
+    const { data: products } = await supabase.from('products').select('*');
+    const { data: inventory } = await supabase.from('inventory_levels').select('*');
+    const { data: suppliers } = await supabase.from('suppliers').select('*');
+    
+    const inventoryMap = new Map((inventory || []).map(inv => [inv.product_id, inv]));
+    const productsReal = products || [];
 
-    // Products count
-    const productResults = syncResults.filter((r: any) => r.entity_type === 'products' || r.entity_type === 'SAP_PRODUCTS');
-    const totalProducts = productResults.reduce((acc: number, r: any) => acc + (r.items_synced || 0), 0);
-
-    // Orders count
-    const orderResults = syncResults.filter((r: any) => r.entity_type === 'orders' || r.entity_type === 'sales');
-    const totalOrders = orderResults.reduce((acc: number, r: any) => acc + (r.items_synced || 0), 0);
-
-    // Stock count
-    const stockResults = syncResults.filter((r: any) => r.entity_type === 'stock' || r.entity_type === 'inventory');
-    const totalStock = stockResults.reduce((acc: number, r: any) => acc + (r.items_synced || 0), 0);
-
-    // Compute realistic metrics derived strictly from actual synced items
+    const totalProducts = productsReal.length;
     const connectedProviders = activeIntegrations.map(i => i.provider.toUpperCase()).join(' & ');
+
+    // Calcular en base a inventario real
+    let skusEnRiesgoCount = 0;
+    let ventasEnRiesgoMonto = 0;
+    let inventarioInmovilizadoMonto = 0;
+    const skusEnRiesgoDetalles: any[] = [];
+    const rentabilidadSKUs: any[] = [];
+
+    for (const p of productsReal) {
+      const inv = inventoryMap.get(p.id);
+      const stock = inv?.physical_stock || 0;
+      const safety = inv?.safety_stock || 0;
+      const cost = Number(p.unit_cost) || 0;
+      const price = Number(p.unit_price) || 0;
+
+      // Inmovilizado
+      inventarioInmovilizadoMonto += stock * cost;
+
+      // Rentabilidad
+      const gmroi = cost > 0 ? ((price - cost) / cost) * 100 : 0;
+      rentabilidadSKUs.push({
+        sku: p.sku_code,
+        nombre: p.name,
+        gmroi: Math.round(gmroi),
+        rotacion: 0 // Sin ventas reales aun
+      });
+
+      // Riesgo
+      if (stock <= safety) {
+        skusEnRiesgoCount++;
+        ventasEnRiesgoMonto += safety * price; // Potencial perdido
+        
+        if (skusEnRiesgoDetalles.length < 5) {
+           skusEnRiesgoDetalles.push({
+             id: p.id,
+             sku: p.sku_code,
+             nombre: p.name,
+             stockActual: stock,
+             diasRestantes: 0,
+             ventasEnRiesgo: safety * price,
+             nivelRiesgo: 'critico'
+           });
+        }
+      }
+    }
+
+    const { data: creditLines } = await supabase.from('credit_lines').select('*').limit(1);
+    const activeCredit = creditLines?.[0];
 
     return {
       hasActiveIntegrations: true,
       activeIntegrationsCount: activeIntegrations.length,
       statusText: `Sincronizado con ${connectedProviders}`,
-      lastSyncTimestamp: latestSuccessLog?.created_at || new Date().toISOString(),
+      lastSyncTimestamp: latestSuccessLog?.fecha || new Date().toISOString(),
 
-      skusEnRiesgoCount: totalProducts > 0 ? Math.min(Math.floor(totalProducts * 0.15), 12) : 0,
-      ventasEnRiesgoMonto: totalProducts > 0 ? 45200 : 0,
-      skusEnRiesgoDetalles: totalProducts > 0 ? [
-        {
-          id: 'risk-1',
-          sku: 'SKU-ALI-001',
-          nombre: 'Aceite Vegetal Primor 1L',
-          stockActual: 450,
-          diasRestantes: 3.8,
-          ventasEnRiesgo: 14200,
-          nivelRiesgo: 'critico'
-        }
-      ] : [],
+      skusEnRiesgoCount,
+      ventasEnRiesgoMonto,
+      skusEnRiesgoDetalles,
 
-      inventarioInmovilizadoMonto: totalStock > 0 ? 128400 : 0,
-      porcentajeVariacionMensual: 15,
+      inventarioInmovilizadoMonto,
+      porcentajeVariacionMensual: 0, // Requiere historico
 
-      ordenesRecomendadasCount: totalOrders > 0 ? Math.min(Math.ceil(totalOrders / 10), 5) : 0,
-      ordenesRecomendadasDetalles: totalOrders > 0 ? [
-        {
-          id: 'ord-rec-1',
-          proveedor: 'Alicorp S.A.A.',
-          skusCount: 4,
-          unidadesTotales: 1200,
-          montoEstimado: 28500,
-          fechaRecomendada: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
-          confianzaForecast: 94.8
-        }
-      ] : [],
-      confianzaForecastPromedio: 94.5,
+      ordenesRecomendadasCount: 0,
+      ordenesRecomendadasDetalles: [],
+      confianzaForecastPromedio: 0,
 
-      capitalRequeridoMonto: totalOrders > 0 ? 85000 : 0,
+      capitalRequeridoMonto: 0,
       diasPlazo: 30,
-      porcentajeEjecucion: 65,
+      porcentajeEjecucion: 0,
 
-      financiamientoDisponibleMonto: totalOrders > 0 ? 150000 : 0,
-      tasaMensual: 1.45,
-      entidadFinanciera: 'Línea de Crédito Rotativo B2B',
-      estadoFinanciamiento: totalOrders > 0 ? 'aprobado' : 'evaluacion',
+      financiamientoDisponibleMonto: activeCredit ? Number(activeCredit.available_amount) : 0,
+      tasaMensual: activeCredit ? Number(activeCredit.monthly_interest_rate) * 100 : 0,
+      entidadFinanciera: activeCredit ? 'Línea de Crédito Activa' : 'Sin Financiamiento',
+      estadoFinanciamiento: activeCredit ? 'aprobado' : 'evaluacion',
 
-      forecast90Dias: totalOrders > 0 ? [
-        { mes: 'Mes 1', proyeccion: 14200 },
-        { mes: 'Mes 2', proyeccion: 22800 },
-        { mes: 'Mes 3', proyeccion: 31500 },
-      ] : [],
+      forecast90Dias: [],
+      rentabilidadSKUs: rentabilidadSKUs.slice(0, 5),
 
-      rentabilidadSKUs: totalProducts > 0 ? [
-        { sku: 'SKU-ALI-001', nombre: 'Aceite Primor 1L', gmroi: 32, rotacion: 4.8 },
-        { sku: 'SKU-COS-002', nombre: 'Arroz Costeño 5kg', gmroi: 28, rotacion: 5.2 },
-        { sku: 'SKU-CAR-003', nombre: 'Azúcar Cartavio', gmroi: 8, rotacion: 1.4 },
-      ] : [],
-
-      proveedoresCriticos: [
-        { nombre: 'Alicorp (Lim)', leadTimeDias: 4, ubicacion: 'Callao', estado: 'normal' },
-        { nombre: 'Gloria (Aqp)', leadTimeDias: 12, ubicacion: 'Arequipa', estado: 'alerta' },
-      ],
+      proveedoresCriticos: (suppliers || []).slice(0, 5).map(s => ({
+        nombre: s.name,
+        leadTimeDias: s.lead_time_days,
+        ubicacion: 'N/A',
+        estado: 'normal'
+      })),
     };
   }
 }

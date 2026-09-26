@@ -45,7 +45,8 @@ function LoginContent() {
     try {
       setLoading(true);
       setErrorMessage(null);
-      await signIn('google', { callbackUrl: '/onboarding' });
+      const targetUrl = searchParams?.get('callbackUrl') || '/dashboard';
+      await signIn('google', { callbackUrl: targetUrl });
     } catch (err) {
       console.error('Error al iniciar sesión con Google:', err);
       setErrorMessage('Hubo un problema al conectar con Google. Inténtalo de nuevo.');

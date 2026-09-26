@@ -66,7 +66,7 @@ export default function OnboardingPage() {
           if (res.ok) {
             const data = await res.json();
             if (data.authenticated && data.user) {
-              if (data.workspace) {
+              if (data.workspace?.id && data.workspace.id !== 'ws-default') {
                 router.push('/dashboard');
                 return;
               }
