@@ -42,7 +42,7 @@ ${memoryContext}
   });
 
   const result = streamText({
-    model: groq('llama-3.3-70b-versatile'),
+    model: groq('llama-3.1-70b-versatile'),
     stopWhen: isStepCount(5),
     maxRetries: 0,
     instructions: dynamicSystemPrompt,
