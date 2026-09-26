@@ -32,11 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: |
-          ! grep -rniE "api[_-]?key\s*[:=]\s*['\"][^'\"]{8,}|secret\s*[:=]\s*['\"][^'\"]{8,}|-----BEGIN .*PRIVATE KEY" \
-            --include="*.js" --include="*.html" --include="*.py" --include="*.json" . \
-            | grep -v ".env.example" | grep -v "API_BASE" || true
-          echo "Secret scan OK"
+        with:
+          fetch-depth: 0
+      - name: Gitleaks (secretos en todo el historial)
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 # Deploy: integración oficial Vercel ↔ GitHub (Project → Settings → Git).
 # Cada push a main despliega a producción automáticamente tras estos checks.

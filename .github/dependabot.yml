@@ -1,0 +1,26 @@
+# Dependabot — actualizaciones de seguridad automáticas (gratuitas)
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Lima
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+      - security
+    reviewers:
+      - Juzakito
+    commit-message:
+      prefix: chore
+      include: scope
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    labels:
+      - dependencies

@@ -11,8 +11,21 @@ venv/
 # Env / secrets — NUNCA commitear
 .env
 .env.local
+.env*.local
 *.pem
 *.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa*
+id_ed25519*
+*.gpg
+*.asc
+credentials*.json
+*service-account*.json
+secrets/
+.envrc
 # Vercel / OS / editores
 .vercel
 .DS_Store
