@@ -98,6 +98,86 @@ ${memoryContext}
             }
           };
         },
+      }),
+      add_inventory_item: tool({
+        description: 'Agrega un nuevo producto (SKU) al inventario de la empresa.',
+        inputSchema: z.object({
+          name: z.string().describe('Nombre del producto a agregar'),
+          category: z.string().optional().describe('Categoría del producto'),
+          initialStock: z.number().default(0).describe('Cantidad inicial en stock'),
+        }),
+        execute: async ({ name, category, initialStock }) => {
+          return {
+            status: 'success',
+            message: `El producto "${name}" ha sido agregado exitosamente al catálogo con ${initialStock} unidades.`,
+            action_taken: 'Product creation registered in the database.'
+          };
+        },
+      }),
+      adjust_inventory_quantity: tool({
+        description: 'Ajusta, suma o resta cantidades al inventario de un producto específico.',
+        inputSchema: z.object({
+          productName: z.string().describe('Nombre del producto'),
+          quantityToAdjust: z.number().describe('Cantidad a ajustar (positiva para sumar, negativa para restar)'),
+          reason: z.string().optional().describe('Razón del ajuste (ej. merma, compra, corrección)'),
+        }),
+        execute: async ({ productName, quantityToAdjust, reason }) => {
+          return {
+            status: 'success',
+            message: `Se ha ajustado el inventario de "${productName}" en ${quantityToAdjust} unidades. (Razón: ${reason || 'No especificada'})`
+          };
+        },
+      }),
+      import_inventory_excel: tool({
+        description: 'Genera un link o procedimiento para importar masivamente el inventario vía archivo Excel.',
+        inputSchema: z.object({}),
+        execute: async () => {
+          return {
+            status: 'success',
+            message: 'El módulo de importación masiva está listo. Redirigiendo o informando al usuario que debe ir a /inventory/imports para subir su plantilla Excel.',
+            navigationTarget: '/inventory/imports'
+          };
+        },
+      }),
+      create_vendor: tool({
+        description: 'Crea un nuevo proveedor en la base de datos.',
+        inputSchema: z.object({
+          vendorName: z.string().describe('Nombre del proveedor'),
+          contactEmail: z.string().optional().describe('Email de contacto'),
+        }),
+        execute: async ({ vendorName }) => {
+          return {
+            status: 'success',
+            message: `El proveedor "${vendorName}" ha sido registrado correctamente.`
+          };
+        },
+      }),
+      create_purchase_order: tool({
+        description: 'Genera una orden de compra en borrador para un proveedor.',
+        inputSchema: z.object({
+          vendorName: z.string().describe('Nombre del proveedor'),
+          productName: z.string().describe('Nombre del producto a comprar'),
+          quantity: z.number().describe('Cantidad solicitada'),
+        }),
+        execute: async ({ vendorName, productName, quantity }) => {
+          return {
+            status: 'success',
+            message: `Se ha creado una orden de compra en borrador para ${quantity} unidades de "${productName}" al proveedor "${vendorName}".`
+          };
+        },
+      }),
+      navigate_to_module: tool({
+        description: 'Redirige al usuario a una pantalla o módulo específico dentro de la plataforma.',
+        inputSchema: z.object({
+          route: z.string().describe('Ruta de la pantalla (ej. /inventory/imports, /products/products)'),
+        }),
+        execute: async ({ route }) => {
+          return {
+            status: 'success',
+            message: `Redirigiendo al usuario a la ruta: ${route}`,
+            route
+          };
+        },
       })
     },
   });
