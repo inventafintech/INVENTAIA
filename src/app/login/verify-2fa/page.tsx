@@ -4,9 +4,18 @@ import React, { useState, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { ShieldCheck, Loader2, AlertCircle, KeyRound } from 'lucide-react';
-import { Logo } from '@/components/brand/Logo';
-import styles from '../page.module.css';
+import { ShieldCheck, Loader2, KeyRound } from 'lucide-react';
+import { AccessLanding } from '@/components/landing/AccessLanding';
+import landingStyles from '@/components/landing/AccessLanding.module.css';
+import styles from './page.module.css';
+
+const CAPABILITIES = [
+  'Inventario',
+  'Pronóstico',
+  'Reabastecimiento',
+  'Financiamiento',
+  'Analítica',
+];
 
 function VerifyContent() {
   const searchParams = useSearchParams();
@@ -66,38 +75,49 @@ function VerifyContent() {
   };
 
   return (
-    <div className={styles.card}>
-      <div className={styles.brand}>
-        <span className={styles.logo}>
-          <Logo height={30} tone="light" />
-        </span>
-        <span className={styles.badge}>Enterprise B2B</span>
-      </div>
-
-      <h1 className={styles.title}>Verificación en dos pasos</h1>
-      <p className={styles.subtitle}>
-        Tu cuenta exige un segundo factor. Abre tu autenticador (Google Authenticator, Authy)
-        e ingresa el código actual de 6 dígitos.
-      </p>
-
-      {errorMessage && (
-        <div className={styles.errorBanner} role="alert" aria-live="assertive">
-          <div className={styles.errorContent}>
-            <AlertCircle size={16} />
-            <span className={styles.errorText}>{errorMessage}</span>
+    <AccessLanding
+      tagline="Inventario, pronóstico, reabastecimiento y finanzas"
+      headline="Gestione todo el inventario, no solo el almacén."
+      description="INVENTA.AI conecta inventario, pronóstico, órdenes de compra y financiamiento en cada sucursal y proveedor. Un único registro en vivo, desde la orden de compra hasta el cobro."
+      capabilities={CAPABILITIES}
+      topbar={null}
+      eyebrow="Seguridad de la cuenta"
+      eyebrowError={errorMessage !== null}
+      title="Verificación en dos pasos"
+      subtitle="Tu cuenta exige un segundo factor. Abre tu autenticador (Google Authenticator, Authy) e ingresa el código actual de 6 dígitos."
+      alert={
+        errorMessage ? (
+          <div className={landingStyles.alert} role="alert" aria-live="assertive">
+            <span className={landingStyles.alertBody}>{errorMessage}</span>
+            <button
+              type="button"
+              onClick={() => setErrorMessage(null)}
+              className={landingStyles.alertClose}
+              aria-label="Cerrar alerta"
+            >
+              ×
+            </button>
           </div>
-          <button type="button" onClick={() => setErrorMessage(null)} className={styles.errorClose} aria-label="Cerrar alerta">
-            ×
-          </button>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginTop: '4px' }}>
+        ) : undefined
+      }
+      footerNote={
+        <Link href="/login" className={styles.backLink}>
+          ← Volver al inicio de sesión
+        </Link>
+      }
+      footerLeft="INVENTA.AI Operaciones"
+      footerLinks={[
+        { href: '/ayuda/guia', label: 'Ayuda' },
+        { href: '/ayuda/soporte', label: 'Soporte' },
+      ]}
+    >
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div>
-          <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+          <label className={styles.label} htmlFor="totp-code">
             {useBackup ? 'Código de respaldo' : 'Código del autenticador'}
           </label>
           <input
+            id="totp-code"
             type="text"
             value={code}
             onChange={(e) =>
@@ -106,29 +126,13 @@ function VerifyContent() {
             placeholder={useBackup ? 'XXXX-XXXX' : '••••••'}
             autoComplete="one-time-code"
             inputMode={useBackup ? 'text' : 'numeric'}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              fontSize: '20px',
-              letterSpacing: useBackup ? '2px' : '8px',
-              textAlign: 'center',
-              fontWeight: 700,
-              outline: 'none',
-              boxSizing: 'border-box',
-              fontFamily: 'monospace',
-            }}
+            className={styles.otpInput}
+            style={{ letterSpacing: useBackup ? '2px' : '8px' }}
             required
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={verifying || !code.trim()}
-          className={styles.btnGoogle}
-          style={{ justifyContent: 'center' }}
-        >
+        <button type="submit" disabled={verifying || !code.trim()} className={landingStyles.btnPrimary}>
           {verifying ? (
             <>
               <Loader2 size={18} style={{ animation: 'inventa-spin 1s linear infinite' }} />
@@ -149,38 +153,21 @@ function VerifyContent() {
             setCode('');
             setErrorMessage(null);
           }}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#2563eb',
-            fontSize: '13px',
-            fontWeight: 600,
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '6px',
-          }}
+          className={styles.textBtn}
         >
           <KeyRound size={14} />
           {useBackup ? 'Usar código del autenticador' : 'Usar un código de respaldo'}
         </button>
-
-        <Link href="/login" style={{ textAlign: 'center', fontSize: '13px', color: '#64748b', textDecoration: 'none' }}>
-          ← Volver al inicio de sesión
-        </Link>
       </form>
-    </div>
+    </AccessLanding>
   );
 }
 
 export default function Verify2FAPage() {
   return (
-    <div className={styles.container}>
+    <Suspense fallback={<div className={landingStyles.formWrap} style={{ minHeight: '100dvh' }} />}>
       <style>{`@keyframes inventa-spin { to { transform: rotate(360deg); } }`}</style>
-      <Suspense fallback={<div className={styles.loadingFallback}>Cargando…</div>}>
-        <VerifyContent />
-      </Suspense>
-    </div>
+      <VerifyContent />
+    </Suspense>
   );
 }
