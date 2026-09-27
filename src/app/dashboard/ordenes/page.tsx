@@ -121,11 +121,6 @@ export default function OrdenesPage() {
     }
   };
 
-  // Handle Download PDF
-  const handleDownloadPdf = (orderNumber: string) => {
-    window.open(`/api/dashboard/ordenes/${orderNumber}/pdf`, '_blank');
-  };
-
   // Handle Create Order
   const handleCreateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -260,12 +255,7 @@ export default function OrdenesPage() {
                         {actionLoadingId === order.id ? 'Aprobando...' : 'Aprobar'}
                       </button>
                     ) : (
-                      <button
-                        className={styles.btnAction}
-                        onClick={() => handleDownloadPdf(order.order_number)}
-                      >
-                        PDF
-                      </button>
+                      <span className={styles.badgeReceived}>En tránsito</span>
                     )}
                   </td>
                 </tr>

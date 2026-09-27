@@ -33,13 +33,13 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts",
     "web/types/**/*.ts",
     "web/dev/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
     "ai-engine",
-    "tests"
+    "tests",
+    "web/dev"
   ]
 }
