@@ -31,6 +31,10 @@
   --ground-a: #121418;
   --ground-b: #0e1013;
 
+  /* Viñeta sobre el tramado */
+  --vig-1: rgba(10, 11, 20, 0.55);
+  --vig-2: rgba(10, 11, 20, 0.86);
+
   --bad: #ef4444;
 
   --radius-input: 5px;
@@ -71,8 +75,8 @@
   pointer-events: none;
   background: linear-gradient(
     180deg,
-    rgba(10, 11, 20, 0.55) 0%,
-    rgba(10, 11, 20, 0.86) 65%,
+    var(--vig-1) 0%,
+    var(--vig-2) 65%,
     var(--bg) 100%
   );
 }
@@ -778,5 +782,349 @@ button.pill {
   .page {
     background: #fff;
     color: #000;
+  }
+}
+
+/* ------------------------------------------------- shell con cabecera */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+}
+
+/* Cuando el landing vive bajo una cabecera, la grilla cede el alto completo
+   y rellena el espacio restante. */
+.pageFill {
+  min-height: auto;
+  flex: 1;
+}
+
+/* ---------------------------------------------- variante clara del landing */
+
+.pageLight {
+  --brand: #4f46e5;
+  --brand-hover: #6366f1;
+  --brand-press: #4338ca;
+  --brand-contrast: #ffffff;
+  --brand-soft: rgba(79, 70, 229, 0.1);
+  --brand-line: rgba(79, 70, 229, 0.3);
+
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-2: #f4f5f7;
+  --surface-input: #ffffff;
+
+  --text: #111827;
+  --text-muted: #6b7280;
+  --text-faint: #9ca3af;
+
+  --line: #e5e7eb;
+  --line-strong: #d1d5db;
+
+  --ground-a: #f4f5f7;
+  --ground-b: #e9ebf1;
+
+  --vig-1: rgba(250, 250, 250, 0.5);
+  --vig-2: rgba(250, 250, 250, 0.85);
+
+  color-scheme: light;
+}
+
+/* Hex fijos del tema oscuro que en variante clara deben seguir al texto. */
+.pageLight .pill,
+.pageLight .helpPill {
+  color: var(--text-muted);
+}
+
+.pageLight .idp {
+  color: var(--text);
+}
+
+.pageLight .idp:disabled {
+  color: var(--text-faint);
+}
+
+.pageLight .alert {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+/* ----------------------------------------------------------- cabecera */
+
+.siteHeader {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--line);
+}
+
+.siteHeaderInner {
+  width: 100%;
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 0 24px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.siteBrand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  flex: none;
+}
+
+.siteBrand:hover {
+  text-decoration: none;
+}
+
+.siteBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  color: #f59e0b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.siteNav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.navItemWrap {
+  position: relative;
+}
+
+.navLink,
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.navLink:hover,
+.navButton:hover {
+  color: var(--text);
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.navButton svg {
+  width: 11px;
+  height: 11px;
+  opacity: 0.7;
+  transition: transform 0.15s ease;
+}
+
+.navButton[aria-expanded='true'] svg {
+  transform: rotate(180deg);
+}
+
+.navMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 60;
+  min-width: 240px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+  animation: alertIn 0.15s ease-out;
+}
+
+.pageLight .navMenu {
+  box-shadow: 0 16px 40px rgba(17, 24, 39, 0.12);
+}
+
+.navMenuLink {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.navMenuLink:hover {
+  background: var(--surface-2);
+  text-decoration: none;
+}
+
+.navMenuTitle {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.navMenuDesc {
+  font-size: 12px;
+  color: var(--text-faint);
+}
+
+.siteActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+  flex: none;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.iconBtn:hover {
+  border-color: var(--line-strong);
+  color: var(--text);
+}
+
+.iconBtn svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* CTA ámbar de la cabecera: idéntico en ambos temas, como en la captura. */
+.ctaAmber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 8px;
+  background: #f59e0b;
+  color: #0a0b14;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.ctaAmber:hover {
+  background: #fbbf24;
+  color: #0a0b14;
+  text-decoration: none;
+}
+
+.loginLink {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+.loginLink:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.menuButton {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .siteActions .themeBtn {
+    display: none;
+  }
+
+  .siteActions .loginLink {
+    display: none;
+  }
+}
+
+.mobilePanel {
+  display: none;
+}
+
+@media (max-width: 960px) {
+  .siteNav {
+    display: none;
+  }
+
+  .menuButton {
+    display: inline-flex;
+  }
+
+  .mobilePanel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 8px 16px 16px;
+    border-top: 1px solid var(--line);
+  }
+
+  .mobilePanel .navLink,
+  .mobilePanel .loginLink {
+    padding: 10px 8px;
+    font-size: 14px;
+  }
+
+  .mobileCtaRow {
+    display: flex;
+    gap: 10px;
+    padding-top: 10px;
+  }
+
+  .mobileCtaRow .ctaAmber {
+    flex: 1;
+  }
+
+  .siteHeaderInner {
+    gap: 12px;
+    padding: 0 16px;
+  }
+
+  .siteBadge {
+    display: none;
   }
 }

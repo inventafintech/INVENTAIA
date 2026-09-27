@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signIn } from 'next-auth/react';
 import { AccessLanding } from '@/components/landing/AccessLanding';
+import { SiteHeader } from '@/components/landing/SiteHeader';
 import landingStyles from '@/components/landing/AccessLanding.module.css';
 import { GoogleMark } from '@/components/landing/GoogleMark';
 import { LANDING_COPY, LANDING_LANG_KEY, LandingLang } from '@/lib/landingCopy';
@@ -29,6 +30,9 @@ export default function LandingPage() {
   const [isDemoModalOpen, setIsDemoModalOpen] = useState(false);
   const [selectedLang, setSelectedLang] = useState<LandingLang>('es');
   const [googleLoading, setGoogleLoading] = useState(false);
+  // El landing es oscuro por defecto (como la referencia); el alternador de
+  // la cabecera cambia solo esta página, sin tocar el tema global de la app.
+  const [light, setLight] = useState(false);
 
   const t = LANDING_COPY[selectedLang];
 
@@ -82,8 +86,21 @@ export default function LandingPage() {
   };
 
   return (
-    <>
+    <div
+      className={landingStyles.shell}
+      style={{ background: light ? '#fafafa' : '#0a0b14', colorScheme: light ? 'light' : 'dark' }}
+    >
+      <SiteHeader
+        t={t}
+        lang={selectedLang}
+        onToggleLang={() => changeLang(selectedLang === 'es' ? 'en' : 'es')}
+        light={light}
+        onToggleTheme={() => setLight((v) => !v)}
+        isAuthenticated={isAuthenticated}
+      />
       <AccessLanding
+        light={light}
+        fill
         tagline={t.acc_tagline}
         headline={t.hero_title}
         description={t.hero_sub}
@@ -167,7 +184,7 @@ export default function LandingPage() {
         )}
       </AccessLanding>
 
-      {/* Modal de demo (oscuro fijo, como la página) */}
+      {/* Modal de demo (sigue el tema del landing) */}
       {isDemoModalOpen && (
         <div className={landingStyles.modalOverlay} onClick={() => setIsDemoModalOpen(false)}>
           <div className={landingStyles.modalCard} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label={t.modal_title}>
@@ -238,6 +255,6 @@ export default function LandingPage() {
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

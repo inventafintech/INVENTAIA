@@ -37,6 +37,10 @@ interface AccessLandingProps {
   /** Texto inferior izquierdo ("INVENTA.AI Operaciones"). */
   footerLeft: string;
   footerLinks: AccessFooterLink[];
+  /** Variante clara del landing (oscuro por defecto, como la referencia). */
+  light?: boolean;
+  /** Rellena el alto restante cuando vive bajo una cabecera. */
+  fill?: boolean;
 }
 
 /**
@@ -60,13 +64,18 @@ export function AccessLanding({
   footerNote,
   footerLeft,
   footerLinks,
+  light = false,
+  fill = false,
 }: AccessLandingProps) {
+  const pageClass = [styles.page, light ? styles.pageLight : '', fill ? styles.pageFill : '']
+    .filter(Boolean)
+    .join(' ');
   return (
-    <div className={styles.page}>
+    <div className={pageClass}>
       {/* ------------------------------------------- panel de marca */}
       <aside className={styles.brandSide}>
         <div className={styles.brandMark}>
-          <Logo height={26} tone="dark" />
+          <Logo height={26} tone={light ? 'light' : 'dark'} />
           <span className={styles.brandRule} aria-hidden="true" />
           <span className={styles.tagline}>{tagline}</span>
         </div>
