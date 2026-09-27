@@ -4,7 +4,7 @@ description: >-
   Subagente especializado en lógica de servidor, persistencia de datos, APIs,
   esquemas de base de datos, validaciones y contratos de datos. No toca el diseño.
 subagent: true
-model: gemini-3.8-flash-medium
+model: flash
 tools:
   - view_file
   - write_to_file
@@ -14,9 +14,9 @@ tools:
   - grep_search
   - run_command
 skills:
-  - skills/supabase
-  - skills/supabase-postgres-best-practices
-  - skills/api-security-best-practices
+  - .agents/skills/supabase
+  - .agents/skills/supabase-postgres-best-practices
+  - .agents/skills/api-security-best-practices
 ---
 
 # Rol: Especialista Backend (Data & API Engineer)
