@@ -1,0 +1,198 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "InventaAI — Flujo de Reposicion Inteligente",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "main-cycle",
+        "label": "Ciclo completo de compra",
+        "focus": [
+          "stock_monitor",
+          "reorder_trigger",
+          "forecast_calc",
+          "llm_justification",
+          "approval_gate",
+          "order_emission"
+        ],
+        "note": "Recorrido desde la deteccion de bajo inventario hasta la emision de la orden de compra."
+      },
+      {
+        "id": "decision-core",
+        "label": "Motor y Copiloto",
+        "focus": ["forecast_calc", "llm_justification", "approval_gate"],
+        "note": "Separacion estricta entre calculo determinista y redaccion con LLM."
+      },
+      {
+        "id": "governance",
+        "label": "Gobernanza y rechazo",
+        "focus": ["approval_gate", "reject_node", "audit_log"],
+        "note": "Control de cambios y politica de autorizaciones antes de comprometer fondos."
+      }
+    ]
+  },
+  "lanes": [
+    { "id": "inventory", "label": "Inventario & Alertas" },
+    { "id": "engine", "label": "Motor de Decision (AI Engine)" },
+    { "id": "approval", "label": "Gobernanza & Aprobacion", "variant": "exception" },
+    { "id": "execution", "label": "Emision & Registro" }
+  ],
+  "phases": [
+    { "id": "detection", "label": "Deteccion", "fromCol": 0, "toCol": 1 },
+    { "id": "calculation", "label": "Calculo & Propuesta", "fromCol": 2, "toCol": 3, "variant": "emphasis" },
+    { "id": "settlement", "label": "Aprobacion & Cierre", "fromCol": 4, "toCol": 5, "variant": "dashed" }
+  ],
+  "mainPath": [
+    "stock_monitor",
+    "reorder_trigger",
+    "forecast_calc",
+    "llm_justification",
+    "approval_gate",
+    "order_emission"
+  ],
+  "nodes": [
+    {
+      "id": "stock_monitor",
+      "lane": "inventory",
+      "col": 0,
+      "type": "database",
+      "label": "Monitor de Stock",
+      "sublabel": "sync ventas POS/Web",
+      "width": 136
+    },
+    {
+      "id": "reorder_trigger",
+      "lane": "inventory",
+      "col": 1,
+      "type": "external",
+      "label": "Alerta de Reorden",
+      "sublabel": "stock < punto critico",
+      "width": 136
+    },
+    {
+      "id": "forecast_calc",
+      "lane": "engine",
+      "col": 2,
+      "type": "backend",
+      "label": "Calculo de Demanda",
+      "sublabel": "algoritmo ma30-seas-v1",
+      "tag": "determinista",
+      "width": 140
+    },
+    {
+      "id": "llm_justification",
+      "lane": "engine",
+      "col": 3,
+      "type": "cloud",
+      "label": "Sintesis Copilot",
+      "sublabel": "justificacion de compra",
+      "tag": "LLM sin calculo",
+      "width": 140
+    },
+    {
+      "id": "approval_gate",
+      "lane": "approval",
+      "col": 4,
+      "type": "security",
+      "label": "Puerta de Aprobacion",
+      "sublabel": "revision comprador / admin",
+      "tag": "control RBAC",
+      "width": 140
+    },
+    {
+      "id": "reject_node",
+      "lane": "approval",
+      "col": 5,
+      "type": "security",
+      "label": "OC Rechazada",
+      "sublabel": "ajuste / descarte",
+      "width": 136
+    },
+    {
+      "id": "order_emission",
+      "lane": "execution",
+      "col": 5,
+      "type": "backend",
+      "label": "Emision de OC",
+      "sublabel": "notifica proveedor",
+      "width": 136
+    },
+    {
+      "id": "audit_log",
+      "lane": "execution",
+      "col": 4,
+      "type": "database",
+      "label": "Auditoria Inmutable",
+      "sublabel": "log Postgres PITR",
+      "width": 136
+    }
+  ],
+  "edges": [
+    {
+      "id": "sync-to-trigger",
+      "from": "stock_monitor",
+      "to": "reorder_trigger",
+      "label": "quiebre previsto"
+    },
+    {
+      "id": "trigger-to-engine",
+      "from": "reorder_trigger",
+      "to": "forecast_calc",
+      "label": "demanda 30d",
+      "variant": "emphasis"
+    },
+    {
+      "id": "calc-to-copilot",
+      "from": "forecast_calc",
+      "to": "llm_justification",
+      "label": "SKU y volumen"
+    },
+    {
+      "id": "copilot-to-gate",
+      "from": "llm_justification",
+      "to": "approval_gate",
+      "label": "propuesta OC"
+    },
+    {
+      "id": "gate-to-emission",
+      "from": "approval_gate",
+      "to": "order_emission",
+      "label": "aprobada",
+      "variant": "emphasis"
+    },
+    {
+      "id": "gate-to-reject",
+      "from": "approval_gate",
+      "to": "reject_node",
+      "label": "descartada",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "emission-to-audit",
+      "from": "order_emission",
+      "to": "audit_log",
+      "label": "registro",
+      "variant": "dashed"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Deteccion & Proyeccion",
+      "items": [
+        "Monitoreo de stock con alertas por umbral critico",
+        "Forecast cuantitativo auditable con sintesis Copilot"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Gobernanza & Emision",
+      "items": [
+        "Aprobacion obligatoria por rol antes de emitir la OC",
+        "Registro inmutable de auditoria en PostgreSQL"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "InventaAI — Arquitectura del Sistema",
+    "quality_profile": "showcase",
+    "views": [
+      {
+        "id": "flow-compras",
+        "label": "Flujo de compras",
+        "focus": ["clients", "api", "ai_engine", "postgres"],
+        "note": "Ciclo principal de decision desde la interfaz hasta la persistencia multi-tenant."
+      },
+      {
+        "id": "ingesta-datos",
+        "label": "Ingesta multicanal",
+        "focus": ["sources", "ingestion", "postgres"],
+        "note": "Captura de ventas desde e-commerce y POS mediante workers BullMQ."
+      },
+      {
+        "id": "inteligencia",
+        "label": "Motor y Copiloto",
+        "focus": ["api", "ai_engine", "llm_adapter", "redis"],
+        "note": "Separacion entre calculo determinista Python y redaccion con LLM."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "sources",
+      "type": "external",
+      "label": "Fuentes E-Commerce",
+      "sublabel": "Shopify / ML / POS",
+      "pos": [40, 80],
+      "size": [140, 60]
+    },
+    {
+      "id": "clients",
+      "type": "frontend",
+      "label": "Clientes SPA & App",
+      "sublabel": "Vercel Web / Expo",
+      "pos": [40, 220],
+      "size": [140, 60]
+    },
+    {
+      "id": "ingestion",
+      "type": "backend",
+      "label": "Ingestion Worker",
+      "sublabel": "BullMQ / ETL nocturno",
+      "pos": [260, 80],
+      "size": [140, 60]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "API Gateway",
+      "sublabel": "FastAPI :8000",
+      "pos": [260, 220],
+      "size": [140, 60],
+      "brand": "fastapi"
+    },
+    {
+      "id": "ai_engine",
+      "type": "backend",
+      "label": "AI Core Engine",
+      "sublabel": "Forecast & Replenish",
+      "tag": "ma30-seas-v1",
+      "pos": [500, 220],
+      "size": [150, 60]
+    },
+    {
+      "id": "llm_adapter",
+      "type": "cloud",
+      "label": "LLM Copilot",
+      "sublabel": "OpenAI / Claude / Gemini",
+      "pos": [500, 360],
+      "size": [150, 60]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "Multi-tenant RLS",
+      "brand": "postgresql",
+      "tag": "Particionado",
+      "pos": [750, 80],
+      "size": [140, 60]
+    },
+    {
+      "id": "redis",
+      "type": "database",
+      "label": "Redis Cache",
+      "sublabel": "Streams & Cache",
+      "brand": "redis",
+      "tag": "Forecast 30-180d",
+      "pos": [750, 220],
+      "size": [140, 60]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "Inventa Platform Cloud",
+      "wraps": ["ingestion", "api", "ai_engine", "postgres", "redis"]
+    },
+    {
+      "kind": "security-group",
+      "label": "Data Layer (VPC)",
+      "wraps": ["postgres", "redis"]
+    }
+  ],
+  "connections": [
+    {
+      "id": "sources-to-ingest",
+      "from": "sources",
+      "to": "ingestion",
+      "label": "Webhooks & Sync"
+    },
+    {
+      "id": "clients-to-api",
+      "from": "clients",
+      "to": "api",
+      "label": "HTTPS REST",
+      "variant": "emphasis"
+    },
+    {
+      "id": "ingest-to-db",
+      "from": "ingestion",
+      "to": "postgres",
+      "label": "Raw Ingest",
+      "variant": "dashed"
+    },
+    {
+      "id": "api-to-engine",
+      "from": "api",
+      "to": "ai_engine",
+      "label": "Forecast Request"
+    },
+    {
+      "id": "engine-to-db",
+      "from": "ai_engine",
+      "to": "postgres",
+      "label": "Feature Store",
+      "fromSide": "top",
+      "toSide": "left"
+    },
+    {
+      "id": "engine-to-redis",
+      "from": "ai_engine",
+      "to": "redis",
+      "label": "Precompute Cache"
+    },
+    {
+      "id": "engine-to-llm",
+      "from": "ai_engine",
+      "to": "llm_adapter",
+      "label": "Draft Synthesis",
+      "labelDy": 24
+    }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Ingesta & Omnicanalidad",
+      "items": [
+        "Sincronizacion cada 5 min y ETL nocturno via BullMQ",
+        "Conectores para Shopify, Mercado Libre, Falabella y POS"
+      ]
+    },
+    {
+      "dot": "emerald",
+      "title": "Cerebro Determinista + LLM",
+      "items": [
+        "Calculo matematico de forecast y reposicion auditable (ma30-seas-v1)",
+        "El LLM solo redacta propuestas y explicaciones sin inventar cifras"
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Aislamiento & Resiliencia",
+      "items": [
+        "PostgreSQL particionado por mes con RLS estricto por company_id",
+        "Redis Streams para alertas en tiempo real y cache precalculado"
+      ]
+    }
+  ]
+}

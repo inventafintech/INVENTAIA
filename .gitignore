@@ -40,5 +40,21 @@ web/
 .data
 *.tsbuildinfo
 
+# Scratch scripts: leen .env.local para extraer API keys en runtime.
+# No son parte del proyecto y filtran secretos si se commitean.
+/script.js
+/test-gemini.js
+/test-tool.js
+/test-tool-full.js
+/test-tool-max.js
+
+# Archify visual-check: renders de QA (png + html) de los diagramas.
+# El entregable es el .html standalone y su .json fuente.
+docs/*.visual-check.html
+docs/*.visual-check.json
+docs/*.visual-check.*.png
+
+.v
+
 .vercel
 .env*
