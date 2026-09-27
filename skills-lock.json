@@ -1,6 +1,169 @@
 {
   "version": 1,
   "skills": {
+    "animate": {
+      "source": "emilkowalski/skills",
+      "sourceType": "github",
+      "skillPath": "skills/animate/SKILL.md",
+      "computedHash": "fb0a18403891238d4ce4fc80f891689678766c29092de1e3aadc0c917133ee5d"
+    },
+    "anti-detect-browser": {
+      "source": "antibrow/anti-detect-browser-skills",
+      "sourceType": "github",
+      "skillPath": "anti-detect-browser/SKILL.md",
+      "computedHash": "34906eda7cd67f53fed685a3273e743764014d2f36b85b9dab0241637a3c7f4b"
+    },
+    "api-security-best-practices": {
+      "source": "sickn33/agentic-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/api-security-best-practices/SKILL.md",
+      "computedHash": "b40a7e04579748b282f6a317b19cd9f9c83da8e8255db2fb9ef34a89fa547f8c"
+    },
+    "azure-resource-health-diagnose": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/azure-resource-health-diagnose/SKILL.md",
+      "computedHash": "b58a96f0f25e6e031c68eb516f91de9ff994dfdd7f146eae583f50171022036a"
+    },
+    "bailian-finetune": {
+      "source": "modelstudioai/cli",
+      "sourceType": "github",
+      "skillPath": "skills/bailian-finetune/SKILL.md",
+      "computedHash": "1ed5ff1252ea9dd9994ebfae222db2fa2c51700c4bd2c957f4b458e03654ce03"
+    },
+    "bailian-managed-agent": {
+      "source": "modelstudioai/cli",
+      "sourceType": "github",
+      "skillPath": "skills/bailian-managed-agent/SKILL.md",
+      "computedHash": "0a0d9e53dd19460657f56e753c34daf59d2e48bd5ae80107f53cd5edf611a5b7"
+    },
+    "centos-linux-triage": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/centos-linux-triage/SKILL.md",
+      "computedHash": "cc32685413a75070d297a6531f0f2cb3e8b842d82015a5f9564fb14ac05451ab"
+    },
+    "cloudflare": {
+      "source": "cloudflare/skills",
+      "sourceType": "github",
+      "skillPath": "skills/cloudflare/SKILL.md",
+      "computedHash": "0f8ee2a0c5de3cce6cd610bad1c3ea1666d85425ac8cf44d6bf18eb1e93fa974"
+    },
+    "companion-clis": {
+      "source": "runpod/runpod-plugins-official",
+      "sourceType": "github",
+      "skillPath": "plugins/runpod/skills/companion-clis/SKILL.md",
+      "computedHash": "70f91990ba6109dd7dd92ad3d1a55463a2fba9be9c2d5bab25d11643d5a77739"
+    },
+    "containerize-aspnet-framework": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/containerize-aspnet-framework/SKILL.md",
+      "computedHash": "e6608a11e7c5ce16ff1b7048902a1fd51aa98fa5373167002a73deb9b5570749"
+    },
+    "cosmosdb-datamodeling": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/cosmosdb-datamodeling/SKILL.md",
+      "computedHash": "b588fe7b9cf925eee682e94564666b6d8c9451d661a6bad15b5d3b4e87558e9d"
+    },
+    "declarative-agents": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/declarative-agents/SKILL.md",
+      "computedHash": "cbfcbb1f6916629db484acc9d08f0895f55158cc38d5c3f506dc317639eb917f"
+    },
+    "design-system": {
+      "source": "affaan-m/ecc",
+      "sourceType": "github",
+      "skillPath": "skills/design-system/SKILL.md",
+      "computedHash": "cf8cdf26522e767726171f3487f1179538d2aecf3f14fc4533ef220296dfc4e4"
+    },
+    "emblem-ai": {
+      "source": "emblemcompany/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/emblem-ai/SKILL.md",
+      "computedHash": "1ec5e35719c936c4f69fa168895b6f32034cd57e129e02584d5abed69b8077d7"
+    },
+    "emblem-ai-react": {
+      "source": "emblemcompany/agent-skills",
+      "sourceType": "github",
+      "skillPath": "skills/emblem-ai-react/SKILL.md",
+      "computedHash": "a5a26207919a88bfc7a3cebb337eefc9745f3579bd20df5c98ce594db74901a3"
+    },
+    "expo-animation": {
+      "source": "expo/skills",
+      "sourceType": "github",
+      "skillPath": "plugins/expo/skills/expo-animation/SKILL.md",
+      "computedHash": "f5c0b8e735bccfe0be886b194017d2c21472dfce51b7c244acda828527e783ac"
+    },
+    "firecrawl": {
+      "source": "firecrawl/cli",
+      "sourceType": "github",
+      "skillPath": "skills/firecrawl/SKILL.md",
+      "computedHash": "0bb36dbf867c5394334092f53d1162dbd77d302f3dc08b01b600e41683228284"
+    },
+    "higgsfield-websites": {
+      "source": "higgsfield-ai/skills",
+      "sourceType": "github",
+      "skillPath": "higgsfield-websites/SKILL.md",
+      "computedHash": "08dc3a999f2c46de70d86356b80169bcf951014a1edc213641251d23a2ec5bc6"
+    },
+    "ios-design": {
+      "source": "uizze.sh",
+      "sourceUrl": "https://uizze.sh",
+      "sourceType": "well-known",
+      "computedHash": "6b92ffbe225bdd877e1245e843c5b79f1e37f7ab40d3f802937044f6aee29d20",
+      "wellKnownDigest": "sha256:b117db775a77c436d7e46c2eeb1602de40f5f0256214cf6a9dc2bb056ddffd9d"
+    },
+    "okx-defi": {
+      "source": "okx/onchainos-skills",
+      "sourceType": "github",
+      "skillPath": "skills/okx-defi/SKILL.md",
+      "computedHash": "ed103ccd11709267756408da970a6e299b7c58850cbb1d93cd8545a28a1515bb"
+    },
+    "remotion-create": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-create/SKILL.md",
+      "computedHash": "46c39e336a7bc8b33014580380c25f971a4a5f63c89064002c8d07c0af394033"
+    },
+    "remotion-render": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-render/SKILL.md",
+      "computedHash": "de16484b558503dc8b8a551413c9f6e0d46063ddfcdcf6146c5459b23799ae06"
+    },
+    "revops": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/revops/SKILL.md",
+      "computedHash": "c05345d2db25fff632dbce95a07324d973ed381b10f88b443f75db1d79cc7481"
+    },
+    "sales-enablement": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/sales-enablement/SKILL.md",
+      "computedHash": "d3f3cf16e3b766d6f15cc302de362b808060f9a9068c839140add85248c33115"
+    },
+    "sponsor-finder": {
+      "source": "github/awesome-copilot",
+      "sourceType": "github",
+      "skillPath": "skills/sponsor-finder/SKILL.md",
+      "computedHash": "155923073dbbfd9b567c770a5b936619c98768816916d204b6310c456e99dc4f"
+    },
+    "stitch::manage-design-system": {
+      "source": "google-labs-code/stitch-skills",
+      "sourceType": "github",
+      "skillPath": "plugins/stitch-design/skills/manage-design-system/SKILL.md",
+      "computedHash": "0a2ff4062197344c76c418f0a8ee09b15fb644565825ecbe4fd7598b06fe14e7"
+    },
+    "storyboard-creation": {
+      "source": "skills-shell/superpowers",
+      "sourceType": "github",
+      "skillPath": "guides/video/storyboard-creation/SKILL.md",
+      "computedHash": "5de9d3f244cd5337ad4d45cccf46f05ac07364389beb347760fc144e372a63e0"
+    },
     "supabase": {
       "source": "supabase/agent-skills",
       "sourceType": "github",
@@ -12,6 +175,12 @@
       "sourceType": "github",
       "skillPath": "skills/supabase-postgres-best-practices/SKILL.md",
       "computedHash": "128fac78002d916c8ca908245d398e634f540d8bcf20915b2b2359aeb18eba59"
+    },
+    "web-artifacts-builder": {
+      "source": "anthropics/skills",
+      "sourceType": "github",
+      "skillPath": "skills/web-artifacts-builder/SKILL.md",
+      "computedHash": "fdddbe9bb720ea1aea9292ee513ec10b2a8f4912e2c343bdc246ab3febd7c9b3"
     }
   }
 }

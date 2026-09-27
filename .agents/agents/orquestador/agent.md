@@ -5,12 +5,14 @@ description: >-
   elabora el plan de ejecución, delega tareas a los subagentes especializados
   (frontend, backend, qa) y valida el resultado final sin escribir código directamente.
 subagent: false
-model: pro
+model: gemini-3.1-pro-high
 tools:
   - view_file
   - list_dir
   - grep_search
   - manage_task
+skills:
+  - skills/declarative-agents
 ---
 
 # Rol: Orquestador Principal (Tech Lead & Project Manager)

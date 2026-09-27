@@ -5,7 +5,7 @@ description: >-
   Encargado de la maquetación, estilos visuales, componentes interactivos,
   diseño responsive y modos claro/oscuro. No toca la lógica de datos.
 subagent: true
-model: flash
+model: gemini-3.8-flash-medium
 tools:
   - view_file
   - write_to_file
@@ -14,6 +14,8 @@ tools:
   - list_dir
   - grep_search
   - run_command
+skills:
+  - skills/design-system
 ---
 
 # Rol: Especialista Frontend (UI/UX Engineer)

@@ -5,12 +5,15 @@ description: >-
   frontend y backend, verifica casos de borde, detecta errores y genera reportes detallados.
   No implementa: solo prueba y reporta.
 subagent: true
-model: pro
+model: gemini-3.1-pro-high
 tools:
   - view_file
   - run_command
   - grep_search
   - list_dir
+skills:
+  - skills/api-security-best-practices
+  - skills/supabase
 ---
 
 # Rol: Ingeniero de Control de Calidad (QA Specialist)
