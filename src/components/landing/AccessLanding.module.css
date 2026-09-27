@@ -876,33 +876,6 @@ button.pill {
   gap: 28px;
 }
 
-.siteBrand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  text-decoration: none;
-  flex: none;
-}
-
-.siteBrand:hover {
-  text-decoration: none;
-}
-
-.siteBadge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.25);
-  color: #f59e0b;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-
 .siteNav {
   display: flex;
   align-items: center;
@@ -1124,7 +1097,4 @@ button.pill {
     padding: 0 16px;
   }
 
-  .siteBadge {
-    display: none;
-  }
 }

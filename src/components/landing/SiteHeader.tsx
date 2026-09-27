@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Globe, Moon, Sun, Menu, X } from 'lucide-react';
-import { Logo } from '@/components/brand/Logo';
 import type { LandingCopy, LandingLang } from '@/lib/landingCopy';
 import styles from './AccessLanding.module.css';
 
@@ -62,11 +61,6 @@ export function SiteHeader({ t, lang, onToggleLang, light, onToggleTheme, isAuth
   return (
     <header className={styles.siteHeader}>
       <div className={styles.siteHeaderInner}>
-        <Link href="/" className={styles.siteBrand} aria-label="INVENTA.AI">
-          <Logo height={24} tone={light ? 'light' : 'dark'} />
-          <span className={styles.siteBadge}>Enterprise B2B</span>
-        </Link>
-
         <nav className={styles.siteNav} aria-label="Principal">
           <div className={styles.navItemWrap} onMouseLeave={() => setOpenMenu(null)}>
             <button
