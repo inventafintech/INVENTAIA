@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Globe, Moon, Sun, Menu, X } from 'lucide-react';
 import type { LandingCopy, LandingLang } from '@/lib/landingCopy';
@@ -33,14 +33,27 @@ type MenuId = 'plataforma' | 'soluciones' | null;
 export function SiteHeader({ t, lang, onToggleLang, light, onToggleTheme, isAuthenticated }: SiteHeaderProps) {
   const [openMenu, setOpenMenu] = useState<MenuId>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     if (!openMenu) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpenMenu(null);
     };
+    // En táctil no hay mouse-leave: cerrar al tocar fuera del nav.
+    const onPointer = (e: MouseEvent | TouchEvent) => {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) {
+        setOpenMenu(null);
+      }
+    };
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    document.addEventListener('mousedown', onPointer);
+    document.addEventListener('touchstart', onPointer);
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.removeEventListener('mousedown', onPointer);
+      document.removeEventListener('touchstart', onPointer);
+    };
   }, [openMenu]);
 
   const toggleMenu = (id: Exclude<MenuId, null>) =>
@@ -61,7 +74,7 @@ export function SiteHeader({ t, lang, onToggleLang, light, onToggleTheme, isAuth
   return (
     <header className={styles.siteHeader}>
       <div className={styles.siteHeaderInner}>
-        <nav className={styles.siteNav} aria-label="Principal">
+        <nav ref={navRef} className={styles.siteNav} aria-label="Principal">
           <div className={styles.navItemWrap} onMouseLeave={() => setOpenMenu(null)}>
             <button
               type="button"

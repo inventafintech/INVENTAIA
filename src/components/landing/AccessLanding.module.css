@@ -7,7 +7,12 @@
    del isotipo en tono oscuro).
    =========================================================================== */
 
-.page {
+/* Los tokens viven en .shell y en .page (standalone, p. ej. /login): así la
+   cabecera del landing hereda el mismo tema que el cuerpo. .page NO los
+   redeclara en su bloque de layout para no tapar la variante clara del shell.
+   .pageLight funciona sobre cualquiera de los dos. */
+.page,
+.shell {
   --brand: #818cf8;
   --brand-hover: #a5b4fc;
   --brand-press: #6366f1;
@@ -39,7 +44,9 @@
 
   --radius-input: 5px;
   --mono: ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+}
 
+.page {
   display: grid;
   grid-template-columns: 1.1fr 1fr;
   min-height: 100vh;

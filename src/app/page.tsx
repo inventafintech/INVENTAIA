@@ -9,6 +9,9 @@ import landingStyles from '@/components/landing/AccessLanding.module.css';
 import { GoogleMark } from '@/components/landing/GoogleMark';
 import { LANDING_COPY, LANDING_LANG_KEY, LandingLang } from '@/lib/landingCopy';
 
+/** Preferencia de tema solo del landing (no toca el tema global de la app). */
+const LANDING_THEME_KEY = 'inventa_landing_theme';
+
 function CaretIcon() {
   return (
     <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -32,7 +35,30 @@ export default function LandingPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   // El landing es oscuro por defecto (como la referencia); el alternador de
   // la cabecera cambia solo esta página, sin tocar el tema global de la app.
+  // Se lee en efecto (no en el inicializador) para no romper la hidratación.
   const [light, setLight] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (window.localStorage.getItem(LANDING_THEME_KEY) === 'light') {
+        setLight(true);
+      }
+    } catch {
+      // storage bloqueado: queda el oscuro por defecto
+    }
+  }, []);
+
+  const toggleLandingTheme = () => {
+    setLight((prev) => {
+      const next = !prev;
+      try {
+        window.localStorage.setItem(LANDING_THEME_KEY, next ? 'light' : 'dark');
+      } catch {
+        // sin persistencia, el DOM ya quedó aplicado
+      }
+      return next;
+    });
+  };
 
   const t = LANDING_COPY[selectedLang];
 
@@ -87,15 +113,15 @@ export default function LandingPage() {
 
   return (
     <div
-      className={landingStyles.shell}
-      style={{ background: light ? '#fafafa' : '#0a0b14', colorScheme: light ? 'light' : 'dark' }}
+      className={light ? `${landingStyles.shell} ${landingStyles.pageLight}` : landingStyles.shell}
+      style={{ colorScheme: light ? 'light' : 'dark' }}
     >
       <SiteHeader
         t={t}
         lang={selectedLang}
         onToggleLang={() => changeLang(selectedLang === 'es' ? 'en' : 'es')}
         light={light}
-        onToggleTheme={() => setLight((v) => !v)}
+        onToggleTheme={toggleLandingTheme}
         isAuthenticated={isAuthenticated}
       />
       <AccessLanding

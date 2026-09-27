@@ -4,6 +4,8 @@ import { getToken } from 'next-auth/jwt';
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
+  // NOTA: /plans, /ayuda y /help son públicos a propósito — el landing los
+  // enlaza (Precios, Recursos, Guías, Soporte) y deben funcionar sin sesión.
   // Rutas que requieren autenticación obligatoria
   const isProtected =
     pathname.startsWith('/onboarding') ||
@@ -18,9 +20,6 @@ export async function proxy(req: NextRequest) {
     pathname.startsWith('/configuracion') ||
     pathname.startsWith('/complementos') ||
     pathname.startsWith('/addons') ||
-    pathname.startsWith('/plans') ||
-    pathname.startsWith('/ayuda') ||
-    pathname.startsWith('/help') ||
     pathname.startsWith('/panel') ||
     pathname.startsWith('/users') ||
     pathname.startsWith('/settings') ||
@@ -115,9 +114,6 @@ export const config = {
     '/configuracion/:path*',
     '/complementos/:path*',
     '/addons',
-    '/plans',
-    '/ayuda/:path*',
-    '/help/:path*',
     '/panel/:path*',
     '/users/:path*',
     '/settings/:path*',
