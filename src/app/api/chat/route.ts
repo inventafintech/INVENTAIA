@@ -116,8 +116,10 @@ ${memoryContext}
              const { data: catData } = await supabase.from('categories').select('id').ilike('name', `%${category}%`).limit(1);
              if (catData && catData.length > 0) catId = catData[0].id;
              else {
-               const { data: newCat } = await supabase.from('categories').insert({ name: category }).select('id').single();
+               const newCatId = crypto.randomUUID();
+               const { data: newCat, error: catError } = await supabase.from('categories').insert({ id: newCatId, name: category }).select('id').single();
                if (newCat) catId = newCat.id;
+               else if (!catError) catId = newCatId;
              }
           }
           if (!catId) {
@@ -126,7 +128,9 @@ ${memoryContext}
           }
 
           if (catId) {
+            const prodId = crypto.randomUUID();
             const { data: newProd, error } = await supabase.from('products').insert({
+              id: prodId,
               sku_code: skuCode,
               name,
               category_id: catId,
@@ -134,13 +138,24 @@ ${memoryContext}
               unit_price: 0
             }).select('id').single();
             
-            if (newProd) {
-              await supabase.from('inventory_levels').insert({
-                product_id: newProd.id,
+            if (error) {
+              return { status: 'error', message: `No se pudo agregar el producto. Razón: ${error.message}` };
+            }
+            
+            if (newProd || prodId) {
+              const invId = crypto.randomUUID();
+              const { error: invError } = await supabase.from('inventory_levels').insert({
+                id: invId,
+                product_id: newProd ? newProd.id : prodId,
                 physical_stock: initialStock,
                 safety_stock: 5
               });
+              if (invError) {
+                return { status: 'warning', message: `Producto creado pero falló la inicialización de stock: ${invError.message}` };
+              }
             }
+          } else {
+             return { status: 'error', message: 'No se pudo determinar o crear una categoría para el producto.' };
           }
 
           return {
@@ -166,8 +181,16 @@ ${memoryContext}
             const { data: invLevel } = await supabase.from('inventory_levels').select('physical_stock, safety_stock').eq('product_id', productId).single();
             if (invLevel) {
                const newStock = Math.max(0, invLevel.physical_stock + quantityToAdjust);
-               await supabase.from('inventory_levels').update({ physical_stock: newStock }).eq('product_id', productId);
+               const { error } = await supabase.from('inventory_levels').update({ physical_stock: newStock }).eq('product_id', productId);
+               
+               if (error) {
+                  return { status: 'error', message: `Fallo al actualizar el stock: ${error.message}` };
+               }
+            } else {
+               return { status: 'error', message: 'El producto no tiene registro de niveles de inventario.' };
             }
+          } else {
+             return { status: 'error', message: 'No se encontró el producto en la base de datos.' };
           }
           return {
             status: 'success',
@@ -194,12 +217,16 @@ ${memoryContext}
         }),
         execute: async ({ vendorName, contactEmail }) => {
           const supabase = await createClient();
-          await supabase.from('suppliers').insert({
+          const { error } = await supabase.from('suppliers').insert({
+            id: crypto.randomUUID(),
             name: vendorName,
             contact_info: contactEmail ? { email: contactEmail } : {},
             integration_type: 'traditional',
             lead_time_days: 5
           });
+          if (error) {
+             return { status: 'error', message: `Fallo al crear proveedor: ${error.message}` };
+          }
           return {
             status: 'success',
             message: `El proveedor "${vendorName}" ha sido registrado correctamente.`
@@ -219,8 +246,10 @@ ${memoryContext}
           let supplierId = null;
           if (supData && supData.length > 0) supplierId = supData[0].id;
           else {
-             const { data: newSup } = await supabase.from('suppliers').insert({ name: vendorName, contact_info: {}, integration_type: 'traditional', lead_time_days: 5 }).select('id').single();
+             const newSupId = crypto.randomUUID();
+             const { data: newSup, error: supError } = await supabase.from('suppliers').insert({ id: newSupId, name: vendorName, contact_info: {}, integration_type: 'traditional', lead_time_days: 5 }).select('id').single();
              if (newSup) supplierId = newSup.id;
+             else if (!supError) supplierId = newSupId;
           }
 
           if (supplierId) {
@@ -228,7 +257,8 @@ ${memoryContext}
              const estimatedArrival = new Date();
              estimatedArrival.setDate(estimatedArrival.getDate() + 5);
              
-             await supabase.from('purchase_orders').insert({
+             const { error } = await supabase.from('purchase_orders').insert({
+                id: crypto.randomUUID(),
                 order_number: orderNumber,
                 supplier_id: supplierId,
                 condition: 'Net 30',
@@ -236,6 +266,12 @@ ${memoryContext}
                 estimated_arrival: estimatedArrival.toISOString(),
                 status: 'draft'
              });
+             
+             if (error) {
+                return { status: 'error', message: `No se pudo generar la orden: ${error.message}` };
+             }
+          } else {
+             return { status: 'error', message: 'No se pudo vincular ni crear el proveedor.' };
           }
 
           return {
