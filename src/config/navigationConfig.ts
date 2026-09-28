@@ -45,6 +45,11 @@ export interface NavGroupConfig {
   items: NavItemConfig[];
 }
 
+/* Orden estándar de mercado (Stripe / Linear / Ramp): primero el pulso
+   diario (panel), luego la operación (inventario), las relaciones
+   (entidades por frecuencia de uso), conexiones, planes, y al fondo
+   configuración y ayuda. Los ids/hrefs/aliases no cambian: el sidebar, la
+   paleta de comandos y Nexo consumen este arreglo dinámicamente. */
 export const NAVIGATION_CONFIG: NavGroupConfig[] = [
   {
     id: 'panel',
@@ -72,49 +77,6 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/activity-log',
         aliases: ['/panel/actividad', '/dashboard/ordenes'],
         icon: History,
-      },
-    ],
-  },
-  {
-    id: 'entidades',
-    title: 'ENTIDADES',
-    items: [
-      {
-        id: 'productos',
-        label: 'Productos',
-        href: '/products/products',
-        aliases: ['/entidades/productos'],
-        icon: Tag,
-      },
-      {
-        id: 'sucursal',
-        label: 'Detalles de la sucursal',
-        href: '/inventory/branch-details',
-        aliases: ['/entidades/sucursal'],
-        icon: Building2,
-      },
-      {
-        id: 'ubicaciones',
-        label: 'Ubicaciones',
-        href: '/inventory/locations',
-        aliases: ['/entidades/ubicaciones'],
-        icon: MapPin,
-      },
-      {
-        id: 'proveedores',
-        label: 'Proveedores',
-        href: '/inventory/vendors',
-        aliases: ['/entidades/proveedores', '/abastecimiento/proveedores-criticos'],
-        icon: Store,
-        badgeKey: 'proveedoresCriticos',
-        badgeType: 'alert',
-      },
-      {
-        id: 'clientes',
-        label: 'Clientes',
-        href: '/inventory/clients',
-        aliases: ['/entidades/clientes'],
-        icon: User,
       },
     ],
   },
@@ -162,6 +124,49 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
     ],
   },
   {
+    id: 'entidades',
+    title: 'ENTIDADES',
+    items: [
+      {
+        id: 'productos',
+        label: 'Productos',
+        href: '/products/products',
+        aliases: ['/entidades/productos'],
+        icon: Tag,
+      },
+      {
+        id: 'proveedores',
+        label: 'Proveedores',
+        href: '/inventory/vendors',
+        aliases: ['/entidades/proveedores', '/abastecimiento/proveedores-criticos'],
+        icon: Store,
+        badgeKey: 'proveedoresCriticos',
+        badgeType: 'alert',
+      },
+      {
+        id: 'clientes',
+        label: 'Clientes',
+        href: '/inventory/clients',
+        aliases: ['/entidades/clientes'],
+        icon: User,
+      },
+      {
+        id: 'ubicaciones',
+        label: 'Ubicaciones',
+        href: '/inventory/locations',
+        aliases: ['/entidades/ubicaciones'],
+        icon: MapPin,
+      },
+      {
+        id: 'sucursal',
+        label: 'Detalles de la sucursal',
+        href: '/inventory/branch-details',
+        aliases: ['/entidades/sucursal'],
+        icon: Building2,
+      },
+    ],
+  },
+  {
     id: 'integraciones',
     title: 'INTEGRACIONES',
     items: [
@@ -180,18 +185,18 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
     title: 'COMPLEMENTOS',
     items: [
       {
-        id: 'complementos-disponibles',
-        label: 'Complementos Disponibles',
-        href: '/addons',
-        aliases: ['/complementos/disponibles'],
-        icon: ShoppingBag,
-      },
-      {
         id: 'comparar-planes',
         label: 'Comparar Planes',
         href: '/plans',
         aliases: ['/complementos/planes', '/financiamiento', '/dashboard/financiamiento', '/financing'],
         icon: Repeat,
+      },
+      {
+        id: 'complementos-disponibles',
+        label: 'Complementos Disponibles',
+        href: '/addons',
+        aliases: ['/complementos/disponibles'],
+        icon: ShoppingBag,
       },
     ],
   },
