@@ -32,11 +32,31 @@ export interface TopAction {
   status: 'critical' | 'warning' | 'optimal';
 }
 
+export interface WatchItem {
+  id: string;
+  sku: string;
+  productName: string;
+  provider: string;
+  stock: number;
+  value: number;
+}
+
+export interface AttentionItem {
+  id: string;
+  sku: string;
+  name: string;
+  stock: number;
+}
+
 export interface OverviewData {
   kpis: OverviewKpis;
   forecast: { points: ForecastPoint[]; breakDay: number | null; dailyDemand: number; totalStock: number };
   health: { critical: number; low: number; healthy: number; total: number };
   topActions: TopAction[];
+  /** SKUs sin stock de seguridad: lo que bloquea el forecast (accionable). */
+  attention: { missingSafety: AttentionItem[]; missingSafetyCount: number; scopedTotal: number };
+  /** Top 5 por valor cuando aún no hay punto de reorden (vigilancia honesta). */
+  watchlist: WatchItem[];
 }
 
 /** Cobertura bajo la cual un SKU cuenta como quiebre inminente en el Panel. */
@@ -176,6 +196,33 @@ export class OverviewService {
         status: c.restock.status,
       }));
 
+    const topIds = new Set(topActions.map((a) => a.id));
+
+    // Atención: SKUs sin stock de seguridad (bloquean velocidad y forecast).
+    const withoutSafety = computed.filter((c) => c.safetyStock <= 0);
+    const attention = {
+      missingSafety: withoutSafety
+        .sort((a, b) => b.currentStock * b.unitCost - a.currentStock * a.unitCost)
+        .slice(0, 5)
+        .map((c) => ({ id: c.product.id, sku: c.product.sku_code, name: c.product.name, stock: c.currentStock })),
+      missingSafetyCount: withoutSafety.length,
+      scopedTotal: computed.length,
+    };
+
+    // Vigilancia: capital concentrado cuando aún no hay punto de reorden.
+    const watchlist: WatchItem[] = computed
+      .filter((c) => !topIds.has(c.product.id))
+      .sort((a, b) => b.currentStock * b.unitCost - a.currentStock * a.unitCost)
+      .slice(0, 5)
+      .map((c) => ({
+        id: c.product.id,
+        sku: c.product.sku_code,
+        productName: c.product.name,
+        provider: c.restock.provider,
+        stock: c.currentStock,
+        value: Number((c.currentStock * c.unitCost).toFixed(2)),
+      }));
+
     return {
       kpis: {
         inventoryValue,
@@ -187,6 +234,8 @@ export class OverviewService {
       forecast: { points, breakDay, dailyDemand, totalStock },
       health: { critical, low, healthy, total: computed.length },
       topActions,
+      attention,
+      watchlist,
     };
   }
 }

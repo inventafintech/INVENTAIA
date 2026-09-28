@@ -31,6 +31,19 @@ interface OverviewPayload {
     investment: number;
     status: 'critical' | 'warning' | 'optimal';
   }>;
+  attention: {
+    missingSafety: Array<{ id: string; sku: string; name: string; stock: number }>;
+    missingSafetyCount: number;
+    scopedTotal: number;
+  };
+  watchlist: Array<{
+    id: string;
+    sku: string;
+    productName: string;
+    provider: string;
+    stock: number;
+    value: number;
+  }>;
   durationMs?: number;
   error?: string;
 }
@@ -247,7 +260,7 @@ export default function DashboardOverview() {
           <Link
             key={k.label}
             href={k.href}
-            className="group flex min-w-0 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 transition-colors hover:border-slate-400 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-600"
+            className="group flex min-w-0 flex-col gap-1 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-colors hover:border-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:hover:border-slate-500"
           >
             <span className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wide text-slate-500">
               <span className={`h-2 w-2 shrink-0 rounded-full ${k.accent}`} aria-hidden="true" />
@@ -308,9 +321,43 @@ export default function DashboardOverview() {
             </div>
           </div>
         ) : (
-          <p role="status" className="mt-3 rounded-lg bg-slate-50 px-4 py-6 text-center text-[13px] text-slate-500 dark:bg-slate-800">
-            Sin velocidad de demanda registrable en este alcance: el forecast aparecerá cuando haya stock de seguridad y lead times cargados.
-          </p>
+          <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950">
+            <p className="text-[13px] font-bold text-amber-800 dark:text-amber-200">
+              Activa el forecast: {data.attention.missingSafetyCount} de {data.attention.scopedTotal} SKUs sin stock de seguridad
+            </p>
+            <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+              La velocidad de demanda se calcula desde tu stock de seguridad y lead times reales. Carga estos umbrales y la curva de 90 días aparece sola.
+            </p>
+            {data.attention.missingSafety.length > 0 && (
+              <ul className="mt-3 flex flex-col gap-1.5">
+                {data.attention.missingSafety.map((s) => (
+                  <li key={s.id}>
+                    <Link
+                      href={`/dashboard/inventario${locSuffix}`}
+                      className="flex min-w-0 items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-slate-700 hover:bg-amber-100 dark:bg-slate-900 dark:text-slate-200"
+                    >
+                      <span className="truncate">{s.name} <span className="tabular-nums text-slate-400">{s.sku}</span></span>
+                      <span className="shrink-0 tabular-nums text-amber-700 dark:text-amber-300">{s.stock.toLocaleString('es-PE')} u sin umbral →</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Link
+                href="/settings/stock-alerts-reorders"
+                className="inline-flex min-h-[38px] items-center whitespace-nowrap rounded-lg bg-amber-600 px-4 py-2 text-xs font-bold text-white hover:bg-amber-700"
+              >
+                Configurar umbrales
+              </Link>
+              <Link
+                href={`/dashboard/inventario${locSuffix}`}
+                className="inline-flex min-h-[38px] items-center whitespace-nowrap rounded-lg border border-amber-300 px-4 py-2 text-xs font-bold text-amber-800 hover:bg-amber-100 dark:border-amber-800 dark:text-amber-200"
+              >
+                Ver inventario
+              </Link>
+            </div>
+          </div>
         )}
         {/* Salud del inventario: barra segmentada compacta */}
         <div className="mt-4 border-t border-slate-100 pt-3 dark:border-slate-800">
@@ -340,16 +387,60 @@ export default function DashboardOverview() {
       {/* Nivel 3: top 5 acciones inmediatas */}
       <section aria-label="Reabastecimiento prioritario" className="min-w-0 rounded-xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
         <div className="flex min-w-0 flex-wrap items-center justify-between gap-2 p-4 pb-0 sm:px-5">
-          <h2 className="text-sm font-bold text-slate-900 dark:text-white">Reabastecimiento prioritario · Top 5</h2>
+          <h2 className="text-sm font-bold text-slate-900 dark:text-white">
+            {data.topActions.length === 0 ? 'En vigilancia · Top 5 por valor' : 'Reabastecimiento prioritario · Top 5'}
+          </h2>
           <Link href="/dashboard/reabastecimiento" className="whitespace-nowrap text-xs font-bold text-blue-600 hover:text-blue-800">
             Ver todo →
           </Link>
         </div>
         <div className="overflow-x-auto p-4 sm:px-5">
-          {data.topActions.length === 0 ? (
+          {data.topActions.length === 0 && data.watchlist.length === 0 ? (
             <p role="status" className="rounded-lg bg-slate-50 px-4 py-6 text-center text-[13px] text-slate-500 dark:bg-slate-800">
               Sin compras sugeridas en este alcance: ningún SKU bajo su punto de reorden.
             </p>
+          ) : data.topActions.length === 0 ? (
+            <>
+              <p className="mb-3 text-xs text-slate-500">
+                Sin punto de reorden calculado todavía — vigila dónde está concentrado tu capital:
+              </p>
+              <table className="w-full min-w-[560px] border-collapse text-left text-[13px]">
+                <thead>
+                  <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500 dark:border-slate-700">
+                    <th scope="col" className="py-2 pr-3 font-bold">SKU / Producto</th>
+                    <th scope="col" className="py-2 pr-3 font-bold">Proveedor</th>
+                    <th scope="col" className="py-2 pr-3 text-right font-bold">Stock</th>
+                    <th scope="col" className="py-2 pr-3 text-right font-bold">Valor</th>
+                    <th scope="col" className="py-2 text-right font-bold">Acción</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.watchlist.map((w) => (
+                    <tr key={w.id} className="border-b border-slate-100 last:border-0 dark:border-slate-800">
+                      <td className="py-3 pr-3">
+                        <div className="font-bold text-slate-900 dark:text-white">{w.productName}</div>
+                        <div className="text-[11px] tabular-nums text-slate-500">{w.sku}</div>
+                      </td>
+                      <td className="whitespace-nowrap py-3 pr-3 text-slate-600 dark:text-slate-300">{w.provider}</td>
+                      <td className="whitespace-nowrap py-3 pr-3 text-right font-bold tabular-nums text-slate-900 dark:text-white">
+                        {w.stock.toLocaleString('es-PE')} u
+                      </td>
+                      <td className="whitespace-nowrap py-3 pr-3 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                        {fmtPEN(w.value)}
+                      </td>
+                      <td className="py-3 text-right">
+                        <Link
+                          href={`/dashboard/inventario${locSuffix}`}
+                          className="inline-flex min-h-[36px] items-center whitespace-nowrap rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200"
+                        >
+                          Ver
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </>
           ) : (
             <table className="w-full min-w-[640px] border-collapse text-left text-[13px]">
               <thead>
