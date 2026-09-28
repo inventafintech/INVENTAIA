@@ -1,8 +1,7 @@
-import DashboardSummary from '@/components/inventory/DashboardSummary';
+import DashboardOverview from '@/components/inventory/DashboardOverview';
 
-/* Sección PANEL → Resumen: vista principal del inventario
-   (KPIs, gráficos, alertas y acciones rápidas).
-   El Centro de Control Ejecutivo de 8 módulos vive en /dashboard. */
+/* Sección PANEL → Resumen: centro de control ejecutivo (4 KPIs, forecast 90d,
+   top 5 acciones). El Centro de Control de 8 módulos vive en /dashboard. */
 export default function ResumenPage() {
-  return <DashboardSummary />;
+  return <DashboardOverview />;
 }
