@@ -220,7 +220,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
       },
       {
         id: 'alertas-reorders',
-        label: 'Ajustes de Alerta y Reorders',
+        label: 'Alertas y reorders',
         href: '/settings/stock-alerts-reorders',
         aliases: ['/configuracion/alertas'],
         icon: BellPlus,

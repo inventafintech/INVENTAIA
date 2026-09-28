@@ -53,10 +53,12 @@ export function Sidebar({
 
   // Estado de los acordeones: se restaura desde localStorage para que la
   // navegación client-side (que remonta el shell en cada página) conserve los
-  // grupos tal como los dejó el usuario; por defecto todo abierto.
+  // grupos tal como los dejó el usuario. Por defecto solo lo esencial diario
+  // queda abierto (PANEL + INVENTARIO + ENTIDADES) para que el menú quepa en
+  // el viewport sin scroll largo; el resto está a 1 clic (divulgación progresiva).
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() =>
     NAVIGATION_CONFIG.reduce((acc, group) => {
-      acc[group.id] = true;
+      acc[group.id] = group.id === 'panel' || group.id === 'inventario' || group.id === 'entidades';
       return acc;
     }, {} as Record<string, boolean>)
   );
