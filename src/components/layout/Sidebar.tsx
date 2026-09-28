@@ -202,6 +202,10 @@ export function Sidebar({
         {/* Contenedor de Navegación con Acordeones */}
         <nav className={styles.navContainer} aria-label="Menú principal">
           {NAVIGATION_CONFIG.map((group: NavGroupConfig) => {
+            // Síntesis visual: los ítems con sidebarHidden no ocupan espacio
+            // en el menú (siguen vivos vía buscador, paleta y Nexo).
+            const visibleItems = group.items.filter((item) => !item.sidebarHidden);
+            if (visibleItems.length === 0) return null;
             const isOpen = openGroups[group.id] ?? true;
 
             return (
@@ -229,7 +233,7 @@ export function Sidebar({
                     id={`group-${group.id}`}
                     className={styles.itemList}
                   >
-                    {group.items.map((item: NavItemConfig) => {
+                    {visibleItems.map((item: NavItemConfig) => {
                       const Icon = item.icon;
                       const active = isItemActive(item);
                       const badgeCount = item.badgeKey ? counts[item.badgeKey] : 0;

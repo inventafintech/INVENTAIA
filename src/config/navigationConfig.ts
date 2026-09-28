@@ -37,6 +37,10 @@ export interface NavItemConfig {
   icon: ComponentType<LucideProps>;
   badgeKey?: keyof NotificationSummary;
   badgeType?: 'alert' | 'warning' | 'info' | 'purple';
+  /* Oculto del sidebar (síntesis visual): la ruta sigue viva vía aliases,
+     buscador global, paleta de comandos y Nexo. Solo deja de ocupar
+     espacio en el menú lateral. */
+  sidebarHidden?: boolean;
 }
 
 export interface NavGroupConfig {
@@ -120,6 +124,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/inventory/imports',
         aliases: ['/inventario/importaciones'],
         icon: Download,
+        sidebarHidden: true,
       },
     ],
   },
@@ -156,6 +161,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/inventory/locations',
         aliases: ['/entidades/ubicaciones'],
         icon: MapPin,
+        sidebarHidden: true,
       },
       {
         id: 'sucursal',
@@ -163,6 +169,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/inventory/branch-details',
         aliases: ['/entidades/sucursal'],
         icon: Building2,
+        sidebarHidden: true,
       },
     ],
   },
@@ -197,6 +204,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/addons',
         aliases: ['/complementos/disponibles'],
         icon: ShoppingBag,
+        sidebarHidden: true,
       },
     ],
   },
@@ -217,6 +225,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/settings/product-categories',
         aliases: ['/configuracion/categorias'],
         icon: Shapes,
+        sidebarHidden: true,
       },
       {
         id: 'alertas-reorders',
@@ -224,6 +233,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/settings/stock-alerts-reorders',
         aliases: ['/configuracion/alertas'],
         icon: BellPlus,
+        sidebarHidden: true,
       },
     ],
   },
@@ -244,6 +254,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/help/faq',
         aliases: ['/ayuda/faq'],
         icon: MessageCircleQuestion,
+        sidebarHidden: true,
       },
       {
         id: 'contactar-soporte',
@@ -258,6 +269,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/help/learn',
         aliases: ['/ayuda/aprender'],
         icon: GraduationCap,
+        sidebarHidden: true,
       },
       {
         id: 'ponme-a-prueba',
@@ -265,6 +277,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         href: '/help/grill-me',
         aliases: ['/ayuda/prueba'],
         icon: FileQuestion,
+        sidebarHidden: true,
       },
     ],
   },
