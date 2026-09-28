@@ -171,20 +171,20 @@ function DashboardContent() {
   if (loading) {
     return (
       <div className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4">
-        <div className="w-10 h-10 rounded-full border-4 border-slate-100 border-t-slate-800 animate-spin"></div>
-        <p className="text-slate-500 font-medium text-sm animate-pulse">Analizando métricas ejecutivas...</p>
+        <div className="w-10 h-10 rounded-full border-4 animate-spin" style={{ borderColor: '#e2f6d5', borderTopColor: '#163300' }}></div>
+        <p className="font-medium text-sm animate-pulse" style={{ color: '#6a6c6a' }}>Analizando métricas ejecutivas...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-full p-6 bg-red-50 border border-red-100 rounded-xl mt-6 flex items-start gap-4">
-        <div className="text-red-500 mt-1">⚠️</div>
+      <div className="w-full p-6 mt-6 flex items-start gap-4" style={{ background: '#e8ebe6', border: '1px solid #cb272f', borderRadius: '10px' }}>
+        <div className="mt-1" style={{ color: '#cb272f' }}>⚠️</div>
         <div>
-          <h3 className="font-bold text-red-800">Error de Conexión</h3>
-          <p className="text-red-600 text-sm">{error}</p>
-          <button onClick={loadData} className="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700">Reintentar</button>
+          <h3 className="font-bold" style={{ color: '#163300' }}>Error de Conexión</h3>
+          <p className="text-sm" style={{ color: '#454745' }}>{error}</p>
+          <button onClick={loadData} className="mt-4" style={{ padding: '11px 24px', background: '#9fe870', color: '#163300', borderRadius: '9999px', fontSize: '14px', fontWeight: 600, border: 'none', cursor: 'pointer' }}>Reintentar</button>
         </div>
       </div>
     );
@@ -192,39 +192,28 @@ function DashboardContent() {
 
   return (
     <div className={styles.container}>
-      {/* Encabezado Ejecutivo: Responder en <30s */}
+      {/* Encabezado Ejecutivo Wise: eyebrow + display 900 + CTA lima */}
       <div style={{ marginBottom: '20px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
           <div>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+            <span className={styles.eyebrow}>
               CENTRO DE CONTROL EJECUTIVO · B2B SAAS ENTERPRISE
             </span>
-            <h1 style={{ fontSize: '24px', fontWeight: 800, color: 'var(--ink)', margin: '4px 0 6px 0', letterSpacing: '-0.02em' }}>
-              Cerebro de Compras & Financiamiento
+            <h1 className={styles.heroTitle}>
+              Cerebro de Compras &amp; Financiamiento
             </h1>
-            <p style={{ fontSize: '13px', color: 'var(--muted)', margin: 0, maxWidth: '720px' }}>
-              ¿Qué está pasando? <strong>{summary?.stockoutRiskCount || 0} SKUs en riesgo</strong>. 
-              ¿Qué va a pasar? Demandas por <strong>S/ {(summary?.recommendedPurchaseAmount || 0).toLocaleString()}</strong> en 30 días. 
+            <p className={styles.heroSub}>
+              ¿Qué está pasando? <strong>{summary?.stockoutRiskCount || 0} SKUs en riesgo</strong>.
+              ¿Qué va a pasar? Demandas por <strong>S/ {(summary?.recommendedPurchaseAmount || 0).toLocaleString()}</strong> en 30 días.
               ¿Qué debo hacer? Aprobar OC recomendadas y activar líneas de crédito.
             </p>
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button
               onClick={handleSyncAll}
               disabled={syncing}
-              style={{
-                background: 'var(--primary)',
-                color: 'var(--bg)',
-                border: 'none',
-                padding: '9px 16px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
+              className={styles.btnAction}
+              style={{ fontSize: '14px' }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/></svg>
               {syncing ? 'Sincronizando...' : 'Sincronizar APIs Oficiales'}
@@ -253,10 +242,10 @@ function DashboardContent() {
 
       {syncFeedback && (
         <div style={{
-          background: syncFeedback.startsWith('✓') ? 'rgba(5, 150, 105, 0.08)' : 'rgba(220, 38, 38, 0.08)',
-          border: `1px solid ${syncFeedback.startsWith('✓') ? 'rgba(5, 150, 105, 0.2)' : 'rgba(220, 38, 38, 0.2)'}`,
-          color: syncFeedback.startsWith('✓') ? 'var(--success)' : 'var(--danger)',
-          borderRadius: '8px',
+          background: syncFeedback.startsWith('✓') ? '#e2f6d5' : '#e8ebe6',
+          border: `1px solid ${syncFeedback.startsWith('✓') ? '#163300' : '#cb272f'}`,
+          color: syncFeedback.startsWith('✓') ? '#163300' : '#cb272f',
+          borderRadius: '9999px',
           padding: '10px 16px',
           fontSize: '12px',
           fontWeight: 500,
@@ -401,23 +390,25 @@ function DashboardContent() {
 
           {/* Módulos Avanzados (Forecast 90d, Rentabilidad SKU, Proveedores Críticos) */}
           <div className={styles.gridBottom}>
-            {/* MÓDULO 6: Forecast de 90 Días */}
-            <div className={`${styles.card} ${styles.span2}`}>
+            {/* MÓDULO 6: Forecast de 90 Días — Dark Section Card Wise */}
+            <div className={styles.forecastDark}>
               <div className={styles.cardHeader}>
                 <h3>6. Forecast de 90 Días (Proyección Algorítmica)</h3>
-                <span className={styles.badgeSuccess}>99.4% Exactitud</span>
+                <span className={styles.badgeAlert}>99.4% Exactitud</span>
               </div>
-              
-              <div className={styles.chartPlaceholder} style={{ margin: '16px 0' }}>
-                <div className={styles.chartBars}>
-                  {modules?.forecast90Dias.map((fc, idx) => (
-                    <div key={idx} className={styles.bar} style={{ height: `${(fc.projectedDemand / 6000) * 100}%` }}>
-                      <span style={{ bottom: '-22px', fontSize: '11px', fontWeight: 600, color: 'var(--muted)' }}>{fc.month}</span>
-                    </div>
-                  ))}
+
+              <div className={styles.forecastInset}>
+                <div className={styles.chartPlaceholder} style={{ margin: '0 0 16px 0', borderBottomColor: '#e8ebe6' }}>
+                  <div className={styles.chartBars}>
+                    {modules?.forecast90Dias.map((fc, idx) => (
+                      <div key={idx} className={styles.bar} style={{ height: `${(fc.projectedDemand / 6000) * 100}%` }}>
+                        <span style={{ bottom: '-22px', fontSize: '11px', fontWeight: 600 }}>{fc.month}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <p className={styles.cardSub}>
+              <p className={styles.cardSub} style={{ marginBottom: 0, marginTop: '16px' }}>
                 Modelos de Deep Learning entrenados con patrones históricos de consumo y factores de estacionalidad.
               </p>
             </div>
@@ -450,7 +441,7 @@ function DashboardContent() {
                 {modules?.proveedoresCriticos.map((sup) => (
                   <li key={sup.id}>
                     <span style={{ fontSize: '12px' }}>{sup.name}</span>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#3b82f6' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#0b4c72' }}>
                       {sup.leadTimeDays}d Lead Time ({sup.reliabilityScore}%)
                     </span>
                   </li>
@@ -527,43 +518,34 @@ function DashboardContent() {
               </div>
 
               <svg className={styles.svgChart} viewBox="0 0 1000 300" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="forecastGrad" x1="0%" y1="0%" x2="0%" y2="1">
-                    <stop offset="0%" stopColor="#3b82f6" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#3b82f6" stopOpacity="0.0" />
-                  </linearGradient>
-                  <linearGradient id="histGrad" x1="0%" y1="0%" x2="0%" y2="1">
-                    <stop offset="0%" stopColor="#94a3b8" stopOpacity="0.12" />
-                    <stop offset="100%" stopColor="#94a3b8" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
                 <path
                   d="M 0 250 L 50 180 L 100 220 L 150 120 L 200 160 L 250 80 L 300 190 L 350 140 L 400 160 L 450 90 L 500 150 L 500 300 L 0 300 Z"
-                  fill="url(#histGrad)"
+                  fill="#e8ebe6"
+                  fillOpacity="0.7"
                 />
                 <path
                   d="M 0 250 L 50 180 L 100 220 L 150 120 L 200 160 L 250 80 L 300 190 L 350 140 L 400 160 L 450 90 L 500 150"
                   fill="none"
-                  stroke="#94a3b8"
+                  stroke="#868685"
                   strokeWidth="3"
                   strokeDasharray="6 6"
                 />
 
                 <path
                   d="M 500 150 L 550 180 L 600 70 L 650 110 L 700 90 L 750 40 L 800 160 L 850 180 L 900 120 L 950 170 L 1000 90 L 1000 300 L 500 300 Z"
-                  fill="url(#forecastGrad)"
+                  fill="#e2f6d5"
+                  fillOpacity="0.8"
                 />
                 <path
                   d="M 500 150 L 550 180 L 600 70 L 650 110 L 700 90 L 750 40 L 800 160 L 850 180 L 900 120 L 950 170 L 1000 90"
                   fill="none"
-                  stroke="#3b82f6"
+                  stroke="#163300"
                   strokeWidth="4"
                 />
 
-                <line x1="500" y1="0" x2="500" y2="300" stroke="var(--ink)" strokeWidth="2" strokeDasharray="4 4" />
-                <rect x="460" y="10" width="80" height="24" rx="12" fill="var(--ink)" />
-                <text x="500" y="26" fill="var(--bg)" fontSize="12" fontWeight="600" textAnchor="middle">HOY</text>
+                <line x1="500" y1="0" x2="500" y2="300" stroke="#163300" strokeWidth="2" strokeDasharray="4 4" />
+                <rect x="460" y="10" width="80" height="24" rx="12" fill="#163300" />
+                <text x="500" y="26" fill="#9fe870" fontSize="12" fontWeight="600" textAnchor="middle">HOY</text>
               </svg>
 
               <div className={styles.xAxis}>

@@ -36,7 +36,7 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--accent);
-  background: rgba(37, 99, 235, 0.1);
+  background: rgba(22, 51, 0, 0.1);
   padding: 6px 12px;
   border-radius: 99px;
 }
@@ -46,22 +46,22 @@
   height: 8px;
   border-radius: 50%;
   background: var(--accent);
-  box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4);
+  box-shadow: 0 0 0 0 rgba(22, 51, 0, 0.4);
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
-  0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
-  70% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(22, 51, 0, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(22, 51, 0, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(22, 51, 0, 0); }
 }
 
 .btnSecondary {
   background: var(--card);
   color: var(--ink);
-  border: 1px solid var(--line);
-  padding: 8px 16px;
-  border-radius: 6px;
+  border: 1px solid var(--color-forest-ink, #163300);
+  padding: 10px 22px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
@@ -69,13 +69,13 @@
 }
 
 .btnSecondary:hover {
-  background: var(--bg2);
+  background: var(--color-linen-mist, #e2f6d5);
 }
 
 .card {
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 10px;
   padding: 24px;
   box-shadow: var(--shadow-sm);
   display: flex;
@@ -94,9 +94,9 @@
 .select {
   appearance: none;
   background: var(--bg2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-pebble, #868685);
   padding: 10px 40px 10px 16px;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 15px;
   font-weight: 600;
   color: var(--ink);
@@ -111,7 +111,7 @@
   display: flex;
   background: var(--bg2);
   padding: 4px;
-  border-radius: 8px;
+  border-radius: 9999px;
   border: 1px solid var(--line);
 }
 
@@ -119,7 +119,7 @@
   background: transparent;
   border: none;
   padding: 6px 16px;
-  border-radius: 6px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);

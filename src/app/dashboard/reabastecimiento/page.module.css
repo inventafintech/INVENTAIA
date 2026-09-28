@@ -111,9 +111,9 @@
 
 .input {
   background: var(--bg2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-pebble, #868685);
   padding: 0.5rem 0.875rem;
-  border-radius: 0.375rem;
+  border-radius: 10px;
   font-size: var(--text-sm);
   color: var(--ink);
   width: 100%;
@@ -129,14 +129,14 @@
 }
 
 .input::placeholder {
-  color: #94a3b8;
+  color: #868685;
 }
 
 .select {
   background: var(--bg2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-pebble, #868685);
   padding: 0.5rem 0.875rem;
-  border-radius: 0.375rem;
+  border-radius: 10px;
   font-size: var(--text-sm);
   color: var(--ink);
   font-weight: 500;
@@ -151,11 +151,11 @@
 }
 
 .btnPrimary {
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   border: none;
-  padding: 0.5625rem 1.25rem;
-  border-radius: 0.375rem;
+  padding: 11px 24px;
+  border-radius: 9999px;
   font-size: var(--text-sm);
   font-weight: 600;
   cursor: pointer;
@@ -168,7 +168,7 @@
 }
 
 .btnPrimary:hover:not(:disabled) {
-  background: var(--primary-hover);
+  background: var(--color-lime-hover, #8bd95e);
 }
 
 .btnPrimary:disabled {
@@ -239,7 +239,7 @@
 
 .skuCode {
   font-size: var(--text-xs);
-  color: #94a3b8;
+  color: #868685;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
@@ -326,8 +326,8 @@
 }
 
 .btnTableAction:hover:not(:disabled) {
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   border-color: var(--primary);
 }
 
@@ -431,7 +431,7 @@
   font-size: var(--text-xs);
   font-weight: 700;
   font-family: ui-monospace, SFMono-Regular, monospace;
-  color: #3b82f6;
+  color: #163300;
   background: #eff6ff;
   padding: 0.125rem 0.375rem;
   border-radius: 0.25rem;
@@ -447,7 +447,7 @@
   display: flex;
   gap: 0.75rem;
   font-size: var(--text-xs);
-  color: #94a3b8;
+  color: #868685;
   margin-top: 0.25rem;
   flex-wrap: wrap;
 }

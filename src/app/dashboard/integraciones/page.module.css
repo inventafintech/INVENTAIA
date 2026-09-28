@@ -25,11 +25,11 @@
 }
 
 .btnPrimary {
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   border: none;
-  padding: 9px 18px;
-  border-radius: 6px;
+  padding: 11px 24px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -54,7 +54,7 @@
   background: var(--card);
   border: 1px solid var(--line);
   padding: 14px 18px;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -85,7 +85,7 @@
 }
 
 .statusBlue {
-  color: #2563eb;
+  color: #163300;
 }
 
 /* 2. Tabs Navigation */
@@ -100,7 +100,7 @@
   background: transparent;
   border: none;
   padding: 8px 16px;
-  border-radius: 6px;
+  border-radius: 9999px;
   font-size: 13px;
   font-weight: 600;
   color: var(--muted);
@@ -251,7 +251,7 @@
 .badgeSapUnconfigured {
   background: rgba(100, 116, 139, 0.1);
   border: 1px solid rgba(100, 116, 139, 0.25);
-  color: #475569;
+  color: #454745;
   padding: 3px 8px;
   border-radius: 99px;
   font-size: 10px;
@@ -278,8 +278,8 @@
 }
 
 .badgeSyncing {
-  background: rgba(37, 99, 235, 0.1);
-  color: #2563eb;
+  background: rgba(22, 51, 0, 0.1);
+  color: #163300;
   padding: 3px 8px;
   border-radius: 99px;
   font-size: 11px;
@@ -314,13 +314,13 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #2563eb;
+  background: #163300;
   animation: pulseDot 1s infinite;
 }
 
 .btnOAuth {
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   border: 1px solid rgba(255, 255, 255, 0.15);
   padding: 7px 12px;
   border-radius: 6px;
@@ -337,7 +337,7 @@
 }
 
 .btnOAuth:hover {
-  background: var(--primary-hover);
+  background: var(--color-lime-hover, #8bd95e);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
@@ -442,7 +442,7 @@
   background: var(--bg2);
   border: 1px solid var(--line);
   padding: 7px 14px;
-  border-radius: 6px;
+  border-radius: 9999px;
   font-size: 12px;
   font-weight: 600;
   color: var(--ink);
@@ -657,8 +657,8 @@
 }
 
 .logsConsole {
-  background: #0f172a;
-  color: #e2e8f0;
+  background: #163300;
+  color: #dde3da;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 12px;
   padding: 16px;
@@ -675,7 +675,7 @@
 }
 
 .logTimestamp {
-  color: #64748b;
+  color: #6a6c6a;
   min-width: 80px;
 }
 

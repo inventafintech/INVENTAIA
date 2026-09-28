@@ -54,7 +54,7 @@ export function AppShell({ children }: AppShellProps) {
   return (
     <NotificationProvider>
       {/* Contenedor principal Flex de pantalla completa (100% fluido) con CSS nativo optimizado */}
-      <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative selection:bg-amber-400 selection:text-slate-900">
+      <div className="flex h-[100dvh] w-full overflow-hidden bg-[var(--bg)] text-[var(--ink)] relative selection:bg-[#9fe870] selection:text-[#163300]">
 
         {/* Sidebar adaptativo y colapsable (w-64 expandido / w-16 colapsado con transición fluida) */}
         <Sidebar

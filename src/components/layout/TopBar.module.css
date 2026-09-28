@@ -1,7 +1,7 @@
 .topbar {
-  height: 3.5rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
+  height: 4rem;
+  background: var(--color-paper, #ffffff);
+  border-bottom: 1px solid var(--line, #e8ebe6);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -35,10 +35,10 @@
   justify-content: center;
   width: 2.75rem;
   height: 2.75rem;
-  border-radius: var(--radius);
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #0f172a;
+  border-radius: 9999px;
+  border: 1px solid var(--color-forest-ink, #163300);
+  background: var(--color-paper, #ffffff);
+  color: var(--color-forest-ink, #163300);
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
@@ -46,12 +46,12 @@
 }
 
 .menuButton:hover {
-  background-color: #f1f5f9;
-  border-color: #cbd5e1;
+  background-color: var(--color-lime-voltage, #9fe870);
+  border-color: var(--color-forest-ink, #163300);
 }
 
 .menuButton:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-forest-ink, #163300);
   outline-offset: 2px;
 }
 
@@ -61,27 +61,27 @@
   }
 }
 
-/* Barra de Búsqueda Global */
+/* Barra de Búsqueda Global — Wise Input Field */
 .searchContainer {
   display: flex;
   align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: var(--radius);
-  padding: 0 0.75rem;
-  height: 2.375rem;
+  background: var(--color-paper, #ffffff);
+  border: 1px solid var(--color-pebble, #868685);
+  border-radius: 10px;
+  padding: 0 1rem;
+  height: 2.5rem;
   width: min(28.75rem, 100%);
-  transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .searchContainer:focus-within {
-  background: #ffffff;
-  border-color: #2563eb;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+  background: var(--color-paper, #ffffff);
+  border-color: var(--color-forest-ink, #163300);
+  box-shadow: none;
 }
 
 .searchIcon {
-  color: #94a3b8;
+  color: var(--color-forest-ink, #163300);
   flex-shrink: 0;
   margin-right: 0.5rem;
 }
@@ -91,14 +91,14 @@
   background: transparent;
   outline: none;
   font-size: var(--text-sm);
-  color: #0f172a;
+  color: var(--color-charcoal, #454745);
   width: 100%;
   padding: 0;
   font-family: inherit;
 }
 
 .searchInput::placeholder {
-  color: #94a3b8;
+  color: var(--color-pebble, #868685);
   font-size: var(--text-sm);
 }
 
@@ -122,17 +122,17 @@
   }
 }
 
-/* Botones Cuadrados de Icono (Campana, Modo Oscuro, Bandera) */
+/* Botones de Icono — Wise: pills outlined Forest */
 .iconButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: var(--radius);
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #475569;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-forest-ink, #163300);
+  background: var(--color-paper, #ffffff);
+  color: var(--color-forest-ink, #163300);
   cursor: pointer;
   padding: 0;
   flex-shrink: 0;
@@ -140,13 +140,13 @@
 }
 
 .iconButton:hover {
-  background-color: #f8fafc;
-  border-color: #cbd5e1;
-  color: #0f172a;
+  background-color: var(--color-lime-voltage, #9fe870);
+  border-color: var(--color-forest-ink, #163300);
+  color: var(--color-forest-ink, #163300);
 }
 
 .iconButton:focus-visible {
-  outline: 2px solid #2563eb;
+  outline: 2px solid var(--color-forest-ink, #163300);
   outline-offset: 2px;
 }
 

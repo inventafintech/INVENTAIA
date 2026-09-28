@@ -74,7 +74,7 @@
 
 .kpiTrend {
   font-size: var(--text-sm);
-  color: #16a34a;
+  color: #054d28;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -145,8 +145,8 @@
 .tooltip {
   position: absolute;
   transform: translate(-50%, -115%);
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   padding: 0.5rem 0.75rem;
   border-radius: 0.375rem;
   font-size: var(--text-xs);
@@ -164,7 +164,7 @@
   border-bottom: 1px solid var(--line);
   padding-bottom: 0.25rem;
   margin-bottom: 0.125rem;
-  color: #94a3b8;
+  color: #868685;
 }
 
 .tooltipMetric {
@@ -219,7 +219,7 @@
 
 .progressFill {
   height: 100%;
-  background: #2563eb;
+  background: #163300;
   border-radius: 999px;
   transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }

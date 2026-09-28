@@ -61,18 +61,18 @@
 
 .input {
   background: var(--bg2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-pebble, #868685);
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 13px;
   color: var(--ink);
 }
 
 .select {
   background: var(--bg2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--color-pebble, #868685);
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: 10px;
   font-size: 13px;
   color: var(--ink);
 }
@@ -86,11 +86,11 @@
 }
 
 .btnPrimary {
-  background: var(--primary);
-  color: var(--bg);
+  background: var(--color-lime-voltage, #9fe870);
+  color: var(--color-forest-ink, #163300);
   border: none;
   padding: 12px 24px;
-  border-radius: 6px;
+  border-radius: 9999px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;

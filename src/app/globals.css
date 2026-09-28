@@ -1,29 +1,61 @@
 :root {
-  --bg: #FAFAFA;
-  --bg2: #F4F5F7;
-  --card: #FFFFFF;
-  --ink: #111827;
-  --muted: #6B7280;
-  --line: #E5E7EB;
-  
-  --primary: #0F172A;
-  --primary-hover: #1E293B;
-  
-  --accent: #2563EB;
-  --ok: #059669;
-  --warn: #D97706;
-  --bad: #DC2626;
+  /* ─── Wise — Style Reference (DESIGN.md) · deep moss with lime voltage ─── */
+  --color-forest-ink: #163300;
+  --color-lime-voltage: #9fe870;
+  --color-lime-hover: #8bd95e;
+  --color-spruce: #054d28;
+  --color-linen-mist: #e2f6d5;
+  --color-signal-blue: #0b4c72;
+  --color-alarm-red: #cb272f;
+  --color-charcoal: #454745;
+  --color-obsidian: #0e0f0c;
+  --color-pebble: #868685;
+  --color-slate: #6a6c6a;
+  --color-fog: #e8ebe6;
+  --color-paper: #ffffff;
+
+  /* Equivalencias forest/lime para el resto de la app */
+  --forest: var(--color-forest-ink);
+  --lime: var(--color-lime-voltage);
+  --on-lime: var(--color-forest-ink);
+
+  /* Radios Wise: pills por defecto, 10px cards/inputs, 28px largeCards */
+  --radius-pill: 9999px;
+  --radius-mask: 1000px;
+
+  --shadow-subtle: rgba(14, 15, 12, 0.12) 0px 0px 0px 1px;
+  --shadow-wise-lg: rgba(0, 0, 0, 0.08) 0px 6px 20px 0px;
+  --shadow-wise-xl: rgba(0, 0, 0, 0.15) 0px 10px 32px 0px, rgba(0, 0, 0, 0.04) 0px 40px 40px 0px;
+
+  --font-wise-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Mapeo legacy → Wise (canvas claro) */
+  --bg: var(--color-paper);
+  --bg2: var(--color-fog);
+  --card: var(--color-paper);
+  --ink: var(--color-forest-ink);
+  --muted: var(--color-slate);
+  --line: #dde3da;
+
+  --primary: var(--color-forest-ink);
+  --primary-hover: var(--color-spruce);
+
+  --accent: var(--color-forest-ink);
+  --ok: var(--color-spruce);
+  --warn: #b45309;
+  --bad: var(--color-alarm-red);
 
   /* Texto semántico sobre superficies (pasa WCAG en ambos temas) */
-  --success: #065F46;
-  --danger: #991B1B;
-  
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  
-  --radius: 8px;
-  --radius-lg: 12px;
+  --success: var(--color-spruce);
+  --danger: var(--color-alarm-red);
+
+  --shadow-sm: var(--shadow-subtle);
+  --shadow: var(--shadow-wise-lg);
+  --shadow-lg: var(--shadow-wise-xl);
+
+  --radius: 10px;
+  --radius-lg: 10px;
+  --radius-largecard: 28px;
   
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 
@@ -45,18 +77,26 @@
 }
 
 [data-theme="dark"] {
-  --bg: #0F172A;
-  --bg2: #1E293B;
-  --card: #0B0F19;
-  --ink: #F9FAFB;
-  --muted: #9CA3AF;
-  --line: #334155;
+  /* Wise invertido: superficies Forest, acento Lime, texto Paper */
+  --bg: var(--color-forest-ink);
+  --bg2: var(--color-spruce);
+  --card: #1d4200;
+  --ink: #f2f7ec;
+  --muted: #c4d3b8;
+  --line: #2c5a1a;
 
-  --primary: #F8FAFC;
-  --primary-hover: #E2E8F0;
+  --primary: var(--color-lime-voltage);
+  --primary-hover: var(--color-lime-hover);
 
-  --success: #6EE7B7;
-  --danger: #FECACA;
+  --accent: var(--color-lime-voltage);
+  --ok: var(--color-lime-voltage);
+  --warn: #fbbf24;
+  --bad: #f87171;
+
+  --success: var(--color-lime-voltage);
+  --danger: #fecaca;
+
+  --shadow-sm: rgba(0, 0, 0, 0.35) 0px 0px 0px 1px;
 }
 
 /* Alias de clase para compatibilidad con variante Tailwind `dark:` y libs */
