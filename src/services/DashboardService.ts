@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { LocationsService, type LocationFilter } from '@/services/LocationsService';
 
 export interface ExecutiveDashboardData {
   summary: {
@@ -22,8 +23,9 @@ export interface ExecutiveDashboardData {
 }
 
 export class DashboardService {
-  static async getExecutiveMetrics(workspaceId: string): Promise<ExecutiveDashboardData> {
+  static async getExecutiveMetrics(workspaceId: string, filter?: LocationFilter): Promise<ExecutiveDashboardData> {
     const supabase = await createClient();
+    const hasFilter = Boolean(filter?.locationRef || filter?.branch);
 
     // Consultar datos reales de base de datos
     const { data: dbProducts } = await supabase.from('products').select('*');
@@ -34,8 +36,23 @@ export class DashboardService {
     const products = dbProducts || [];
     const inventoryMap = new Map((dbInventory || []).map((inv) => [inv.product_id, inv]));
 
+    // Filtrado relacional por ubicación: solo productos cuyo placement
+    // pertenece a la ubicación/sucursal seleccionada. Sin filtro = todo.
+    let scopedProducts = products;
+    if (hasFilter) {
+      try {
+        const placement = await LocationsService.getPlacement(supabase, workspaceId);
+        scopedProducts = products.filter((p: any) =>
+          LocationsService.matchesLocation(placement[p.id], filter as LocationFilter)
+        );
+      } catch {
+        scopedProducts = products;
+      }
+    }
+    const productsInScope = scopedProducts;
+
     // 1. Módulo: Riesgo de Quiebre (Ajustado para no usar mocks cuando la DB está vacía)
-    const riesgoQuiebre = products
+    const riesgoQuiebre = productsInScope
       .map((p) => {
         const inv = inventoryMap.get(p.id);
         const physicalStock = inv?.physical_stock ?? 0;
@@ -62,7 +79,7 @@ export class DashboardService {
       .slice(0, 5);
 
     // 2. Módulo: Inventario Inmovilizado
-    const inventarioInmovilizado = products
+    const inventarioInmovilizado = productsInScope
       .map((p) => {
         const inv = inventoryMap.get(p.id);
         const physicalStock = inv?.physical_stock ?? 0;
@@ -85,7 +102,7 @@ export class DashboardService {
     // 3. Módulo: Compras Recomendadas (Calculadas sólo sobre quiebre inminente)
     const comprasRecomendadas = riesgoQuiebre.map((r, idx) => {
       const suggestedQuantity = Math.max(0, r.safetyStock * 2 - r.currentStock);
-      const product = products.find(p => p.id === r.id);
+      const product = productsInScope.find(p => p.id === r.id);
       const unitCost = Number(product?.unit_cost || 0);
       const totalCost = suggestedQuantity * unitCost;
 
@@ -128,7 +145,7 @@ export class DashboardService {
     const forecast90Dias: any[] = [];
 
     // 7. Módulo: Rentabilidad por SKU
-    const rentabilidadSKU = products.slice(0, 5).map((p) => {
+    const rentabilidadSKU = productsInScope.slice(0, 5).map((p) => {
       const cost = Number(p.unit_cost) || 0;
       const price = Number(p.unit_price) || 0;
       const margin = price > 0 ? ((price - cost) / price) * 100 : 0;
@@ -156,7 +173,7 @@ export class DashboardService {
 
     return {
       summary: {
-        totalSkus: products.length,
+        totalSkus: productsInScope.length,
         stockoutRiskCount: riesgoQuiebre.length,
         deadStockAmount: totalDeadStock,
         recommendedPurchaseAmount: totalRecommendedAmount,

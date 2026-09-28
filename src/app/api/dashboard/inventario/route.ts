@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
+import { normalizeLocationFilter } from '@/services/LocationsService';
 import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
-    const items = await InventoryMasterService.getInventoryItems();
-    const metrics = await InventoryMasterService.getInventoryMetrics();
+    const params = req.nextUrl.searchParams;
+    // location_id = ref de ubicación (LOC-00004); branch = sucursal. 'all' = todo.
+    const filter = normalizeLocationFilter(
+      params.get('location_id') || params.get('locationId') || params.get('location'),
+      params.get('branch')
+    );
+    const items = await InventoryMasterService.getInventoryItems(filter);
+    const metrics = await InventoryMasterService.getInventoryMetrics(filter);
     
     const supabase = await createClient();
     const { data: categories } = await supabase.from('categories').select('*');
@@ -17,6 +24,7 @@ export async function GET(req: NextRequest) {
       items,
       metrics,
       categories,
+      locationFilter: filter,
       timestamp: new Date().toISOString(),
     });
   } catch (error: any) {
@@ -31,6 +39,9 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const { skuCode, name, categoryName, unitCost, unitPrice, physicalStock, safetyStock } = body;
+    const rawLoc = typeof body?.locationRef === 'string' ? body.locationRef.trim().toUpperCase()
+      : typeof body?.location_id === 'string' ? body.location_id.trim().toUpperCase() : '';
+    const rawBranch = typeof body?.branch === 'string' ? body.branch.trim().slice(0, 120) : '';
 
     if (!skuCode || !name || !categoryName || unitCost === undefined || unitPrice === undefined) {
       return NextResponse.json(
@@ -76,6 +87,19 @@ export async function POST(req: NextRequest) {
       physical_stock: Number(physicalStock || 0),
       safety_stock: Number(safetyStock || 0)
     });
+
+    // Placement real: si el frontend indica ubicación, se persiste para que
+    // el SKU nazca dentro de esa ubicación y el filtro location_id lo incluya.
+    if (rawLoc && rawLoc !== 'ALL') {
+      const { data: ws } = await supabase.from('workspaces').select('id,settings').limit(1).maybeSingle();
+      if (ws?.id) {
+        const settings = { ...(((ws.settings as any) || {})) };
+        const placement = { ...(settings.inventoryPlacement || {}) };
+        placement[product.id] = { branch: rawBranch || 'Sede Lima Central', locationRef: rawLoc };
+        settings.inventoryPlacement = placement;
+        await supabase.from('workspaces').update({ settings }).eq('id', ws.id);
+      }
+    }
 
     return NextResponse.json({
       success: true,

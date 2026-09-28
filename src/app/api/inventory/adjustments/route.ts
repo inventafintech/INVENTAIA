@@ -75,14 +75,18 @@ async function displayName(supabase: any, email: string): Promise<string> {
 }
 
 /**
- * GET /api/inventory/adjustments?q=&type=&sort=&order=&page=&pageSize=
+ * GET /api/inventory/adjustments?q=&type=&location_id=&sort=&order=&page=&pageSize=
  * Historial real (settings del workspace) + KPIs por tipo + estado ERP.
+ * location_id filtra por ubicación origen o destino (transferencias "A → B").
+ * Los KPIs se recalculan sobre el subconjunto filtrado.
  */
 export async function GET(req: NextRequest) {
   try {
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const type = params.get('type') || 'all';
+    const rawLocation = params.get('location_id') || params.get('locationId') || params.get('location') || '';
+    const locationRef = rawLocation.trim() && rawLocation.trim() !== 'all' ? rawLocation.trim().toUpperCase() : null;
     const page = Math.max(1, Number(params.get('page')) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(params.get('pageSize')) || PAGE_SIZE_DEFAULT));
     const order = params.get('order') === 'asc' ? 'asc' : 'desc';
@@ -98,6 +102,13 @@ export async function GET(req: NextRequest) {
 
     if (type === 'correccion' || type === 'transferencia' || type === 'consumo') {
       list = list.filter((h) => h.type === type);
+    }
+    if (locationRef) {
+      list = list.filter(
+        (h) =>
+          (h.locationRef || '').toUpperCase().includes(locationRef) ||
+          (h.toLocationRef || '').toUpperCase() === locationRef
+      );
     }
     if (q) {
       list = list.filter(
@@ -140,6 +151,7 @@ export async function GET(req: NextRequest) {
       pageSize,
       kpis,
       typeLabels: TYPE_LABEL,
+      locationFilter: { locationRef },
       integrations: { pending: integrationsPending.length > 0, missing: integrationsPending },
     });
   } catch (error: any) {

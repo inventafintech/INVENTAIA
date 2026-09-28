@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, Suspense } from 'react';
 import styles from './page.module.css';
 import { useSearchQuery } from '@/hooks/useSearchQuery';
+import LocationSelector from '@/components/inventory/LocationSelector';
+import AdvancedFiltersDrawer from '@/components/inventory/AdvancedFiltersDrawer';
 
 interface InventoryItem {
   id: string;
@@ -33,6 +35,8 @@ interface Category {
   name: string;
 }
 
+type HealthFilter = 'all' | 'healthy' | 'low' | 'critical';
+
 export function InventarioContent() {
   const [items, setItems] = useState<InventoryItem[]>([]);
   const [metrics, setMetrics] = useState<InventoryMetrics>({
@@ -49,6 +53,13 @@ export function InventarioContent() {
   const [searchTerm, setSearchTerm] = useState<string>(initialQ);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+  // ── Divulgación progresiva + Ubicación (orquestador) ──
+  // Vista principal: solo búsqueda + selector de ubicación + acciones.
+  // Categoría y salud viven en el Drawer "Filtros avanzados" (máx. 2 clics).
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [healthFilter, setHealthFilter] = useState<HealthFilter>('all');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+
   // Sincronizar con ?q= de la búsqueda global (navegación entre resultados)
   useEffect(() => {
     setSearchTerm(initialQ);
@@ -63,12 +74,18 @@ export function InventarioContent() {
   const [newPrice, setNewPrice] = useState<number>(6.80);
   const [newStock, setNewStock] = useState<number>(450);
   const [newSafetyStock, setNewSafetyStock] = useState<number>(120);
+  const [newLocation, setNewLocation] = useState<string>('all');
 
-  // Fetch inventory data
-  const loadInventory = async () => {
+  // Fetch inventory data — re-evaluación dinámica SPA contra el backend real.
+  // Cambiar selectedLocation dispara ?location_id= y recalcula KPIs + tabla
+  // sin recargar la página (verdad de base de datos, cero mocks).
+  const loadInventory = useCallback(async (locationRef: string) => {
     try {
       setLoading(true);
-      const res = await fetch('/api/dashboard/inventario', { cache: 'no-store' });
+      const params = new URLSearchParams();
+      if (locationRef && locationRef !== 'all') params.set('location_id', locationRef);
+      const url = params.toString() ? `/api/dashboard/inventario?${params.toString()}` : '/api/dashboard/inventario';
+      const res = await fetch(url, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.items) setItems(data.items);
@@ -80,13 +97,17 @@ export function InventarioContent() {
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    loadInventory();
   }, []);
 
-  // Filtered items
+  useEffect(() => {
+    loadInventory(selectedLocation);
+  }, [loadInventory, selectedLocation]);
+
+  const handleLocationChange = (ref: string) => {
+    setSelectedLocation(ref);
+  };
+
+  // Filtered items (búsqueda + categoría + salud, sobre el subconjunto por ubicación)
   const filtered = useMemo(() => {
     return items.filter((item) => {
       const matchesSearch =
@@ -97,9 +118,11 @@ export function InventarioContent() {
         selectedCategory === 'all' ||
         item.category.toLowerCase() === selectedCategory.toLowerCase();
 
-      return matchesSearch && matchesCat;
+      const matchesHealth = healthFilter === 'all' || item.health === healthFilter;
+
+      return matchesSearch && matchesCat && matchesHealth;
     });
-  }, [items, searchTerm, selectedCategory]);
+  }, [items, searchTerm, selectedCategory, healthFilter]);
 
   // Dynamic metrics based on current filtered view (or global if unfiltered)
   const displayTotalValue = useMemo(() => {
@@ -110,11 +133,25 @@ export function InventarioContent() {
     return filtered.reduce((sum, item) => sum + item.physicalStock, 0);
   }, [filtered]);
 
+  const advancedCount =
+    (selectedCategory !== 'all' ? 1 : 0) + (healthFilter !== 'all' ? 1 : 0);
+  const hasActiveFilters =
+    searchTerm.trim() !== '' || selectedCategory !== 'all' || healthFilter !== 'all' || selectedLocation !== 'all';
+
+  const clearFilters = () => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setHealthFilter('all');
+    setSelectedLocation('all');
+  };
+
   // Handle Export CSV
   const handleExportCsv = () => {
     const params = new URLSearchParams();
     if (searchTerm) params.set('search', searchTerm);
     if (selectedCategory !== 'all') params.set('category', selectedCategory);
+    if (healthFilter !== 'all') params.set('health', healthFilter);
+    if (selectedLocation !== 'all') params.set('location_id', selectedLocation);
 
     window.open(`/api/dashboard/inventario/export?${params.toString()}`, '_blank');
   };
@@ -134,13 +171,17 @@ export function InventarioContent() {
           unitPrice: newPrice,
           physicalStock: newStock,
           safetyStock: newSafetyStock,
+          // Si hay ubicación seleccionada, el SKU nace dentro de ella.
+          ...(selectedLocation !== 'all' || newLocation !== 'all'
+            ? { locationRef: (newLocation !== 'all' ? newLocation : selectedLocation).toUpperCase() }
+            : {}),
         }),
       });
 
       const data = await res.json();
       if (res.ok && data.success) {
         setNewSkuModal(false);
-        await loadInventory();
+        await loadInventory(selectedLocation);
       } else {
         alert(data.error || 'Error al crear SKU');
       }
@@ -151,26 +192,57 @@ export function InventarioContent() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
+      {/* Header — título a la izquierda, ubicación + acciones a la derecha (top-right) */}
       <header className={styles.header}>
-        <div>
+        <div style={{ minWidth: 0, flex: '1 1 220px' }}>
           <h1 className={styles.title}>Maestro de Inventario</h1>
           <p className={styles.subtitle}>
             Valorización de stock en tiempo real, rotación comercial (GMROI) y monitoreo de inventario inmovilizado.
           </p>
+          {selectedLocation !== 'all' && (
+            <span
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                marginTop: '8px',
+                fontSize: '11px',
+                fontWeight: 700,
+                padding: '4px 10px',
+                borderRadius: '999px',
+                background: '#eff6ff',
+                color: '#1d4ed8',
+                border: '1px solid #bfdbfe',
+                maxWidth: '100%',
+              }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                📍 Filtrado por ubicación: {selectedLocation}
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedLocation('all')}
+                aria-label="Quitar filtro de ubicación"
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 800, padding: '0 2px' }}
+              >
+                ✕
+              </button>
+            </span>
+          )}
         </div>
-        <div className={styles.headerActions}>
+        <div className={styles.headerActions} style={{ minWidth: 0 }}>
+          <LocationSelector value={selectedLocation} onChange={handleLocationChange} />
           <button className={styles.btnSecondary} onClick={handleExportCsv}>
             Exportar CSV
           </button>
-          <button className={styles.btnPrimary} onClick={() => setNewSkuModal(true)}>
+          <button className={styles.btnPrimary} onClick={() => { setNewLocation(selectedLocation); setNewSkuModal(true); }}>
             + Nuevo SKU
           </button>
         </div>
       </header>
 
-      {/* 4 Tarjetas de Resumen Financiero */}
-      <div className={styles.statsGrid}>
+      {/* 4 Tarjetas de Resumen Financiero — se recalculan con la ubicación */}
+      <div className={styles.statsGrid} aria-live="polite">
         <div className={styles.statCard}>
           <span className={styles.statLabel}>VALOR TOTAL ALMACÉN</span>
           <span className={styles.statValue}>
@@ -193,32 +265,56 @@ export function InventarioContent() {
         </div>
       </div>
 
-      {/* Barra de Herramientas */}
+      {/* Barra de Herramientas — síntesis visual: solo búsqueda + filtros avanzados */}
       <div className={styles.controls}>
-        <div className={styles.searchBox}>
+        <div className={styles.searchBox} style={{ minWidth: 0 }}>
           <input
             type="text"
             placeholder="Buscar por nombre o código de SKU..."
             className={styles.input}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            aria-label="Buscar por nombre o SKU"
+            style={{ minWidth: 0 }}
           />
-          <select
-            className={styles.select}
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
+          <button
+            type="button"
+            className={styles.btnSecondary}
+            onClick={() => setShowAdvanced(true)}
+            aria-expanded={showAdvanced}
+            aria-label="Abrir filtros avanzados"
+            style={{ position: 'relative', flexShrink: 0 }}
           >
-            <option value="all">Todas las Categorías</option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.name}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+            ⚙ Filtros avanzados
+            {advancedCount > 0 && (
+              <span
+                style={{
+                  marginLeft: '6px',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  background: '#2563eb',
+                  color: '#fff',
+                  borderRadius: '999px',
+                  padding: '1px 7px',
+                }}
+              >
+                {advancedCount}
+              </span>
+            )}
+          </button>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearFilters}
+              style={{ background: 'transparent', border: 'none', color: '#2563eb', fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', minHeight: '44px' }}
+            >
+              Limpiar
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Tabla de Datos (Data Grid) */}
+      {/* Tabla de Datos (Data Grid) — se expande fluidamente al ocultar opciones */}
       <div className={styles.tableCard}>
         <table className={styles.table}>
           <thead>
@@ -243,7 +339,9 @@ export function InventarioContent() {
             ) : filtered.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
-                  No se encontraron productos coincidentes con los criterios de búsqueda.
+                  {selectedLocation !== 'all'
+                    ? `Sin stock en la ubicación ${selectedLocation} con los criterios aplicados.`
+                    : 'No se encontraron productos coincidentes con los criterios de búsqueda.'}
                 </td>
               </tr>
             ) : (
@@ -279,6 +377,55 @@ export function InventarioContent() {
           </tbody>
         </table>
       </div>
+
+      {/* Drawer de divulgación progresiva: categoría + salud (secundarios) */}
+      <AdvancedFiltersDrawer
+        open={showAdvanced}
+        onClose={() => setShowAdvanced(false)}
+        onClear={() => { setSelectedCategory('all'); setHealthFilter('all'); }}
+        title="Filtros avanzados"
+        activeCount={advancedCount}
+      >
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+          <label htmlFor="adv-category" style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+            CATEGORÍA
+          </label>
+          <select
+            id="adv-category"
+            className={styles.select}
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            style={{ width: '100%', maxWidth: '100%' }}
+          >
+            <option value="all">Todas las categorías</option>
+            {categories.map((c) => (
+              <option key={c.id} value={c.name}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
+          <label htmlFor="adv-health" style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+            ESTADO DE SALUD
+          </label>
+          <select
+            id="adv-health"
+            className={styles.select}
+            value={healthFilter}
+            onChange={(e) => setHealthFilter(e.target.value as HealthFilter)}
+            style={{ width: '100%', maxWidth: '100%' }}
+          >
+            <option value="all">Todos los estados</option>
+            <option value="healthy">Saludable</option>
+            <option value="low">Stock Bajo</option>
+            <option value="critical">Quiebre Inminente</option>
+          </select>
+        </div>
+        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, margin: 0 }}>
+          La ubicación se selecciona arriba a la derecha y filtra stock, valor y rotación en tiempo real contra la base de datos.
+        </p>
+      </AdvancedFiltersDrawer>
 
       {/* Modal Nuevo SKU */}
       {newSkuModal && (
@@ -325,6 +472,11 @@ export function InventarioContent() {
                   <option value="Construcción">Construcción</option>
                   <option value="Bebidas">Bebidas</option>
                 </select>
+              </div>
+
+              <div className={styles.formGroup}>
+                <label className={styles.label}>Ubicación inicial</label>
+                <LocationSelector value={newLocation} onChange={setNewLocation} compact />
               </div>
 
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>

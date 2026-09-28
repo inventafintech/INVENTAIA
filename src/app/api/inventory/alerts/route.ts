@@ -23,12 +23,19 @@ async function readSettings(supabase: any, workspaceId: string): Promise<any> {
 }
 
 /**
- * GET /api/inventory/alerts
+ * GET /api/inventory/alerts?location_id=&branch=
  * Badges reales (productos, sucursales, IA por plan) + configuración de
  * umbrales global y por producto (settings.alertThresholds + safety real).
+ * location_id filtra estrictamente por ref de ubicación; los badges y la
+ * lista se recalculan sobre el subconjunto (verdad de BD).
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const params = req.nextUrl.searchParams;
+    const rawLocation = params.get('location_id') || params.get('locationId') || params.get('location') || '';
+    const rawBranch = params.get('branch') || '';
+    const locationRef = rawLocation.trim() && rawLocation.trim() !== 'all' ? rawLocation.trim().toUpperCase() : null;
+    const branchFilter = rawBranch.trim() && rawBranch.trim() !== 'all' ? rawBranch.trim() : null;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const workspaceId = await resolveWorkspaceId(supabase);
@@ -61,7 +68,7 @@ export async function GET() {
 
     const branches = new Set<string>();
     const placement = settings.inventoryPlacement || {};
-    const items = (products || []).map((p: any) => {
+    let items = (products || []).map((p: any) => {
       const level = levelByProduct.get(p.id) || {};
       const stock = Number(level.physical_stock ?? 0);
       const safety = Number(level.safety_stock ?? 0);
@@ -86,6 +93,11 @@ export async function GET() {
       };
     });
 
+    // Filtrado estricto por ubicación/sucursal (recalcula badges + lista).
+    if (locationRef) items = items.filter((i) => (i.locationRef || '').toUpperCase() === locationRef);
+    if (branchFilter) items = items.filter((i) => i.branch === branchFilter);
+    const scopedBranches = new Set(items.map((i) => i.branch));
+
     // Estado IA real: encendida en Essential+ (incluye trial vigente)
     let aiOn = false;
     try {
@@ -100,8 +112,9 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      badges: { products: items.length, branches: branches.size, ai: aiOn ? 'Encendido' : 'Apagado' },
+      badges: { products: items.length, branches: scopedBranches.size, ai: aiOn ? 'Encendido' : 'Apagado' },
       defaults: { globalLow, reminders, push },
+      locationFilter: { locationRef, branch: branchFilter },
       items,
     });
   } catch (error: any) {

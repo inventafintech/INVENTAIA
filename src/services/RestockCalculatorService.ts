@@ -115,7 +115,7 @@ export class RestockCalculatorService {
    * suppliers + purchase_orders para el mapeo producto→proveedor).
    * Sin filas en BD el resultado es vacío (cero mocks).
    */
-  public static async calculateRestockItems(): Promise<{
+  public static async calculateRestockItems(filter?: import('@/services/LocationsService').LocationFilter): Promise<{
     items: RestockItem[];
     totalCapitalRequired: number;
     criticalCount: number;
@@ -133,6 +133,23 @@ export class RestockCalculatorService {
       ]);
 
     const levelByProduct = new Map((levels || []).map((l: any) => [l.product_id, l]));
+
+    // Filtrado relacional por ubicación (placement real del workspace).
+    let scopedProducts = products || [];
+    if (filter?.locationRef || filter?.branch) {
+      try {
+        const { LocationsService } = await import('@/services/LocationsService');
+        const { data: ws } = await supabase.from('workspaces').select('id,settings').limit(1).maybeSingle();
+        if (ws?.id) {
+          const placement = await LocationsService.getPlacement(supabase, ws.id);
+          scopedProducts = (products || []).filter((p: any) =>
+            LocationsService.matchesLocation(placement[p.id], filter)
+          );
+        }
+      } catch {
+        scopedProducts = products || [];
+      }
+    }
 
     const supplierInfos: SupplierInfo[] = (suppliers || []).map((s: any) => ({
       id: s.id,
@@ -154,7 +171,7 @@ export class RestockCalculatorService {
       }
     }
 
-    const inputs: RestockInput[] = (products || []).map((p: any) => {
+    const inputs: RestockInput[] = (scopedProducts || []).map((p: any) => {
       const level = levelByProduct.get(p.id) || {};
       let supplier: SupplierInfo | undefined;
       const historicSupplierId = lastSupplierBySku.get(p.sku_code);

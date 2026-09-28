@@ -23,16 +23,22 @@ async function resolveWorkspaceId(supabase: any): Promise<string | null> {
 }
 
 /**
- * GET /api/inventory/items?q=&hideZero=&sort=&order=&page=&pageSize=
+ * GET /api/inventory/items?q=&hideZero=&location_id=&branch=&sort=&order=&page=&pageSize=
  * Artículos físicos reales (products × inventory_levels) + ubicación/sucursal
  * (settings.inventoryPlacement o valores por defecto) + KPIs + estado de
  * integraciones ERP/tiendas (regla: mostrar "Pendiente de configuración").
+ * location_id filtra estrictamente por ref de ubicación; branch por sucursal.
+ * Los KPIs se recalculan sobre el subconjunto filtrado (verdad de BD).
  */
 export async function GET(req: NextRequest) {
   try {
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ') || '';
     const hideZero = params.get('hideZero') === '1';
+    const rawLocation = params.get('location_id') || params.get('locationId') || params.get('location') || '';
+    const rawBranch = params.get('branch') || '';
+    const locationRef = rawLocation.trim() && rawLocation.trim() !== 'all' ? rawLocation.trim().toUpperCase() : null;
+    const branchFilter = rawBranch.trim() && rawBranch.trim() !== 'all' ? rawBranch.trim() : null;
     const page = Math.max(1, Number(params.get('page')) || 1);
     const pageSize = Math.min(100, Math.max(1, Number(params.get('pageSize')) || PAGE_SIZE_DEFAULT));
 
@@ -76,6 +82,8 @@ export async function GET(req: NextRequest) {
     });
 
     if (hideZero) items = items.filter((i) => i.qty > 0);
+    if (locationRef) items = items.filter((i) => (i.locationRef || '').toUpperCase() === locationRef);
+    if (branchFilter) items = items.filter((i) => i.branch === branchFilter);
 
     const kpis = {
       totalQty: items.reduce((a, i) => a + i.qty, 0),
@@ -105,6 +113,7 @@ export async function GET(req: NextRequest) {
       page,
       pageSize,
       kpis,
+      locationFilter: { locationRef, branch: branchFilter },
       integrations: { pending: integrationsPending.length > 0, missing: integrationsPending },
     });
   } catch (error: any) {

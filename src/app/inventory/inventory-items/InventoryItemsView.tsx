@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
+import LocationSelector from '@/components/inventory/LocationSelector';
+import AdvancedFiltersDrawer from '@/components/inventory/AdvancedFiltersDrawer';
 
 interface InventoryRow {
   id: string;
@@ -46,6 +48,9 @@ export default function InventoryItemsView() {
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<string[]>([]);
   const [confirmBulk, setConfirmBulk] = useState(false);
+  // Divulgación progresiva + ubicación: toolbar principal mínima.
+  const [selectedLocation, setSelectedLocation] = useState('all');
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -72,6 +77,8 @@ export default function InventoryItemsView() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
+      // Verdad de BD: la ubicación filtra stock, valor y rotación en el backend.
+      if (selectedLocation !== 'all') params.set('location_id', selectedLocation);
       const res = await fetch(`/api/inventory/items?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
@@ -91,11 +98,11 @@ export default function InventoryItemsView() {
   useEffect(() => {
     fetchItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedQuery, hideZero, page]);
+  }, [debouncedQuery, hideZero, page, selectedLocation]);
 
   useEffect(() => {
     setPage(1);
-  }, [debouncedQuery, hideZero]);
+  }, [debouncedQuery, hideZero, selectedLocation]);
 
   useEffect(() => {
     if (selected.length === 0) setConfirmBulk(false);
@@ -183,7 +190,7 @@ export default function InventoryItemsView() {
     { label: 'UBICACIONES DE INVENTARIO TOTALES', value: String(kpis.activeLocations), caption: 'Ubicaciones de almacenamiento activas', color: '#2563eb' },
   ];
 
-  const hasFilters = debouncedQuery.trim() !== '';
+  const hasFilters = debouncedQuery.trim() !== '' || selectedLocation !== 'all';
   const from = total === 0 ? 0 : (page - 1) * PAGE_SIZE + 1;
   const to = Math.min(total, page * PAGE_SIZE);
 
@@ -238,72 +245,72 @@ export default function InventoryItemsView() {
         </div>
       )}
 
-      {/* Toggle */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={hideZero}
-          onClick={() => setHideZero((v) => !v)}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '13px', color: '#334155', fontWeight: 500, minHeight: '44px' }}
-        >
-          Ocultar cantidad cero
-          <span
-            style={{
-              width: '38px',
-              height: '22px',
-              borderRadius: '999px',
-              background: hideZero ? '#2563eb' : '#cbd5e1',
-              position: 'relative',
-              transition: 'background 0.15s ease',
-              flexShrink: 0,
-            }}
-          >
-            <span
-              style={{
-                position: 'absolute',
-                top: '2px',
-                left: hideZero ? '20px' : '2px',
-                width: '18px',
-                height: '18px',
-                borderRadius: '50%',
-                background: '#ffffff',
-                transition: 'left 0.15s ease',
-                boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-              }}
-            />
-          </span>
-        </button>
-      </div>
-
-      {/* Toolbar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <div style={{ position: 'relative', flex: 1, minWidth: '220px' }}>
+      {/* Toolbar — síntesis visual: búsqueda + ubicación + filtros avanzados */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap', minWidth: 0 }}>
+        <div style={{ position: 'relative', flex: '1 1 200px', minWidth: 0 }}>
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por SKU o producto..."
             aria-label="Buscar artículos"
-            style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box', minHeight: '38px' }}
           />
           <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
         </div>
+        <div style={{ minWidth: 0, maxWidth: '100%' }}>
+          <LocationSelector value={selectedLocation} onChange={setSelectedLocation} compact />
+        </div>
         <button
           type="button"
-          aria-label="Filtros"
-          style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer', color: '#475569', display: 'flex', minHeight: '38px', alignItems: 'center' }}
+          aria-label="Filtros avanzados"
+          aria-expanded={showAdvanced}
+          onClick={() => setShowAdvanced(true)}
+          style={{ border: hideZero ? '1px solid #bfdbfe' : '1px solid #e2e8f0', background: hideZero ? '#eff6ff' : '#ffffff', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer', color: '#475569', display: 'inline-flex', minHeight: '38px', alignItems: 'center', gap: '6px', fontSize: '13px', fontWeight: 600 }}
         >
           <SlidersHorizontal size={16} />
+          <span style={{ whiteSpace: 'nowrap' }}>Filtros{hideZero ? ' · 1' : ''}</span>
         </button>
         <button
           type="button"
           onClick={openCreate}
-          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
+          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px', whiteSpace: 'nowrap' }}
         >
-          <Plus size={15} /> Nuevo Artículo de inventario
+          <Plus size={15} /> Nuevo artículo
         </button>
       </div>
+      {selectedLocation !== 'all' && (
+        <span style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, padding: '4px 10px', borderRadius: '999px', background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', maxWidth: '100%' }}>
+          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>📍 {selectedLocation}</span>
+          <button type="button" onClick={() => setSelectedLocation('all')} aria-label="Quitar filtro de ubicación" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 800 }}>
+            ✕
+          </button>
+        </span>
+      )}
+
+      <AdvancedFiltersDrawer
+        open={showAdvanced}
+        onClose={() => setShowAdvanced(false)}
+        onClear={() => setHideZero(true)}
+        title="Filtros avanzados"
+        activeCount={hideZero ? 1 : 0}
+      >
+        <button
+          type="button"
+          role="switch"
+          aria-checked={hideZero}
+          onClick={() => setHideZero((v) => !v)}
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px', cursor: 'pointer', fontSize: '13px', color: '#0f172a', fontWeight: 600, minHeight: '44px', width: '100%' }}
+        >
+          Ocultar cantidad cero
+          <span style={{ width: '38px', height: '22px', borderRadius: '999px', background: hideZero ? '#2563eb' : '#cbd5e1', position: 'relative', transition: 'background 0.15s ease', flexShrink: 0 }}>
+            <span style={{ position: 'absolute', top: '2px', left: hideZero ? '20px' : '2px', width: '18px', height: '18px', borderRadius: '50%', background: '#ffffff', transition: 'left 0.15s ease', boxShadow: '0 1px 2px rgba(0,0,0,0.2)' }} />
+          </span>
+        </button>
+        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, margin: 0 }}>
+          La ubicación se selecciona en la barra principal y filtra cantidad, valor y ubicaciones activas en tiempo real contra la base de datos.
+        </p>
+      </AdvancedFiltersDrawer>
 
       {/* Selección */}
       {selected.length > 0 && (
@@ -363,8 +370,10 @@ export default function InventoryItemsView() {
                   <td colSpan={8} style={{ padding: 0 }}>
                     <div style={{ margin: '12px', border: '1px solid #e2e8f0', borderLeft: '3px solid #2563eb', borderRadius: '8px', background: '#f8fafc', padding: '14px 16px', fontSize: '13px', color: '#0f172a' }}>
                       {total === 0 && !hasFilters
-                        ? 'No hay artículos de inventario para mostrar. Añade un nuevo artículo de inventario haciendo clic en NUEVO INVENTARIO ENTRANTE arriba.'
-                        : 'Sin coincidencias para los filtros aplicados.'}
+                        ? 'No hay artículos de inventario para mostrar. Añade un nuevo artículo de inventario haciendo clic en NUEVO ARTÍCULO arriba.'
+                        : selectedLocation !== 'all'
+                          ? `Sin stock en la ubicación ${selectedLocation} con los filtros aplicados.`
+                          : 'Sin coincidencias para los filtros aplicados.'}
                     </div>
                   </td>
                 </tr>

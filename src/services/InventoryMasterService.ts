@@ -1,4 +1,5 @@
 import { createClient } from '@/utils/supabase/server';
+import { LocationsService, type LocationFilter } from '@/services/LocationsService';
 
 export interface InventoryMasterItem {
   id: string;
@@ -26,8 +27,9 @@ export interface InventoryMetrics {
 }
 
 export class InventoryMasterService {
-  static async getInventoryItems(): Promise<InventoryMasterItem[]> {
+  static async getInventoryItems(filter?: LocationFilter): Promise<InventoryMasterItem[]> {
     const supabase = await createClient();
+    const hasFilter = Boolean(filter?.locationRef || filter?.branch);
     
     // Obtener productos, categorías y niveles de inventario reales
     const { data: products, error } = await supabase
@@ -43,7 +45,24 @@ export class InventoryMasterService {
       return [];
     }
 
-    return products.map((p: any) => {
+    // Placement real ubicación×producto (verdad relacional sucursal/almacén).
+    // Sin filtro de ubicación se devuelve todo; con filtro se recorta aquí
+    // para que KPIs y tablas se recalculen contra la misma fuente.
+    let placement: Record<string, { branch: string; locationRef: string }> = {};
+    if (hasFilter) {
+      try {
+        const workspaceId = await LocationsService.resolveWorkspaceId(supabase);
+        if (workspaceId) placement = await LocationsService.getPlacement(supabase, workspaceId);
+      } catch {
+        placement = {};
+      }
+    }
+
+    const filtered = (products as any[]).filter((p: any) =>
+      hasFilter ? LocationsService.matchesLocation(placement[p.id], filter as LocationFilter) : true
+    );
+
+    return filtered.map((p: any) => {
       const physicalStock = p.inventory_levels?.[0]?.physical_stock || 0;
       const safetyStock = p.inventory_levels?.[0]?.safety_stock || 0;
       const unitCost = Number(p.unit_cost) || 0;
@@ -83,8 +102,8 @@ export class InventoryMasterService {
     });
   }
 
-  static async getInventoryMetrics(): Promise<InventoryMetrics> {
-    const items = await this.getInventoryItems();
+  static async getInventoryMetrics(filter?: LocationFilter): Promise<InventoryMetrics> {
+    const items = await this.getInventoryItems(filter);
     
     const totalSkus = items.length;
     let totalValue = 0;
