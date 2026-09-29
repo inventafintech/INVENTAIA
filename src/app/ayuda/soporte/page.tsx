@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Headphones, Mail, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
+import { Mail, MessageSquare, Clock, CheckCircle2 } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 export default function SoportePage() {

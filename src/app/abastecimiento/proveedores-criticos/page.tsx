@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
-import { Truck, ShieldAlert, Phone, Clock, ArrowRight, CheckCircle2, MessageSquare } from 'lucide-react';
+import { ShieldAlert, Phone, Clock, ArrowRight, CheckCircle2, MessageSquare } from 'lucide-react';
 import { RestockItem } from '@/services/RestockCalculatorService';
 
 interface CriticalSupplier {

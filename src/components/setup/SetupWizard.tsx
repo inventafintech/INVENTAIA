@@ -5,17 +5,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Logo } from '@/components/brand/Logo';
 import {
-  Globe,
-  Building2,
-  Boxes,
-  FileSpreadsheet,
   CheckCircle2,
   ChevronRight,
-  ChevronLeft,
   UploadCloud,
   ShoppingBag,
   Sparkles,
-  Package,
   Check,
   Store,
   Factory,

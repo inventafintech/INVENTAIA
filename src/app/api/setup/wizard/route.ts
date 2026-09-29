@@ -4,18 +4,6 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
 
-    // Log the setup wizard configuration
-    console.log('[SETUP WIZARD] Configuration completed:', {
-      country: body.country,
-      currency: body.currency,
-      taxRate: body.taxRate,
-      branchName: body.branchName,
-      industry: body.industry,
-      categoriesCount: body.categories?.length || 0,
-      productsCount: body.productsCount || 0,
-      timestamp: new Date().toISOString(),
-    });
-
     return NextResponse.json({
       success: true,
       message: 'Setup wizard configuration persisted successfully.',

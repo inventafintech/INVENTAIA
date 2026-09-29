@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
 import { resolveAuthIdentity, loadUserRow } from '@/lib/currentUser';
 import { verifyTotpToken } from '@/lib/totp';
 import { readTwoFactorState, writeTwoFactorState } from '@/lib/twoFactorStore';

@@ -60,7 +60,7 @@ export default function OrdenesPage() {
   const [selectedSupplier, setSelectedSupplier] = useState<string>('sup-alicorp');
   const [condition, setCondition] = useState<string>('Crédito 30d');
   const [estimatedArrival, setEstimatedArrival] = useState<string>('28 Sep 2026');
-  const [lineSku, setLineSku] = useState<string>('SKU-ALI-001');
+  const [lineSku] = useState<string>('SKU-ALI-001');
   const [lineProduct, setLineProduct] = useState<string>('Aceite Primor Premium 1L');
   const [lineQty, setLineQty] = useState<number>(2000);
   const [linePrice, setLinePrice] = useState<number>(8.50);

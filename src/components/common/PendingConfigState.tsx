@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import Link from 'next/link';
 import { SlidersHorizontal, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 

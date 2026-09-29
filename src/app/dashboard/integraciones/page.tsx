@@ -155,7 +155,7 @@ export default function IntegracionesPage() {
   const [activeTab, setActiveTab] = useState<'conectores' | 'alertas' | 'logs' | 'auditoria'>('conectores');
   const [integrations, setIntegrations] = useState<Record<string, IntegrationData>>({});
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   // Sync state per connector: status and message
   const [syncState, setSyncState] = useState<Record<string, { loading: boolean; error?: string; success?: string }>>({});

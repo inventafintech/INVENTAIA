@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
-import { AlertTriangle, TrendingDown, ArrowRight, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
+import { AlertTriangle, ArrowRight, ShieldAlert, CheckCircle2, Clock } from 'lucide-react';
 import { RestockItem } from '@/services/RestockCalculatorService';
 
 export default function RiesgoQuiebrePage() {

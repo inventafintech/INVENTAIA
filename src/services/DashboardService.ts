@@ -57,7 +57,6 @@ export class DashboardService {
         const inv = inventoryMap.get(p.id);
         const physicalStock = inv?.physical_stock ?? 0;
         const safetyStock = inv?.safety_stock ?? 0;
-        const dailyRate = 0; // Sin datos reales de demanda, es 0
         const daysRemaining = physicalStock > 0 ? 999 : 0; // Aproximación básica sin demanda
 
         let urgency: 'CRITICAL' | 'WARNING' | 'STABLE' = 'STABLE';

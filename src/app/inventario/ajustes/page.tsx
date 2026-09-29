@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowLeftRight, AlertTriangle, PlusCircle, CheckCircle } from 'lucide-react';
+import { useState } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const ADJUSTMENTS = [

@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowDownLeft, FileText, CheckCircle2, PackageCheck } from 'lucide-react';
+import { useState } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const RECEIPTS = [

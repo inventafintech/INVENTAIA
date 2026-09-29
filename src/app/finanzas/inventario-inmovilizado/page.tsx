@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
-import { Boxes, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Boxes, ArrowRight } from 'lucide-react';
 import { InventoryMasterItem } from '@/services/InventoryMasterService';
 
 export default function InventarioInmovilizadoPage() {

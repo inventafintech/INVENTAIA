@@ -1,5 +1,4 @@
 import { createClient } from '@/utils/supabase/server';
-import { WhatsAppService } from './WhatsAppService';
 
 export interface POMetrics {
   porAprobar: number;

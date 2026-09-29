@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Sparkles, Calculator, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { useState } from 'react';
+import { Sparkles, Calculator } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 export default function PonmeAPruebaPage() {

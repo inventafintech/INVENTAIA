@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { Store, ShieldCheck, Clock, CheckCircle } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 import { SUPPLIERS_DIRECTORY as SUPPLIERS } from '@/data/businessDirectory';
 import { useSearchQuery } from '@/hooks/useSearchQuery';

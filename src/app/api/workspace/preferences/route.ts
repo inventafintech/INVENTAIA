@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { DEFAULT_PREFERENCES, mergePreferences, LANGUAGES, CURRENCIES, COUNTRIES, NUMBER_FORMATS, DATE_FORMATS, SECTORS, PRODUCT_FIELDS } from '@/lib/preferences';
+import { mergePreferences, LANGUAGES, CURRENCIES, COUNTRIES, NUMBER_FORMATS, DATE_FORMATS, SECTORS, PRODUCT_FIELDS } from '@/lib/preferences';
 
 export const dynamic = 'force-dynamic';
 

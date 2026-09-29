@@ -17,7 +17,6 @@ import {
   Cpu,
   Factory,
   Wrench,
-  ExternalLink,
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import CompanySettingsForm from './CompanySettingsForm';
@@ -34,7 +33,6 @@ import {
   WorkspacePreferences,
   DEFAULT_PREFERENCES,
 } from '@/lib/preferences';
-import { PLANS, formatPlanPrice } from '@/lib/plans';
 
 type TabKey = 'general' | 'sector' | 'facturacion' | 'plan' | 'empresa';
 
@@ -265,8 +263,6 @@ export default function SettingsView() {
   const effectiveLimits = PLAN_LIMITS[(sub?.plan as keyof typeof PLAN_LIMITS) || 'light'] || PLAN_LIMITS.light;
   const fmtLimit = (v: number | null) => (v === null ? 'Ilimitado' : String(v));
 
-  const essential = PLANS.find((p) => p.id === 'essential')!;
-  const essentialPrice = cycle === 'anual' ? essential.annualMonthlyPrice! : essential.monthlyPrice!;
   const onTrial = sub?.status === 'trial' && sub.trialDaysLeft > 0;
 
   if (loading) {

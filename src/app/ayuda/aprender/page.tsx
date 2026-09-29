@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-import { GraduationCap, TrendingUp, ShieldCheck, BarChart3, Calculator } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const COURSES = [

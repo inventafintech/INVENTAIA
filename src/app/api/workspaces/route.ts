@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { WorkspaceService } from '@/services/WorkspaceService';
 import { SessionManager } from '@/lib/session';
-import { db } from '@/lib/db';
 
 export const dynamic = 'force-dynamic';
 

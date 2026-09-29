@@ -1,6 +1,5 @@
 'use client';
 
-import React from 'react';
 import { Menu, Bell, Moon, Sun } from 'lucide-react';
 import { UserDropdown } from './UserDropdown';
 import { GlobalSearch } from './GlobalSearch';

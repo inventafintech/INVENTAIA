@@ -31,8 +31,6 @@ const GROUP_META = [
   { key: 'locations', label: 'Ubicaciones', icon: MapPin },
 ] as const;
 
-type GroupKey = (typeof GROUP_META)[number]['key'];
-
 /** Resalta la coincidencia dentro del nombre (case-insensitive). */
 function HighlightedName({ name, query }: { name: string; query: string }) {
   const q = query.trim();

@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { Users, Building, CreditCard, ShoppingCart } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 import { CLIENTS } from '@/data/businessDirectory';
 import { useSearchQuery } from '@/hooks/useSearchQuery';

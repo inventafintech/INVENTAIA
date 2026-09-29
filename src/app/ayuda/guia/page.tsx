@@ -1,7 +1,5 @@
 'use client';
 
-import React from 'react';
-import { BookOpen, CheckCircle, Lightbulb, Zap } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const GUIDES = [

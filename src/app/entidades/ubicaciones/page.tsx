@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { MapPin, Warehouse, Layers, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, Suspense } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 import { LOCATIONS } from '@/data/businessDirectory';
 import { useSearchQuery } from '@/hooks/useSearchQuery';

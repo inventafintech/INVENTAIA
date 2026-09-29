@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { GET as getAjustes, PUT as putAjustes } from '@/app/api/dashboard/ajustes/route';
 
 export const dynamic = 'force-dynamic';

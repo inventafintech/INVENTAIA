@@ -3,7 +3,6 @@ import { headers } from 'next/headers';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
-import { db } from '@/lib/db';
 import { parseDevice } from '@/lib/currentUser';
 import { readTwoFactorState } from '@/lib/twoFactorStore';
 

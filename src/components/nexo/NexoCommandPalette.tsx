@@ -3,25 +3,17 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  Search, X, Loader2, CornerDownLeft, ArrowUp, ArrowDown,
-  Sparkles, MapPin, ExternalLink, ChevronRight, Zap, Package,
-  DollarSign, AlertTriangle, Settings, LayoutDashboard,
+  Search, Loader2, CornerDownLeft, ArrowUp, ArrowDown,
+  Sparkles, MapPin, ExternalLink, ChevronRight, Zap,
+  Settings, LayoutDashboard,
   Blocks, ShoppingBag, ArrowLeftRight, Tag, Building2, Store, User,
   Bell, History, Download, ArrowDownLeft, ArrowUpRight, Boxes,
   GraduationCap, FileQuestion, Headset, MessageCircleQuestion, BookOpen,
   BellPlus, Shapes, Repeat, RotateCcw, Send, CheckCircle2, ArrowLeft,
-  Trash2, MessageSquare
 } from 'lucide-react';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 
 // ─── Interfaces ───────────────────────────────────────────────────────
-interface NavSuggestion {
-  href: string;
-  label: string;
-  group: string;
-  score?: number;
-}
-
 interface NexoAction {
   type: string;
   label: string;
@@ -437,7 +429,6 @@ export function NexoCommandPalette() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let accumulatedReply = '';
-      let generativeCards: any = undefined;
       let navToolCall: any = undefined;
 
       while (true) {

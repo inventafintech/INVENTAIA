@@ -120,8 +120,6 @@ export default function LocationsIndex() {
     return () => document.removeEventListener('mousedown', close);
   }, [openMenu]);
 
-  const allSelected = items.length > 0 && items.every((i) => selected.includes(i.ref));
-
   const openCreate = () => {
     setEditing(null);
     setFRef('');

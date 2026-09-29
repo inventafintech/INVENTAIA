@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
-import { MercadoLibreService } from '@/services/MercadoLibreService';
 
 export const dynamic = 'force-dynamic';
 

@@ -75,7 +75,6 @@ export default function StockAdjustmentsView() {
   const debouncedQuery = useDebounce(query, 300);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const allSelected = items.length > 0 && items.every((i) => selected.includes(i.id));
-  const currentStock = catalog.find((p) => p.id === fProductId)?.stock;
 
   const fetchAdjustments = async () => {
     setLoading(true);

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BellRing, ShieldAlert, Sliders, CheckCircle2 } from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 export default function AlertasConfigPage() {

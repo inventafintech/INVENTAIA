@@ -1,4 +1,4 @@
-import { db, WorkspaceRecord, WorkspaceUserRecord } from '@/lib/db';
+import { db } from '@/lib/db';
 
 export interface SlugValidationResult {
   valid: boolean;

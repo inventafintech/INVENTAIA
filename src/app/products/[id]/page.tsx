@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import {
   ChevronRight,
   Pencil,
@@ -11,7 +11,6 @@ import {
   Building2,
   Boxes,
   X,
-  Loader2,
   TrendingUp,
 } from 'lucide-react';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
@@ -73,7 +72,6 @@ export default function ProductDetailPage() {
 
 function ProductDetailContent() {
   const params = useParams();
-  const router = useRouter();
   const id = decodeURIComponent(String(params?.id || ''));
 
   const [data, setData] = useState<DetailData | null>(null);

@@ -57,7 +57,6 @@ export default function ProductCategoriesView() {
 
   const debouncedQuery = useDebounce(query, 300);
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
-  const allSelected = items.length > 0 && items.every((i) => selected.includes(i.id));
 
   const fetchCategories = async () => {
     setLoading(true);

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { CircleHelp, ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const FAQS = [

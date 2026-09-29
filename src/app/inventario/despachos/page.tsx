@@ -1,7 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { ArrowUpRight, Truck, CheckCircle2, Clock } from 'lucide-react';
+import { useState } from 'react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 const DISPATCHES = [

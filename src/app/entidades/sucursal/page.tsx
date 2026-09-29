@@ -1,7 +1,6 @@
 'use client';
 
-import React from 'react';
-import { Building2, MapPin, Phone, Mail, Clock, UserCheck } from 'lucide-react';
+import { Building2, UserCheck } from 'lucide-react';
 import styles from '@/app/dashboard/inventario/page.module.css';
 
 export default function SucursalPage() {

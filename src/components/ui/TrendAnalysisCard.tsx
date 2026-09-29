@@ -1,4 +1,3 @@
-import React from 'react';
 import { TrendingUp, AlertTriangle } from 'lucide-react'; 
 
 export function TrendAnalysisCard({ result }: { result: any }) {

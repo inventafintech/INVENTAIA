@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { resolveWorkspaceId } from '@/lib/locationsStore';
 import { parseCSV } from '@/lib/csv';
 
 export const dynamic = 'force-dynamic';

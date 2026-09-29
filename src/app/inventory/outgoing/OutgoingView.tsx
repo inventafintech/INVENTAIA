@@ -45,12 +45,6 @@ const TYPE_META: Record<string, { label: string; color: string; bg: string }> = 
 
 const PAGE_SIZE = 10;
 
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return '—';
-  return d.toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-}
-
 export default function OutgoingView() {
   const router = useRouter();
   const [items, setItems] = useState<DispatchItem[]>([]);

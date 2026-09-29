@@ -1,4 +1,4 @@
-import { db, ForecastAccuracyLogRecord, InventorySavingsLogRecord, PreventedStockoutRecord } from '../lib/db';
+import { db } from '../lib/db';
 
 export interface OperationalKPIData {
   algorithmPrecision: {

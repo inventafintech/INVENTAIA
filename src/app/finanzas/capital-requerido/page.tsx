@@ -1,10 +1,10 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { AppShell } from '@/components/layout/AppShell';
-import { Coins, ArrowRight, Building2, CheckCircle2, TrendingUp, DollarSign } from 'lucide-react';
-import { RestockCalculatorService, RestockItem } from '@/services/RestockCalculatorService';
+import { Coins, ArrowRight } from 'lucide-react';
+import { RestockItem } from '@/services/RestockCalculatorService';
 
 export default function CapitalRequeridoPage() {
   const [items, setItems] = useState<RestockItem[]>([]);

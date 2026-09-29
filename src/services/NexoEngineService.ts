@@ -111,15 +111,6 @@ async function saveNexoMemory(supabase: any, workspaceId: string, memory: NexoMe
   }
 }
 
-function timeAgo(ts: string): string {
-  const mins = Math.max(0, Math.round((Date.now() - new Date(ts).getTime()) / 60000));
-  if (mins < 1) return 'ahora mismo';
-  if (mins < 60) return `hace ${mins} min`;
-  const h = Math.round(mins / 60);
-  if (h < 24) return `hace ${h} h`;
-  return `hace ${Math.round(h / 24)} d`;
-}
-
 const CONNECTORS = [
   { id: 'shopify', name: 'Shopify' },
   { id: 'mercadolibre', name: 'Mercado Libre' },
@@ -166,15 +157,6 @@ const OFF_DOMAIN = [
   'amor', 'viaje', 'turismo', 'noticias', 'messi', 'ronaldo', 'dolar blue', 'bitcoin', 'crypto',
   'ethereum', 'quien gano', 'quien es', 'que hora es', 'cuentame un', 'dame una receta',
 ];
-const DOMAIN_HINTS = [
-  'financi', 'desembols', 'anticipo', 'capital', 'credito', 'prestamo', 'banco',
-  'stock', 'orden', 'compra', 'sku', 'proveedor', 'cliente', 'inventario',
-  'quiebr', 'quebr', 'inventa', 'nexo', 'hola', 'buenas', 'gracias', 'si', 'vale',
-  'resumen', 'balance', 'sincron', 'integrac', 'conect', 'recuerdas', 'historial',
-  'genera', 'crea', 'aprueba', 'reabastec', 'repone', 'alerta', 'categoria',
-  'ubicacion', 'sucursal', 'producto', 'plan', 'complemento', 'ayuda', 'soporte',
-];
-
 export function isOffDomain(message: string): boolean {
   const t = ` ${norm(message)} `;
   // Si contiene señales fuertes de inventario, finanzas u operaciones de la plataforma, está en dominio
@@ -573,7 +555,6 @@ export class NexoEngineService {
       // Se devuelve la propuesta como tarjeta po_approval con requiresConfirm:true;
       // la ejecución real solo ocurre vía POST /api/nexo/execute con {confirm:true}.
       if (/\b(aprueba|aprob|apruébala|aprobar|confirmar|hecho|ejecuta)\b/i.test(text)) {
-        const top = targets.slice(0, 5);
         const total = targets.reduce((s, i) => s + i.investment, 0);
         return {
           intent,
@@ -692,7 +673,7 @@ export class NexoEngineService {
     }
 
     if (intent === 'financing') {
-      const [alerts] = await Promise.all([NotificationService.getAlertSummary().catch(() => null)]);
+      await NotificationService.getAlertSummary().catch(() => null);
       const cl = FinancingService.getCreditSummary();
       const amount = extractAmount(text) || Math.min(20000, cl.available_amount);
       if (amount > cl.available_amount) {

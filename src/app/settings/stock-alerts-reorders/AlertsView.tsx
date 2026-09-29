@@ -7,7 +7,6 @@ import {
   AlarmClock,
   Package,
   Loader2,
-  Save,
 } from 'lucide-react';
 
 interface AlertItem {
@@ -27,7 +26,7 @@ interface AlertItem {
 export default function AlertsSettingsView() {
   const [items, setItems] = useState<AlertItem[]>([]);
   const [badges, setBadges] = useState({ products: 0, branches: 0, ai: 'Apagado' });
-  const [globalLow, setGlobalLow] = useState(10);
+  const [, setGlobalLow] = useState(10);
   const [globalLowDraft, setGlobalLowDraft] = useState('10');
   const [reminders, setReminders] = useState(true);
   const [push, setPush] = useState(true);
@@ -126,16 +125,6 @@ export default function AlertsSettingsView() {
       setSavingKey(null);
     }
   };
-
-  const grouped = React.useMemo(() => {
-    const map = new Map<string, AlertItem[]>();
-    for (const it of items) {
-      const k = it.locationRef || 'Sin ubicación';
-      if (!map.has(k)) map.set(k, []);
-      map.get(k)!.push(it);
-    }
-    return [...map.entries()].sort((a, b) => a[0].localeCompare(b[0]));
-  }, [items]);
 
   const visibleItems = items;
 

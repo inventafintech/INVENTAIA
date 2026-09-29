@@ -16,8 +16,6 @@ import {
   Lock,
   Loader2,
   Save,
-  Building2,
-  Users,
   AlertCircle,
 } from 'lucide-react';
 import { getInitials } from '@/components/layout/UserDropdown';
