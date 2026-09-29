@@ -210,9 +210,9 @@ export function InventarioContent() {
                 fontWeight: 700,
                 padding: '4px 10px',
                 borderRadius: '999px',
-                background: '#eff6ff',
+                background: 'var(--color-linen-mist)',
                 color: '#1d4ed8',
-                border: '1px solid #bfdbfe',
+                border: '1px solid var(--color-forest-ink)',
                 maxWidth: '100%',
               }}
             >
@@ -292,7 +292,7 @@ export function InventarioContent() {
                   marginLeft: '6px',
                   fontSize: '11px',
                   fontWeight: 800,
-                  background: '#2563eb',
+                  background: 'var(--color-forest-ink)',
                   color: '#fff',
                   borderRadius: '999px',
                   padding: '1px 7px',
@@ -306,7 +306,7 @@ export function InventarioContent() {
             <button
               type="button"
               onClick={clearFilters}
-              style={{ background: 'transparent', border: 'none', color: '#2563eb', fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', minHeight: '44px' }}
+              style={{ background: 'transparent', border: 'none', color: 'var(--color-forest-ink)', fontSize: '13px', fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap', minHeight: '44px' }}
             >
               Limpiar
             </button>
@@ -332,13 +332,13 @@ export function InventarioContent() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: 'var(--color-slate)' }}>
                   Cargando inventario valorizado en tiempo real...
                 </td>
               </tr>
             ) : filtered.length === 0 ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: 'var(--color-slate)' }}>
                   {selectedLocation !== 'all'
                     ? `Sin stock en la ubicación ${selectedLocation} con los criterios aplicados.`
                     : 'No se encontraron productos coincidentes con los criterios de búsqueda.'}
@@ -387,7 +387,7 @@ export function InventarioContent() {
         activeCount={advancedCount}
       >
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
-          <label htmlFor="adv-category" style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+          <label htmlFor="adv-category" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
             CATEGORÍA
           </label>
           <select
@@ -406,7 +406,7 @@ export function InventarioContent() {
           </select>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 }}>
-          <label htmlFor="adv-health" style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
+          <label htmlFor="adv-health" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
             ESTADO DE SALUD
           </label>
           <select
@@ -422,7 +422,7 @@ export function InventarioContent() {
             <option value="critical">Quiebre Inminente</option>
           </select>
         </div>
-        <p style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.5, margin: 0 }}>
+        <p style={{ fontSize: '12px', color: 'var(--color-slate)', lineHeight: 1.5, margin: 0 }}>
           La ubicación se selecciona arriba a la derecha y filtra stock, valor y rotación en tiempo real contra la base de datos.
         </p>
       </AdvancedFiltersDrawer>

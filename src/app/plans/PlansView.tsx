@@ -12,23 +12,23 @@ function MatrixCell({ value }: { value: CellValue }) {
     return <Check size={15} color="#16a34a" style={{ margin: '0 auto', display: 'block' }} />;
   }
   if (value === 'cross') {
-    return <XIcon size={14} color="#cbd5e1" style={{ margin: '0 auto', display: 'block' }} />;
+    return <XIcon size={14} color="var(--color-pebble)" style={{ margin: '0 auto', display: 'block' }} />;
   }
   if (value === 'addon') {
     return (
-      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.03em', color: '#c2410c', background: '#fff7ed', padding: '3px 7px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.03em', color: 'var(--color-alarm-red)', background: '#fff7ed', padding: '3px 7px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
         COMPLEMENTO
       </span>
     );
   }
   if (value === 'sales') {
     return (
-      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.03em', color: '#1d4ed8', background: '#eff6ff', padding: '3px 7px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+      <span style={{ fontSize: '9px', fontWeight: 800, letterSpacing: '0.03em', color: '#1d4ed8', background: 'var(--color-linen-mist)', padding: '3px 7px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
         VÍA EQUIPO DE VENTAS
       </span>
     );
   }
-  return <span style={{ fontSize: '12px', color: '#475569', fontVariantNumeric: 'tabular-nums' }}>{value}</span>;
+  return <span style={{ fontSize: '12px', color: 'var(--color-charcoal)', fontVariantNumeric: 'tabular-nums' }}>{value}</span>;
 }
 
 export default function PlansView() {
@@ -68,20 +68,20 @@ export default function PlansView() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: '#64748b' }}>
+      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--color-slate)' }}>
         FACTURACIÓN / COMPARAR PLANES
       </span>
 
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <Star size={20} />
         </span>
         <div style={{ flex: 1, minWidth: '180px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8' }}>SUSCRIPCIÓN</div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '2px 0 0 0' }}>Comparar Planes</h1>
+          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--color-pebble)' }}>SUSCRIPCIÓN</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '2px 0 0 0' }}>Comparar Planes</h1>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '4px' }} role="group" aria-label="Ciclo de facturación">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '4px' }} role="group" aria-label="Ciclo de facturación">
           {(['mensual', 'anual'] as const).map((c) => (
             <button
               key={c}
@@ -97,7 +97,7 @@ export default function PlansView() {
                 minHeight: '44px',
                 fontSize: '13px',
                 fontWeight: cycle === c ? 700 : 500,
-                color: cycle === c ? '#0f172a' : '#64748b',
+                color: cycle === c ? 'var(--color-obsidian)' : 'var(--color-slate)',
                 cursor: 'pointer',
                 textTransform: 'capitalize',
               }}
@@ -111,7 +111,7 @@ export default function PlansView() {
         </div>
       </div>
 
-      <p style={{ fontSize: '13px', color: '#64748b', margin: 0, lineHeight: 1.6, maxWidth: '900px' }}>
+      <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: 0, lineHeight: 1.6, maxWidth: '900px' }}>
         Elige el plan que coincida con los flujos de trabajo que necesitas ahora. La tabla distingue las funciones
         incluidas, las disponibles como complementos de autoservicio, los módulos activados por administrador y las
         gestionadas a través de ventas para un despliegue acotado.
@@ -125,9 +125,9 @@ export default function PlansView() {
             <div
               key={plan.id}
               style={{
-                background: isCurrent ? '#f8fafc' : '#ffffff',
-                border: `1px solid ${isCurrent ? '#bfdbfe' : '#e2e8f0'}`,
-                borderRadius: '12px',
+                background: isCurrent ? 'var(--color-paper)' : '#ffffff',
+                border: `1px solid ${isCurrent ? 'var(--color-forest-ink)' : 'var(--color-fog)'}`,
+                borderRadius: '10px',
                 padding: '20px',
                 display: 'flex',
                 flexDirection: 'column',
@@ -135,29 +135,29 @@ export default function PlansView() {
               }}
             >
               {plan.badge && (
-                <span style={{ alignSelf: 'flex-start', fontSize: '9px', fontWeight: 800, letterSpacing: '0.04em', color: plan.highlighted ? '#1d4ed8' : '#15803d', background: plan.highlighted ? '#eff6ff' : '#f0fdf4', padding: '3px 8px', borderRadius: '999px' }}>
+                <span style={{ alignSelf: 'flex-start', fontSize: '9px', fontWeight: 800, letterSpacing: '0.04em', color: plan.highlighted ? '#1d4ed8' : '#15803d', background: plan.highlighted ? 'var(--color-linen-mist)' : '#f0fdf4', padding: '3px 8px', borderRadius: '999px' }}>
                   ★ {plan.badge}
                 </span>
               )}
-              <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>{plan.name}</div>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
+              <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)' }}>{plan.name}</div>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-obsidian)', fontVariantNumeric: 'tabular-nums' }}>
                 {priceOf(plan.id)}
               </div>
               {plan.id === 'essential' && (
-                <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                <div style={{ fontSize: '11px', color: 'var(--color-pebble)' }}>
                   {cycle === 'anual' ? '/mes, facturado anualmente' : '/mes, facturado mensualmente'}
                 </div>
               )}
-              <div style={{ fontSize: '13px', color: '#64748b', flex: 1 }}>{plan.tagline}</div>
+              <div style={{ fontSize: '13px', color: 'var(--color-slate)', flex: 1 }}>{plan.tagline}</div>
               {plan.cta.kind === 'current' ? (
-                <button type="button" disabled style={{ marginTop: '8px', background: '#f1f5f9', color: '#94a3b8', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'not-allowed' }}>
+                <button type="button" disabled style={{ marginTop: '8px', background: 'var(--color-fog)', color: 'var(--color-pebble)', border: '1px solid var(--color-fog)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'not-allowed' }}>
                   {plan.cta.label}
                 </button>
               ) : plan.cta.kind === 'update' ? (
                 <button
                   type="button"
                   onClick={() => router.push('/addons')}
-                  style={{ marginTop: '8px', background: '#ffffff', color: '#0f172a', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ marginTop: '8px', background: '#ffffff', color: 'var(--color-obsidian)', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {plan.cta.label}
                 </button>
@@ -165,7 +165,7 @@ export default function PlansView() {
                 <button
                   type="button"
                   onClick={() => router.push('/addons')}
-                  style={{ marginTop: '8px', background: plan.highlighted ? '#2563eb' : '#ffffff', color: plan.highlighted ? '#ffffff' : '#0f172a', border: plan.highlighted ? 'none' : '1px solid #cbd5e1', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ marginTop: '8px', background: plan.highlighted ? 'var(--color-lime-voltage)' : '#ffffff', color: 'var(--color-forest-ink)', border: plan.highlighted ? 'none' : '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   {plan.cta.label}
                 </button>
@@ -176,22 +176,22 @@ export default function PlansView() {
       </div>
 
       {/* Matriz */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px 4px 20px' }}>
-          <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>CARACTERÍSTICAS</div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>CARACTERÍSTICAS</div>
+          <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '2px' }}>
             Qué incluye cada plan y en qué casos un módulo es un complemento
           </div>
         </div>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: '760px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                <th style={{ textAlign: 'left', padding: '12px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>
+              <tr style={{ borderBottom: '1px solid var(--color-fog)' }}>
+                <th style={{ textAlign: 'left', padding: '12px 20px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>
                   CARACTERÍSTICAS
                 </th>
                 {['LIGHT', 'ESSENTIAL', 'PRO', 'ENTERPRISE'].map((h) => (
-                  <th key={h} style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', textAlign: 'center', minWidth: '110px' }}>
+                  <th key={h} style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', textAlign: 'center', minWidth: '110px' }}>
                     {h}
                   </th>
                 ))}
@@ -202,14 +202,14 @@ export default function PlansView() {
                 <React.Fragment key={si}>
                   {section.title && (
                     <tr>
-                      <td colSpan={5} style={{ padding: '14px 20px 6px 20px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.06em', color: '#0f172a', background: '#f8fafc' }}>
+                      <td colSpan={5} style={{ padding: '14px 20px 6px 20px', fontSize: '11px', fontWeight: 800, letterSpacing: '0.06em', color: 'var(--color-obsidian)', background: 'var(--color-paper)' }}>
                         {section.title}
                       </td>
                     </tr>
                   )}
                   {section.rows.map((row) => (
-                    <tr key={row.label} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '10px 20px', color: '#334155' }}>{row.label}</td>
+                    <tr key={row.label} style={{ borderBottom: '1px solid var(--color-fog)' }}>
+                      <td style={{ padding: '10px 20px', color: 'var(--color-charcoal)' }}>{row.label}</td>
                       {row.values.map((v, vi) => (
                         <td key={vi} style={{ padding: '10px 12px', textAlign: 'center' }}>
                           <MatrixCell value={v} />
@@ -222,29 +222,29 @@ export default function PlansView() {
             </tbody>
           </table>
         </div>
-        <div style={{ padding: '14px 20px', borderTop: '1px solid #e2e8f0', fontSize: '10px', fontWeight: 600, letterSpacing: '0.03em', color: '#94a3b8', lineHeight: 1.8 }}>
+        <div style={{ padding: '14px 20px', borderTop: '1px solid var(--color-fog)', fontSize: '10px', fontWeight: 600, letterSpacing: '0.03em', color: 'var(--color-pebble)', lineHeight: 1.8 }}>
           COMPLEMENTO = MÓDULO DE AUTOSERVICIO EN ESE PLAN · DIRIGIDO POR VENTAS = CONTACTA CON VENTAS O DESPLIEGUE ACOTADO
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', borderTop: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 20px', borderTop: '1px solid var(--color-fog)', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '220px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
               ¿NECESITA AYUDA PARA ELEGIR?
             </div>
-            <div style={{ fontSize: '13px', color: '#64748b' }}>
+            <div style={{ fontSize: '13px', color: 'var(--color-slate)' }}>
               Nuestro equipo puede ayudarle a encontrar el plan perfecto para las necesidades de su negocio.
             </div>
           </div>
           <button
             type="button"
             onClick={() => router.push('/help/contact-support')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 700, color: '#0f172a', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 700, color: 'var(--color-obsidian)', cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
             Contactar soporte <ExternalLink size={14} />
           </button>
           <button
             type="button"
             onClick={() => router.push('/addons')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#2563eb', border: 'none', borderRadius: '8px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 700, color: '#ffffff', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 700, color: '#ffffff', cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
             Hablar con Ventas <ExternalLink size={14} />
           </button>

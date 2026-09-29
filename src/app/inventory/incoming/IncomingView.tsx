@@ -37,9 +37,9 @@ interface ReceiptItem {
 }
 
 const TYPE_META: Record<string, { label: string; color: string; bg: string }> = {
-  compra: { label: 'Compra', color: '#1d4ed8', bg: '#eff6ff' },
+  compra: { label: 'Compra', color: '#1d4ed8', bg: 'var(--color-linen-mist)' },
   devolucion: { label: 'Devolución', color: '#b45309', bg: '#fffbeb' },
-  traslado: { label: 'Traslado', color: '#0f172a', bg: '#f1f5f9' },
+  traslado: { label: 'Traslado', color: 'var(--color-obsidian)', bg: 'var(--color-fog)' },
 };
 
 const PAGE_SIZE = 10;
@@ -189,7 +189,7 @@ export default function IncomingView() {
   };
 
   const kpiCards = [
-    { label: 'RECEPCIONES TOTALES', value: String(kpis.total), caption: 'Todos los registros de inventario entrante', color: '#2563eb' },
+    { label: 'RECEPCIONES TOTALES', value: String(kpis.total), caption: 'Todos los registros de inventario entrante', color: 'var(--color-forest-ink)' },
     { label: 'ESTE MES', value: String(kpis.thisMonth), caption: 'Recibos de este mes', color: '#f97316' },
     { label: 'RECIBIÓ', value: String(kpis.recibido), caption: 'Recibos completados', color: '#15803d' },
     { label: 'CANCELADO', value: String(kpis.cancelado), caption: 'Recibos cancelados', color: '#ef4444' },
@@ -202,14 +202,14 @@ export default function IncomingView() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <Boxes size={20} />
         </span>
-        <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Recepciones de inventario</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Recepciones de inventario</h1>
       </div>
 
-      <span style={{ fontSize: '13px', color: '#64748b' }}>
+      <span style={{ fontSize: '13px', color: 'var(--color-slate)' }}>
         Gestionar recepciones de inventario ({total} registro{total === 1 ? '' : 's'})
       </span>
 
@@ -220,17 +220,17 @@ export default function IncomingView() {
       )}
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {kpiCards.map((k, idx) => (
-          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: k.color }} />
               {k.label}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
               {k.value}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
@@ -239,7 +239,7 @@ export default function IncomingView() {
       {banner && (
         <div
           role={banner.type === 'error' ? 'alert' : 'status'}
-          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
         >
           <span style={{ flex: 1 }}>{banner.text}</span>
           <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -257,9 +257,9 @@ export default function IncomingView() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por recepción, proveedor o SKU..."
             aria-label="Buscar recepciones"
-            style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', border: '1px solid var(--color-fog)', background: 'var(--color-paper)', borderRadius: '10px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
           />
-          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
         </div>
         <div style={{ position: 'relative' }}>
           <button
@@ -267,23 +267,23 @@ export default function IncomingView() {
             onClick={() => setShowFilters((v) => !v)}
             aria-label="Filtros"
             aria-expanded={showFilters}
-            style={{ border: '1px solid #e2e8f0', background: status !== 'all' || type !== 'all' ? '#eff6ff' : '#ffffff', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer', color: '#475569', display: 'flex', minHeight: '38px', alignItems: 'center' }}
+            style={{ border: '1px solid var(--color-fog)', background: status !== 'all' || type !== 'all' ? 'var(--color-linen-mist)' : '#ffffff', borderRadius: '9999px', padding: '9px 12px', cursor: 'pointer', color: 'var(--color-charcoal)', display: 'flex', minHeight: '38px', alignItems: 'center' }}
           >
             <SlidersHorizontal size={16} />
           </button>
           {showFilters && (
-            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.18)', padding: '12px', zIndex: 50, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.18)', padding: '12px', zIndex: 50, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 ESTADO
-                <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                   <option value="all">Todos</option>
                   <option value="recibido">Recibido</option>
                   <option value="cancelado">Cancelado</option>
                 </select>
               </label>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 TIPO
-                <select value={type} onChange={(e) => setType(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                <select value={type} onChange={(e) => setType(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                   <option value="all">Todos</option>
                   <option value="compra">Compra</option>
                   <option value="devolucion">Devolución</option>
@@ -296,30 +296,30 @@ export default function IncomingView() {
         <button
           type="button"
           onClick={openCreate}
-          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
+          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
         >
           <Plus size={15} /> Nuevo Recepción de inventario
         </button>
       </div>
 
       {/* Tabla */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: '980px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+              <tr style={{ borderBottom: '1px solid var(--color-fog)', textAlign: 'left' }}>
                 <th style={{ padding: '12px 12px 12px 18px' }}>
-                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
+                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
                     N.º RECEPCIÓN {sortOrder === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
                 </th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>TIPO</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>FECHA</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>PROVEEDOR / ORIGEN</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>CANT RECIBIDA</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>RECIBIDO POR</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>ESTADO</th>
-                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: '#2563eb' }}>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>TIPO</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>FECHA</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>PROVEEDOR / ORIGEN</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>CANT RECIBIDA</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>RECIBIDO POR</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>ESTADO</th>
+                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: 'var(--color-forest-ink)' }}>
                   <Zap size={15} />
                 </th>
               </tr>
@@ -327,14 +327,14 @@ export default function IncomingView() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-pebble)' }}>
                     Cargando recepciones…
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ padding: 0 }}>
-                    <div style={{ margin: '12px', border: '1px solid #e2e8f0', borderLeft: '3px solid #2563eb', borderRadius: '8px', background: '#f8fafc', padding: '14px 16px', fontSize: '13px', color: '#0f172a' }}>
+                    <div style={{ margin: '12px', border: '1px solid var(--color-fog)', borderLeft: '3px solid var(--color-forest-ink)', borderRadius: '10px', background: 'var(--color-paper)', padding: '14px 16px', fontSize: '13px', color: 'var(--color-obsidian)' }}>
                       {total === 0 && !hasFilters
                         ? 'No hay inventario entrante para mostrar. Añade nuevo inventario entrante haciendo clic en NUEVO INVENTARIO ENTRANTE arriba.'
                         : 'Sin coincidencias para los filtros aplicados.'}
@@ -346,23 +346,23 @@ export default function IncomingView() {
                   const meta = TYPE_META[item.type] || TYPE_META.compra;
                   const done = item.status === 'cancelado';
                   return (
-                    <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px 12px 12px 18px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.id}</td>
+                    <tr key={item.id} style={{ borderBottom: '1px solid var(--color-fog)' }}>
+                      <td style={{ padding: '12px 12px 12px 18px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.id}</td>
                       <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
                         <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px', background: meta.bg, color: meta.color }}>
                           {meta.label}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap', fontSize: '12px' }}>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap', fontSize: '12px' }}>
                         {new Date(item.date).toLocaleString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                       </td>
-                      <td style={{ padding: '12px', color: '#0f172a', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.supplier}>
+                      <td style={{ padding: '12px', color: 'var(--color-obsidian)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.supplier}>
                         {item.supplier}
                       </td>
-                      <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                      <td style={{ padding: '12px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                         {item.totalQty.toLocaleString()} u
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap', maxWidth: '170px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.receivedBy}>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap', maxWidth: '170px', overflow: 'hidden', textOverflow: 'ellipsis' }} title={item.receivedBy}>
                         {item.receivedBy}
                       </td>
                       <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
@@ -377,7 +377,7 @@ export default function IncomingView() {
                             title={`Anular ${item.id} (revierte el stock)`}
                             onClick={() => handleCancel(item)}
                             disabled={cancelling === item.id}
-                            style={{ background: 'transparent', border: 'none', cursor: cancelling === item.id ? 'not-allowed' : 'pointer', color: '#2563eb', display: 'inline-flex' }}
+                            style={{ background: 'transparent', border: 'none', cursor: cancelling === item.id ? 'not-allowed' : 'pointer', color: 'var(--color-forest-ink)', display: 'inline-flex' }}
                           >
                             {cancelling === item.id ? <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} /> : <Zap size={15} />}
                           </button>
@@ -386,7 +386,7 @@ export default function IncomingView() {
                             type="button"
                             title={`Ver ${item.id} en actividad`}
                             onClick={() => router.push(`/activity-log?q=${encodeURIComponent(item.id)}`)}
-                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'inline-flex' }}
+                            style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-pebble)', display: 'inline-flex' }}
                           >
                             <Check size={15} />
                           </button>
@@ -400,7 +400,7 @@ export default function IncomingView() {
           </table>
         </div>
         {!loading && total > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid #e2e8f0', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid var(--color-fog)', fontSize: '12px', color: 'var(--color-slate)' }}>
             <span>
               Mostrando {from}–{to} de {total}
             </span>
@@ -429,16 +429,16 @@ export default function IncomingView() {
         >
           <form
             onSubmit={handleCreate}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>Nuevo Recepción de inventario</h2>
-              <button type="button" onClick={() => !saving && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>Nuevo Recepción de inventario</h2>
+              <button type="button" onClick={() => !saving && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={18} />
               </button>
             </div>
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
@@ -504,7 +504,7 @@ export default function IncomingView() {
                     onClick={() => setFLines((prev) => (prev.length > 1 ? prev.filter((_, i) => i !== idx) : prev))}
                     aria-label={`Quitar línea ${idx + 1}`}
                     disabled={fLines.length <= 1}
-                    style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: fLines.length <= 1 ? 'not-allowed' : 'pointer', color: '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px' }}
+                    style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '9999px', cursor: fLines.length <= 1 ? 'not-allowed' : 'pointer', color: 'var(--color-pebble)', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '44px' }}
                   >
                     <X size={15} />
                   </button>
@@ -513,16 +513,16 @@ export default function IncomingView() {
               <button
                 type="button"
                 onClick={() => setFLines((prev) => [...prev, { productId: '', qty: '' }])}
-                style={{ background: 'transparent', border: '1px dashed #cbd5e1', borderRadius: '8px', padding: '8px 12px', fontSize: '12px', fontWeight: 600, color: '#475569', cursor: 'pointer', minHeight: '44px', width: '100%' }}
+                style={{ background: 'transparent', border: '1px dashed var(--color-pebble)', borderRadius: '9999px', padding: '8px 12px', fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: 'pointer', minHeight: '44px', width: '100%' }}
               >
                 + Añadir línea
               </button>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
-              <button type="button" onClick={() => !saving && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+              <button type="button" onClick={() => !saving && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                 Cancelar
               </button>
-              <button type="submit" disabled={saving} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+              <button type="submit" disabled={saving} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                 {saving && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                 {saving ? 'Registrando…' : 'Registrar recepción'}
               </button>
@@ -538,7 +538,7 @@ export default function IncomingView() {
 const labelStyle: React.CSSProperties = {
   fontSize: '12px',
   fontWeight: 600,
-  color: '#334155',
+  color: 'var(--color-charcoal)',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -546,8 +546,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',
@@ -556,13 +556,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 const pagerBtnStyle = (disabled: boolean): React.CSSProperties => ({
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--color-fog)',
   background: '#ffffff',
   borderRadius: '6px',
   padding: '6px 12px',
   fontSize: '12px',
   fontWeight: 600,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  color: disabled ? '#cbd5e1' : '#334155',
+  color: disabled ? 'var(--color-pebble)' : 'var(--color-charcoal)',
   minHeight: '44px',
 });

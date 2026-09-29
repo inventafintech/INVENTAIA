@@ -43,8 +43,8 @@ export default function GuiaPage() {
         {GUIDES.map((g, idx) => (
           <div key={idx} className={styles.tableCard} style={{ padding: '20px 24px', display: 'flex', gap: '18px', alignItems: 'flex-start' }}>
             <div style={{
-              background: '#eff6ff',
-              color: '#2563eb',
+              background: 'var(--color-linen-mist)',
+              color: 'var(--color-forest-ink)',
               fontWeight: 800,
               fontSize: '12px',
               padding: '6px 12px',
@@ -55,8 +55,8 @@ export default function GuiaPage() {
               {g.step}
             </div>
             <div>
-              <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', marginBottom: '6px' }}>{g.title}</h3>
-              <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>{g.desc}</p>
+              <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '6px' }}>{g.title}</h3>
+              <p style={{ fontSize: '13px', color: 'var(--color-charcoal)', lineHeight: 1.6 }}>{g.desc}</p>
             </div>
           </div>
         ))}

@@ -59,21 +59,21 @@ export default function FaqPage() {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '18px 24px',
-                  background: isOpen ? '#f8fafc' : '#ffffff',
+                  background: isOpen ? 'var(--color-paper)' : '#ffffff',
                   border: 'none',
                   textAlign: 'left',
                   cursor: 'pointer',
                   fontSize: '14.5px',
                   fontWeight: 600,
-                  color: '#0f172a',
+                  color: 'var(--color-obsidian)',
                   transition: 'background-color 0.15s ease'
                 }}
               >
                 <span>{faq.q}</span>
-                {isOpen ? <ChevronUp size={18} color="#64748b" /> : <ChevronDown size={18} color="#64748b" />}
+                {isOpen ? <ChevronUp size={18} color="var(--color-slate)" /> : <ChevronDown size={18} color="var(--color-slate)" />}
               </button>
               {isOpen && (
-                <div style={{ padding: '16px 24px 20px 24px', fontSize: '13.5px', color: '#475569', lineHeight: 1.6, borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ padding: '16px 24px 20px 24px', fontSize: '13.5px', color: 'var(--color-charcoal)', lineHeight: 1.6, borderTop: '1px solid var(--color-fog)' }}>
                   {faq.a}
                 </div>
               )}

@@ -90,7 +90,7 @@ function ProveedoresContent() {
                   </strong>
                 </td>
                 <td>{sup.activeOrders} órdenes</td>
-                <td style={{ color: '#3b82f6' }}>{sup.contact}</td>
+                <td style={{ color: 'var(--color-forest-ink)' }}>{sup.contact}</td>
                 <td>
                   {sup.status === 'Excelente' ? (
                     <span className={styles.badgeGood}>Excelente</span>

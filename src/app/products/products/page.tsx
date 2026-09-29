@@ -232,37 +232,37 @@ function ProductsIndex() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
         <span
           style={{
             width: '44px',
             height: '44px',
             borderRadius: '10px',
-            background: '#f1f5f9',
-            border: '1px solid #e2e8f0',
+            background: 'var(--color-fog)',
+            border: '1px solid var(--color-fog)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#475569',
+            color: 'var(--color-charcoal)',
             flexShrink: 0,
           }}
         >
           <Tag size={20} />
         </span>
-        <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Productos</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Productos</h1>
       </div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: '13px', color: '#64748b' }}>
+        <span style={{ fontSize: '13px', color: 'var(--color-slate)' }}>
           Descripción General del Catálogo de Productos ({kpis.total} producto{kpis.total === 1 ? '' : 's'})
         </span>
         <span
           style={{
             fontSize: '11px',
             fontWeight: 600,
-            background: '#f1f5f9',
-            border: '1px solid #e2e8f0',
-            color: '#475569',
+            background: 'var(--color-fog)',
+            border: '1px solid var(--color-fog)',
+            color: 'var(--color-charcoal)',
             padding: '3px 10px',
             borderRadius: '999px',
           }}
@@ -277,21 +277,21 @@ function ProductsIndex() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           background: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
+          border: '1px solid var(--color-fog)',
+          borderRadius: '10px',
           overflow: 'hidden',
         }}
       >
         {kpiCards.map((k, idx) => (
-          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#2563eb' }} />
+          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-forest-ink)' }} />
               {k.label}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
               {k.value}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
@@ -302,10 +302,10 @@ function ProductsIndex() {
           role={banner.type === 'error' ? 'alert' : 'status'}
           style={{
             background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2',
-            border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca',
+            border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)',
             color: banner.type === 'success' ? '#166534' : '#991b1b',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 600,
             display: 'flex',
@@ -336,16 +336,16 @@ function ProductsIndex() {
             aria-label="Buscar productos"
             style={{
               width: '100%',
-              border: '1px solid #e2e8f0',
-              background: '#f8fafc',
-              borderRadius: '8px',
+              border: '1px solid var(--color-fog)',
+              background: 'var(--color-paper)',
+              borderRadius: '10px',
               padding: '9px 36px 9px 12px',
               fontSize: '13px',
               outline: 'none',
               boxSizing: 'border-box',
             }}
           />
-          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
         </div>
         <div style={{ position: 'relative' }}>
           <button
@@ -354,13 +354,13 @@ function ProductsIndex() {
             aria-label="Filtros"
             aria-expanded={showFilters}
             style={{
-              border: '1px solid #e2e8f0',
-              background: category !== 'all' || status !== 'all' ? '#eff6ff' : '#ffffff',
-              borderColor: category !== 'all' || status !== 'all' ? '#bfdbfe' : '#e2e8f0',
-              borderRadius: '8px',
+              border: '1px solid var(--color-fog)',
+              background: category !== 'all' || status !== 'all' ? 'var(--color-linen-mist)' : '#ffffff',
+              borderColor: category !== 'all' || status !== 'all' ? 'var(--color-forest-ink)' : 'var(--color-fog)',
+              borderRadius: '10px',
               padding: '9px 12px',
               cursor: 'pointer',
-              color: '#475569',
+              color: 'var(--color-charcoal)',
               display: 'flex',
             }}
           >
@@ -373,7 +373,7 @@ function ProductsIndex() {
                 right: 0,
                 top: 'calc(100% + 6px)',
                 background: '#ffffff',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--color-fog)',
                 borderRadius: '10px',
                 boxShadow: '0 12px 32px -8px rgba(15,23,42,0.18)',
                 padding: '12px',
@@ -384,12 +384,12 @@ function ProductsIndex() {
                 gap: '10px',
               }}
             >
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 CATEGORÍA
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}
                 >
                   <option value="all">Todas</option>
                   {categories.map((c) => (
@@ -399,12 +399,12 @@ function ProductsIndex() {
                   ))}
                 </select>
               </label>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 ESTADO
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value)}
-                  style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}
+                  style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}
                 >
                   <option value="all">Todos</option>
                   <option value="active">Activos</option>
@@ -427,10 +427,10 @@ function ProductsIndex() {
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            background: atCap ? '#93c5fd' : '#2563eb',
+            background: atCap ? 'var(--color-pebble)' : 'var(--color-forest-ink)',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '8px',
+            borderRadius: '10px',
             padding: '9px 16px',
             fontSize: '13px',
             fontWeight: 600,
@@ -448,9 +448,9 @@ function ProductsIndex() {
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
-            background: '#eff6ff',
-            border: '1px solid #bfdbfe',
-            borderRadius: '8px',
+            background: 'var(--color-linen-mist)',
+            border: '1px solid var(--color-forest-ink)',
+            borderRadius: '10px',
             padding: '9px 14px',
             fontSize: '13px',
             fontWeight: 600,
@@ -463,7 +463,7 @@ function ProductsIndex() {
             onClick={handleBulkOC}
             disabled={bulkLoading}
             style={{
-              background: '#0f172a',
+              background: 'var(--color-obsidian)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '6px',
@@ -486,30 +486,30 @@ function ProductsIndex() {
       )}
 
       {/* Tabla */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
           <thead>
-            <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+            <tr style={{ borderBottom: '1px solid var(--color-fog)', textAlign: 'left' }}>
               <th style={{ padding: '12px 12px 12px 18px', width: '36px' }}>
-                <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="Seleccionar todos" style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }} />
+                <input type="checkbox" checked={allSelected} onChange={toggleSelectAll} aria-label="Seleccionar todos" style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }} />
               </th>
               <th style={{ padding: '12px' }}>
                 <button
                   type="button"
                   onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))}
-                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}
                 >
                   REFERENCIA {sortOrder === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                 </button>
               </th>
-              <th style={{ padding: '12px', width: '40px', color: '#94a3b8' }}>
+              <th style={{ padding: '12px', width: '40px', color: 'var(--color-pebble)' }}>
                 <ImageIcon size={15} />
               </th>
-              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>NOMBRE</th>
-              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>PRECIO</th>
-              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>CATEGORÍA</th>
-              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>SUBCATEGORÍA</th>
-              <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: '#2563eb' }}>
+              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>NOMBRE</th>
+              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>PRECIO</th>
+              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>CATEGORÍA</th>
+              <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>SUBCATEGORÍA</th>
+              <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: 'var(--color-forest-ink)' }}>
                 <Zap size={15} />
               </th>
             </tr>
@@ -517,14 +517,14 @@ function ProductsIndex() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-pebble)' }}>
                   Cargando catálogo…
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
                 <td colSpan={8} style={{ padding: 0 }}>
-                  <div style={{ margin: '12px', border: '1px solid #e2e8f0', borderLeft: '3px solid #2563eb', borderRadius: '8px', background: '#f8fafc', padding: '14px 16px', fontSize: '13px', color: '#0f172a' }}>
+                  <div style={{ margin: '12px', border: '1px solid var(--color-fog)', borderLeft: '3px solid var(--color-forest-ink)', borderRadius: '10px', background: 'var(--color-paper)', padding: '14px 16px', fontSize: '13px', color: 'var(--color-obsidian)' }}>
                     {total === 0 && !hasFilters
                       ? 'No hay productos para mostrar. Añade un nuevo producto haciendo clic en NUEVO PRODUCTO arriba.'
                       : 'Sin coincidencias para los filtros aplicados.'}
@@ -533,35 +533,35 @@ function ProductsIndex() {
               </tr>
             ) : (
               items.map((item) => (
-                <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <tr key={item.id} style={{ borderBottom: '1px solid var(--color-fog)' }}>
                   <td style={{ padding: '12px 12px 12px 18px' }}>
                     <input
                       type="checkbox"
                       checked={selected.includes(item.sku)}
                       onChange={() => toggleSelect(item.sku)}
                       aria-label={`Seleccionar ${item.sku}`}
-                      style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }}
+                      style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }}
                     />
                   </td>
-                  <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>{item.sku}</td>
+                  <td style={{ padding: '12px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap' }}>{item.sku}</td>
                   <td style={{ padding: '12px' }}>
                     <span
                       style={{
                         width: '32px',
                         height: '32px',
-                        borderRadius: '8px',
-                        background: '#f1f5f9',
-                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        background: 'var(--color-fog)',
+                        border: '1px solid var(--color-fog)',
                         display: 'inline-flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#94a3b8',
+                        color: 'var(--color-pebble)',
                       }}
                     >
                       <ImageIcon size={15} />
                     </span>
                   </td>
-                  <td style={{ padding: '12px', color: '#0f172a' }}>
+                  <td style={{ padding: '12px', color: 'var(--color-obsidian)' }}>
                     <button
                       type="button"
                       onClick={() => router.push(`/products/${item.id}`)}
@@ -571,17 +571,17 @@ function ProductsIndex() {
                       {item.name}
                     </button>
                   </td>
-                  <td style={{ padding: '12px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+                  <td style={{ padding: '12px', fontWeight: 600, color: 'var(--color-obsidian)', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
                     {formatPEN(item.price)}
                   </td>
-                  <td style={{ padding: '12px', color: '#475569' }}>{item.category || '—'}</td>
-                  <td style={{ padding: '12px', color: '#94a3b8' }}>{item.subcategory || '—'}</td>
+                  <td style={{ padding: '12px', color: 'var(--color-charcoal)' }}>{item.category || '—'}</td>
+                  <td style={{ padding: '12px', color: 'var(--color-pebble)' }}>{item.subcategory || '—'}</td>
                   <td style={{ padding: '12px 18px 12px 12px', textAlign: 'right' }}>
                     <button
                       type="button"
                       title={`Ver ${item.sku} en inventario`}
                       onClick={() => router.push(`/inventory/inventory-items?q=${encodeURIComponent(item.sku)}`)}
-                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#2563eb', display: 'inline-flex' }}
+                      style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-forest-ink)', display: 'inline-flex' }}
                     >
                       <Zap size={15} />
                     </button>
@@ -593,7 +593,7 @@ function ProductsIndex() {
         </table>
         {/* Paginación */}
         {!loading && total > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid #e2e8f0', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid var(--color-fog)', fontSize: '12px', color: 'var(--color-slate)' }}>
             <span>
               Mostrando {from}–{to} de {total}
             </span>
@@ -602,7 +602,7 @@ function ProductsIndex() {
                 type="button"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page <= 1}
-                style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: page <= 1 ? 'not-allowed' : 'pointer', color: page <= 1 ? '#cbd5e1' : '#334155' }}
+                style={{ border: '1px solid var(--color-fog)', background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: page <= 1 ? 'not-allowed' : 'pointer', color: page <= 1 ? 'var(--color-pebble)' : 'var(--color-charcoal)' }}
               >
                 Anterior
               </button>
@@ -610,7 +610,7 @@ function ProductsIndex() {
                 type="button"
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page >= totalPages}
-                style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: page >= totalPages ? 'not-allowed' : 'pointer', color: page >= totalPages ? '#cbd5e1' : '#334155' }}
+                style={{ border: '1px solid var(--color-fog)', background: '#ffffff', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', fontWeight: 600, cursor: page >= totalPages ? 'not-allowed' : 'pointer', color: page >= totalPages ? 'var(--color-pebble)' : 'var(--color-charcoal)' }}
               >
                 Siguiente
               </button>
@@ -632,45 +632,45 @@ function ProductsIndex() {
         >
           <form
             onSubmit={handleCreate}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>Nuevo Producto</h2>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>Nuevo Producto</h2>
               <button
                 type="button"
                 onClick={() => !saving && setShowModal(false)}
                 aria-label="Cerrar"
-                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex' }}
+                style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex' }}
               >
                 <X size={18} />
               </button>
             </div>
 
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Referencia (SKU) *
                 <input value={fSku} onChange={(e) => setFSku(e.target.value)} placeholder="SKU-XXX-000" required
                   style={inputStyle} />
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Precio venta (PEN) *
                 <input value={fPrice} onChange={(e) => setFPrice(e.target.value)} placeholder="0.00" inputMode="decimal" required
                   style={inputStyle} />
               </label>
             </div>
-            <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
               Nombre *
               <input value={fName} onChange={(e) => setFName(e.target.value)} placeholder="Nombre del producto" required
                 style={inputStyle} />
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Categoría
                 <select value={fCategoryId} onChange={(e) => setFCategoryId(e.target.value)} style={inputStyle}>
                   <option value="">Seleccionar…</option>
@@ -681,24 +681,24 @@ function ProductsIndex() {
                   ))}
                 </select>
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Nueva categoría
                 <input value={fNewCategory} onChange={(e) => setFNewCategory(e.target.value)} placeholder="O crea una nueva" disabled={!!fCategoryId}
                   style={inputStyle} />
               </label>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Costo (PEN)
                 <input value={fCost} onChange={(e) => setFCost(e.target.value)} placeholder="0.00" inputMode="decimal"
                   style={inputStyle} />
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Stock inicial
                 <input value={fStock} onChange={(e) => setFStock(e.target.value)} placeholder="0" inputMode="numeric"
                   style={inputStyle} />
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Stock seguridad
                 <input value={fSafety} onChange={(e) => setFSafety(e.target.value)} placeholder="0" inputMode="numeric"
                   style={inputStyle} />
@@ -709,14 +709,14 @@ function ProductsIndex() {
               <button
                 type="button"
                 onClick={() => !saving && setShowModal(false)}
-                style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving ? 'not-allowed' : 'pointer' }}
+                style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving ? 'not-allowed' : 'pointer' }}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
                 disabled={saving}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}
               >
                 {saving && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                 {saving ? 'Guardando…' : 'Crear producto'}
@@ -735,8 +735,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',

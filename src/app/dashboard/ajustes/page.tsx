@@ -126,10 +126,10 @@ export default function AjustesPage() {
       {errorMessage && (
         <div style={{
           background: '#fef2f2',
-          border: '1px solid #fecaca',
+          border: '1px solid var(--color-alarm-red)',
           color: '#b91c1c',
           padding: '12px 16px',
-          borderRadius: '8px',
+          borderRadius: '10px',
           fontSize: '13px',
           lineHeight: '1.4',
         }}>

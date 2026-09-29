@@ -69,10 +69,10 @@ export default function CapitalRequeridoPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#2563eb',
+              backgroundColor: 'var(--color-forest-ink)',
               color: '#ffffff',
               padding: '10px 18px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontWeight: 600,
               fontSize: '14px',
               textDecoration: 'none',
@@ -85,7 +85,7 @@ export default function CapitalRequeridoPage() {
 
         {/* Tarjetas Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #2563eb' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', borderLeft: '4px solid var(--color-forest-ink)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>Inversión Total Estimada</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               PEN {loading ? '...' : totalCapital.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
@@ -93,7 +93,7 @@ export default function CapitalRequeridoPage() {
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Para 100% de órdenes sugeridas</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #16a34a' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', borderLeft: '4px solid #16a34a' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#166534', textTransform: 'uppercase' }}>Retorno Proyectado (30d)</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: '#16a34a', marginTop: '6px' }}>
               +38.5%
@@ -101,7 +101,7 @@ export default function CapitalRequeridoPage() {
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Margen comercial promedio</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', borderLeft: '4px solid #8b5cf6' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#6b21a8', textTransform: 'uppercase' }}>Proveedores por Pagar</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : Object.keys(providerBreakdown).length}
@@ -111,7 +111,7 @@ export default function CapitalRequeridoPage() {
         </div>
 
         {/* Desglose por Proveedor */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)' }}>
             <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Distribución de Capital por Proveedor</span>
           </div>
@@ -123,12 +123,12 @@ export default function CapitalRequeridoPage() {
                 <div key={provider} style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', fontWeight: 600 }}>
                     <span style={{ color: 'var(--ink)' }}>{provider} ({data.count} SKUs)</span>
-                    <span style={{ color: '#2563eb' }}>
+                    <span style={{ color: 'var(--color-forest-ink)' }}>
                       PEN {data.total.toLocaleString('es-PE', { minimumFractionDigits: 2 })} ({pct.toFixed(1)}%)
                     </span>
                   </div>
                   <div style={{ width: '100%', height: '8px', background: 'var(--bg2)', borderRadius: '4px', overflow: 'hidden' }}>
-                    <div style={{ width: `${pct}%`, height: '100%', background: '#2563eb', borderRadius: '4px' }} />
+                    <div style={{ width: `${pct}%`, height: '100%', background: 'var(--color-forest-ink)', borderRadius: '4px' }} />
                   </div>
                 </div>
               );

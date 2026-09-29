@@ -80,12 +80,12 @@ export default function RecibosPage() {
             {filtered.map((rec) => (
               <tr key={rec.id}>
                 <td className={styles.skuCode}>{rec.id}</td>
-                <td><strong style={{ color: '#3b82f6' }}>{rec.poCode}</strong></td>
+                <td><strong style={{ color: 'var(--color-forest-ink)' }}>{rec.poCode}</strong></td>
                 <td className={styles.productName}><strong>{rec.supplier}</strong></td>
                 <td>{rec.date}</td>
                 <td>{rec.itemsCount.toLocaleString()} u</td>
-                <td><strong style={{ color: '#0f172a' }}>{rec.totalVal}</strong></td>
-                <td style={{ color: '#64748b' }}>{rec.inspector}</td>
+                <td><strong style={{ color: 'var(--color-obsidian)' }}>{rec.totalVal}</strong></td>
+                <td style={{ color: 'var(--color-slate)' }}>{rec.inspector}</td>
                 <td>
                   <span className={styles.badgeGood}>{rec.status}</span>
                 </td>

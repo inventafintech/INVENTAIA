@@ -60,10 +60,10 @@ export default function RiesgoQuiebrePage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#2563eb',
+              backgroundColor: 'var(--color-forest-ink)',
               color: '#ffffff',
               padding: '10px 18px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontWeight: 600,
               fontSize: '14px',
               textDecoration: 'none',
@@ -77,7 +77,7 @@ export default function RiesgoQuiebrePage() {
 
         {/* Métricas Resumen */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: 'var(--card)', border: '1px solid #fee2e2', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #ef4444' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid #fee2e2', borderRadius: '10px', padding: '20px', borderLeft: '4px solid #ef4444' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#991b1b', textTransform: 'uppercase' }}>SKUs en Riesgo Crítico</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.filter((i) => i.status === 'critical').length}
@@ -85,7 +85,7 @@ export default function RiesgoQuiebrePage() {
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Cobertura menor a 3.5 días</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid #fef3c7', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #f59e0b' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid #fef3c7', borderRadius: '10px', padding: '20px', borderLeft: '4px solid #f59e0b' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#92400e', textTransform: 'uppercase' }}>En Advertencia</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.filter((i) => i.status === 'warning').length}
@@ -93,7 +93,7 @@ export default function RiesgoQuiebrePage() {
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Cobertura entre 3.5 y 7 días</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px', borderLeft: '4px solid #3b82f6' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px', borderLeft: '4px solid var(--color-forest-ink)' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: '#1e40af', textTransform: 'uppercase' }}>Proveedores Implicados</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : new Set(items.map((i) => i.provider)).size}
@@ -103,7 +103,7 @@ export default function RiesgoQuiebrePage() {
         </div>
 
         {/* Tabla de SKUs en Riesgo */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Listado de SKUs en Alerta</span>
             <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Basado en consumo de los últimos 30 días</span>
@@ -170,7 +170,7 @@ export default function RiesgoQuiebrePage() {
                           {item.coverageDays} días
                         </span>
                       </td>
-                      <td style={{ padding: '12px 16px', fontWeight: 700, color: '#2563eb' }}>
+                      <td style={{ padding: '12px 16px', fontWeight: 700, color: 'var(--color-forest-ink)' }}>
                         +{item.suggestedQty} uds
                       </td>
                     </tr>

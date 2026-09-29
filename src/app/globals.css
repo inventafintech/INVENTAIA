@@ -187,4 +187,192 @@ p {
   }
 }
 
+/* ─── Wise — Componentes (DESIGN.md) · pills 9999px, cards 10px/28px ─── */
+
+.wise-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: var(--color-lime-voltage);
+  color: var(--color-forest-ink);
+  border: none;
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.wise-btn-primary:hover {
+  filter: brightness(0.96);
+}
+
+.wise-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.wise-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.wise-btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background: var(--color-paper);
+  color: var(--color-forest-ink);
+  border: 1px solid var(--color-forest-ink);
+  border-radius: 9999px;
+  font-size: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.wise-btn-outline:hover {
+  background: var(--color-linen-mist);
+}
+
+.wise-text-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-forest-ink);
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.wise-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  background: var(--color-linen-mist);
+  color: var(--color-forest-ink);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wise-badge-dark {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 9999px;
+  background: var(--color-forest-ink);
+  color: var(--color-lime-voltage);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.wise-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--color-paper);
+  border: 1px solid var(--color-pebble);
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--color-charcoal);
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.wise-input:focus {
+  border-color: var(--color-forest-ink);
+}
+
+.wise-input::placeholder {
+  color: var(--color-pebble);
+}
+
+.wise-card {
+  background: var(--color-paper);
+  border: 1px solid var(--shadow-subtle);
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: var(--shadow-wise-lg);
+}
+
+.wise-card-dark {
+  background: var(--color-forest-ink);
+  border-radius: 28px;
+  padding: 40px;
+  color: var(--color-paper);
+}
+
+.wise-card-dark h1,
+.wise-card-dark h2,
+.wise-card-dark h3 {
+  color: var(--color-lime-voltage);
+}
+
+.wise-segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 9999px;
+  background: var(--color-fog);
+}
+
+.wise-segmented > * {
+  border: none;
+  background: transparent;
+  color: var(--color-charcoal);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 8px 16px;
+  min-height: 40px;
+  border-radius: 9999px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.wise-segmented > [data-active="true"],
+.wise-segmented > .active {
+  background: var(--color-lime-voltage);
+  color: var(--color-forest-ink);
+  font-weight: 600;
+}
+
+.wise-spinner {
+  width: 40px;
+  height: 40px;
+  border-radius: 9999px;
+  border: 4px solid var(--color-linen-mist);
+  border-top-color: var(--color-forest-ink);
+  animation: wise-spin 0.8s linear infinite;
+}
+
+@keyframes wise-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Foco accesible global con Forest, sin glows azules legacy */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-forest-ink);
+  outline-offset: 2px;
+}
+
 @tailwind utilities;

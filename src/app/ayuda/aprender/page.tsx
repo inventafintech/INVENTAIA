@@ -47,19 +47,19 @@ export default function AprenderPage() {
         {COURSES.map((course, idx) => (
           <div key={idx} className={styles.tableCard} style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: '14px' }}>
             <div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#3b82f6', letterSpacing: '0.05em' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-forest-ink)', letterSpacing: '0.05em' }}>
                 {course.category}
               </span>
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '8px 0', lineHeight: 1.3 }}>
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: '8px 0', lineHeight: 1.3 }}>
                 {course.title}
               </h3>
-              <p style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6 }}>
+              <p style={{ fontSize: '13px', color: 'var(--color-charcoal)', lineHeight: 1.6 }}>
                 {course.desc}
               </p>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #f1f5f9', paddingTop: '12px', fontSize: '12px', color: '#64748b' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--color-fog)', paddingTop: '12px', fontSize: '12px', color: 'var(--color-slate)' }}>
               <span>{course.readTime}</span>
-              <span style={{ color: '#0f172a', fontWeight: 600 }}>Leer artículo →</span>
+              <span style={{ color: 'var(--color-obsidian)', fontWeight: 600 }}>Leer artículo →</span>
             </div>
           </div>
         ))}

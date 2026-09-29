@@ -42,7 +42,7 @@ export default function ImportacionesPage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>PRÓXIMO ARRIBO A PUERTO</span>
-          <span className={styles.statValue} style={{ color: '#3b82f6' }}>En 1 Día</span>
+          <span className={styles.statValue} style={{ color: 'var(--color-forest-ink)' }}>En 1 Día</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>ESTADO ADUANERO SUNAT</span>
@@ -80,12 +80,12 @@ export default function ImportacionesPage() {
               <tr key={imp.id}>
                 <td className={styles.skuCode}>{imp.id}</td>
                 <td>
-                  <strong style={{ color: '#0f172a' }}>{imp.container}</strong>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{imp.blNumber}</div>
+                  <strong style={{ color: 'var(--color-obsidian)' }}>{imp.container}</strong>
+                  <div style={{ fontSize: '11px', color: 'var(--color-slate)' }}>{imp.blNumber}</div>
                 </td>
                 <td className={styles.categoryName}>{imp.origin}</td>
                 <td className={styles.productName}><strong>{imp.cargo}</strong></td>
-                <td><strong style={{ color: '#3b82f6' }}>{imp.eta}</strong></td>
+                <td><strong style={{ color: 'var(--color-forest-ink)' }}>{imp.eta}</strong></td>
                 <td>{imp.valueUSD}</td>
                 <td>
                   {imp.customsStatus.includes('Levante') ? (

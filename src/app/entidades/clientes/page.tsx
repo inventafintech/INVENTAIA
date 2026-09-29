@@ -83,7 +83,7 @@ function ClientesContent() {
                 <td className={styles.productName}><strong>{cli.name}</strong></td>
                 <td className={styles.categoryName}>{cli.canal}</td>
                 <td><strong>{cli.activeOrders} pedidos</strong></td>
-                <td style={{ color: '#0f172a', fontWeight: 600 }}>{cli.creditLine}</td>
+                <td style={{ color: 'var(--color-obsidian)', fontWeight: 600 }}>{cli.creditLine}</td>
                 <td>{cli.paymentTerms}</td>
                 <td>
                   <span className={styles.badgeGood}>{cli.status}</span>

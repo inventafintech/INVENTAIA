@@ -61,7 +61,7 @@
   align-items: center;
   gap: 0.625rem;
   padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
+  border-radius: 9999px;
   color: var(--muted);
   font-size: var(--text-base);
   font-weight: 500;
@@ -100,13 +100,13 @@
 }
 
 .navItem:hover {
-  background: var(--bg2);
-  color: var(--ink);
+  background: var(--color-fog);
+  color: var(--color-forest-ink);
 }
 
 .navItem.active {
-  background: var(--bg2);
-  color: var(--ink);
+  background: var(--color-lime-voltage);
+  color: var(--color-forest-ink);
   font-weight: 600;
 }
 
@@ -175,18 +175,18 @@
   align-items: center;
   gap: 0.5rem;
   font-size: var(--text-xs);
-  color: #d97706;
+  color: var(--color-forest-ink);
   font-weight: 600;
-  background: rgba(245, 158, 11, 0.08);
+  background: var(--color-linen-mist);
   padding: 0.25rem 0.625rem;
-  border-radius: 99px;
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 9999px;
+  border: 1px solid var(--color-forest-ink);
 }
 
 .statusDotPending {
   width: 0.375rem;
   height: 0.375rem;
-  background: #d97706;
+  background: var(--color-forest-ink);
   border-radius: 50%;
 }
 

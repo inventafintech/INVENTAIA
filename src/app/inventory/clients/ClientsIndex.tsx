@@ -37,12 +37,12 @@ const PAGE_SIZE = 10;
 
 const STATUS_STYLE: Record<string, { bg: string; color: string }> = {
   Activo: { bg: '#f0fdf4', color: '#15803d' },
-  'Al día': { bg: '#eff6ff', color: '#1d4ed8' },
-  Inactivo: { bg: '#f1f5f9', color: '#64748b' },
+  'Al día': { bg: 'var(--color-linen-mist)', color: '#1d4ed8' },
+  Inactivo: { bg: 'var(--color-fog)', color: 'var(--color-slate)' },
 };
 
 function statusStyle(status: string) {
-  return STATUS_STYLE[status] || { bg: '#f1f5f9', color: '#475569' };
+  return STATUS_STYLE[status] || { bg: 'var(--color-fog)', color: 'var(--color-charcoal)' };
 }
 
 export default function ClientsIndex() {
@@ -246,22 +246,22 @@ export default function ClientsIndex() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <Users size={20} />
         </span>
-        <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Clientes</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Clientes</h1>
       </div>
 
       {/* Tabs + subtítulo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '4px' }} role="tablist" aria-label="Segmento de clientes">
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '4px' }} role="tablist" aria-label="Segmento de clientes">
           <button
             type="button"
             role="tab"
             aria-selected={segment === 'B2B'}
             onClick={() => setSegment('B2B')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', background: segment === 'B2B' ? '#f1f5f9' : 'transparent', color: segment === 'B2B' ? '#0f172a' : '#64748b', fontSize: '13px', fontWeight: segment === 'B2B' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', background: segment === 'B2B' ? 'var(--color-fog)' : 'transparent', color: segment === 'B2B' ? 'var(--color-obsidian)' : 'var(--color-slate)', fontSize: '13px', fontWeight: segment === 'B2B' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
           >
             <Building2 size={14} /> B2B
           </button>
@@ -270,7 +270,7 @@ export default function ClientsIndex() {
             role="tab"
             aria-selected={segment === 'B2C'}
             onClick={() => setSegment('B2C')}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', background: segment === 'B2C' ? '#f1f5f9' : 'transparent', color: segment === 'B2C' ? '#0f172a' : '#64748b', fontSize: '13px', fontWeight: segment === 'B2C' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: 'none', background: segment === 'B2C' ? 'var(--color-fog)' : 'transparent', color: segment === 'B2C' ? 'var(--color-obsidian)' : 'var(--color-slate)', fontSize: '13px', fontWeight: segment === 'B2C' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
           >
             <UserIcon size={14} /> B2C
           </button>
@@ -279,28 +279,28 @@ export default function ClientsIndex() {
             role="tab"
             aria-selected={segment === 'all'}
             onClick={() => setSegment('all')}
-            style={{ border: 'none', background: segment === 'all' ? '#f1f5f9' : 'transparent', color: segment === 'all' ? '#0f172a' : '#64748b', fontSize: '13px', fontWeight: segment === 'all' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
+            style={{ border: 'none', background: segment === 'all' ? 'var(--color-fog)' : 'transparent', color: segment === 'all' ? 'var(--color-obsidian)' : 'var(--color-slate)', fontSize: '13px', fontWeight: segment === 'all' ? 700 : 500, padding: '8px 14px', minHeight: '44px', borderRadius: '7px', cursor: 'pointer' }}
           >
             Todos
           </button>
         </div>
-        <span style={{ fontSize: '13px', color: '#64748b' }}>
+        <span style={{ fontSize: '13px', color: 'var(--color-slate)' }}>
           Gestión de clientes ({kpis.total} clientela)
         </span>
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {kpiCards.map((k, idx) => (
-          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#2563eb' }} />
+          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-forest-ink)' }} />
               {k.label}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
               {k.value}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
@@ -309,7 +309,7 @@ export default function ClientsIndex() {
       {banner && (
         <div
           role={banner.type === 'error' ? 'alert' : 'status'}
-          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
         >
           <span style={{ flex: 1 }}>{banner.text}</span>
           <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -327,22 +327,22 @@ export default function ClientsIndex() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por nombre, referencia o ciudad..."
             aria-label="Buscar clientes"
-            style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', border: '1px solid var(--color-fog)', background: 'var(--color-paper)', borderRadius: '10px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
           />
-          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
         </div>
         <button
           type="button"
           aria-label="Filtros"
           onClick={() => setBanner(null)}
-          style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer', color: '#475569', display: 'flex', minHeight: '38px', alignItems: 'center' }}
+          style={{ border: '1px solid var(--color-fog)', background: '#ffffff', borderRadius: '9999px', padding: '9px 12px', cursor: 'pointer', color: 'var(--color-charcoal)', display: 'flex', minHeight: '38px', alignItems: 'center' }}
         >
           <SlidersHorizontal size={16} />
         </button>
         <button
           type="button"
           onClick={openCreate}
-          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
+          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
         >
           <Plus size={15} /> Nuevo Cliente
         </button>
@@ -350,7 +350,7 @@ export default function ClientsIndex() {
 
       {/* Selección */}
       {selected.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--color-linen-mist)', border: '1px solid var(--color-forest-ink)', borderRadius: '10px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
           <span>{selected.length} seleccionado{selected.length === 1 ? '' : 's'}</span>
           <button
             type="button"
@@ -362,7 +362,7 @@ export default function ClientsIndex() {
               setConfirmBulk(false);
               handleBulkDelete();
             }}
-            style={{ background: confirmBulk ? '#dc2626' : '#ffffff', color: confirmBulk ? '#ffffff' : '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+            style={{ background: confirmBulk ? 'var(--color-alarm-red)' : '#ffffff', color: confirmBulk ? '#ffffff' : 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
           >
             {confirmBulk ? `¿Confirmar borrado de ${selected.length}?` : `Eliminar (${selected.length})`}
           </button>
@@ -373,26 +373,26 @@ export default function ClientsIndex() {
       )}
 
       {/* Tabla */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: '900px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+              <tr style={{ borderBottom: '1px solid var(--color-fog)', textAlign: 'left' }}>
                 <th style={{ padding: '12px 12px 12px 18px', width: '36px' }}>
-                  <input type="checkbox" checked={allSelected} onChange={() => setSelected(allSelected ? [] : items.map((i) => i.ref))} aria-label="Seleccionar todos" style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }} />
+                  <input type="checkbox" checked={allSelected} onChange={() => setSelected(allSelected ? [] : items.map((i) => i.ref))} aria-label="Seleccionar todos" style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }} />
                 </th>
                 <th style={{ padding: '12px' }}>
-                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
+                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
                     REFERENCIA {sortOrder === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
                 </th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>NOMBRE</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>NOMBRE DE SUCURSAL</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>DIRECCIÓN</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>CIUDAD</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>ESTADO</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>PAÍS</th>
-                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: '#2563eb' }}>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>NOMBRE</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>NOMBRE DE SUCURSAL</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>DIRECCIÓN</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>CIUDAD</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>ESTADO</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>PAÍS</th>
+                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: 'var(--color-forest-ink)' }}>
                   <Zap size={15} />
                 </th>
               </tr>
@@ -400,14 +400,14 @@ export default function ClientsIndex() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-pebble)' }}>
                     Cargando clientes…
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={9} style={{ padding: 0 }}>
-                    <div style={{ margin: '12px', border: '1px solid #e2e8f0', borderLeft: '3px solid #2563eb', borderRadius: '8px', background: '#f8fafc', padding: '14px 16px', fontSize: '13px', color: '#0f172a' }}>
+                    <div style={{ margin: '12px', border: '1px solid var(--color-fog)', borderLeft: '3px solid var(--color-forest-ink)', borderRadius: '10px', background: 'var(--color-paper)', padding: '14px 16px', fontSize: '13px', color: 'var(--color-obsidian)' }}>
                       {total === 0 && !hasFilters
                         ? 'No hay clientes para mostrar. Añade un nuevo cliente haciendo clic en NUEVO CLIENTE arriba.'
                         : 'Sin coincidencias para los filtros aplicados.'}
@@ -418,17 +418,17 @@ export default function ClientsIndex() {
                 items.map((item) => {
                   const st = statusStyle(item.status);
                   return (
-                    <tr key={item.ref} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <tr key={item.ref} style={{ borderBottom: '1px solid var(--color-fog)' }}>
                       <td style={{ padding: '12px 12px 12px 18px' }}>
                         <input
                           type="checkbox"
                           checked={selected.includes(item.ref)}
                           onChange={() => setSelected((prev) => (prev.includes(item.ref) ? prev.filter((s) => s !== item.ref) : [...prev, item.ref]))}
                           aria-label={`Seleccionar ${item.ref}`}
-                          style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }}
+                          style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }}
                         />
                       </td>
-                      <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.ref}</td>
+                      <td style={{ padding: '12px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.ref}</td>
                       <td style={{ padding: '12px' }}>
                         <button
                           type="button"
@@ -439,23 +439,23 @@ export default function ClientsIndex() {
                           {item.name}
                         </button>
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.branch || '—'}</td>
-                      <td style={{ padding: '12px', color: '#64748b', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.address}>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.branch || '—'}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-slate)', maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.address}>
                         {item.address || '—'}
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.city || '—'}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.city || '—'}</td>
                       <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
                         <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px', background: st.bg, color: st.color }}>
                           {item.status}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.country || '—'}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.country || '—'}</td>
                       <td style={{ padding: '12px 18px 12px 12px', textAlign: 'right' }}>
                         <button
                           type="button"
                           title={`Ver trazabilidad de ${item.name}`}
                           onClick={() => router.push(`/activity-log?q=${encodeURIComponent(item.name)}`)}
-                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#2563eb', display: 'inline-flex' }}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-forest-ink)', display: 'inline-flex' }}
                         >
                           <Zap size={15} />
                         </button>
@@ -468,7 +468,7 @@ export default function ClientsIndex() {
           </table>
         </div>
         {!loading && total > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid #e2e8f0', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid var(--color-fog)', fontSize: '12px', color: 'var(--color-slate)' }}>
             <span>
               Mostrando {from}–{to} de {total}
             </span>
@@ -497,18 +497,18 @@ export default function ClientsIndex() {
         >
           <form
             onSubmit={handleSave}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>
                 {editing ? `Editar ${editing.ref}` : 'Nuevo Cliente'}
               </h2>
-              <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={18} />
               </button>
             </div>
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
@@ -573,16 +573,16 @@ export default function ClientsIndex() {
                   type="button"
                   onClick={handleDelete}
                   disabled={saving || deleting}
-                  style={{ background: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}
+                  style={{ background: '#ffffff', color: 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}
                 >
                   {deleting ? 'Eliminando…' : 'Eliminar'}
                 </button>
               )}
               <span style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-                <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+                <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                   Cancelar
                 </button>
-                <button type="submit" disabled={saving || deleting} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+                <button type="submit" disabled={saving || deleting} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                   {saving && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                   {saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear cliente'}
                 </button>
@@ -599,7 +599,7 @@ export default function ClientsIndex() {
 const labelStyle: React.CSSProperties = {
   fontSize: '12px',
   fontWeight: 600,
-  color: '#334155',
+  color: 'var(--color-charcoal)',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -607,8 +607,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',
@@ -617,13 +617,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 const pagerBtnStyle = (disabled: boolean): React.CSSProperties => ({
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--color-fog)',
   background: '#ffffff',
   borderRadius: '6px',
   padding: '6px 12px',
   fontSize: '12px',
   fontWeight: 600,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  color: disabled ? '#cbd5e1' : '#334155',
+  color: disabled ? 'var(--color-pebble)' : 'var(--color-charcoal)',
   minHeight: '44px',
 });

@@ -234,7 +234,7 @@ export default function FinanciamientoPage() {
                   </span>
                 </div>
                 <p style={{ margin: 0, lineHeight: 1.4 }}>{resultModal.message}</p>
-                <div style={{ marginTop: '8px', fontSize: '11px', color: '#64748b', display: 'flex', gap: '14px' }}>
+                <div style={{ marginTop: '8px', fontSize: '11px', color: 'var(--color-slate)', display: 'flex', gap: '14px' }}>
                   <span>Monto: <strong>S/ {amount.toLocaleString('es-PE')}</strong></span>
                   <span>Plazo: <strong>{term} días</strong></span>
                   <span>Interés: <strong>S/ {financialCost.toLocaleString('es-PE')}</strong></span>

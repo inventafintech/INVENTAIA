@@ -404,16 +404,16 @@ function UserProfileContent() {
     <div style={{ maxWidth: '1000px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Encabezado Principal */}
       <div>
-        <h1 style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.02em' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, letterSpacing: '-0.02em' }}>
           Perfil de Usuario
         </h1>
-        <p style={{ fontSize: '14px', color: '#64748b', marginTop: '6px', marginBottom: 0 }}>
+        <p style={{ fontSize: '14px', color: 'var(--color-slate)', marginTop: '6px', marginBottom: 0 }}>
           Gestiona tu información personal, credenciales de seguridad y permisos de acceso en la organización.
         </p>
       </div>
 
       {/* Navegación por Pestañas (Tabs de Panthor) */}
-      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid #e2e8f0', paddingBottom: '2px' }}>
+      <div style={{ display: 'flex', gap: '8px', borderBottom: '1px solid var(--color-fog)', paddingBottom: '2px' }}>
         <button
           type="button"
           onClick={() => handleTabChange('profile')}
@@ -427,8 +427,8 @@ function UserProfileContent() {
             background: 'transparent',
             fontSize: '14px',
             fontWeight: activeTab === 'profile' ? 700 : 500,
-            color: activeTab === 'profile' ? '#2563eb' : '#64748b',
-            borderBottom: activeTab === 'profile' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            color: activeTab === 'profile' ? 'var(--color-forest-ink)' : 'var(--color-slate)',
+            borderBottom: activeTab === 'profile' ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
           }}
@@ -450,8 +450,8 @@ function UserProfileContent() {
             background: 'transparent',
             fontSize: '14px',
             fontWeight: activeTab === 'security' ? 700 : 500,
-            color: activeTab === 'security' ? '#2563eb' : '#64748b',
-            borderBottom: activeTab === 'security' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            color: activeTab === 'security' ? 'var(--color-forest-ink)' : 'var(--color-slate)',
+            borderBottom: activeTab === 'security' ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
           }}
@@ -473,8 +473,8 @@ function UserProfileContent() {
             background: 'transparent',
             fontSize: '14px',
             fontWeight: activeTab === 'roles' ? 700 : 500,
-            color: activeTab === 'roles' ? '#2563eb' : '#64748b',
-            borderBottom: activeTab === 'roles' ? '2.5px solid #2563eb' : '2.5px solid transparent',
+            color: activeTab === 'roles' ? 'var(--color-forest-ink)' : 'var(--color-slate)',
+            borderBottom: activeTab === 'roles' ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
           }}
@@ -492,7 +492,7 @@ function UserProfileContent() {
             border: '1px solid #bbf7d0',
             color: '#166534',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 600,
             display: 'flex',
@@ -510,10 +510,10 @@ function UserProfileContent() {
         <div
           style={{
             background: '#fef2f2',
-            border: '1px solid #fecaca',
+            border: '1px solid var(--color-alarm-red)',
             color: '#991b1b',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 600,
             display: 'flex',
@@ -521,7 +521,7 @@ function UserProfileContent() {
             gap: '8px',
           }}
         >
-          <AlertCircle size={16} color="#dc2626" />
+          <AlertCircle size={16} color="var(--color-alarm-red)" />
           <span>{errorMessage}</span>
         </div>
       )}
@@ -530,8 +530,8 @@ function UserProfileContent() {
       {activeTab === 'profile' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Card de Identidad */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: '0 0 16px 0' }}>
               Fotografía y Datos Generales
             </h3>
 
@@ -546,7 +546,7 @@ function UserProfileContent() {
                     borderRadius: '16px',
                     objectFit: 'cover',
                     border: '1px solid #dbeafe',
-                    backgroundColor: '#eff6ff',
+                    backgroundColor: 'var(--color-linen-mist)',
                   }}
                 />
               ) : (
@@ -555,8 +555,8 @@ function UserProfileContent() {
                     width: '72px',
                     height: '72px',
                     borderRadius: '16px',
-                    backgroundColor: '#eff6ff',
-                    color: '#2563eb',
+                    backgroundColor: 'var(--color-linen-mist)',
+                    color: 'var(--color-forest-ink)',
                     fontWeight: 800,
                     fontSize: '24px',
                     display: 'flex',
@@ -570,22 +570,22 @@ function UserProfileContent() {
               )}
 
               <div>
-                <div style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>
+                <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--color-obsidian)' }}>
                   {loadingProfile && !name ? 'Cargando…' : name || 'Usuario'}
                 </div>
-                <div style={{ fontSize: '13px', color: '#64748b' }}>{email}</div>
+                <div style={{ fontSize: '13px', color: 'var(--color-slate)' }}>{email}</div>
                 <div style={{ marginTop: '8px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     style={{
-                      background: '#f1f5f9',
-                      border: '1px solid #cbd5e1',
+                      background: 'var(--color-fog)',
+                      border: '1px solid var(--color-pebble)',
                       borderRadius: '6px',
                       padding: '6px 12px',
                       fontSize: '12px',
                       fontWeight: 600,
-                      color: '#334155',
+                      color: 'var(--color-charcoal)',
                       cursor: 'pointer',
                     }}
                   >
@@ -599,10 +599,10 @@ function UserProfileContent() {
                     style={{ display: 'none' }}
                     aria-label="Seleccionar imagen de avatar"
                   />
-                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>JPG, PNG o WebP · máx. 2 MB · se optimiza a 256px</span>
+                  <span style={{ fontSize: '11px', color: 'var(--color-pebble)' }}>JPG, PNG o WebP · máx. 2 MB · se optimiza a 256px</span>
                 </div>
                 {avatarError && (
-                  <div style={{ marginTop: '6px', fontSize: '12px', color: '#dc2626', fontWeight: 600 }}>
+                  <div style={{ marginTop: '6px', fontSize: '12px', color: 'var(--color-alarm-red)', fontWeight: 600 }}>
                     {avatarError}
                   </div>
                 )}
@@ -611,7 +611,7 @@ function UserProfileContent() {
 
             <form onSubmit={handleSaveProfile} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Nombre Completo
                 </label>
                 <input
@@ -621,8 +621,8 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -632,7 +632,7 @@ function UserProfileContent() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Correo Electrónico (Principal)
                 </label>
                 <input
@@ -642,16 +642,16 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-fog)',
                     fontSize: '14px',
-                    background: '#f8fafc',
-                    color: '#64748b',
+                    background: 'var(--color-paper)',
+                    color: 'var(--color-slate)',
                     cursor: 'not-allowed',
                     boxSizing: 'border-box',
                   }}
                 />
-                <p style={{ fontSize: '11px', color: '#94a3b8', margin: '6px 0 0 0' }}>
+                <p style={{ fontSize: '11px', color: 'var(--color-pebble)', margin: '6px 0 0 0' }}>
                   {provider === 'google'
                     ? 'Gestionado por Google SSO (solo lectura).'
                     : 'Correo principal de la cuenta (solo lectura).'}
@@ -659,7 +659,7 @@ function UserProfileContent() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Teléfono / WhatsApp de Contacto
                 </label>
                 <input
@@ -669,8 +669,8 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -679,7 +679,7 @@ function UserProfileContent() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Cargo o Puesto
                 </label>
                 <input
@@ -689,8 +689,8 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -699,7 +699,7 @@ function UserProfileContent() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Idioma de Preferencia
                 </label>
                 <select
@@ -708,8 +708,8 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     background: '#ffffff',
                     outline: 'none',
@@ -725,7 +725,7 @@ function UserProfileContent() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Zona Horaria
                 </label>
                 <select
@@ -734,8 +734,8 @@ function UserProfileContent() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     background: '#ffffff',
                     outline: 'none',
@@ -759,10 +759,10 @@ function UserProfileContent() {
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '8px',
-                    background: saving || loadingProfile || !name.trim() ? '#93c5fd' : '#2563eb',
+                    background: saving || loadingProfile || !name.trim() ? 'var(--color-pebble)' : 'var(--color-forest-ink)',
                     color: '#ffffff',
                     padding: '10px 20px',
-                    borderRadius: '8px',
+                    borderRadius: '10px',
                     fontSize: '14px',
                     fontWeight: 600,
                     border: 'none',
@@ -787,16 +787,16 @@ function UserProfileContent() {
       {activeTab === 'security' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Card Cambio de Contraseña */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <KeyRound size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <KeyRound size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Cambiar Contraseña
               </h3>
             </div>
 
             {provider === 'google' && !hasPassword ? (
-              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '14px 16px', fontSize: '13px', color: '#1e40af', lineHeight: 1.5 }}>
+              <div style={{ background: 'var(--color-linen-mist)', border: '1px solid var(--color-forest-ink)', borderRadius: '10px', padding: '14px 16px', fontSize: '13px', color: '#1e40af', lineHeight: 1.5 }}>
                 Tu cuenta usa <strong>Google SSO</strong>: la contraseña se gestiona en tu cuenta de Google,
                 no aquí.{' '}
                 <a
@@ -811,13 +811,13 @@ function UserProfileContent() {
             ) : (
               <form onSubmit={handleSaveSecurity} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '460px' }}>
                 {!hasPassword && (
-                  <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+                  <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: 0 }}>
                     Tu cuenta aún no tiene contraseña local. Configura una para reforzar el acceso.
                   </p>
                 )}
                 {hasPassword && (
                   <div>
-                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                       Contraseña Actual
                     </label>
                     <input
@@ -829,8 +829,8 @@ function UserProfileContent() {
                       style={{
                         width: '100%',
                         padding: '9px 12px',
-                        borderRadius: '8px',
-                        border: '1px solid #cbd5e1',
+                        borderRadius: '10px',
+                        border: '1px solid var(--color-pebble)',
                         fontSize: '14px',
                         outline: 'none',
                         boxSizing: 'border-box',
@@ -841,7 +841,7 @@ function UserProfileContent() {
                 )}
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                     Nueva Contraseña
                   </label>
                   <input
@@ -853,8 +853,8 @@ function UserProfileContent() {
                     style={{
                       width: '100%',
                       padding: '9px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
+                      borderRadius: '10px',
+                      border: '1px solid var(--color-pebble)',
                       fontSize: '14px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -864,7 +864,7 @@ function UserProfileContent() {
                 </div>
 
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                     Confirmar Nueva Contraseña
                   </label>
                   <input
@@ -876,8 +876,8 @@ function UserProfileContent() {
                     style={{
                       width: '100%',
                       padding: '9px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
+                      borderRadius: '10px',
+                      border: '1px solid var(--color-pebble)',
                       fontSize: '14px',
                       outline: 'none',
                       boxSizing: 'border-box',
@@ -894,10 +894,10 @@ function UserProfileContent() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      background: saving ? '#475569' : '#0f172a',
+                      background: saving ? 'var(--color-charcoal)' : 'var(--color-obsidian)',
                       color: '#ffffff',
                       padding: '9px 18px',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       fontSize: '13px',
                       fontWeight: 600,
                       border: 'none',
@@ -918,10 +918,10 @@ function UserProfileContent() {
           </div>
 
           {/* Card Autenticación en Dos Pasos (2FA TOTP real) */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <Smartphone size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <Smartphone size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Autenticación en Dos Pasos (2FA)
               </h3>
               <span
@@ -930,22 +930,22 @@ function UserProfileContent() {
                   fontWeight: 700,
                   padding: '3px 8px',
                   borderRadius: '999px',
-                  background: twoFactorEnabled ? '#f0fdf4' : '#f1f5f9',
-                  color: twoFactorEnabled ? '#15803d' : '#64748b',
+                  background: twoFactorEnabled ? '#f0fdf4' : 'var(--color-fog)',
+                  color: twoFactorEnabled ? '#15803d' : 'var(--color-slate)',
                 }}
               >
                 {twoFactorEnabled ? 'Habilitado' : 'Deshabilitado'}
               </span>
             </div>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 16px 0' }}>
+            <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '0 0 16px 0' }}>
               Exige un código temporal de tu autenticador (Google Authenticator, Authy) al iniciar sesión.
               Una vez habilitado, se pedirá en cada login, incluyendo el acceso demo y Google.
             </p>
 
             {!twoFactorEnabled && setupStep === 'idle' && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '14px 18px', borderRadius: '8px', border: '1px solid #e2e8f0', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--color-paper)', padding: '14px 18px', borderRadius: '10px', border: '1px solid var(--color-fog)', gap: '12px', flexWrap: 'wrap' }}>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '14px', color: '#0f172a' }}>Google Authenticator / Authy</div>
+                  <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--color-obsidian)' }}>Google Authenticator / Authy</div>
                   <div style={{ fontSize: '12px', color: '#15803d', fontWeight: 600, marginTop: '2px' }}>Recomendado para administradores</div>
                 </div>
                 <button
@@ -953,7 +953,7 @@ function UserProfileContent() {
                   onClick={handleStartTwoFactor}
                   disabled={twoFactorLoading}
                   style={{
-                    background: twoFactorLoading ? '#93c5fd' : '#2563eb',
+                    background: twoFactorLoading ? 'var(--color-pebble)' : 'var(--color-forest-ink)',
                     color: '#ffffff',
                     border: 'none',
                     borderRadius: '6px',
@@ -972,19 +972,19 @@ function UserProfileContent() {
               <form onSubmit={handleConfirmTwoFactor} style={{ display: 'flex', flexDirection: 'column', gap: '14px', maxWidth: '460px' }}>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', flexWrap: 'wrap' }}>
                   {setupQr && (
-                    <img src={setupQr} alt="Código QR para 2FA" style={{ width: '160px', height: '160px', border: '1px solid #e2e8f0', borderRadius: '8px' }} />
+                    <img src={setupQr} alt="Código QR para 2FA" style={{ width: '160px', height: '160px', border: '1px solid var(--color-fog)', borderRadius: '10px' }} />
                   )}
                   <div style={{ flex: 1, minWidth: '220px' }}>
-                    <p style={{ fontSize: '13px', color: '#475569', margin: '0 0 8px 0' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--color-charcoal)', margin: '0 0 8px 0' }}>
                       1. Escanea el QR con tu autenticador. 2. Si no puedes escanear, ingresa esta clave:
                     </p>
-                    <code style={{ display: 'block', fontSize: '13px', fontWeight: 700, background: '#f1f5f9', padding: '8px 10px', borderRadius: '6px', wordBreak: 'break-all' }}>
+                    <code style={{ display: 'block', fontSize: '13px', fontWeight: 700, background: 'var(--color-fog)', padding: '8px 10px', borderRadius: '6px', wordBreak: 'break-all' }}>
                       {setupSecret}
                     </code>
                   </div>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                     Código de 6 dígitos del autenticador
                   </label>
                   <input
@@ -994,7 +994,7 @@ function UserProfileContent() {
                     placeholder="••••••"
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    style={{ width: '100%', maxWidth: '220px', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '18px', letterSpacing: '6px', textAlign: 'center', fontWeight: 700, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                    style={{ width: '100%', maxWidth: '220px', padding: '9px 12px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '18px', letterSpacing: '6px', textAlign: 'center', fontWeight: 700, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
                     required
                   />
                 </div>
@@ -1002,14 +1002,14 @@ function UserProfileContent() {
                   <button
                     type="submit"
                     disabled={twoFactorLoading}
-                    style={{ background: twoFactorLoading ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: twoFactorLoading ? 'not-allowed' : 'pointer' }}
+                    style={{ background: twoFactorLoading ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: twoFactorLoading ? 'not-allowed' : 'pointer' }}
                   >
                     {twoFactorLoading ? 'Verificando…' : 'Confirmar y habilitar'}
                   </button>
                   <button
                     type="button"
                     onClick={() => { setSetupStep('idle'); setSetupQr(null); setSetupSecret(null); setSetupBackupCodes([]); }}
-                    style={{ background: 'transparent', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: 'pointer' }}
+                    style={{ background: 'transparent', border: '1px solid var(--color-pebble)', borderRadius: '6px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: 'pointer' }}
                   >
                     Cancelar
                   </button>
@@ -1018,13 +1018,13 @@ function UserProfileContent() {
             )}
 
             {!twoFactorEnabled && setupStep === 'codes' && (
-              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '8px', padding: '16px' }}>
+              <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '10px', padding: '16px' }}>
                 <div style={{ fontWeight: 700, fontSize: '14px', color: '#92400e', marginBottom: '6px' }}>
                   2FA habilitado. Guarda estos códigos de respaldo (un solo uso):
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))', gap: '8px', margin: '12px 0' }}>
                   {setupBackupCodes.map((c) => (
-                    <code key={c} style={{ fontSize: '13px', fontWeight: 700, background: '#ffffff', border: '1px solid #e2e8f0', padding: '6px 8px', borderRadius: '6px', textAlign: 'center' }}>
+                    <code key={c} style={{ fontSize: '13px', fontWeight: 700, background: '#ffffff', border: '1px solid var(--color-fog)', padding: '6px 8px', borderRadius: '6px', textAlign: 'center' }}>
                       {c}
                     </code>
                   ))}
@@ -1032,7 +1032,7 @@ function UserProfileContent() {
                 <button
                   type="button"
                   onClick={() => { setSetupStep('idle'); setSetupBackupCodes([]); setSuccessMessage('Verificación en dos pasos habilitada.'); setTimeout(() => setSuccessMessage(null), 5000); }}
-                  style={{ background: '#0f172a', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{ background: 'var(--color-obsidian)', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                 >
                   Ya los guardé, finalizar
                 </button>
@@ -1041,12 +1041,12 @@ function UserProfileContent() {
 
             {twoFactorEnabled && (
               <form onSubmit={handleDisableTwoFactor} style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '460px' }}>
-                <p style={{ fontSize: '13px', color: '#475569', margin: 0 }}>
+                <p style={{ fontSize: '13px', color: 'var(--color-charcoal)', margin: 0 }}>
                   El 2FA está activo: se pedirá un código en cada inicio de sesión. Para deshabilitarlo,
                   confirma con el código actual de tu autenticador.
                 </p>
                 <div>
-                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                     Código actual de 6 dígitos
                   </label>
                   <input
@@ -1056,7 +1056,7 @@ function UserProfileContent() {
                     placeholder="••••••"
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    style={{ width: '100%', maxWidth: '220px', padding: '9px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '18px', letterSpacing: '6px', textAlign: 'center', fontWeight: 700, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
+                    style={{ width: '100%', maxWidth: '220px', padding: '9px 12px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '18px', letterSpacing: '6px', textAlign: 'center', fontWeight: 700, outline: 'none', boxSizing: 'border-box', fontFamily: 'monospace' }}
                     required
                   />
                 </div>
@@ -1064,7 +1064,7 @@ function UserProfileContent() {
                   <button
                     type="submit"
                     disabled={twoFactorLoading}
-                    style={{ background: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: twoFactorLoading ? 'not-allowed' : 'pointer' }}
+                    style={{ background: '#ffffff', color: 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '6px', padding: '8px 14px', fontSize: '13px', fontWeight: 600, cursor: twoFactorLoading ? 'not-allowed' : 'pointer' }}
                   >
                     {twoFactorLoading ? 'Verificando…' : 'Deshabilitar 2FA'}
                   </button>
@@ -1074,19 +1074,19 @@ function UserProfileContent() {
           </div>
 
           {/* Card Sesiones Activas (datos reales de la sesión actual) */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-              <Laptop size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <Laptop size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Sesiones Activas
               </h3>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f1f5f9', gap: '12px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--color-fog)', gap: '12px', flexWrap: 'wrap' }}>
               <div>
-                <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>
+                <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--color-obsidian)' }}>
                   {sessionMeta?.device || 'Navegador Actual'} · Sesión actual
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-slate)' }}>
                   Acceso vía {sessionMeta?.provider === 'google' ? 'Google SSO' : 'sesión corporativa'}
                   {sessionMeta?.loginAt
                     ? ` · Inicio: ${new Date(sessionMeta.loginAt).toLocaleString('es-PE')}`
@@ -1104,8 +1104,8 @@ function UserProfileContent() {
                 disabled={signingOut}
                 style={{
                   background: '#ffffff',
-                  color: '#dc2626',
-                  border: '1px solid #fecaca',
+                  color: 'var(--color-alarm-red)',
+                  border: '1px solid var(--color-alarm-red)',
                   borderRadius: '6px',
                   padding: '8px 14px',
                   fontSize: '13px',
@@ -1124,21 +1124,21 @@ function UserProfileContent() {
       {activeTab === 'roles' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* Card de Rol Actual */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <IdCard size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <IdCard size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Rol Asignado en la Organización
               </h3>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '16px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', background: 'var(--color-linen-mist)', border: '1px solid var(--color-forest-ink)', borderRadius: '10px', padding: '16px 20px' }}>
               <div style={{ flex: 1 }}>
                 <span style={{ display: 'inline-block', fontSize: '11px', fontWeight: 800, color: '#1d4ed8', background: '#dbeafe', padding: '3px 8px', borderRadius: '999px', textTransform: 'uppercase', marginBottom: '6px' }}>
                   {ROLE_LABELS[role] || ROLE_LABELS.OWNER}
                 </span>
-                <div style={{ fontWeight: 700, fontSize: '15px', color: '#0f172a' }}>Acceso Total y Gobernanza</div>
-                <p style={{ fontSize: '13px', color: '#475569', margin: '4px 0 0 0' }}>
+                <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--color-obsidian)' }}>Acceso Total y Gobernanza</div>
+                <p style={{ fontSize: '13px', color: 'var(--color-charcoal)', margin: '4px 0 0 0' }}>
                   Tienes control absoluto sobre compras, órdenes, finanzas, integrantes y configuración de algoritmos ROP.
                 </p>
               </div>
@@ -1146,48 +1146,48 @@ function UserProfileContent() {
           </div>
 
           {/* Card Matriz de Permisos */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: '0 0 16px 0' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: '0 0 16px 0' }}>
               Matriz de Permisos Habilitados
             </h3>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+              <div style={{ border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: 'var(--color-obsidian)' }}>
                   <CheckCircle2 size={16} color="#15803d" />
                   <span>Estrategia & IA Predictiva</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>
                   Acceso a simulaciones de demanda, ajuste de horizonte de 90 días y detección de quiebres.
                 </div>
               </div>
 
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+              <div style={{ border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: 'var(--color-obsidian)' }}>
                   <CheckCircle2 size={16} color="#15803d" />
                   <span>Órdenes de Compra</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>
                   Creación, edición y aprobación formal de órdenes de compra con proveedores.
                 </div>
               </div>
 
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+              <div style={{ border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: 'var(--color-obsidian)' }}>
                   <CheckCircle2 size={16} color="#15803d" />
                   <span>Financiamiento & Factoring</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>
                   Solicitud de capital de trabajo y vinculación con líneas de crédito bancarias.
                 </div>
               </div>
 
-              <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '14px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: '#0f172a' }}>
+              <div style={{ border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700, fontSize: '14px', color: 'var(--color-obsidian)' }}>
                   <CheckCircle2 size={16} color="#15803d" />
                   <span>Configuración del Sistema</span>
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>
                   Modificación de lead time, SLA de inventario y gestión de usuarios del workspace.
                 </div>
               </div>
@@ -1202,7 +1202,7 @@ function UserProfileContent() {
 export default function UserProfilePage() {
   return (
     <AppShell>
-      <Suspense fallback={<div style={{ padding: '32px', textAlign: 'center', color: '#64748b' }}>Cargando perfil de usuario...</div>}>
+      <Suspense fallback={<div style={{ padding: '32px', textAlign: 'center', color: 'var(--color-slate)' }}>Cargando perfil de usuario...</div>}>
         <UserProfileContent />
       </Suspense>
     </AppShell>

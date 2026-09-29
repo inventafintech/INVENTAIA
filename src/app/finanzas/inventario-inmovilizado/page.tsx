@@ -69,7 +69,7 @@ export default function InventarioInmovilizadoPage() {
               backgroundColor: 'var(--primary)',
               color: 'var(--bg)',
               padding: '10px 18px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontWeight: 600,
               fontSize: '14px',
               textDecoration: 'none',
@@ -82,7 +82,7 @@ export default function InventarioInmovilizadoPage() {
 
         {/* Tarjetas de Métricas Financieras */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>Capital Inmovilizado Estimado</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               PEN {loading ? '...' : totalTiedCapital.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
@@ -90,7 +90,7 @@ export default function InventarioInmovilizadoPage() {
             <div style={{ fontSize: '12px', color: '#b45309', marginTop: '4px' }}>Fondos representados en stock</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>SKUs con Alta Disponibilidad</div>
             <div style={{ fontSize: '28px', fontWeight: 800, color: 'var(--ink)', marginTop: '6px' }}>
               {loading ? '...' : items.length}
@@ -98,9 +98,9 @@ export default function InventarioInmovilizadoPage() {
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Stock holgado en almacén</div>
           </div>
 
-          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', padding: '20px' }}>
+          <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', padding: '20px' }}>
             <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase' }}>Acción Recomendada</div>
-            <div style={{ fontSize: '16px', fontWeight: 700, color: '#2563eb', marginTop: '6px' }}>
+            <div style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-forest-ink)', marginTop: '6px' }}>
               Priorizar Ventas & Evitar Reorden
             </div>
             <div style={{ fontSize: '12px', color: 'var(--muted)', marginTop: '4px' }}>Acelerar rotación para liberar caja</div>
@@ -108,7 +108,7 @@ export default function InventarioInmovilizadoPage() {
         </div>
 
         {/* Tabla de Productos */}
-        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '12px', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--card)', border: '1px solid var(--line)', borderRadius: '10px', overflow: 'hidden' }}>
           <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--line)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontWeight: 700, fontSize: '15px', color: 'var(--ink)' }}>Detalle de SKUs</span>
             <span style={{ fontSize: '12px', color: 'var(--muted)' }}>Sincronizado con almacén central</span>

@@ -31,7 +31,7 @@ export default function PonmeAPruebaPage() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>DÍAS DE STOCK RESTANTES</span>
-          <span className={styles.statValue} style={{ color: isStockoutRisk ? '#dc2626' : '#16a34a' }}>
+          <span className={styles.statValue} style={{ color: isStockoutRisk ? 'var(--color-alarm-red)' : '#16a34a' }}>
             {daysRemaining} Días
           </span>
         </div>
@@ -41,7 +41,7 @@ export default function PonmeAPruebaPage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>DIAGNÓSTICO PREVENTIVO</span>
-          <span className={styles.statValue} style={{ color: isStockoutRisk ? '#dc2626' : '#16a34a', fontSize: '18px' }}>
+          <span className={styles.statValue} style={{ color: isStockoutRisk ? 'var(--color-alarm-red)' : '#16a34a', fontSize: '18px' }}>
             {isStockoutRisk ? '⚠️ Riesgo Inminente' : '✓ Stock Seguro'}
           </span>
         </div>
@@ -53,8 +53,8 @@ export default function PonmeAPruebaPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', maxWidth: '1000px' }}>
         <div className={styles.tableCard} style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Calculator size={18} color="#3b82f6" /> Variables de Simulación
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '18px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Calculator size={18} color="var(--color-forest-ink)" /> Variables de Simulación
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -114,10 +114,10 @@ export default function PonmeAPruebaPage() {
 
         <div className={styles.tableCard} style={{ padding: '24px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Sparkles size={18} color="#8b5cf6" /> Explicación del Algoritmo
             </h3>
-            <div style={{ fontSize: '13px', color: '#475569', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--color-charcoal)', lineHeight: 1.6, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p>
                 <strong>1. Días Restantes:</strong> Tu stock actual ({currentStock} u) dividido entre el ritmo de venta ({dailyDemand} u/día) indica que te quedan <strong>{daysRemaining} días</strong> de inventario.
               </p>
@@ -126,7 +126,7 @@ export default function PonmeAPruebaPage() {
               </p>
               <p>
                 <strong>3. Veredicto:</strong> {isStockoutRisk ? (
-                  <span style={{ color: '#dc2626', fontWeight: 600 }}>
+                  <span style={{ color: 'var(--color-alarm-red)', fontWeight: 600 }}>
                     ¡Alerta de quiebre! Te quedan {daysRemaining} días de stock, pero reabastecer toma {effectiveLeadTime} días. Si no compras hoy, quebrarás stock en {(effectiveLeadTime - Number(daysRemaining)).toFixed(1)} días.
                   </span>
                 ) : (
@@ -138,11 +138,11 @@ export default function PonmeAPruebaPage() {
             </div>
           </div>
 
-          <div style={{ background: '#f8fafc', padding: '14px 16px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '16px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
+          <div style={{ background: 'var(--color-paper)', padding: '14px 16px', borderRadius: '10px', border: '1px solid var(--color-fog)', marginTop: '16px' }}>
+            <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-slate)', textTransform: 'uppercase' }}>
               ACCIÓN RECOMENDADA POR EL CEREBRO DE COMPRAS
             </span>
-            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a', marginTop: '4px' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-obsidian)', marginTop: '4px' }}>
               {isStockoutRisk ? `Generar Orden de Compra urgente por ${suggestedOrderQty} unidades` : 'No requiere compras inmediatas'}
             </div>
           </div>

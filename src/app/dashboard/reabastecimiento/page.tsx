@@ -210,10 +210,10 @@ export default function ReabastecimientoPage() {
         <div
           style={{
             background: '#fef2f2',
-            border: '1px solid #fecaca',
+            border: '1px solid var(--color-alarm-red)',
             color: '#991b1b',
             padding: '12px 16px',
-            borderRadius: '8px',
+            borderRadius: '10px',
             fontSize: '13px',
             fontWeight: 600,
             marginBottom: '16px',

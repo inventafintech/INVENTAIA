@@ -92,10 +92,10 @@ export default function ProveedoresCriticosPage() {
               display: 'inline-flex',
               alignItems: 'center',
               gap: '8px',
-              backgroundColor: '#2563eb',
+              backgroundColor: 'var(--color-forest-ink)',
               color: '#ffffff',
               padding: '10px 18px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontWeight: 600,
               fontSize: '14px',
               textDecoration: 'none',
@@ -109,11 +109,11 @@ export default function ProveedoresCriticosPage() {
         {/* Tarjetas de Proveedores */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '20px' }}>
           {loading ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--muted)', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--line)' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: 'var(--muted)', background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--line)' }}>
               Evaluando red de abastecimiento y SLA de entrega...
             </div>
           ) : suppliers.length === 0 ? (
-            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#16a34a', background: 'var(--card)', borderRadius: '12px', border: '1px solid var(--line)' }}>
+            <div style={{ gridColumn: '1 / -1', padding: '40px', textAlign: 'center', color: '#16a34a', background: 'var(--card)', borderRadius: '10px', border: '1px solid var(--line)' }}>
               <CheckCircle2 size={32} style={{ margin: '0 auto 8px', display: 'block' }} />
               Todos los proveedores tienen niveles óptimos de cumplimiento y stock.
             </div>
@@ -124,7 +124,7 @@ export default function ProveedoresCriticosPage() {
                 style={{
                   background: 'var(--card)',
                   border: sup.criticalSkuCount > 0 ? '1px solid #fee2e2' : '1px solid var(--line)',
-                  borderRadius: '12px',
+                  borderRadius: '10px',
                   padding: '20px',
                   display: 'flex',
                   flexDirection: 'column',
@@ -152,7 +152,7 @@ export default function ProveedoresCriticosPage() {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'var(--bg2)', padding: '12px', borderRadius: '8px', fontSize: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', background: 'var(--bg2)', padding: '12px', borderRadius: '10px', fontSize: '12px' }}>
                   <div>
                     <span style={{ color: 'var(--muted)', display: 'block' }}>Lead Time Promedio</span>
                     <span style={{ fontWeight: 700, color: 'var(--ink)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
@@ -162,7 +162,7 @@ export default function ProveedoresCriticosPage() {
                   </div>
                   <div>
                     <span style={{ color: 'var(--muted)', display: 'block' }}>Inversión Requerida</span>
-                    <span style={{ fontWeight: 700, color: '#2563eb', display: 'block', marginTop: '2px' }}>
+                    <span style={{ fontWeight: 700, color: 'var(--color-forest-ink)', display: 'block', marginTop: '2px' }}>
                       PEN {sup.totalInvestment.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                     </span>
                   </div>

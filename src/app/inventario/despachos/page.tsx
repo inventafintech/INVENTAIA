@@ -42,7 +42,7 @@ export default function DespachosPage() {
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>EN RUTA ACTUALMENTE</span>
-          <span className={styles.statValue} style={{ color: '#3b82f6' }}>1 Despacho</span>
+          <span className={styles.statValue} style={{ color: 'var(--color-forest-ink)' }}>1 Despacho</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>CUMPLIMIENTO ON-TIME</span>
@@ -79,14 +79,14 @@ export default function DespachosPage() {
             {filtered.map((des) => (
               <tr key={des.id}>
                 <td className={styles.skuCode}>{des.id}</td>
-                <td><strong style={{ color: '#3b82f6' }}>{des.guideNumber}</strong></td>
+                <td><strong style={{ color: 'var(--color-forest-ink)' }}>{des.guideNumber}</strong></td>
                 <td className={styles.productName}>
                   <strong>{des.client}</strong>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{des.destination}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--color-slate)' }}>{des.destination}</div>
                 </td>
                 <td>{des.date}</td>
                 <td><strong>{des.units} u</strong></td>
-                <td style={{ color: '#64748b' }}>{des.carrier}</td>
+                <td style={{ color: 'var(--color-slate)' }}>{des.carrier}</td>
                 <td>
                   {des.status === 'Entregado' ? (
                     <span className={styles.badgeGood}>Entregado</span>

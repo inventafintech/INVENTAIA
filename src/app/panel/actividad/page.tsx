@@ -60,12 +60,12 @@ function timeOfDay(ts: string): string {
 
 const ACTION_STYLE: Record<string, { badge: React.CSSProperties; dot: string; label: string }> = {
   creado: {
-    badge: { background: '#eff6ff', color: '#1d4ed8' },
-    dot: '#2563eb',
+    badge: { background: 'var(--color-linen-mist)', color: '#1d4ed8' },
+    dot: 'var(--color-forest-ink)',
     label: 'CREAR',
   },
   modificado: {
-    badge: { background: '#fff7ed', color: '#c2410c' },
+    badge: { background: '#fff7ed', color: 'var(--color-alarm-red)' },
     dot: '#f97316',
     label: 'ACTUALIZAR',
   },
@@ -129,8 +129,8 @@ export default function ActividadPage() {
   const pct = (n: number) => (counts.total > 0 ? Math.round((n / counts.total) * 100) : 0);
 
   const kpis = [
-    { key: 'total', label: 'ACTIVIDADES TOTALES', value: counts.total, share: 100, color: '#0f172a', caption: 'Todas las actividades rastreadas' },
-    { key: 'creado', label: 'CREADO', value: counts.creado, share: pct(counts.creado), color: '#2563eb', caption: 'Nuevos registros añadidos' },
+    { key: 'total', label: 'ACTIVIDADES TOTALES', value: counts.total, share: 100, color: 'var(--color-obsidian)', caption: 'Todas las actividades rastreadas' },
+    { key: 'creado', label: 'CREADO', value: counts.creado, share: pct(counts.creado), color: 'var(--color-forest-ink)', caption: 'Nuevos registros añadidos' },
     { key: 'modificado', label: 'MODIFICADO', value: counts.modificado, share: pct(counts.modificado), color: '#f97316', caption: 'Registros actualizados' },
     { key: 'eliminado', label: 'ELIMINADO', value: counts.eliminado, share: 0, color: '#ef4444', caption: 'Registros eliminados' },
   ];
@@ -150,8 +150,8 @@ export default function ActividadPage() {
           display: 'grid',
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           background: '#ffffff',
-          border: '1px solid #e2e8f0',
-          borderRadius: '12px',
+          border: '1px solid var(--color-fog)',
+          borderRadius: '10px',
           overflow: 'hidden',
         }}
       >
@@ -160,27 +160,27 @@ export default function ActividadPage() {
             key={k.key}
             style={{
               padding: '18px 20px',
-              borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0',
+              borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)',
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: k.color }} />
               {k.label}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '6px' }}>
-              <span style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a' }}>{k.value}</span>
-              <span style={{ fontSize: '12px', color: '#94a3b8' }}>{k.share}%</span>
+              <span style={{ fontSize: '26px', fontWeight: 800, color: 'var(--color-obsidian)' }}>{k.value}</span>
+              <span style={{ fontSize: '12px', color: 'var(--color-pebble)' }}>{k.share}%</span>
             </div>
-            <div style={{ height: '3px', background: '#f1f5f9', borderRadius: '999px', marginTop: '10px', overflow: 'hidden' }}>
+            <div style={{ height: '3px', background: 'var(--color-fog)', borderRadius: '999px', marginTop: '10px', overflow: 'hidden' }}>
               <div style={{ width: `${k.share}%`, height: '100%', background: k.color, borderRadius: '999px' }} />
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '8px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '8px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
 
       {/* Listado */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {/* Toolbar */}
         <div
           style={{
@@ -188,11 +188,11 @@ export default function ActividadPage() {
             alignItems: 'center',
             gap: '12px',
             padding: '14px 18px',
-            borderBottom: '1px solid #e2e8f0',
+            borderBottom: '1px solid var(--color-fog)',
             flexWrap: 'wrap',
           }}
         >
-          <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
             ACTIVIDADES RECIENTES
           </span>
           <div
@@ -200,7 +200,7 @@ export default function ActividadPage() {
               display: 'flex',
               alignItems: 'center',
               gap: '4px',
-              border: '1px solid #e2e8f0',
+              border: '1px solid var(--color-fog)',
               borderRadius: '999px',
               padding: '4px',
               marginLeft: 'auto',
@@ -214,8 +214,8 @@ export default function ActividadPage() {
                 onClick={() => setFilter(p.key)}
                 style={{
                   border: 'none',
-                  background: filter === p.key ? '#eff6ff' : 'transparent',
-                  color: filter === p.key ? '#1d4ed8' : '#64748b',
+                  background: filter === p.key ? 'var(--color-linen-mist)' : 'transparent',
+                  color: filter === p.key ? '#1d4ed8' : 'var(--color-slate)',
                   fontSize: '11px',
                   fontWeight: 700,
                   letterSpacing: '0.04em',
@@ -229,7 +229,7 @@ export default function ActividadPage() {
             ))}
           </div>
           <div style={{ position: 'relative' }}>
-            <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <Search size={15} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
             <input
               type="text"
               value={query}
@@ -237,9 +237,9 @@ export default function ActividadPage() {
               placeholder="Buscar actividades..."
               aria-label="Buscar actividades"
               style={{
-                border: '1px solid #e2e8f0',
-                background: '#f8fafc',
-                borderRadius: '8px',
+                border: '1px solid var(--color-fog)',
+                background: 'var(--color-paper)',
+                borderRadius: '10px',
                 padding: '8px 10px 8px 32px',
                 fontSize: '13px',
                 outline: 'none',
@@ -250,24 +250,24 @@ export default function ActividadPage() {
           <button
             type="button"
             aria-label="Opciones de filtrado"
-            style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '8px', padding: '8px', cursor: 'pointer', color: '#2563eb', display: 'flex' }}
+            style={{ border: '1px solid var(--color-fog)', background: '#ffffff', borderRadius: '9999px', padding: '8px', cursor: 'pointer', color: 'var(--color-forest-ink)', display: 'flex' }}
           >
             <SlidersHorizontal size={15} />
           </button>
           <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Calendar size={15} style={{ position: 'absolute', left: '10px', color: '#475569', pointerEvents: 'none' }} />
+            <Calendar size={15} style={{ position: 'absolute', left: '10px', color: 'var(--color-charcoal)', pointerEvents: 'none' }} />
             <select
               value={days}
               onChange={(e) => setDays(e.target.value)}
               aria-label="Rango de fechas"
               style={{
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--color-fog)',
                 background: '#ffffff',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 padding: '8px 28px 8px 32px',
                 fontSize: '13px',
                 fontWeight: 600,
-                color: '#0f172a',
+                color: 'var(--color-obsidian)',
                 outline: 'none',
                 appearance: 'none',
                 cursor: 'pointer',
@@ -279,28 +279,28 @@ export default function ActividadPage() {
                 </option>
               ))}
             </select>
-            <ChevronDown size={14} style={{ position: 'absolute', right: '10px', color: '#64748b', pointerEvents: 'none' }} />
+            <ChevronDown size={14} style={{ position: 'absolute', right: '10px', color: 'var(--color-slate)', pointerEvents: 'none' }} />
           </div>
         </div>
 
         {/* Contenido */}
         {loading ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-pebble)', fontSize: '13px' }}>
             Cargando auditoría…
           </div>
         ) : groups.length === 0 ? (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: 'var(--color-pebble)', fontSize: '13px' }}>
             Sin actividad registrada para estos filtros.
           </div>
         ) : (
           groups.map(([key, dayEvents]) => (
             <div key={key}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px 4px 18px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: '#64748b', whiteSpace: 'nowrap' }}>
+                <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--color-slate)', whiteSpace: 'nowrap' }}>
                   {dayLabel(dayEvents[0].ts)}
                 </span>
-                <span style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                <span style={{ flex: 1, height: '1px', background: 'var(--color-fog)' }} />
+                <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--color-pebble)', whiteSpace: 'nowrap' }}>
                   {dayEvents.length} EVENTO{dayEvents.length === 1 ? '' : 'S'}
                 </span>
               </div>
@@ -308,7 +308,7 @@ export default function ActividadPage() {
                 const st = ACTION_STYLE[e.action] || ACTION_STYLE.modificado;
                 const isOpen = expanded === e.id;
                 return (
-                  <div key={e.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <div key={e.id} style={{ borderBottom: '1px solid var(--color-fog)' }}>
                     <div
                       style={{
                         display: 'flex',
@@ -318,7 +318,7 @@ export default function ActividadPage() {
                         flexWrap: 'wrap',
                       }}
                     >
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', minWidth: '86px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap', minWidth: '86px' }}>
                         {timeOfDay(e.ts)}
                       </span>
                       <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: st.dot, flexShrink: 0 }} />
@@ -326,12 +326,12 @@ export default function ActividadPage() {
                         {st.label}
                       </span>
                       <div style={{ minWidth: '180px', flex: 1 }}>
-                        <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>{e.title}</div>
-                        <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--color-obsidian)' }}>{e.title}</div>
+                        <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '2px' }}>
                           {e.actor} · {e.entity}{e.detail ? ` · ${e.detail}` : ''}
                         </div>
                       </div>
-                      <span style={{ fontSize: '12px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                      <span style={{ fontSize: '12px', color: 'var(--color-pebble)', whiteSpace: 'nowrap' }}>
                         {relativeTimeEs(e.ts)}
                       </span>
                       <button
@@ -339,13 +339,13 @@ export default function ActividadPage() {
                         onClick={() => setExpanded(isOpen ? null : e.id)}
                         aria-label={isOpen ? 'Contraer detalle' : 'Expandir detalle'}
                         aria-expanded={isOpen}
-                        style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b', display: 'flex' }}
+                        style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex' }}
                       >
                         {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
                       </button>
                     </div>
                     {isOpen && e.detail && (
-                      <div style={{ padding: '0 18px 14px 140px', fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
+                      <div style={{ padding: '0 18px 14px 140px', fontSize: '12px', color: 'var(--color-charcoal)', lineHeight: 1.6 }}>
                         {e.detail}
                       </div>
                     )}
@@ -359,11 +359,11 @@ export default function ActividadPage() {
         {/* Footer */}
         {!loading && groups.length > 0 && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '14px 18px' }}>
-            <span style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
-            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', color: '#94a3b8' }}>
+            <span style={{ flex: 1, height: '1px', background: 'var(--color-fog)' }} />
+            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', color: 'var(--color-pebble)' }}>
               FIN DEL REGISTRO · {events.length} DE {events.length}
             </span>
-            <span style={{ flex: 1, height: '1px', background: '#e2e8f0' }} />
+            <span style={{ flex: 1, height: '1px', background: 'var(--color-fog)' }} />
           </div>
         )}
       </div>

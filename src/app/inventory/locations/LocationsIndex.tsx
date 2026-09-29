@@ -28,9 +28,9 @@ interface LocationItem {
 
 const STATUS_META: Record<string, { label: string; color: string; bg: string }> = {
   disponible: { label: 'Disponible', color: '#15803d', bg: '#f0fdf4' },
-  entrante: { label: 'Entrante', color: '#2563eb', bg: '#eff6ff' },
+  entrante: { label: 'Entrante', color: 'var(--color-forest-ink)', bg: 'var(--color-linen-mist)' },
   cuarentena: { label: 'Cuarentena', color: '#d97706', bg: '#fffbeb' },
-  desecho: { label: 'Desecho', color: '#dc2626', bg: '#fef2f2' },
+  desecho: { label: 'Desecho', color: 'var(--color-alarm-red)', bg: '#fef2f2' },
 };
 
 const PAGE_SIZE = 10;
@@ -239,35 +239,35 @@ export default function LocationsIndex() {
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <MapPin size={20} />
         </span>
-        <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Ubicaciones</h1>
+        <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Ubicaciones</h1>
       </div>
 
-      <span style={{ fontSize: '13px', color: '#64748b' }}>
+      <span style={{ fontSize: '13px', color: 'var(--color-slate)' }}>
         Gestión de ubicaciones de almacenamiento ({kpis.total} ubicacion{kpis.total === 1 ? '' : 'es'})
       </span>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {kpiCards.map((k, idx) => (
-          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
-              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#2563eb' }} />
+          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
+              <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: 'var(--color-forest-ink)' }} />
               {k.label}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
               {k.value}
-              {k.suffix && <span style={{ fontSize: '12px', fontWeight: 400, color: '#94a3b8' }}>{k.suffix}</span>}
+              {k.suffix && <span style={{ fontSize: '12px', fontWeight: 400, color: 'var(--color-pebble)' }}>{k.suffix}</span>}
             </div>
             {k.bar !== null && (
-              <div style={{ height: '3px', background: '#f1f5f9', borderRadius: '999px', marginTop: '10px', overflow: 'hidden' }}>
-                <div style={{ width: `${k.bar}%`, height: '100%', background: '#2563eb', borderRadius: '999px' }} />
+              <div style={{ height: '3px', background: 'var(--color-fog)', borderRadius: '999px', marginTop: '10px', overflow: 'hidden' }}>
+                <div style={{ width: `${k.bar}%`, height: '100%', background: 'var(--color-forest-ink)', borderRadius: '999px' }} />
               </div>
             )}
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
@@ -276,7 +276,7 @@ export default function LocationsIndex() {
       {banner && (
         <div
           role={banner.type === 'error' ? 'alert' : 'status'}
-          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
         >
           <span style={{ flex: 1 }}>{banner.text}</span>
           <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -294,9 +294,9 @@ export default function LocationsIndex() {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar por referencia, nombre o descripción..."
             aria-label="Buscar ubicaciones"
-            style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+            style={{ width: '100%', border: '1px solid var(--color-fog)', background: 'var(--color-paper)', borderRadius: '10px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
           />
-          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+          <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
         </div>
         <div style={{ position: 'relative' }}>
           <button
@@ -304,15 +304,15 @@ export default function LocationsIndex() {
             onClick={() => setShowFilters((v) => !v)}
             aria-label="Filtros"
             aria-expanded={showFilters}
-            style={{ border: '1px solid #e2e8f0', background: status !== 'all' || branch !== 'all' ? '#eff6ff' : '#ffffff', borderRadius: '8px', padding: '9px 12px', cursor: 'pointer', color: '#475569', display: 'flex', minHeight: '38px', alignItems: 'center' }}
+            style={{ border: '1px solid var(--color-fog)', background: status !== 'all' || branch !== 'all' ? 'var(--color-linen-mist)' : '#ffffff', borderRadius: '9999px', padding: '9px 12px', cursor: 'pointer', color: 'var(--color-charcoal)', display: 'flex', minHeight: '38px', alignItems: 'center' }}
           >
             <SlidersHorizontal size={16} />
           </button>
           {showFilters && (
-            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.18)', padding: '12px', zIndex: 50, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+            <div style={{ position: 'absolute', right: 0, top: 'calc(100% + 6px)', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.18)', padding: '12px', zIndex: 50, minWidth: '220px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 ESTADO
-                <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                   <option value="all">Todos</option>
                   <option value="disponible">Disponible</option>
                   <option value="entrante">Entrante</option>
@@ -320,9 +320,9 @@ export default function LocationsIndex() {
                   <option value="desecho">Desecho</option>
                 </select>
               </label>
-              <label style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+              <label style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 SUCURSAL
-                <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                <select value={branch} onChange={(e) => setBranch(e.target.value)} style={{ display: 'block', width: '100%', marginTop: '4px', padding: '8px', borderRadius: '6px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                   <option value="all">Todas</option>
                   {branches.map((b) => (
                     <option key={b} value={b}>
@@ -337,7 +337,7 @@ export default function LocationsIndex() {
         <button
           type="button"
           onClick={openCreate}
-          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
+          style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
         >
           <Plus size={15} /> Nueva ubicación
         </button>
@@ -345,7 +345,7 @@ export default function LocationsIndex() {
 
       {/* Selección */}
       {selected.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--color-linen-mist)', border: '1px solid var(--color-forest-ink)', borderRadius: '10px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
           <span>{selected.length} seleccionada{selected.length === 1 ? '' : 's'}</span>
           <button
             type="button"
@@ -360,7 +360,7 @@ export default function LocationsIndex() {
                 handleBulkDelete();
               }
             }}
-            style={{ background: confirmBulk && selected.length > 1 ? '#dc2626' : '#ffffff', color: confirmBulk && selected.length > 1 ? '#ffffff' : '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+            style={{ background: confirmBulk && selected.length > 1 ? 'var(--color-alarm-red)' : '#ffffff', color: confirmBulk && selected.length > 1 ? '#ffffff' : 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
           >
             {confirmBulk && selected.length > 1 ? `¿Confirmar borrado de ${selected.length}?` : `Eliminar (${selected.length})`}
           </button>
@@ -371,39 +371,39 @@ export default function LocationsIndex() {
       )}
 
       {/* Tabla */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         <div style={{ overflowX: 'auto' }}>
           <table style={{ width: '100%', minWidth: '880px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
+              <tr style={{ borderBottom: '1px solid var(--color-fog)', textAlign: 'left' }}>
                 <th style={{ padding: '12px 12px 12px 18px', width: '36px' }}>
-                  <input type="checkbox" checked={items.length > 0 && items.every((i) => selected.includes(i.ref))} onChange={() => setSelected((prev) => (items.every((i) => prev.includes(i.ref)) ? prev.filter((s) => !items.some((i) => i.ref === s)) : [...new Set([...prev, ...items.map((i) => i.ref)])]))} aria-label="Seleccionar todas" style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }} />
+                  <input type="checkbox" checked={items.length > 0 && items.every((i) => selected.includes(i.ref))} onChange={() => setSelected((prev) => (items.every((i) => prev.includes(i.ref)) ? prev.filter((s) => !items.some((i) => i.ref === s)) : [...new Set([...prev, ...items.map((i) => i.ref)])]))} aria-label="Seleccionar todas" style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }} />
                 </th>
                 <th style={{ padding: '12px' }}>
-                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
+                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
                     REFERENCIA {sortOrder === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
                 </th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>TIPO</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>NOMBRE</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>TIPO DE ALMACENAMIENTO</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>SUCURSAL</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>DESCRIPCIÓN</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>ÁREA</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>TIPO</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>NOMBRE</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>TIPO DE ALMACENAMIENTO</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>SUCURSAL</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>DESCRIPCIÓN</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>ÁREA</th>
                 <th style={{ padding: '12px 18px 12px 12px', width: '44px' }} />
               </tr>
             </thead>
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={9} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-pebble)' }}>
                     Cargando ubicaciones…
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={9} style={{ padding: 0 }}>
-                    <div style={{ margin: '12px', border: '1px solid #e2e8f0', borderLeft: '3px solid #2563eb', borderRadius: '8px', background: '#f8fafc', padding: '14px 16px', fontSize: '13px', color: '#0f172a' }}>
+                    <div style={{ margin: '12px', border: '1px solid var(--color-fog)', borderLeft: '3px solid var(--color-forest-ink)', borderRadius: '10px', background: 'var(--color-paper)', padding: '14px 16px', fontSize: '13px', color: 'var(--color-obsidian)' }}>
                       {total === 0 && !hasFilters
                         ? 'No hay ubicaciones registradas. Crea la primera con NUEVA UBICACIÓN arriba.'
                         : 'Sin coincidencias para los filtros aplicados.'}
@@ -414,30 +414,30 @@ export default function LocationsIndex() {
                 items.map((item) => {
                   const meta = STATUS_META[item.status] || STATUS_META.disponible;
                   return (
-                    <tr key={item.ref} style={{ borderBottom: '1px solid #f1f5f9', borderLeft: `3px solid ${meta.color}` }}>
+                    <tr key={item.ref} style={{ borderBottom: '1px solid var(--color-fog)', borderLeft: `3px solid ${meta.color}` }}>
                       <td style={{ padding: '12px 12px 12px 18px' }}>
                         <input
                           type="checkbox"
                           checked={selected.includes(item.ref)}
                           onChange={() => setSelected((prev) => (prev.includes(item.ref) ? prev.filter((s) => s !== item.ref) : [...prev, item.ref]))}
                           aria-label={`Seleccionar ${item.ref}`}
-                          style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }}
+                          style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }}
                         />
                       </td>
-                      <td style={{ padding: '12px', fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.ref}</td>
+                      <td style={{ padding: '12px', fontWeight: 600, color: 'var(--color-charcoal)', whiteSpace: 'nowrap', fontSize: '12px' }}>{item.ref}</td>
                       <td style={{ padding: '12px', whiteSpace: 'nowrap' }}>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#0f172a' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--color-obsidian)' }}>
                           <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: meta.color }} />
                           {meta.label}
                         </span>
                       </td>
-                      <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>{item.name}</td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.storageType || '—'}</td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.branch}</td>
-                      <td style={{ padding: '12px', color: '#64748b', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
+                      <td style={{ padding: '12px', fontWeight: 700, color: 'var(--color-obsidian)', whiteSpace: 'nowrap' }}>{item.name}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.storageType || '—'}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.branch}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-slate)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
                         {item.description || '—'}
                       </td>
-                      <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>{item.area || '—'}</td>
+                      <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>{item.area || '—'}</td>
                       <td style={{ padding: '12px 18px 12px 12px', position: 'relative' }}>
                         <button
                           type="button"
@@ -447,22 +447,22 @@ export default function LocationsIndex() {
                             setConfirmDelete(null);
                             setOpenMenu((v) => (v === item.ref ? null : item.ref));
                           }}
-                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
+                          style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
                         >
                           <MoreVertical size={16} />
                         </button>
                         {openMenu === item.ref && (
-                          <div style={{ position: 'absolute', right: '12px', top: 'calc(100% - 6px)', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.25)', zIndex: 60, minWidth: '180px', padding: '6px' }}>
+                          <div style={{ position: 'absolute', right: '12px', top: 'calc(100% - 6px)', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', boxShadow: '0 12px 32px -8px rgba(15,23,42,0.25)', zIndex: 60, minWidth: '180px', padding: '6px' }}>
                             {confirmDelete === item.ref ? (
                               <div style={{ padding: '8px' }}>
-                                <p style={{ fontSize: '12px', fontWeight: 600, color: '#0f172a', margin: '0 0 8px 0' }}>
+                                <p style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-obsidian)', margin: '0 0 8px 0' }}>
                                   ¿Eliminar {item.ref}?
                                 </p>
                                 <div style={{ display: 'flex', gap: '8px' }}>
-                                  <button type="button" onClick={() => handleDelete(item.ref)} style={{ flex: 1, background: '#dc2626', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
+                                  <button type="button" onClick={() => handleDelete(item.ref)} style={{ flex: 1, background: 'var(--color-alarm-red)', color: '#ffffff', border: 'none', borderRadius: '6px', padding: '8px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}>
                                     Sí, eliminar
                                   </button>
-                                  <button type="button" onClick={() => setConfirmDelete(null)} style={{ flex: 1, background: '#ffffff', color: '#475569', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', minHeight: '44px' }}>
+                                  <button type="button" onClick={() => setConfirmDelete(null)} style={{ flex: 1, background: '#ffffff', color: 'var(--color-charcoal)', border: '1px solid var(--color-pebble)', borderRadius: '6px', padding: '8px', fontSize: '12px', fontWeight: 600, cursor: 'pointer', minHeight: '44px' }}>
                                     No
                                   </button>
                                 </div>
@@ -472,7 +472,7 @@ export default function LocationsIndex() {
                                 <button type="button" onClick={() => openEdit(item)} style={menuBtnStyle}>
                                   <Pencil size={14} /> Editar
                                 </button>
-                                <button type="button" onClick={() => setConfirmDelete(item.ref)} style={{ ...menuBtnStyle, color: '#dc2626' }}>
+                                <button type="button" onClick={() => setConfirmDelete(item.ref)} style={{ ...menuBtnStyle, color: 'var(--color-alarm-red)' }}>
                                   <Trash2 size={14} /> Eliminar
                                 </button>
                               </>
@@ -488,7 +488,7 @@ export default function LocationsIndex() {
           </table>
         </div>
         {!loading && total > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid #e2e8f0', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 18px', borderTop: '1px solid var(--color-fog)', fontSize: '12px', color: 'var(--color-slate)' }}>
             <span>
               Mostrando {from}–{to} de {total}
             </span>
@@ -517,18 +517,18 @@ export default function LocationsIndex() {
         >
           <form
             onSubmit={handleSave}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>
                 {editing ? `Editar ${editing.ref}` : 'Nueva ubicación'}
               </h2>
-              <button type="button" onClick={() => !saving && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="button" onClick={() => !saving && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={18} />
               </button>
             </div>
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
@@ -572,10 +572,10 @@ export default function LocationsIndex() {
               <input value={fArea} onChange={(e) => setFArea(e.target.value)} placeholder="Nave A" style={inputStyle} />
             </label>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
-              <button type="button" onClick={() => !saving && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+              <button type="button" onClick={() => !saving && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                 Cancelar
               </button>
-              <button type="submit" disabled={saving} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+              <button type="submit" disabled={saving} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                 {saving && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                 {saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear ubicación'}
               </button>
@@ -599,7 +599,7 @@ const menuBtnStyle: React.CSSProperties = {
   padding: '10px 12px',
   fontSize: '13px',
   fontWeight: 600,
-  color: '#0f172a',
+  color: 'var(--color-obsidian)',
   cursor: 'pointer',
   minHeight: '44px',
   textAlign: 'left',
@@ -608,7 +608,7 @@ const menuBtnStyle: React.CSSProperties = {
 const labelStyle: React.CSSProperties = {
   fontSize: '12px',
   fontWeight: 600,
-  color: '#334155',
+  color: 'var(--color-charcoal)',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -616,8 +616,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',
@@ -626,13 +626,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 const pagerBtnStyle = (disabled: boolean): React.CSSProperties => ({
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--color-fog)',
   background: '#ffffff',
   borderRadius: '6px',
   padding: '6px 12px',
   fontSize: '12px',
   fontWeight: 600,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  color: disabled ? '#cbd5e1' : '#334155',
+  color: disabled ? 'var(--color-pebble)' : 'var(--color-charcoal)',
   minHeight: '44px',
 });

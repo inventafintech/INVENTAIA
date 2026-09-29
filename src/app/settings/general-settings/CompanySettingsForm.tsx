@@ -87,7 +87,7 @@ export default function CompanySettingsForm() {
               border: '1px solid #bbf7d0',
               color: '#166534',
               padding: '12px 16px',
-              borderRadius: '8px',
+              borderRadius: '10px',
               fontSize: '13px',
               fontWeight: 600,
               display: 'flex',
@@ -102,17 +102,17 @@ export default function CompanySettingsForm() {
 
         <form onSubmit={handleSave} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           {/* SECCIÓN 1: DATOS CORPORATIVOS */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <Building2 size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <Building2 size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Información del Workspace & Empresa
               </h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Razón Social / Empresa
                 </label>
                 <input
@@ -122,8 +122,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -133,7 +133,7 @@ export default function CompanySettingsForm() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   RUC / Identificación Fiscal
                 </label>
                 <input
@@ -143,8 +143,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -154,7 +154,7 @@ export default function CompanySettingsForm() {
               </div>
 
               <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Dirección Fiscal
                 </label>
                 <input
@@ -164,8 +164,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     outline: 'none',
                     boxSizing: 'border-box',
@@ -174,7 +174,7 @@ export default function CompanySettingsForm() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Moneda Principal
                 </label>
                 <select
@@ -183,8 +183,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     background: '#ffffff',
                     outline: 'none',
@@ -199,17 +199,17 @@ export default function CompanySettingsForm() {
           </div>
 
           {/* SECCIÓN 2: PARÁMETROS DEL ALGORITMO */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <Sliders size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <Sliders size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Parámetros del Cerebro de Compras (ROP)
               </h3>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Lead Time Promedio
                 </label>
                 <div style={{ position: 'relative' }}>
@@ -222,22 +222,22 @@ export default function CompanySettingsForm() {
                     style={{
                       width: '100%',
                       padding: '9px 12px',
-                      borderRadius: '8px',
-                      border: '1px solid #cbd5e1',
+                      borderRadius: '10px',
+                      border: '1px solid var(--color-pebble)',
                       fontSize: '14px',
                       outline: 'none',
                       boxSizing: 'border-box',
                     }}
                     required
                   />
-                  <span style={{ position: 'absolute', right: '12px', top: '9px', fontSize: '13px', color: '#64748b' }}>
+                  <span style={{ position: 'absolute', right: '12px', top: '9px', fontSize: '13px', color: 'var(--color-slate)' }}>
                     días
                   </span>
                 </div>
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Nivel de Servicio (SLA)
                 </label>
                 <select
@@ -246,8 +246,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     background: '#ffffff',
                     outline: 'none',
@@ -262,7 +262,7 @@ export default function CompanySettingsForm() {
               </div>
 
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', marginBottom: '6px' }}>
                   Horizonte de Predicción
                 </label>
                 <select
@@ -271,8 +271,8 @@ export default function CompanySettingsForm() {
                   style={{
                     width: '100%',
                     padding: '9px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    borderRadius: '10px',
+                    border: '1px solid var(--color-pebble)',
                     fontSize: '14px',
                     background: '#ffffff',
                     outline: 'none',
@@ -288,31 +288,31 @@ export default function CompanySettingsForm() {
           </div>
 
           {/* SECCIÓN 3: NOTIFICACIONES AUTOMATIZADAS */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '24px' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '24px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
-              <Bell size={20} color="#2563eb" />
-              <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+              <Bell size={20} color="var(--color-forest-ink)" />
+              <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', margin: 0 }}>
                 Canales de Notificación
               </h3>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#334155', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'var(--color-charcoal)', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={notifyWhatsApp}
                   onChange={(e) => setNotifyWhatsApp(e.target.checked)}
-                  style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                  style={{ width: '16px', height: '16px', accentColor: 'var(--color-forest-ink)' }}
                 />
                 <span>Enviar alertas urgentes de riesgo de quiebre a través de WhatsApp B2B</span>
               </label>
 
-              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: '#334155', cursor: 'pointer' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: '14px', color: 'var(--color-charcoal)', cursor: 'pointer' }}>
                 <input
                   type="checkbox"
                   checked={notifyEmail}
                   onChange={(e) => setNotifyEmail(e.target.checked)}
-                  style={{ width: '16px', height: '16px', accentColor: '#2563eb' }}
+                  style={{ width: '16px', height: '16px', accentColor: 'var(--color-forest-ink)' }}
                 />
                 <span>Enviar resumen ejecutivo de compras sugeridas al correo cada lunes</span>
               </label>
@@ -328,10 +328,10 @@ export default function CompanySettingsForm() {
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                background: '#2563eb',
+                background: 'var(--color-forest-ink)',
                 color: '#ffffff',
                 padding: '11px 24px',
-                borderRadius: '8px',
+                borderRadius: '10px',
                 fontSize: '14px',
                 fontWeight: 700,
                 border: 'none',

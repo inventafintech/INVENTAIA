@@ -182,8 +182,8 @@ export default function AnalyticsPage() {
             >
               <defs>
                 <linearGradient id="analyticsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="#2563eb" stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#2563eb" stopOpacity="0.01" />
+                  <stop offset="0%" stopColor="var(--color-forest-ink)" stopOpacity="0.22" />
+                  <stop offset="100%" stopColor="var(--color-forest-ink)" stopOpacity="0.01" />
                 </linearGradient>
               </defs>
 
@@ -200,7 +200,7 @@ export default function AnalyticsPage() {
               <path
                 d={linePathD}
                 fill="none"
-                stroke="#2563eb"
+                stroke="var(--color-forest-ink)"
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -233,24 +233,29 @@ export default function AnalyticsPage() {
                     {/* Punto Visible (centrado verticalmente por % sobre la línea) */}
                     <div 
                       className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 transition-all duration-200 ${
-                        isCurrent ? 'w-3 h-3 bg-slate-900 border-white shadow-sm' : 'w-2 h-2 bg-blue-600 border-white'
+                        isCurrent ? 'w-3 h-3 shadow-sm' : 'w-2 h-2'
                       }`}
-                      style={{ top: `${c.yPercent}%` }}
+                      style={{
+                        top: `${c.yPercent}%`,
+                        background: 'var(--color-forest-ink)',
+                        borderColor: 'var(--color-paper)',
+                      }}
                     />
                     
-                    {/* Halo azul de foco para el mes actual */}
+                    {/* Halo lime de foco para el mes actual */}
                     {isCurrent && (
                       <div 
-                        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 bg-blue-600/20 rounded-full"
-                        style={{ top: `${c.yPercent}%` }}
+                        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 w-5 h-5 rounded-full"
+                        style={{ top: `${c.yPercent}%`, background: 'color-mix(in srgb, var(--color-lime-voltage) 30%, transparent)' }}
                       />
                     )}
 
                     {/* Etiqueta del Eje X anclada al fondo (100%) */}
                     <div 
                       className={`absolute bottom-0 w-full text-center text-[10px] sm:text-[11px] whitespace-nowrap -translate-x-1/2 left-1/2 ${
-                        isCurrent ? 'font-bold text-slate-900' : 'font-medium text-slate-500'
+                        isCurrent ? 'font-bold' : 'font-medium'
                       }`}
+                      style={{ color: isCurrent ? 'var(--color-forest-ink)' : 'var(--color-slate)' }}
                     >
                       {pt.label}
                     </div>

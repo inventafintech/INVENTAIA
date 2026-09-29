@@ -82,7 +82,7 @@ export default function CategoriasPage() {
                 <td>{cat.skus} SKUs</td>
                 <td><strong style={{ color: '#16a34a' }}>{cat.targetMargin}</strong></td>
                 <td>{cat.revenueShare}</td>
-                <td style={{ color: '#64748b' }}>{cat.reorderStrategy}</td>
+                <td style={{ color: 'var(--color-slate)' }}>{cat.reorderStrategy}</td>
                 <td>
                   <span className={styles.badgeGood}>{cat.status}</span>
                 </td>

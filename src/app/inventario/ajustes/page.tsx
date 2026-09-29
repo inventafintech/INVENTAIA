@@ -83,16 +83,16 @@ export default function AjustesStockPage() {
                 <td>{aj.date}</td>
                 <td className={styles.productName}>
                   <strong>{aj.product}</strong>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>{aj.sku}</div>
+                  <div style={{ fontSize: '11px', color: 'var(--color-slate)' }}>{aj.sku}</div>
                 </td>
                 <td className={styles.categoryName}>{aj.type}</td>
                 <td>
-                  <strong style={{ color: aj.qty > 0 ? '#16a34a' : '#dc2626' }}>
+                  <strong style={{ color: aj.qty > 0 ? '#16a34a' : 'var(--color-alarm-red)' }}>
                     {aj.qty > 0 ? `+${aj.qty}` : aj.qty} u
                   </strong>
                 </td>
                 <td>{aj.reason}</td>
-                <td style={{ color: '#64748b', fontSize: '12px' }}>{aj.user}</td>
+                <td style={{ color: 'var(--color-slate)', fontSize: '12px' }}>{aj.user}</td>
                 <td>
                   <span className={styles.badgeGood}>{aj.status}</span>
                 </td>

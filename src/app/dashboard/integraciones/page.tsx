@@ -77,7 +77,7 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     category: 'Marketplace Oficial',
     group: 'Marketplaces',
     brandLetter: 'M',
-    brandColor: '#2563eb',
+    brandColor: 'var(--color-forest-ink)',
     desc: 'OAuth 2.0 oficial de Mercado Libre. Sincronización de publicaciones (/users/me/items/search), ventas (/orders/search) y stock.',
     oauthSupported: true,
     syncEndpoint: '/api/integraciones/mercadolibre/sync',
@@ -142,7 +142,7 @@ const CONNECTOR_DEFINITIONS: ConnectorDef[] = [
     category: 'Fiscal / OSE',
     group: 'Fiscal',
     brandLetter: 'S',
-    brandColor: '#dc2626',
+    brandColor: 'var(--color-alarm-red)',
     desc: 'Conexión Web Services SUNAT para emisión de Guías de Remisión Electrónicas (GRE) y Facturación Comercial.',
     oauthSupported: false,
     syncEndpoint: '/api/integraciones/sunat/sync',
@@ -810,7 +810,7 @@ export default function IntegracionesPage() {
                   : 'Instancia SAP configurada y disponible para llamadas OData.'}
               </span>
             </div>
-            <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 700 }}>ODATA v4</span>
+            <span style={{ fontSize: '12px', color: 'var(--color-slate)', fontWeight: 700 }}>ODATA v4</span>
           </div>
 
           <div className={styles.alertCard}>
@@ -860,7 +860,7 @@ export default function IntegracionesPage() {
 
           <div className={styles.logsConsole}>
             {filteredLogs.length === 0 ? (
-              <div style={{ color: '#64748b', padding: '20px', textAlign: 'center' }}>
+              <div style={{ color: 'var(--color-slate)', padding: '20px', textAlign: 'center' }}>
                 No hay eventos registrados en la base de datos todavía. Haga clic en "Sincronizar" en cualquier conector para registrar eventos reales.
               </div>
             ) : (
@@ -916,7 +916,7 @@ export default function IntegracionesPage() {
                     <td><span className={styles.codePill}>{row.accion}</span></td>
                     <td>
                       <span style={{ 
-                        color: row.nivel === 'SUCCESS' ? '#059669' : row.nivel === 'ERROR' ? '#dc2626' : '#d97706',
+                        color: row.nivel === 'SUCCESS' ? '#059669' : row.nivel === 'ERROR' ? 'var(--color-alarm-red)' : '#d97706',
                         fontWeight: 600 
                       }}>
                         {row.resultado}
@@ -924,7 +924,7 @@ export default function IntegracionesPage() {
                     </td>
                     <td>
                       {row.errores ? (
-                        <span style={{ color: '#dc2626', fontSize: '11px' }}>{row.errores}</span>
+                        <span style={{ color: 'var(--color-alarm-red)', fontSize: '11px' }}>{row.errores}</span>
                       ) : (
                         <span style={{ color: 'var(--muted)', fontSize: '11px' }}>Ninguno</span>
                       )}
@@ -1256,7 +1256,7 @@ export default function IntegracionesPage() {
                     style={{
                       padding: '10px 12px',
                       minHeight: '44px',
-                      borderRadius: '8px',
+                      borderRadius: '10px',
                       border: '1px solid var(--line)',
                       background: 'var(--card)',
                       color: 'var(--ink)',
@@ -1267,12 +1267,12 @@ export default function IntegracionesPage() {
                 </label>
               ))}
               {credError && (
-                <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+                <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                   {credError}
                 </div>
               )}
               {credOk && (
-                <div role="status" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+                <div role="status" style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#166534', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                   {credOk}
                 </div>
               )}

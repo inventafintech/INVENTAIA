@@ -216,7 +216,7 @@ export default function OrdenesPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: '#64748b' }}>
+                <td colSpan={8} style={{ textAlign: 'center', padding: '30px', color: 'var(--color-slate)' }}>
                   Cargando órdenes de compra en tiempo real...
                 </td>
               </tr>
@@ -381,7 +381,7 @@ export default function OrdenesPage() {
                       required
                     />
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--color-slate)' }}>
                     Subtotal estimado: S/ {(lineQty * linePrice).toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </div>
                 </div>

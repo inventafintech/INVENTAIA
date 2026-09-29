@@ -204,7 +204,7 @@ export default function ProductCategoriesView() {
   };
 
   const kpiCards = [
-    { label: 'TOTAL DE CATEGORÍAS', value: String(kpis.total), caption: 'Categorías de productos', color: '#2563eb' },
+    { label: 'TOTAL DE CATEGORÍAS', value: String(kpis.total), caption: 'Categorías de productos', color: 'var(--color-forest-ink)' },
     { label: 'SUBCATEGORÍAS', value: String(kpis.subcategories), caption: 'Subcategorías totales', color: '#0ea5e9' },
     { label: 'PROM. SUBCATEGORÍAS', value: String(kpis.avgSubs), caption: 'Por categoría', color: '#16a34a' },
     { label: 'CON TASAS DE IMPUESTOS', value: `${kpis.withTax} /${kpis.withTaxTotal}`, caption: 'Categorías con impuestos', color: '#f97316' },
@@ -216,23 +216,23 @@ export default function ProductCategoriesView() {
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: '#64748b' }}>
+      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--color-slate)' }}>
         CONFIGURACIÓN / CATEGORÍAS
       </span>
 
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <span style={{ width: '52px', height: '52px', borderRadius: '12px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ width: '52px', height: '52px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-pebble)', flexShrink: 0 }}>
           <Shapes size={24} />
         </span>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8' }}>CATÁLOGO</div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '2px 0 8px 0' }}>Categorías de Productos</h1>
+          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--color-pebble)' }}>CATÁLOGO</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '2px 0 8px 0' }}>Categorías de Productos</h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: 'var(--color-paper)', border: '1px solid var(--color-fog)', color: 'var(--color-slate)', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
               CATEGORÍAS {kpis.total}
             </span>
-            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+            <span style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: 'var(--color-paper)', border: '1px solid var(--color-fog)', color: 'var(--color-slate)', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
               SUBCATEGORÍAS {kpis.subcategories}
             </span>
           </div>
@@ -240,29 +240,29 @@ export default function ProductCategoriesView() {
       </div>
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {kpiCards.map((k, idx) => (
-          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+          <div key={k.label} style={{ padding: '18px 20px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
               <span style={{ width: '7px', height: '7px', borderRadius: '50%', background: k.color }} />
               {k.label}
             </div>
-            <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
+            <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '6px', fontVariantNumeric: 'tabular-nums' }}>
               {k.value}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>{k.caption}</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '6px' }}>{k.caption}</div>
           </div>
         ))}
       </div>
 
       {/* Sección */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid #e2e8f0', flexWrap: 'wrap' }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px 20px', borderBottom: '1px solid var(--color-fog)', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '200px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>CATEGORÍAS</div>
-            <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Descripción General de Gestión de Categorías</div>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>CATEGORÍAS</div>
+            <div style={{ fontSize: '13px', color: 'var(--color-slate)', marginTop: '2px' }}>Descripción General de Gestión de Categorías</div>
           </div>
-          <span style={{ fontSize: '11px', color: '#94a3b8' }}>{total} Categorías</span>
+          <span style={{ fontSize: '11px', color: 'var(--color-pebble)' }}>{total} Categorías</span>
         </div>
 
         <div style={{ padding: '14px 20px', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -273,14 +273,14 @@ export default function ProductCategoriesView() {
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Buscar por nombre o descripción..."
               aria-label="Buscar categorías"
-              style={{ width: '100%', border: '1px solid #e2e8f0', background: '#f8fafc', borderRadius: '8px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', border: '1px solid var(--color-fog)', background: 'var(--color-paper)', borderRadius: '10px', padding: '9px 36px 9px 12px', fontSize: '13px', outline: 'none', boxSizing: 'border-box' }}
             />
-            <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+            <Search size={16} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--color-pebble)' }} />
           </div>
           <button
             type="button"
             onClick={openCreate}
-            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
+            style={{ marginLeft: 'auto', display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: 'pointer', minHeight: '38px' }}
           >
             <Plus size={15} /> Nueva categoría
           </button>
@@ -290,7 +290,7 @@ export default function ProductCategoriesView() {
         {banner && (
           <div
             role={banner.type === 'error' ? 'alert' : 'status'}
-            style={{ margin: '0 20px 12px 20px', background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+            style={{ margin: '0 20px 12px 20px', background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
           >
             <span style={{ flex: 1 }}>{banner.text}</span>
             <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -301,7 +301,7 @@ export default function ProductCategoriesView() {
 
         {/* Selección */}
         {selected.length > 0 && (
-          <div style={{ margin: '0 20px 12px 20px', display: 'flex', alignItems: 'center', gap: '12px', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
+          <div style={{ margin: '0 20px 12px 20px', display: 'flex', alignItems: 'center', gap: '12px', background: 'var(--color-linen-mist)', border: '1px solid var(--color-forest-ink)', borderRadius: '10px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#1d4ed8' }}>
             <span>{selected.length} seleccionada{selected.length === 1 ? '' : 's'}</span>
             <button
               type="button"
@@ -313,7 +313,7 @@ export default function ProductCategoriesView() {
                 setConfirmBulk(false);
                 handleBulkDelete();
               }}
-              style={{ background: confirmBulk ? '#dc2626' : '#ffffff', color: confirmBulk ? '#ffffff' : '#dc2626', border: '1px solid #fecaca', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
+              style={{ background: confirmBulk ? 'var(--color-alarm-red)' : '#ffffff', color: confirmBulk ? '#ffffff' : 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '6px', padding: '7px 12px', fontSize: '12px', fontWeight: 600, cursor: 'pointer' }}
             >
               {confirmBulk ? `¿Confirmar borrado de ${selected.length}?` : `Eliminar (${selected.length})`}
             </button>
@@ -324,24 +324,24 @@ export default function ProductCategoriesView() {
         )}
 
         {/* Tabla */}
-        <div style={{ overflowX: 'auto', margin: '0 20px 20px 20px', border: '1px solid #e2e8f0', borderRadius: '10px' }}>
+        <div style={{ overflowX: 'auto', margin: '0 20px 20px 20px', border: '1px solid var(--color-fog)', borderRadius: '10px' }}>
           <table style={{ width: '100%', minWidth: '860px', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #e2e8f0', textAlign: 'left', background: '#f8fafc' }}>
+              <tr style={{ borderBottom: '1px solid var(--color-fog)', textAlign: 'left', background: 'var(--color-paper)' }}>
                 <th style={{ padding: '12px 12px 12px 18px', width: '36px' }}>
-                  <input type="checkbox" checked={items.length > 0 && items.every((i) => selected.includes(i.id))} onChange={() => setSelected((prev) => (items.every((i) => prev.includes(i.id)) ? prev.filter((s) => !items.some((i) => i.id === s)) : [...new Set([...prev, ...items.map((i) => i.id)])]))} aria-label="Seleccionar todas" style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }} />
+                  <input type="checkbox" checked={items.length > 0 && items.every((i) => selected.includes(i.id))} onChange={() => setSelected((prev) => (items.every((i) => prev.includes(i.id)) ? prev.filter((s) => !items.some((i) => i.id === s)) : [...new Set([...prev, ...items.map((i) => i.id)])]))} aria-label="Seleccionar todas" style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }} />
                 </th>
                 <th style={{ padding: '12px' }}>
-                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
+                  <button type="button" onClick={() => setSortOrder((o) => (o === 'asc' ? 'desc' : 'asc'))} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)', display: 'inline-flex', alignItems: 'center', gap: '4px', padding: 0 }}>
                     NÚM. {sortOrder === 'asc' ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
                   </button>
                 </th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>NOMBRE</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>DESCRIPCIÓN</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>PRODUCTOS TOTALES</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>SUBCATEGORÍAS TOTALES</th>
-                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: '#475569' }}>UMBRAL DE CADUCIDAD</th>
-                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: '#2563eb' }}>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>NOMBRE</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>DESCRIPCIÓN</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>PRODUCTOS TOTALES</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>SUBCATEGORÍAS TOTALES</th>
+                <th style={{ padding: '12px', fontSize: '11px', fontWeight: 700, letterSpacing: '0.05em', color: 'var(--color-charcoal)' }}>UMBRAL DE CADUCIDAD</th>
+                <th style={{ padding: '12px 18px 12px 12px', textAlign: 'right', color: 'var(--color-forest-ink)' }}>
                   <Zap size={15} />
                 </th>
               </tr>
@@ -349,14 +349,14 @@ export default function ProductCategoriesView() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: '#94a3b8' }}>
+                  <td colSpan={8} style={{ padding: '32px', textAlign: 'center', color: 'var(--color-pebble)' }}>
                     Cargando categorías…
                   </td>
                 </tr>
               ) : items.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ padding: '24px' }}>
-                    <div style={{ border: '1px dashed #cbd5e1', borderRadius: '8px', background: '#f8fafc', padding: '20px', fontSize: '14px', fontWeight: 600, color: '#0f172a', textAlign: 'center' }}>
+                    <div style={{ border: '1px dashed var(--color-pebble)', borderRadius: '10px', background: 'var(--color-paper)', padding: '20px', fontSize: '14px', fontWeight: 600, color: 'var(--color-obsidian)', textAlign: 'center' }}>
                       {total === 0 && !hasFilters
                         ? 'No hay categorías para mostrar. Añade una nueva categoría con el botón Nueva categoría en la tabla de abajo.'
                         : 'Sin coincidencias para los filtros aplicados.'}
@@ -365,17 +365,17 @@ export default function ProductCategoriesView() {
                 </tr>
               ) : (
                 items.map((item, idx) => (
-                  <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <tr key={item.id} style={{ borderBottom: '1px solid var(--color-fog)' }}>
                     <td style={{ padding: '12px 12px 12px 18px' }}>
                       <input
                         type="checkbox"
                         checked={selected.includes(item.id)}
                         onChange={() => setSelected((prev) => (prev.includes(item.id) ? prev.filter((s) => s !== item.id) : [...prev, item.id]))}
                         aria-label={`Seleccionar ${item.name}`}
-                        style={{ accentColor: '#2563eb', width: '15px', height: '15px', cursor: 'pointer' }}
+                        style={{ accentColor: 'var(--color-forest-ink)', width: '15px', height: '15px', cursor: 'pointer' }}
                       />
                     </td>
-                    <td style={{ padding: '12px', color: '#64748b', fontVariantNumeric: 'tabular-nums' }}>
+                    <td style={{ padding: '12px', color: 'var(--color-slate)', fontVariantNumeric: 'tabular-nums' }}>
                       {(page - 1) * PAGE_SIZE + idx + 1}
                     </td>
                     <td style={{ padding: '12px' }}>
@@ -387,20 +387,20 @@ export default function ProductCategoriesView() {
                       >
                         <span style={{ display: 'block', fontWeight: 700, color: '#1d4ed8', fontSize: '13px' }}>{item.name}</span>
                         {item.parentName && (
-                          <span style={{ display: 'block', fontSize: '11px', color: '#94a3b8' }}>↳ {item.parentName}</span>
+                          <span style={{ display: 'block', fontSize: '11px', color: 'var(--color-pebble)' }}>↳ {item.parentName}</span>
                         )}
                       </button>
                     </td>
-                    <td style={{ padding: '12px', color: '#64748b', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
+                    <td style={{ padding: '12px', color: 'var(--color-slate)', maxWidth: '220px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={item.description}>
                       {item.description || '—'}
                     </td>
-                    <td style={{ padding: '12px', fontWeight: 700, color: '#0f172a', fontVariantNumeric: 'tabular-nums' }}>
+                    <td style={{ padding: '12px', fontWeight: 700, color: 'var(--color-obsidian)', fontVariantNumeric: 'tabular-nums' }}>
                       {item.productCount}
                     </td>
-                    <td style={{ padding: '12px', color: '#475569', fontVariantNumeric: 'tabular-nums' }}>
+                    <td style={{ padding: '12px', color: 'var(--color-charcoal)', fontVariantNumeric: 'tabular-nums' }}>
                       {item.subCount}
                     </td>
-                    <td style={{ padding: '12px', color: '#475569', whiteSpace: 'nowrap' }}>
+                    <td style={{ padding: '12px', color: 'var(--color-charcoal)', whiteSpace: 'nowrap' }}>
                       {item.expiryDays !== null ? `${item.expiryDays} días` : '—'}
                       {item.taxRate !== null && (
                         <span style={{ display: 'block', fontSize: '11px', color: '#b45309' }}>IVA {item.taxRate}%</span>
@@ -411,7 +411,7 @@ export default function ProductCategoriesView() {
                         type="button"
                         title={`Ver productos de ${item.name}`}
                         onClick={() => router.push(`/products/products?q=${encodeURIComponent(item.name)}`)}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#2563eb', display: 'inline-flex' }}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-forest-ink)', display: 'inline-flex' }}
                       >
                         <Zap size={15} />
                       </button>
@@ -423,7 +423,7 @@ export default function ProductCategoriesView() {
           </table>
         </div>
         {!loading && total > 0 && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 20px 18px 20px', fontSize: '12px', color: '#64748b' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '0 20px 18px 20px', fontSize: '12px', color: 'var(--color-slate)' }}>
             <span>
               Mostrando {from}–{to} de {total}
             </span>
@@ -452,18 +452,18 @@ export default function ProductCategoriesView() {
         >
           <form
             onSubmit={handleSave}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>
                 {editing ? 'Editar categoría' : 'Nueva categoría'}
               </h2>
-              <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
+              <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}>
                 <X size={18} />
               </button>
             </div>
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
@@ -504,16 +504,16 @@ export default function ProductCategoriesView() {
                   type="button"
                   onClick={handleDelete}
                   disabled={saving || deleting}
-                  style={{ background: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}
+                  style={{ background: '#ffffff', color: 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}
                 >
                   {deleting ? 'Eliminando…' : 'Eliminar'}
                 </button>
               )}
               <span style={{ marginLeft: 'auto', display: 'flex', gap: '10px' }}>
-                <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+                <button type="button" onClick={() => !saving && !deleting && setShowModal(false)} style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                   Cancelar
                 </button>
-                <button type="submit" disabled={saving || deleting} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
+                <button type="submit" disabled={saving || deleting} style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving || deleting ? 'not-allowed' : 'pointer', minHeight: '44px' }}>
                   {saving && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                   {saving ? 'Guardando…' : editing ? 'Guardar cambios' : 'Crear categoría'}
                 </button>
@@ -530,7 +530,7 @@ export default function ProductCategoriesView() {
 const labelStyle: React.CSSProperties = {
   fontSize: '12px',
   fontWeight: 600,
-  color: '#334155',
+  color: 'var(--color-charcoal)',
 };
 
 const inputStyle: React.CSSProperties = {
@@ -538,8 +538,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',
@@ -548,13 +548,13 @@ const inputStyle: React.CSSProperties = {
 };
 
 const pagerBtnStyle = (disabled: boolean): React.CSSProperties => ({
-  border: '1px solid #e2e8f0',
+  border: '1px solid var(--color-fog)',
   background: '#ffffff',
   borderRadius: '6px',
   padding: '6px 12px',
   fontSize: '12px',
   fontWeight: 600,
   cursor: disabled ? 'not-allowed' : 'pointer',
-  color: disabled ? '#cbd5e1' : '#334155',
+  color: disabled ? 'var(--color-pebble)' : 'var(--color-charcoal)',
   minHeight: '44px',
 });

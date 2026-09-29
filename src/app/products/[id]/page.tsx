@@ -187,7 +187,7 @@ function ProductDetailContent() {
 
   if (loading) {
     return (
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '48px', textAlign: 'center', color: 'var(--color-pebble)', fontSize: '13px' }}>
         Cargando ficha del producto…
       </div>
     );
@@ -196,9 +196,9 @@ function ProductDetailContent() {
   if (notFound || !data) {
     return (
       <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '48px', textAlign: 'center' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>Producto no encontrado</h1>
-        <p style={{ fontSize: '13px', color: '#64748b' }}>La referencia solicitada no existe en el catálogo.</p>
-        <Link href="/products/products" style={{ fontSize: '13px', fontWeight: 700, color: '#2563eb' }}>
+        <h1 style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-obsidian)' }}>Producto no encontrado</h1>
+        <p style={{ fontSize: '13px', color: 'var(--color-slate)' }}>La referencia solicitada no existe en el catálogo.</p>
+        <Link href="/products/products" style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-forest-ink)' }}>
           ← Volver a Productos
         </Link>
       </div>
@@ -212,23 +212,23 @@ function ProductDetailContent() {
   return (
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Breadcrumb */}
-      <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }} aria-label="Miga de pan">
-        <Link href="/products/products" style={{ color: '#2563eb', fontWeight: 600, textDecoration: 'none' }}>
+      <nav style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--color-slate)' }} aria-label="Miga de pan">
+        <Link href="/products/products" style={{ color: 'var(--color-forest-ink)', fontWeight: 600, textDecoration: 'none' }}>
           Productos
         </Link>
         <ChevronRight size={13} />
-        <span style={{ fontWeight: 700, color: '#0f172a' }}>{data.item.sku}</span>
+        <span style={{ fontWeight: 700, color: 'var(--color-obsidian)' }}>{data.item.sku}</span>
       </nav>
 
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
-        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+        <span style={{ width: '44px', height: '44px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <Tag size={20} />
         </span>
         <div style={{ flex: 1, minWidth: '200px' }}>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: 0 }}>{data.item.name}</h1>
+          <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>{data.item.name}</h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-            <code style={{ fontSize: '12px', fontWeight: 700, background: '#f1f5f9', padding: '2px 8px', borderRadius: '6px', color: '#334155' }}>
+            <code style={{ fontSize: '12px', fontWeight: 700, background: 'var(--color-fog)', padding: '2px 8px', borderRadius: '6px', color: 'var(--color-charcoal)' }}>
               {data.item.sku}
             </code>
             <span style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px', background: st.bg, color: st.color }}>
@@ -243,7 +243,7 @@ function ProductDetailContent() {
           <button
             type="button"
             onClick={openEdit}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#334155', cursor: 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: 'pointer' }}
           >
             <Pencil size={14} /> Editar
           </button>
@@ -252,7 +252,7 @@ function ProductDetailContent() {
             onClick={handleGenerateOC}
             disabled={generating || data.restock.suggestedQty <= 0}
             title={data.restock.suggestedQty <= 0 ? 'Sin cantidad sugerida' : 'Generar orden de compra'}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: generating || data.restock.suggestedQty <= 0 ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, cursor: generating || data.restock.suggestedQty <= 0 ? 'not-allowed' : 'pointer' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: generating || data.restock.suggestedQty <= 0 ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, cursor: generating || data.restock.suggestedQty <= 0 ? 'not-allowed' : 'pointer' }}
           >
             <Zap size={14} /> {generating ? 'Generando…' : 'Generar OC'}
           </button>
@@ -262,7 +262,7 @@ function ProductDetailContent() {
       {banner && (
         <div
           role={banner.type === 'error' ? 'alert' : 'status'}
-          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
         >
           <span style={{ flex: 1 }}>{banner.text}</span>
           <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -272,7 +272,7 @@ function ProductDetailContent() {
       )}
 
       {/* KPIs */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
         {[
           { label: 'PRECIO VENTA', value: formatPEN(data.item.price) },
           { label: 'COSTO', value: formatPEN(data.item.cost) },
@@ -280,35 +280,35 @@ function ProductDetailContent() {
           { label: 'STOCK ACTUAL', value: `${data.stock.physical} u` },
           { label: 'COBERTURA', value: `${data.restock.coverageDays} días` },
         ].map((k, idx) => (
-          <div key={k.label} style={{ padding: '16px 18px', borderLeft: idx === 0 ? 'none' : '1px solid #e2e8f0' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>{k.label}</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>{k.value}</div>
+          <div key={k.label} style={{ padding: '16px 18px', borderLeft: idx === 0 ? 'none' : '1px solid var(--color-fog)' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>{k.label}</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', marginTop: '4px', fontVariantNumeric: 'tabular-nums' }}>{k.value}</div>
           </div>
         ))}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px' }}>
         {/* Info general */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Tag size={15} color="#2563eb" /> Información general
+        <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Tag size={15} color="var(--color-forest-ink)" /> Información general
           </h2>
           {[
             ['Categoría', data.item.category || '—'],
             ['Estado', st.label],
             ['Última actualización', new Date(data.item.updatedAt).toLocaleString('es-PE')],
           ].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '9px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px' }}>
-              <span style={{ color: '#64748b' }}>{k}</span>
-              <strong style={{ color: '#0f172a', textAlign: 'right' }}>{v}</strong>
+            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '9px 0', borderBottom: '1px solid var(--color-fog)', fontSize: '13px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>{k}</span>
+              <strong style={{ color: 'var(--color-obsidian)', textAlign: 'right' }}>{v}</strong>
             </div>
           ))}
         </div>
 
         {/* Proveedor */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Building2 size={15} color="#2563eb" /> Proveedor
+        <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Building2 size={15} color="var(--color-forest-ink)" /> Proveedor
           </h2>
           {data.supplier ? (
             [
@@ -317,22 +317,22 @@ function ProductDetailContent() {
               ['Contacto', data.supplier.phone || '—'],
               ['Lead time', `${data.supplier.leadTimeDays} días`],
             ].map(([k, v]) => (
-              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '9px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px' }}>
-                <span style={{ color: '#64748b' }}>{k}</span>
-                <strong style={{ color: '#0f172a', textAlign: 'right' }}>{v}</strong>
+              <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '9px 0', borderBottom: '1px solid var(--color-fog)', fontSize: '13px' }}>
+                <span style={{ color: 'var(--color-slate)' }}>{k}</span>
+                <strong style={{ color: 'var(--color-obsidian)', textAlign: 'right' }}>{v}</strong>
               </div>
             ))
           ) : (
-            <p style={{ fontSize: '13px', color: '#94a3b8' }}>Sin proveedor asignado.</p>
+            <p style={{ fontSize: '13px', color: 'var(--color-pebble)' }}>Sin proveedor asignado.</p>
           )}
         </div>
 
         {/* Stock y reposición */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Boxes size={15} color="#2563eb" /> Stock y reposición
+        <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Boxes size={15} color="var(--color-forest-ink)" /> Stock y reposición
           </h2>
-          <div style={{ height: '8px', background: '#f1f5f9', borderRadius: '999px', overflow: 'hidden', marginBottom: '12px' }}>
+          <div style={{ height: '8px', background: 'var(--color-fog)', borderRadius: '999px', overflow: 'hidden', marginBottom: '12px' }}>
             <div style={{ width: `${coveragePct}%`, height: '100%', background: data.restock.status === 'critical' ? '#ef4444' : data.restock.status === 'warning' ? '#f59e0b' : '#15803d', borderRadius: '999px' }} />
           </div>
           {[
@@ -343,26 +343,26 @@ function ProductDetailContent() {
             ['Compra sugerida', `${data.restock.suggestedQty} u`],
             ['Inversión estimada', formatPEN(data.restock.investment)],
           ].map(([k, v]) => (
-            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '7px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px' }}>
-              <span style={{ color: '#64748b' }}>{k}</span>
-              <strong style={{ color: '#0f172a', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{v}</strong>
+            <div key={k} style={{ display: 'flex', justifyContent: 'space-between', gap: '12px', padding: '7px 0', borderBottom: '1px solid var(--color-fog)', fontSize: '13px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>{k}</span>
+              <strong style={{ color: 'var(--color-obsidian)', textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{v}</strong>
             </div>
           ))}
         </div>
 
         {/* Historial OC */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px' }}>
-          <h2 style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <TrendingUp size={15} color="#2563eb" /> Historial de órdenes ({data.orders.length})
+        <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '0 0 14px 0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <TrendingUp size={15} color="var(--color-forest-ink)" /> Historial de órdenes ({data.orders.length})
           </h2>
           {data.orders.length === 0 ? (
-            <p style={{ fontSize: '13px', color: '#94a3b8' }}>Aún no hay órdenes de compra para este SKU.</p>
+            <p style={{ fontSize: '13px', color: 'var(--color-pebble)' }}>Aún no hay órdenes de compra para este SKU.</p>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '260px', overflowY: 'auto' }}>
               {data.orders.map((o) => (
-                <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid #f1f5f9', borderRadius: '8px', padding: '9px 12px', fontSize: '12px' }}>
-                  <strong style={{ color: '#0f172a' }}>{o.orderNumber}</strong>
-                  <span style={{ color: '#64748b' }}>
+                <div key={o.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '9px 12px', fontSize: '12px' }}>
+                  <strong style={{ color: 'var(--color-obsidian)' }}>{o.orderNumber}</strong>
+                  <span style={{ color: 'var(--color-slate)' }}>
                     {o.lines.reduce((a, l) => a + l.quantity, 0)} u · S/ {o.total.toLocaleString('es-PE', { minimumFractionDigits: 2 })}
                   </span>
                   <span
@@ -372,8 +372,8 @@ function ProductDetailContent() {
                       fontWeight: 700,
                       padding: '2px 8px',
                       borderRadius: '999px',
-                      background: o.status === 'sent' ? '#f0fdf4' : '#f1f5f9',
-                      color: o.status === 'sent' ? '#15803d' : '#64748b',
+                      background: o.status === 'sent' ? '#f0fdf4' : 'var(--color-fog)',
+                      color: o.status === 'sent' ? '#15803d' : 'var(--color-slate)',
                     }}
                   >
                     {o.status === 'sent' ? 'ENVIADA' : 'BORRADOR'}
@@ -398,55 +398,55 @@ function ProductDetailContent() {
         >
           <form
             onSubmit={handleSave}
-            style={{ background: '#ffffff', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
+            style={{ background: '#ffffff', borderRadius: '10px', padding: '24px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '14px' }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <h2 style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', margin: 0, flex: 1 }}>Editar {data.item.sku}</h2>
-              <button type="button" onClick={() => !saving && setShowEdit(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex' }}>
+              <h2 style={{ fontSize: '17px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0, flex: 1 }}>Editar {data.item.sku}</h2>
+              <button type="button" onClick={() => !saving && setShowEdit(false)} aria-label="Cerrar" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex' }}>
                 <X size={18} />
               </button>
             </div>
             {formError && (
-              <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+              <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
                 {formError}
               </div>
             )}
-            <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+            <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
               Nombre *
               <input value={fName} onChange={(e) => setFName(e.target.value)} required style={inputStyle} />
             </label>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Precio (PEN) *
                 <input value={fPrice} onChange={(e) => setFPrice(e.target.value)} inputMode="decimal" required style={inputStyle} />
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Costo (PEN)
                 <input value={fCost} onChange={(e) => setFCost(e.target.value)} inputMode="decimal" style={inputStyle} />
               </label>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Estado
                 <select value={fStatus} onChange={(e) => setFStatus(e.target.value)} style={inputStyle}>
                   <option value="active">Activo</option>
                   <option value="paused">Pausado</option>
                 </select>
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Stock físico
                 <input value={fStock} onChange={(e) => setFStock(e.target.value)} inputMode="numeric" style={inputStyle} />
               </label>
-              <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155' }}>
+              <label style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-charcoal)' }}>
                 Stock seguridad
                 <input value={fSafety} onChange={(e) => setFSafety(e.target.value)} inputMode="numeric" style={inputStyle} />
               </label>
             </div>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '4px' }}>
-              <button type="button" onClick={() => !saving && setShowEdit(false)} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: '#475569', cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button type="button" onClick={() => !saving && setShowEdit(false)} style={{ background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: saving ? 'not-allowed' : 'pointer' }}>
                 Cancelar
               </button>
-              <button type="submit" disabled={saving} style={{ background: saving ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
+              <button type="submit" disabled={saving} style={{ background: saving ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '9px 16px', fontSize: '13px', fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer' }}>
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </button>
             </div>
@@ -462,8 +462,8 @@ const inputStyle: React.CSSProperties = {
   width: '100%',
   marginTop: '4px',
   padding: '9px 12px',
-  borderRadius: '8px',
-  border: '1px solid #cbd5e1',
+  borderRadius: '10px',
+  border: '1px solid var(--color-pebble)',
   fontSize: '14px',
   outline: 'none',
   boxSizing: 'border-box',

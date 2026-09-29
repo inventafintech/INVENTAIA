@@ -31,7 +31,7 @@ export default function AlertasConfigPage() {
       <div className={styles.statsGrid}>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>UMBRAL CRÍTICO (DÍAS)</span>
-          <span className={styles.statValue} style={{ color: '#dc2626' }}>&lt; 5 Días</span>
+          <span className={styles.statValue} style={{ color: 'var(--color-alarm-red)' }}>&lt; 5 Días</span>
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>BUFFER LEAD TIME</span>
@@ -53,7 +53,7 @@ export default function AlertasConfigPage() {
             <label className={styles.label}>
               Umbral de Riesgo Crítico (Días Restantes de Stock)
             </label>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 6px 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '2px 0 6px 0' }}>
               Se emitirá alerta roja cuando el inventario proyectado cubra menos de este número de días.
             </p>
             <input
@@ -70,7 +70,7 @@ export default function AlertasConfigPage() {
             <label className={styles.label}>
               Buffer de Seguridad sobre Lead Time (Días de Holgura)
             </label>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 6px 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '2px 0 6px 0' }}>
               Días adicionales añadidos al tiempo de entrega del proveedor para prevenir demoras logísticas.
             </p>
             <input
@@ -87,7 +87,7 @@ export default function AlertasConfigPage() {
             <label className={styles.label}>
               Multiplicador de Stock de Seguridad
             </label>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '2px 0 6px 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '2px 0 6px 0' }}>
               Factor aplicado sobre la variabilidad histórica de la demanda (1.0 = normal, 1.25 = alta protección).
             </p>
             <input
@@ -109,7 +109,7 @@ export default function AlertasConfigPage() {
               onChange={(e) => setAutoEmailPO(e.target.checked)}
               style={{ width: '18px', height: '18px', cursor: 'pointer' }}
             />
-            <label htmlFor="autoPO" style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', cursor: 'pointer' }}>
+            <label htmlFor="autoPO" style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)', cursor: 'pointer' }}>
               Generar borrador de Orden de Compra automáticamente al alcanzar punto de reorden
             </label>
           </div>

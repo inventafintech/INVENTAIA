@@ -179,8 +179,8 @@ export default function OnboardingPage() {
   if (loadingSession) {
     return (
       <div className={styles.container}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b' }}>
-          <div className={styles.spinner} style={{ borderTopColor: '#0f172a' }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: 'var(--color-slate)' }}>
+          <div className={styles.spinner} style={{ borderTopColor: 'var(--color-obsidian)' }} />
           <span>Verificando credenciales de INVENTA.AI...</span>
         </div>
       </div>

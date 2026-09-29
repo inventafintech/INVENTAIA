@@ -52,7 +52,7 @@ export default function SoportePage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '20px', maxWidth: '1000px' }}>
         <div className={styles.tableCard} style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '16px' }}>
             Enviar Ticket de Soporte
           </h3>
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -109,29 +109,29 @@ export default function SoportePage() {
         </div>
 
         <div className={styles.tableCard} style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '16px', fontWeight: 700, color: '#0f172a', marginBottom: '16px' }}>
+          <h3 style={{ fontSize: '16px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '16px' }}>
             Canales Directos
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '13.5px' }}>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
-              <Mail size={18} color="#3b82f6" style={{ marginTop: '2px', flexShrink: 0 }} />
+              <Mail size={18} color="var(--color-forest-ink)" style={{ marginTop: '2px', flexShrink: 0 }} />
               <div>
-                <strong style={{ color: '#0f172a' }}>Email de Soporte</strong>
-                <div style={{ color: '#64748b', marginTop: '2px' }}>soporte@inventa.ai</div>
+                <strong style={{ color: 'var(--color-obsidian)' }}>Email de Soporte</strong>
+                <div style={{ color: 'var(--color-slate)', marginTop: '2px' }}>soporte@inventa.ai</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <MessageSquare size={18} color="#16a34a" style={{ marginTop: '2px', flexShrink: 0 }} />
               <div>
-                <strong style={{ color: '#0f172a' }}>Canal de Slack Compartido</strong>
-                <div style={{ color: '#64748b', marginTop: '2px' }}>#soporte-inventa-enterprise</div>
+                <strong style={{ color: 'var(--color-obsidian)' }}>Canal de Slack Compartido</strong>
+                <div style={{ color: 'var(--color-slate)', marginTop: '2px' }}>#soporte-inventa-enterprise</div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
               <Clock size={18} color="#f59e0b" style={{ marginTop: '2px', flexShrink: 0 }} />
               <div>
-                <strong style={{ color: '#0f172a' }}>Horario de Atención Dedicado</strong>
-                <div style={{ color: '#64748b', marginTop: '2px' }}>Lunes a Domingo · 24 Horas</div>
+                <strong style={{ color: 'var(--color-obsidian)' }}>Horario de Atención Dedicado</strong>
+                <div style={{ color: 'var(--color-slate)', marginTop: '2px' }}>Lunes a Domingo · 24 Horas</div>
               </div>
             </div>
           </div>

@@ -34,16 +34,16 @@ export default function NexoChatContainer() {
   };
 
   return (
-    <div className="fixed inset-0 sm:static flex flex-col h-[100dvh] sm:h-screen bg-neutral-50 overflow-hidden text-base">
+    <div className="fixed inset-0 sm:static flex flex-col h-[100dvh] sm:h-screen overflow-hidden text-base" style={{ background: 'var(--color-paper)', color: 'var(--color-charcoal)' }}>
       <div ref={scrollRef} className="flex-1 overflow-y-auto overscroll-none p-4 space-y-6 pb-24">
         {messages.map((m: UIMessage) => (
           <div key={m.id} className={m.role === 'user' ? 'text-right' : 'text-left'}>
             {m.parts.map((part, index) => {
               if (part.type === 'text' && part.text) {
                 return (
-                  <div key={index} className={`inline-block p-3 rounded-2xl max-w-[90%] sm:max-w-[75%] shadow-sm ${
-                    m.role === 'user' ? 'bg-black text-white' : 'bg-white border border-neutral-100 text-neutral-800'
-                  }`}>
+                  <div key={index} className="inline-block p-3 max-w-[90%] sm:max-w-[75%] shadow-sm" style={m.role === 'user'
+                    ? { background: 'var(--color-forest-ink)', color: 'var(--color-paper)', borderRadius: '10px' }
+                    : { background: 'var(--color-paper)', border: '1px solid var(--color-fog)', color: 'var(--color-charcoal)', borderRadius: '10px' }}>
                     {part.text}
                   </div>
                 );
@@ -68,7 +68,7 @@ export default function NexoChatContainer() {
               }
               if (part.type === 'tool-invocation' && (part.state === 'input-available' || part.state === 'input-streaming')) {
                 return (
-                  <div key={index} className="text-sm text-neutral-400 animate-pulse mt-2">
+                  <div key={index} className="text-sm animate-pulse mt-2" style={{ color: 'var(--color-pebble)' }}>
                     Consultando la base de datos...
                   </div>
                 );
@@ -78,10 +78,11 @@ export default function NexoChatContainer() {
           </div>
         ))}
       </div>
-      <div className="absolute sm:relative bottom-0 left-0 right-0 p-3 sm:p-4 bg-white/80 backdrop-blur-md border-t border-neutral-200 pb-safe">
+      <div className="absolute sm:relative bottom-0 left-0 right-0 p-3 sm:p-4 backdrop-blur-md border-t pb-safe" style={{ background: 'rgba(255,255,255,0.8)', borderColor: 'var(--color-fog)' }}>
         <form onSubmit={handleSubmit} className="flex gap-2 relative max-w-3xl mx-auto">
           <input
-            className="w-full p-3 sm:p-4 pl-4 border border-neutral-300 rounded-full bg-white focus:outline-none focus:border-black focus:ring-1 focus:ring-black transition-all text-[16px]"
+            className="w-full p-3 sm:p-4 pl-4 transition-all text-[16px]"
+            style={{ border: '1px solid var(--color-pebble)', borderRadius: '9999px', background: 'var(--color-paper)', color: 'var(--color-charcoal)' }}
             value={inputValue}
             placeholder="Analizar datos..."
             onChange={(e) => setInputValue(e.target.value)}
@@ -89,7 +90,8 @@ export default function NexoChatContainer() {
           <button
             type="submit"
             disabled={status === 'streaming'}
-            className="absolute right-1.5 top-1.5 bottom-1.5 aspect-square bg-black text-white rounded-full flex items-center justify-center hover:bg-neutral-800 transition-transform active:scale-95 disabled:opacity-50"
+            className="absolute right-1.5 top-1.5 bottom-1.5 aspect-square rounded-full flex items-center justify-center transition-transform active:scale-95 disabled:opacity-50"
+            style={{ background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)' }}
           >
             ↗
           </button>

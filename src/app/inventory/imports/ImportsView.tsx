@@ -213,21 +213,21 @@ export default function ImportsView() {
     <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Breadcrumb */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <button type="button" onClick={() => router.back()} aria-label="Volver" style={{ border: '1px solid #e2e8f0', background: '#ffffff', borderRadius: '8px', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#475569', flexShrink: 0 }}>
+        <button type="button" onClick={() => router.back()} aria-label="Volver" style={{ border: '1px solid var(--color-fog)', background: '#ffffff', borderRadius: '9999px', width: '44px', height: '44px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--color-charcoal)', flexShrink: 0 }}>
           <ChevronLeft size={16} />
         </button>
-        <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: '#64748b' }}>
+        <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--color-slate)' }}>
           INVENTARIO / IMPORTACIONES
         </span>
       </div>
 
-      <h1 style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Importaciones</h1>
-      <p style={{ fontSize: '13px', color: '#64748b', margin: '-8px 0 0 0' }}>
+      <h1 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Importaciones</h1>
+      <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '-8px 0 0 0' }}>
         Incorpora el stock inicial y las ventas pasadas a tu inventario desde un archivo CSV
       </p>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '8px 12px' }} role="tablist" aria-label="Tipo de importación">
+      <div style={{ display: 'flex', gap: '4px', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '8px 12px' }} role="tablist" aria-label="Tipo de importación">
         <button
           type="button"
           role="tab"
@@ -236,7 +236,7 @@ export default function ImportsView() {
             setTab('stock');
             setResult(null);
           }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', background: 'transparent', color: tab === 'stock' ? '#2563eb' : '#64748b', fontSize: '14px', fontWeight: tab === 'stock' ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === 'stock' ? '2.5px solid #2563eb' : '2.5px solid transparent', cursor: 'pointer' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', background: 'transparent', color: tab === 'stock' ? 'var(--color-forest-ink)' : 'var(--color-slate)', fontSize: '14px', fontWeight: tab === 'stock' ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === 'stock' ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent', cursor: 'pointer' }}
         >
           <Package size={16} /> Stock Inicial
         </button>
@@ -248,37 +248,37 @@ export default function ImportsView() {
             setTab('ventas');
             setResult(null);
           }}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', background: 'transparent', color: tab === 'ventas' ? '#2563eb' : '#64748b', fontSize: '14px', fontWeight: tab === 'ventas' ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === 'ventas' ? '2.5px solid #2563eb' : '2.5px solid transparent', cursor: 'pointer' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: 'none', background: 'transparent', color: tab === 'ventas' ? 'var(--color-forest-ink)' : 'var(--color-slate)', fontSize: '14px', fontWeight: tab === 'ventas' ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === 'ventas' ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent', cursor: 'pointer' }}
         >
           <ReceiptText size={16} /> Ventas y devoluciones
         </button>
       </div>
 
       {/* Paso 1 */}
-      <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: '#334155', flexShrink: 0 }}>
+      <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-fog)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'var(--color-charcoal)', flexShrink: 0 }}>
             1
           </span>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#334155' }}>SELECCIONAR UBICACIÓN</div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Dónde se registra el stock inicial</div>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>SELECCIONAR UBICACIÓN</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '2px' }}>Dónde se registra el stock inicial</div>
           </div>
         </div>
         <div style={{ padding: '16px 20px' }}>
           {!locationsLoading && locationsTotal === 0 ? (
             <div
               role="alert"
-              style={{ borderLeft: '3px solid #2563eb', background: '#eff6ff', borderRadius: '0 8px 8px 0', padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}
+              style={{ borderLeft: '3px solid var(--color-forest-ink)', background: 'var(--color-linen-mist)', borderRadius: '0 8px 8px 0', padding: '14px 16px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}
             >
               <div style={{ flex: '1 1 220px', fontSize: '13px', color: '#1e3a8a', lineHeight: 1.6 }}>
                 <div style={{ fontWeight: 800 }}>No hay ubicaciones configuradas. Crea una ubicación primero.</div>
-                <div style={{ color: '#3b82f6' }}>La importación necesita un destino válido para registrar el stock.</div>
+                <div style={{ color: 'var(--color-forest-ink)' }}>La importación necesita un destino válido para registrar el stock.</div>
               </div>
               <button
                 type="button"
                 onClick={() => router.push('/inventory/locations')}
-                style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '10px 18px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}
+                style={{ background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '10px 18px', fontSize: '13px', fontWeight: 700, cursor: 'pointer', minHeight: '44px' }}
               >
                 Crear ubicación
               </button>
@@ -298,21 +298,21 @@ export default function ImportsView() {
       </section>
 
       {/* Paso 2 */}
-      <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: '#334155', flexShrink: 0 }}>
+      <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-fog)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'var(--color-charcoal)', flexShrink: 0 }}>
             2
           </span>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#334155' }}>PREPARA TU ARCHIVO</div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>Descarga la plantilla y rellena tus cantidades de stock</div>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>PREPARA TU ARCHIVO</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '2px' }}>Descarga la plantilla y rellena tus cantidades de stock</div>
           </div>
         </div>
         <div style={{ padding: '16px 20px', display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <button
             type="button"
             onClick={handleTemplate}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: '#334155', cursor: 'pointer', minHeight: '44px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '9999px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)', cursor: 'pointer', minHeight: '44px' }}
           >
             <Download size={15} /> Descargar plantilla
           </button>
@@ -321,25 +321,25 @@ export default function ImportsView() {
             onClick={handleExport}
             disabled={!locationRef}
             title={locationRef ? 'Exportar catálogo con stock actual' : 'Selecciona una ubicación para exportar sus productos'}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: locationRef ? '#334155' : '#cbd5e1', cursor: locationRef ? 'pointer' : 'not-allowed', minHeight: '44px' }}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '9999px', padding: '9px 14px', fontSize: '13px', fontWeight: 600, color: locationRef ? 'var(--color-charcoal)' : 'var(--color-pebble)', cursor: locationRef ? 'pointer' : 'not-allowed', minHeight: '44px' }}
           >
             <FileUp size={15} /> Exportar productos
           </button>
-          <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+          <span style={{ fontSize: '12px', color: 'var(--color-pebble)' }}>
             {locationRef ? 'Exporta el catálogo con su stock actual' : 'Selecciona una ubicación para exportar sus productos'}
           </span>
         </div>
       </section>
 
       {/* Paso 3 */}
-      <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-        <div style={{ padding: '16px 20px', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: '#334155', flexShrink: 0 }}>
+      <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+        <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--color-fog)', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+          <span style={{ width: '22px', height: '22px', borderRadius: '6px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 800, color: 'var(--color-charcoal)', flexShrink: 0 }}>
             3
           </span>
           <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#334155' }}>SUBIR ARCHIVO CSV</div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>El archivo se comprueba antes de escribir nada</div>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>SUBIR ARCHIVO CSV</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '2px' }}>El archivo se comprueba antes de escribir nada</div>
           </div>
         </div>
         <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -396,22 +396,22 @@ export default function ImportsView() {
               inputRef.current?.click();
             }}
             style={{
-              border: `1.5px dashed ${dragOver && !dropLocked ? '#2563eb' : '#cbd5e1'}`,
+              border: `1.5px dashed ${dragOver && !dropLocked ? 'var(--color-forest-ink)' : 'var(--color-pebble)'}`,
               borderRadius: '10px',
-              background: dropLocked ? '#f1f5f9' : dragOver ? '#eff6ff' : '#f8fafc',
+              background: dropLocked ? 'var(--color-fog)' : dragOver ? 'var(--color-linen-mist)' : 'var(--color-paper)',
               opacity: dropLocked ? 0.75 : 1,
               padding: '36px 20px',
               textAlign: 'center',
               cursor: dropLocked ? 'not-allowed' : 'pointer',
             }}
           >
-            <UploadCloud size={28} color={dropLocked ? '#cbd5e1' : '#94a3b8'} style={{ margin: '0 auto' }} />
-            <div style={{ fontSize: '14px', fontWeight: 700, color: dropLocked ? '#64748b' : '#0f172a', marginTop: '10px' }}>
+            <UploadCloud size={28} color={dropLocked ? 'var(--color-pebble)' : 'var(--color-pebble)'} style={{ margin: '0 auto' }} />
+            <div style={{ fontSize: '14px', fontWeight: 700, color: dropLocked ? 'var(--color-slate)' : 'var(--color-obsidian)', marginTop: '10px' }}>
               {dropLocked ? 'Selecciona una ubicación en el Paso 1 para habilitar la subida' : 'Arrastra tu archivo CSV aquí o haz clic para buscar'}
             </div>
-            <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>Formato soportado: .csv</div>
+            <div style={{ fontSize: '12px', color: 'var(--color-slate)', marginTop: '4px' }}>Formato soportado: .csv</div>
             <span
-              style={{ display: 'inline-block', marginTop: '12px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, color: '#334155' }}
+              style={{ display: 'inline-block', marginTop: '12px', background: '#ffffff', border: '1px solid var(--color-pebble)', borderRadius: '10px', padding: '8px 16px', fontSize: '13px', fontWeight: 600, color: 'var(--color-charcoal)' }}
             >
               Explorar archivos
             </span>
@@ -427,12 +427,12 @@ export default function ImportsView() {
           </div>
 
           {file && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 14px', fontSize: '13px' }}>
-              <FileText size={16} color="#2563eb" />
-              <span style={{ fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '10px 14px', fontSize: '13px' }}>
+              <FileText size={16} color="var(--color-forest-ink)" />
+              <span style={{ fontWeight: 600, color: 'var(--color-obsidian)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {file.name}
               </span>
-              <span style={{ color: '#94a3b8', fontSize: '12px' }}>{(file.size / 1024).toFixed(1)} KB</span>
+              <span style={{ color: 'var(--color-pebble)', fontSize: '12px' }}>{(file.size / 1024).toFixed(1)} KB</span>
               <button
                 type="button"
                 onClick={() => {
@@ -441,7 +441,7 @@ export default function ImportsView() {
                   if (inputRef.current) inputRef.current.value = '';
                 }}
                 aria-label="Quitar archivo"
-                style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: '#64748b', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
+                style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-slate)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
               >
                 <X size={16} />
               </button>
@@ -449,7 +449,7 @@ export default function ImportsView() {
           )}
 
           {fileError && (
-            <div role="alert" style={{ background: '#fef2f2', border: '1px solid #fecaca', color: '#991b1b', padding: '10px 12px', borderRadius: '8px', fontSize: '13px', fontWeight: 600 }}>
+            <div role="alert" style={{ background: '#fef2f2', border: '1px solid var(--color-alarm-red)', color: '#991b1b', padding: '10px 12px', borderRadius: '10px', fontSize: '13px', fontWeight: 600 }}>
               {fileError}
             </div>
           )}
@@ -460,7 +460,7 @@ export default function ImportsView() {
                 type="button"
                 onClick={handleUpload}
                 disabled={uploading}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: uploading ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '10px 20px', fontSize: '14px', fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer', minHeight: '44px' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', background: uploading ? 'var(--color-pebble)' : 'var(--color-forest-ink)', color: '#ffffff', border: 'none', borderRadius: '9999px', padding: '10px 20px', fontSize: '14px', fontWeight: 600, cursor: uploading ? 'not-allowed' : 'pointer', minHeight: '44px' }}
               >
                 {uploading && <Loader2 size={16} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                 {uploading ? 'Procesando archivo…' : 'Procesar archivo'}
@@ -471,7 +471,7 @@ export default function ImportsView() {
           {result && (
             <div
               role={result.ok ? 'status' : 'alert'}
-              style={{ borderRadius: '8px', padding: '12px 14px', fontSize: '13px', background: result.ok ? '#f0fdf4' : '#fef2f2', border: result.ok ? '1px solid #bbf7d0' : '1px solid #fecaca', color: result.ok ? '#166534' : '#991b1b' }}
+              style={{ borderRadius: '10px', padding: '12px 14px', fontSize: '13px', background: result.ok ? '#f0fdf4' : '#fef2f2', border: result.ok ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: result.ok ? '#166534' : '#991b1b' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 700 }}>
                 {result.ok ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}

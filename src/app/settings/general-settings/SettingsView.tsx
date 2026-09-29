@@ -70,7 +70,7 @@ function Toggle({ checked, onChange, label }: { checked: boolean; onChange: (v: 
         height: '22px',
         borderRadius: '999px',
         border: 'none',
-        background: checked ? '#2563eb' : '#cbd5e1',
+        background: checked ? 'var(--color-forest-ink)' : 'var(--color-pebble)',
         position: 'relative',
         cursor: 'pointer',
         flexShrink: 0,
@@ -270,23 +270,23 @@ export default function SettingsView() {
   const onTrial = sub?.status === 'trial' && sub.trialDaysLeft > 0;
 
   if (loading) {
-    return <div style={{ padding: '48px', textAlign: 'center', color: '#94a3b8', fontSize: '13px' }}>Cargando configuración…</div>;
+    return <div style={{ padding: '48px', textAlign: 'center', color: 'var(--color-pebble)', fontSize: '13px' }}>Cargando configuración…</div>;
   }
 
   return (
     <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: '#64748b' }}>
+      <span style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.04em', color: 'var(--color-slate)' }}>
         CONFIGURACIÓN / CONFIGURACIÓN GENERAL
       </span>
 
       {/* Header */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
-        <span style={{ width: '52px', height: '52px', borderRadius: '12px', background: '#f1f5f9', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', flexShrink: 0 }}>
+      <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px 22px', display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <span style={{ width: '52px', height: '52px', borderRadius: '10px', background: 'var(--color-fog)', border: '1px solid var(--color-fog)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--color-pebble)', flexShrink: 0 }}>
           <SettingsIcon size={24} />
         </span>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: '#94a3b8' }}>ESPACIO DE TRABAJO</div>
-          <h1 style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', margin: '2px 0 8px 0' }}>Configuración y preferencias</h1>
+          <div style={{ fontSize: '11px', fontWeight: 600, letterSpacing: '0.06em', color: 'var(--color-pebble)' }}>ESPACIO DE TRABAJO</div>
+          <h1 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '2px 0 8px 0' }}>Configuración y preferencias</h1>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             {[
               `PLAN ${planLabel}`,
@@ -294,7 +294,7 @@ export default function SettingsView() {
               `PAÍS ${countryLabel}`,
               `ACTUALIZADO ${updatedAt ? new Date(updatedAt).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}`,
             ].map((b) => (
-              <span key={b} style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: '#f8fafc', border: '1px solid #e2e8f0', color: '#64748b', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
+              <span key={b} style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.04em', background: 'var(--color-paper)', border: '1px solid var(--color-fog)', color: 'var(--color-slate)', padding: '3px 9px', borderRadius: '6px', whiteSpace: 'nowrap' }}>
                 {b}
               </span>
             ))}
@@ -303,7 +303,7 @@ export default function SettingsView() {
       </div>
 
       {/* Tabs */}
-      <div style={{ display: 'flex', gap: '4px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '8px 12px', overflowX: 'auto' }} role="tablist" aria-label="Secciones de configuración">
+      <div style={{ display: 'flex', gap: '4px', background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '8px 12px', overflowX: 'auto' }} role="tablist" aria-label="Secciones de configuración">
         {(
           [
             ['general', 'Configuración general'],
@@ -319,7 +319,7 @@ export default function SettingsView() {
             role="tab"
             aria-selected={tab === key}
             onClick={() => setTab(key)}
-            style={{ border: 'none', background: 'transparent', color: tab === key ? '#2563eb' : '#64748b', fontSize: '14px', fontWeight: tab === key ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === key ? '2.5px solid #2563eb' : '2.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            style={{ border: 'none', background: 'transparent', color: tab === key ? 'var(--color-forest-ink)' : 'var(--color-slate)', fontSize: '14px', fontWeight: tab === key ? 700 : 500, padding: '10px 16px', minHeight: '44px', borderBottom: tab === key ? '2.5px solid var(--color-forest-ink)' : '2.5px solid transparent', cursor: 'pointer', whiteSpace: 'nowrap' }}
           >
             {label}
           </button>
@@ -329,7 +329,7 @@ export default function SettingsView() {
       {banner && (
         <div
           role={banner.type === 'error' ? 'alert' : 'status'}
-          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid #fecaca', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
+          style={{ background: banner.type === 'success' ? '#f0fdf4' : '#fef2f2', border: banner.type === 'success' ? '1px solid #bbf7d0' : '1px solid var(--color-alarm-red)', color: banner.type === 'success' ? '#166534' : '#991b1b', padding: '12px 16px', borderRadius: '10px', fontSize: '13px', fontWeight: 600, display: 'flex', gap: '8px', alignItems: 'center' }}
         >
           <span style={{ flex: 1 }}>{banner.text}</span>
           <button type="button" onClick={() => setBanner(null)} aria-label="Cerrar aviso" style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'inherit', fontWeight: 700 }}>
@@ -342,13 +342,13 @@ export default function SettingsView() {
       {tab === 'general' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Región e idioma</h2>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>Cambiar idioma predeterminado y configuración regional</p>
+            <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Región e idioma</h2>
+            <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '4px 0 0 0' }}>Cambiar idioma predeterminado y configuración regional</p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', alignItems: 'start' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', minWidth: 0 }}>
-              <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+              <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
                   APARIENCIA
                 </div>
                 <div style={{ padding: '16px 18px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
@@ -356,7 +356,7 @@ export default function SettingsView() {
                     type="button"
                     onClick={() => setTheme('light')}
                     aria-pressed={theme === 'light'}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: theme === 'light' ? '1.5px solid #2563eb' : '1px solid #e2e8f0', background: '#ffffff', color: theme === 'light' ? '#2563eb' : '#475569', borderRadius: '8px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: theme === 'light' ? '1.5px solid var(--color-forest-ink)' : '1px solid var(--color-fog)', background: '#ffffff', color: theme === 'light' ? 'var(--color-forest-ink)' : 'var(--color-charcoal)', borderRadius: '9999px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                   >
                     <Sun size={15} /> Clásico<br />Claro
                   </button>
@@ -364,21 +364,21 @@ export default function SettingsView() {
                     type="button"
                     onClick={() => setTheme('dark')}
                     aria-pressed={theme === 'dark'}
-                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: theme === 'dark' ? '1.5px solid #2563eb' : '1px solid #e2e8f0', background: '#ffffff', color: theme === 'dark' ? '#2563eb' : '#475569', borderRadius: '8px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', border: theme === 'dark' ? '1.5px solid var(--color-forest-ink)' : '1px solid var(--color-fog)', background: '#ffffff', color: theme === 'dark' ? 'var(--color-forest-ink)' : 'var(--color-charcoal)', borderRadius: '9999px', padding: '10px 16px', minHeight: '44px', fontSize: '13px', fontWeight: 600, cursor: 'pointer' }}
                   >
                     <Moon size={15} /> Clásico<br />Oscuro
                   </button>
                 </div>
-                <div style={{ margin: '0 18px 16px 18px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', fontSize: '12px', color: '#475569' }}>
+                <div style={{ margin: '0 18px 16px 18px', background: 'var(--color-paper)', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: 'var(--color-charcoal)' }}>
                   Nota: las preferencias del tema se guardan en el almacenamiento local del navegador y persistirán entre sesiones.
                 </div>
                 <div style={{ padding: '0 18px 18px 18px' }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Zoom de la aplicación</div>
-                  <div style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.03em', margin: '2px 0 8px 0' }}>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)' }}>Zoom de la aplicación</div>
+                  <div style={{ fontSize: '10px', color: 'var(--color-pebble)', letterSpacing: '0.03em', margin: '2px 0 8px 0' }}>
                     AJUSTA TODA LA APLICACIÓN PARA PANTALLAS PORTÁTILES MÁS PEQUEÑAS. LOS CAMBIOS SE APLICAN EN VIVO EN ESTA PESTAÑA.
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <ZoomIn size={16} color="#94a3b8" />
+                    <ZoomIn size={16} color="var(--color-pebble)" />
                     <input
                       type="range"
                       min={75}
@@ -387,21 +387,21 @@ export default function SettingsView() {
                       value={zoom}
                       onChange={(e) => handleZoom(Number(e.target.value))}
                       aria-label="Zoom de la aplicación"
-                      style={{ flex: 1, accentColor: '#2563eb' }}
+                      style={{ flex: 1, accentColor: 'var(--color-forest-ink)' }}
                     />
-                    <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', minWidth: '40px', textAlign: 'right' }}>{zoom}%</span>
+                    <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--color-obsidian)', minWidth: '40px', textAlign: 'right' }}>{zoom}%</span>
                   </div>
                 </div>
               </section>
 
-              <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+              <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
                   FORMATOS
                 </div>
                 <div style={{ padding: '6px 18px 16px 18px' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px', color: '#334155' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', borderBottom: '1px solid var(--color-fog)', fontSize: '13px', color: 'var(--color-charcoal)' }}>
                     Formato de Número
-                    <select value={prefs.locale.numberFormat} onChange={(e) => savePrefs('numberFormat', { locale: { ...prefs.locale, numberFormat: e.target.value } })} style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                    <select value={prefs.locale.numberFormat} onChange={(e) => savePrefs('numberFormat', { locale: { ...prefs.locale, numberFormat: e.target.value } })} style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                       {NUMBER_FORMATS.map((f) => (
                         <option key={f.value} value={f.value}>
                           {f.label}
@@ -409,9 +409,9 @@ export default function SettingsView() {
                       ))}
                     </select>
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', fontSize: '13px', color: '#334155' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', fontSize: '13px', color: 'var(--color-charcoal)' }}>
                     Formato de fecha
-                    <select value={prefs.locale.dateFormat} onChange={(e) => savePrefs('dateFormat', { locale: { ...prefs.locale, dateFormat: e.target.value } })} style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px' }}>
+                    <select value={prefs.locale.dateFormat} onChange={(e) => savePrefs('dateFormat', { locale: { ...prefs.locale, dateFormat: e.target.value } })} style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '13px' }}>
                       {DATE_FORMATS.map((f) => (
                         <option key={f.value} value={f.value}>
                           {f.label}
@@ -424,8 +424,8 @@ export default function SettingsView() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', minWidth: 0 }}>
-              <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+              <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
                   REGIÓN
                 </div>
                 <div style={{ padding: '6px 18px 16px 18px' }}>
@@ -436,13 +436,13 @@ export default function SettingsView() {
                       ['País por defecto', prefs.locale.country, COUNTRIES, (v: string) => ({ locale: { ...prefs.locale, country: v } })],
                     ] as const
                   ).map(([label, value, options, build]) => (
-                    <label key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', borderBottom: '1px solid #f1f5f9', fontSize: '13px', color: '#334155' }}>
+                    <label key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '10px 0', borderBottom: '1px solid var(--color-fog)', fontSize: '13px', color: 'var(--color-charcoal)' }}>
                       {label}
                       <select
                         value={value}
                         disabled={savingKey !== null}
                         onChange={(e) => savePrefs(label, build(e.target.value))}
-                        style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', background: '#f8fafc' }}
+                        style={{ minWidth: '200px', maxWidth: '60%', padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '13px', background: 'var(--color-paper)' }}
                       >
                         {options.map((o) => (
                           <option key={o.value} value={o.value}>
@@ -455,14 +455,14 @@ export default function SettingsView() {
                 </div>
               </section>
 
-              <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+              <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
                   VALORES POR DEFECTO
                 </div>
                 <div style={{ padding: '14px 18px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>Nivel global de stock bajo</div>
-                    <div style={{ fontSize: '10px', color: '#94a3b8', letterSpacing: '0.03em', marginTop: '2px' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)' }}>Nivel global de stock bajo</div>
+                    <div style={{ fontSize: '10px', color: 'var(--color-pebble)', letterSpacing: '0.03em', marginTop: '2px' }}>
                       ESTABLECER EL UMBRAL PREDETERMINADO DE BAJO STOCK PARA TODOS LOS PRODUCTOS
                     </div>
                   </div>
@@ -484,7 +484,7 @@ export default function SettingsView() {
                       }
                     }}
                     aria-label="Nivel global de stock bajo"
-                    style={{ width: '160px', padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f8fafc', fontSize: '14px', boxSizing: 'border-box' }}
+                    style={{ width: '160px', padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', background: 'var(--color-paper)', fontSize: '14px', boxSizing: 'border-box' }}
                   />
                 </div>
               </section>
@@ -497,15 +497,15 @@ export default function SettingsView() {
       {tab === 'sector' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Sector y métricas</h2>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Sector y métricas</h2>
+            <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '4px 0 0 0' }}>
               Elige tu sector para adaptar automáticamente las métricas y configurar los campos relevantes. Luego puedes personalizar estos ajustes manualmente según sea necesario.
             </p>
           </div>
 
-          <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569', marginBottom: '4px' }}>SECTOR</div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '0 0 12px 0' }}>
+          <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '18px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)', marginBottom: '4px' }}>SECTOR</div>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '0 0 12px 0' }}>
               Elija la opción más parecida. Son familias amplias, no oficios exactos, y todos los campos siguientes se pueden editar.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px' }} role="radiogroup" aria-label="Sector">
@@ -520,9 +520,9 @@ export default function SettingsView() {
                     aria-checked={active}
                     onClick={() => savePrefs('sector', { sector: s.id })}
                     style={{
-                      border: active ? '1.5px solid #2563eb' : '1px solid #e2e8f0',
-                      background: active ? '#eff6ff' : '#ffffff',
-                      color: active ? '#1d4ed8' : '#334155',
+                      border: active ? '1.5px solid var(--color-forest-ink)' : '1px solid var(--color-fog)',
+                      background: active ? 'var(--color-linen-mist)' : '#ffffff',
+                      color: active ? '#1d4ed8' : 'var(--color-charcoal)',
                       borderRadius: '10px',
                       padding: '14px 10px',
                       minHeight: '88px',
@@ -544,16 +544,16 @@ export default function SettingsView() {
             </div>
           </section>
 
-          <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>CAMPOS DE PRODUCTO</div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 8px 0' }}>
+          <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '18px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>CAMPOS DE PRODUCTO</div>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '4px 0 8px 0' }}>
               Personaliza la configuración para controlar la visibilidad de varias secciones de tu aplicación. Selecciona qué secciones mostrar u ocultar según tus necesidades operativas.
             </p>
             {PRODUCT_FIELDS.map((f) => (
-              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--color-fog)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{f.title}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{f.desc}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)' }}>{f.title}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-slate)' }}>{f.desc}</div>
                 </div>
                 <Toggle
                   checked={Boolean(prefs.productFields[f.id])}
@@ -568,9 +568,9 @@ export default function SettingsView() {
             ))}
           </section>
 
-          <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>SEGUIMIENTO</div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 8px 0' }}>
+          <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '18px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>SEGUIMIENTO</div>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '4px 0 8px 0' }}>
               Configure requisitos de seguimiento obligatorios para artículos de inventario. Estas configuraciones imponen el seguimiento del número de lote y la fecha de vencimiento en pedidos y envíos.
             </p>
             {(
@@ -579,10 +579,10 @@ export default function SettingsView() {
                 ['caducidad', 'Seguimiento de fecha de caducidad', 'Requiere fechas de caducidad para el seguimiento del inventario en pedidos y envíos. Importante para productos perecederos y sensibles al tiempo.'],
               ] as const
             ).map(([key, title, desc]) => (
-              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid #f1f5f9' }}>
+              <div key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 0', borderBottom: '1px solid var(--color-fog)' }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{title}</div>
-                  <div style={{ fontSize: '12px', color: '#64748b' }}>{desc}</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)' }}>{title}</div>
+                  <div style={{ fontSize: '12px', color: 'var(--color-slate)' }}>{desc}</div>
                 </div>
                 <Toggle
                   checked={prefs.tracking[key]}
@@ -594,41 +594,41 @@ export default function SettingsView() {
                 />
               </div>
             ))}
-            <p style={{ fontSize: '12px', color: '#94a3b8', margin: '8px 0 0 0' }}>
+            <p style={{ fontSize: '12px', color: 'var(--color-pebble)', margin: '8px 0 0 0' }}>
               Cuando el seguimiento por número de lote y fecha de caducidad está deshabilitado, el inventario utiliza un seguimiento simplificado con datos agregados.
             </p>
           </section>
 
-          <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px' }}>
+          <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <div style={{ flex: 1, minWidth: '200px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>UNIDADES DE MEDIDA</div>
-                <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 0 0' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>UNIDADES DE MEDIDA</div>
+                <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '4px 0 0 0' }}>
                   Unidades de medida del sistema y personalizadas disponibles para productos. Anule el modo y la precisión por unidad, o agregue unidades personalizadas.
                 </p>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--color-charcoal)' }}>
                 {SYSTEM_UNITS.length + prefs.customUnits.length} UNIDADES
               </span>
             </div>
-            <div style={{ border: '1.5px dashed #cbd5e1', borderRadius: '10px', padding: '24px', textAlign: 'center', marginTop: '12px' }}>
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Unidades Personalizadas</div>
+            <div style={{ border: '1.5px dashed var(--color-pebble)', borderRadius: '10px', padding: '24px', textAlign: 'center', marginTop: '12px' }}>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-obsidian)' }}>Unidades Personalizadas</div>
               {prefs.customUnits.length === 0 ? (
-                <p style={{ fontSize: '12px', color: '#64748b', margin: '6px 0 0 0' }}>
+                <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '6px 0 0 0' }}>
                   Sin unidades personalizadas definidas. Agregue una para crear una unidad específica para su negocio.
                 </p>
               ) : (
                 <ul style={{ listStyle: 'none', margin: '12px 0 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {prefs.customUnits.map((u) => (
-                    <li key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 8px 8px 12px', fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>
+                    <li key={u.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--color-paper)', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '8px 8px 8px 12px', fontSize: '13px', fontWeight: 600, color: 'var(--color-obsidian)' }}>
                       <span style={{ flex: 1, textAlign: 'left' }}>
-                        {u.name} <span style={{ color: '#94a3b8', fontWeight: 400 }}>({u.symbol})</span>
+                        {u.name} <span style={{ color: 'var(--color-pebble)', fontWeight: 400 }}>({u.symbol})</span>
                       </span>
                       <button
                         type="button"
                         aria-label={`Quitar ${u.name}`}
                         onClick={() => savePrefs('units-del', { customUnits: prefs.customUnits.filter((x) => x.id !== u.id) })}
-                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
+                        style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: 'var(--color-pebble)', display: 'flex', minWidth: '44px', minHeight: '44px', alignItems: 'center', justifyContent: 'center' }}
                       >
                         <Trash2 size={14} />
                       </button>
@@ -643,7 +643,7 @@ export default function SettingsView() {
                   placeholder="Nombre (ej. Bidón)"
                   maxLength={60}
                   aria-label="Nombre de la unidad"
-                  style={{ padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', minWidth: '160px' }}
+                  style={{ padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '13px', minWidth: '160px' }}
                 />
                 <input
                   value={newUnitSymbol}
@@ -651,12 +651,12 @@ export default function SettingsView() {
                   placeholder="Símbolo (ej. bid)"
                   maxLength={12}
                   aria-label="Símbolo de la unidad"
-                  style={{ padding: '9px 12px', minHeight: '44px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', width: '130px' }}
+                  style={{ padding: '9px 12px', minHeight: '44px', borderRadius: '10px', border: '1px solid var(--color-pebble)', fontSize: '13px', width: '130px' }}
                 />
                 <button
                   type="button"
                   onClick={handleAddUnit}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ffffff', border: '1px solid #2563eb', color: '#2563eb', borderRadius: '8px', padding: '9px 14px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: '#ffffff', border: '1px solid var(--color-forest-ink)', color: 'var(--color-forest-ink)', borderRadius: '9999px', padding: '9px 14px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   <Plus size={14} /> Agregar Unidad Personalizada
                 </button>
@@ -670,50 +670,50 @@ export default function SettingsView() {
       {tab === 'facturacion' && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div>
-            <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Facturación y suscripción</h2>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>
+            <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Facturación y suscripción</h2>
+            <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '4px 0 0 0' }}>
               Gestiona tu suscripción, métodos de pago e historial de facturación.
             </p>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '14px', alignItems: 'start' }}>
-            <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-              <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>PLAN ACTUAL</div>
-                <div style={{ fontSize: '13px', color: '#64748b', marginTop: '2px' }}>Inventario principal, ajustes de existencias y análisis básicos</div>
+            <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>PLAN ACTUAL</div>
+                <div style={{ fontSize: '13px', color: 'var(--color-slate)', marginTop: '2px' }}>Inventario principal, ajustes de existencias y análisis básicos</div>
               </div>
               {(
                 [
-                  ['Plan', <strong key="p" style={{ color: '#0f172a' }}>{planLabel}</strong>],
+                  ['Plan', <strong key="p" style={{ color: 'var(--color-obsidian)' }}>{planLabel}</strong>],
                   ['Estado', <span key="e" style={{ fontSize: '11px', fontWeight: 700, padding: '3px 8px', borderRadius: '999px', background: '#f0fdf4', color: '#15803d' }}>ACTIVO</span>],
-                  ['Límites del plan', <span key="l" style={{ fontSize: '12px', color: '#0f172a' }}>{`${fmtLimit(effectiveLimits.sucursales)} sucursal${effectiveLimits.sucursales === 1 ? '' : 'es'} • ${fmtLimit(effectiveLimits.usuarios)} usuarios • Hasta ${fmtLimit(effectiveLimits.productos)} productos`}</span>],
+                  ['Límites del plan', <span key="l" style={{ fontSize: '12px', color: 'var(--color-obsidian)' }}>{`${fmtLimit(effectiveLimits.sucursales)} sucursal${effectiveLimits.sucursales === 1 ? '' : 'es'} • ${fmtLimit(effectiveLimits.usuarios)} usuarios • Hasta ${fmtLimit(effectiveLimits.productos)} productos`}</span>],
                 ] as const
               ).map(([label, value]) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 18px', borderBottom: '1px solid #f1f5f9', fontSize: '13px', color: '#334155' }}>
+                <div key={label} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', padding: '12px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '13px', color: 'var(--color-charcoal)' }}>
                   {label}
                   {value}
                 </div>
               ))}
             </section>
-            <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-              <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+            <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+              <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
                 GESTIONAR SUSCRIPCIÓN
               </div>
-              <div style={{ padding: '14px 18px', fontSize: '13px', color: '#475569' }}>
+              <div style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--color-charcoal)' }}>
                 Estás en el plan gratuito Light. Actualiza a Essential para más funciones.
               </div>
               <div style={{ padding: '0 18px 18px 18px' }}>
                 <button
                   type="button"
                   onClick={() => router.push('/plans')}
-                  style={{ background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '10px 18px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                  style={{ background: 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '10px 18px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
                 >
                   Ver precios
                 </button>
               </div>
             </section>
           </div>
-          <section style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-            <div style={{ padding: '14px 18px', borderBottom: '1px solid #e2e8f0', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>
+          <section style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--color-fog)', fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>
               QUÉ INCLUYE TU PLAN
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '6px 20px', padding: '16px 18px' }}>
@@ -725,7 +725,7 @@ export default function SettingsView() {
                 'Acceso basado en roles (roles básicos)',
                 'Soporte por correo electrónico',
               ].map((f) => (
-                <div key={f} style={{ display: 'flex', gap: '8px', fontSize: '13px', color: '#334155', lineHeight: 1.5 }}>
+                <div key={f} style={{ display: 'flex', gap: '8px', fontSize: '13px', color: 'var(--color-charcoal)', lineHeight: 1.5 }}>
                   <Check size={14} color="#15803d" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span>{f}</span>
                 </div>
@@ -740,22 +740,22 @@ export default function SettingsView() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
             <div style={{ flex: 1, minWidth: '220px' }}>
-              <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: 0 }}>Planes de suscripción</h2>
-              <p style={{ fontSize: '13px', color: '#64748b', margin: '4px 0 0 0' }}>
+              <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)', margin: 0 }}>Planes de suscripción</h2>
+              <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '4px 0 0 0' }}>
                 Elige el plan que se ajuste a tu negocio. Los inquilinos Light pueden cambiar de plan en autoservicio aquí, mientras que las suscripciones de pago existentes se gestionan en el portal de facturación.
               </p>
             </div>
-            <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.04em', color: '#475569' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, letterSpacing: '0.04em', color: 'var(--color-charcoal)' }}>
               TU PLAN ACTUAL: {planLabel}
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '4px', background: '#ffffff' }} role="group" aria-label="Ciclo de facturación">
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '4px', background: '#ffffff' }} role="group" aria-label="Ciclo de facturación">
               {(['mensual', 'anual'] as const).map((c) => (
                 <button
                   key={c}
                   type="button"
                   onClick={() => handleCycle(c)}
                   aria-pressed={cycle === c}
-                  style={{ border: 'none', background: cycle === c ? '#2563eb' : 'transparent', color: cycle === c ? '#ffffff' : '#64748b', borderRadius: '7px', padding: '8px 14px', minHeight: '44px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize' }}
+                  style={{ border: 'none', background: cycle === c ? 'var(--color-forest-ink)' : 'transparent', color: cycle === c ? '#ffffff' : 'var(--color-slate)', borderRadius: '7px', padding: '8px 14px', minHeight: '44px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize' }}
                 >
                   {c}
                   {c === 'anual' && <span style={{ fontWeight: 400, opacity: 0.85 }}> Ahorre 20%</span>}
@@ -766,11 +766,11 @@ export default function SettingsView() {
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', alignItems: 'stretch' }}>
             {/* Light */}
-            <div style={{ background: '#ffffff', border: sub?.plan === 'light' ? '1.5px solid #2563eb' : '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>LIGHT</div>
-              <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Para equipos pequeños que necesitan inventario central, ajustes de existencias y análisis básicos</p>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>Gratis</div>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ background: '#ffffff', border: sub?.plan === 'light' ? '1.5px solid var(--color-forest-ink)' : '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>LIGHT</div>
+              <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: 0 }}>Para equipos pequeños que necesitan inventario central, ajustes de existencias y análisis básicos</p>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-obsidian)' }}>Gratis</div>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: 'var(--color-charcoal)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>1 sucursal • 2 usuarios • Hasta 500 productos</li>
                 <li>✓ Catálogo de productos y seguimiento de inventario.</li>
                 <li>✓ Ajustes de stock</li>
@@ -779,20 +779,20 @@ export default function SettingsView() {
                 <li>✓ Roles básicos</li>
                 <li>✓ Soporte por correo electrónico</li>
               </ul>
-              <button type="button" disabled style={{ marginTop: 'auto', background: '#f1f5f9', color: '#94a3b8', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'not-allowed' }}>
+              <button type="button" disabled style={{ marginTop: 'auto', background: 'var(--color-fog)', color: 'var(--color-pebble)', border: '1px solid var(--color-fog)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'not-allowed' }}>
                 {sub?.plan === 'light' ? 'Plan actual' : 'Plan actual'}
               </button>
             </div>
 
             {/* Essential */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>ESSENTIAL</div>
-              <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Para empresas en crecimiento que necesitan inventario en múltiples ubicaciones y flujos de trabajo de pedidos</p>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>ESSENTIAL</div>
+              <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: 0 }}>Para empresas en crecimiento que necesitan inventario en múltiples ubicaciones y flujos de trabajo de pedidos</p>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-obsidian)' }}>
                 ${cycle === 'anual' ? '79' : '98.75'}
-                <span style={{ fontSize: '11px', fontWeight: 400, color: '#94a3b8' }}> /MES, FACTURADO {cycle === 'anual' ? 'ANUALMENTE' : 'MENSUALMENTE'}</span>
+                <span style={{ fontSize: '11px', fontWeight: 400, color: 'var(--color-pebble)' }}> /MES, FACTURADO {cycle === 'anual' ? 'ANUALMENTE' : 'MENSUALMENTE'}</span>
               </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: 'var(--color-charcoal)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>Hasta 5 sucursales • Hasta 20 usuarios • Hasta 5000 productos</li>
                 <li>7 días gratis, después $850/año. Cancele antes de que termine la prueba y no pague nada. La facturación anual ahorra $228.</li>
                 <li>✓ Todo en Light, más:</li>
@@ -807,7 +807,7 @@ export default function SettingsView() {
                   <span style={{ fontSize: '12px', fontWeight: 700, color: '#15803d' }}>
                     Prueba activa: quedan {sub.trialDaysLeft} día{sub.trialDaysLeft === 1 ? '' : 's'} (hasta {sub.trialEndsAt ? new Date(sub.trialEndsAt).toLocaleDateString('es-PE') : ''})
                   </span>
-                  <button type="button" onClick={handleCancelTrial} disabled={subLoading} style={{ background: '#ffffff', color: '#dc2626', border: '1px solid #fecaca', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: subLoading ? 'not-allowed' : 'pointer' }}>
+                  <button type="button" onClick={handleCancelTrial} disabled={subLoading} style={{ background: '#ffffff', color: 'var(--color-alarm-red)', border: '1px solid var(--color-alarm-red)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: subLoading ? 'not-allowed' : 'pointer' }}>
                     Cancelar prueba
                   </button>
                 </div>
@@ -816,7 +816,7 @@ export default function SettingsView() {
                   type="button"
                   onClick={handleTrial}
                   disabled={subLoading}
-                  style={{ marginTop: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: subLoading ? '#93c5fd' : '#2563eb', color: '#ffffff', border: 'none', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: subLoading ? 'not-allowed' : 'pointer' }}
+                  style={{ marginTop: 'auto', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: '8px', background: subLoading ? 'var(--color-fog)' : 'var(--color-lime-voltage)', color: 'var(--color-forest-ink)', border: 'none', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: subLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {subLoading && <Loader2 size={15} style={{ animation: 'inventa-spin 1s linear infinite' }} />}
                   Iniciar prueba gratuita de 7 días
@@ -825,13 +825,13 @@ export default function SettingsView() {
             </div>
 
             {/* Pro */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>PRO</div>
-              <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>Para equipos que necesitan flujos de trabajo avanzados, POS, consignación, análisis y acceso a API.</p>
-              <div style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a' }}>
-                Personalizado <span style={{ fontSize: '10px', fontWeight: 400, color: '#94a3b8' }}>CONTACTAR VENTAS</span>
+            <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>PRO</div>
+              <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: 0 }}>Para equipos que necesitan flujos de trabajo avanzados, POS, consignación, análisis y acceso a API.</p>
+              <div style={{ fontSize: '22px', fontWeight: 800, color: 'var(--color-obsidian)' }}>
+                Personalizado <span style={{ fontSize: '10px', fontWeight: 400, color: 'var(--color-pebble)' }}>CONTACTAR VENTAS</span>
               </div>
-              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: '#475569', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <ul style={{ margin: 0, padding: 0, listStyle: 'none', fontSize: '12px', color: 'var(--color-charcoal)', display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <li>Hasta 10 sucursales • Hasta 50 usuarios • Hasta 50000 productos</li>
                 <li>✓ Todo en Essential, más:</li>
                 <li>✓ Flujos de trabajo avanzados de inventario y pedidos</li>
@@ -845,7 +845,7 @@ export default function SettingsView() {
               <button
                 type="button"
                 onClick={() => router.push('/addons')}
-                style={{ marginTop: 'auto', background: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+                style={{ marginTop: 'auto', background: '#ffffff', color: 'var(--color-forest-ink)', border: '1px solid var(--color-forest-ink)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
               >
                 Contactar ventas
               </button>
@@ -853,16 +853,16 @@ export default function SettingsView() {
           </div>
 
           {/* Enterprise */}
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '20px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: '#475569' }}>ENTERPRISE</div>
-            <p style={{ fontSize: '12px', color: '#64748b', margin: '4px 0 12px 0' }}>
+          <div style={{ background: '#ffffff', border: '1px solid var(--color-fog)', borderRadius: '10px', padding: '20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.06em', color: 'var(--color-charcoal)' }}>ENTERPRISE</div>
+            <p style={{ fontSize: '12px', color: 'var(--color-slate)', margin: '4px 0 12px 0' }}>
               Para empresas que necesitan un portal de clientes, inteligencia artificial, integraciones avanzadas y controles empresariales.
             </p>
-            <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
-              Personalizado <span style={{ fontSize: '10px', fontWeight: 400, color: '#94a3b8' }}>CONTACTAR VENTAS</span>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: 'var(--color-obsidian)' }}>
+              Personalizado <span style={{ fontSize: '10px', fontWeight: 400, color: 'var(--color-pebble)' }}>CONTACTAR VENTAS</span>
             </div>
-            <div style={{ fontSize: '12px', color: '#475569', margin: '8px 0' }}>Sucursales ilimitadas • Usuarios ilimitados • Productos ilimitados</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '4px 20px', fontSize: '12px', color: '#475569' }}>
+            <div style={{ fontSize: '12px', color: 'var(--color-charcoal)', margin: '8px 0' }}>Sucursales ilimitadas • Usuarios ilimitados • Productos ilimitados</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '4px 20px', fontSize: '12px', color: 'var(--color-charcoal)' }}>
               {[
                 'Todo en Pro, más:',
                 'SSO, registros de auditoría y flujos de trabajo de automatización',
@@ -881,13 +881,13 @@ export default function SettingsView() {
             <button
               type="button"
               onClick={() => router.push('/addons')}
-              style={{ marginTop: '12px', width: '100%', background: '#ffffff', color: '#2563eb', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
+              style={{ marginTop: '12px', width: '100%', background: '#ffffff', color: 'var(--color-forest-ink)', border: '1px solid var(--color-forest-ink)', borderRadius: '9999px', padding: '10px', minHeight: '44px', fontSize: '13px', fontWeight: 700, cursor: 'pointer' }}
             >
               Contactar ventas
             </button>
           </div>
 
-          <div style={{ borderLeft: '3px solid #2563eb', background: '#f8fafc', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: '12px', color: '#334155', lineHeight: 1.6 }}>
+          <div style={{ borderLeft: '3px solid var(--color-forest-ink)', background: 'var(--color-paper)', borderRadius: '0 8px 8px 0', padding: '12px 14px', fontSize: '12px', color: 'var(--color-charcoal)', lineHeight: 1.6 }}>
             Los nuevos inquilinos Light pueden iniciar aquí una prueba de Essential: se requiere tarjeta, no hay cargo durante 7 días, y si cancela antes de que termine la prueba, no paga nada. Las suscripciones de pago existentes, incluidas la cancelación y los cambios de plan, se gestionan desde el portal de facturación. La facturación anual está disponible con un 20% de descuento. Contacte con ventas para soluciones empresariales a medida.
           </div>
         </div>
@@ -895,8 +895,8 @@ export default function SettingsView() {
       {/* TAB 5: EMPRESA (parámetros corporativos y ROP existentes) */}
       {tab === 'empresa' && (
         <div>
-          <h2 style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', margin: '0 0 4px 0' }}>Empresa y algoritmo</h2>
-          <p style={{ fontSize: '13px', color: '#64748b', margin: '0 0 14px 0' }}>
+          <h2 style={{ fontSize: '15px', fontWeight: 800, color: 'var(--color-obsidian)', margin: '0 0 4px 0' }}>Empresa y algoritmo</h2>
+          <p style={{ fontSize: '13px', color: 'var(--color-slate)', margin: '0 0 14px 0' }}>
             Administra los parámetros corporativos, reglas del algoritmo de reabastecimiento y canales de notificación.
           </p>
           <CompanySettingsForm />

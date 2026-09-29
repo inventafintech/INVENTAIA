@@ -188,8 +188,8 @@
 }
 
 .badgeApproved {
-  background: #eff6ff;
-  color: #163300;
+  background: var(--color-linen-mist);
+  color: var(--color-forest-ink);
   padding: 0.1875rem 0.625rem;
   border-radius: 9999px;
   font-size: var(--text-xs);

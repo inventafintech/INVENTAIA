@@ -37,56 +37,56 @@ export default function SucursalPage() {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
         <div className={styles.tableCard} style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Building2 size={18} color="#3b82f6" /> Datos Generales de la Sucursal
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Building2 size={18} color="var(--color-forest-ink)" /> Datos Generales de la Sucursal
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Razón Social:</span>
-              <strong style={{ color: '#0f172a' }}>INVENTA LOGISTICS PERU S.A.C.</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Razón Social:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>INVENTA LOGISTICS PERU S.A.C.</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>RUC:</span>
-              <strong style={{ color: '#0f172a' }}>20609876543</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>RUC:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>20609876543</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Código de Establecimiento SUNAT:</span>
-              <strong style={{ color: '#0f172a' }}>0001 (Principal)</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Código de Establecimiento SUNAT:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>0001 (Principal)</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Dirección Fiscal:</span>
-              <strong style={{ color: '#0f172a' }}>Av. Elmer Faucett 2850, Callao, Lima</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Dirección Fiscal:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>Av. Elmer Faucett 2850, Callao, Lima</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Horario de Recepción:</span>
-              <strong style={{ color: '#0f172a' }}>Lun - Sáb: 06:00 - 22:00</strong>
+              <span style={{ color: 'var(--color-slate)' }}>Horario de Recepción:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>Lun - Sáb: 06:00 - 22:00</strong>
             </div>
           </div>
         </div>
 
         <div className={styles.tableCard} style={{ padding: '24px' }}>
-          <h3 style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <h3 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--color-obsidian)', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <UserCheck size={18} color="#16a34a" /> Responsables & Contacto
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Gerente de Operaciones:</span>
-              <strong style={{ color: '#0f172a' }}>Ing. Carlos Mendoza R.</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Gerente de Operaciones:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>Ing. Carlos Mendoza R.</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Jefe de Almacén:</span>
-              <strong style={{ color: '#0f172a' }}>Marcos Vílchez T.</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Jefe de Almacén:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>Marcos Vílchez T.</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Teléfono Central:</span>
-              <strong style={{ color: '#0f172a' }}>+51 (1) 710-4400</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Teléfono Central:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>+51 (1) 710-4400</strong>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '8px' }}>
-              <span style={{ color: '#64748b' }}>Email de Operaciones:</span>
-              <strong style={{ color: '#0f172a' }}>operaciones@inventa.ai</strong>
+            <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px solid var(--color-fog)', paddingBottom: '8px' }}>
+              <span style={{ color: 'var(--color-slate)' }}>Email de Operaciones:</span>
+              <strong style={{ color: 'var(--color-obsidian)' }}>operaciones@inventa.ai</strong>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span style={{ color: '#64748b' }}>Soporte de Conexión EDI/ERP:</span>
+              <span style={{ color: 'var(--color-slate)' }}>Soporte de Conexión EDI/ERP:</span>
               <strong style={{ color: '#16a34a' }}>En línea (Sincronizado)</strong>
             </div>
           </div>

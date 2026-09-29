@@ -2,9 +2,19 @@
 
 export default function GlobalLoading() {
   return (
-    <div className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4">
-      <div className="w-12 h-12 rounded-full border-4 border-blue-100 border-t-blue-600 animate-spin"></div>
-      <p className="text-slate-500 font-medium text-sm animate-pulse">Cargando datos desde la red...</p>
+    <div
+      className="w-full h-[60vh] flex flex-col items-center justify-center space-y-4"
+      style={{ background: 'var(--color-paper)' }}
+      role="status"
+      aria-label="Cargando"
+    >
+      <div className="wise-spinner" aria-hidden="true" />
+      <p
+        className="font-medium text-sm animate-pulse"
+        style={{ color: 'var(--color-slate)' }}
+      >
+        Cargando datos desde la red...
+      </p>
     </div>
   );
 }
