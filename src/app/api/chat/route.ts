@@ -5,6 +5,7 @@ import { NEXO_SYSTEM_PROMPT } from '@/ai/prompt';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { requireWorkspace } from '@/lib/requireWorkspace';
+import { rateLimit } from '@/lib/rateLimit';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { NexoMemoryService } from '@/services/NexoMemoryService';
 import { createClient } from '@/utils/supabase/server';
@@ -14,6 +15,9 @@ export const maxDuration = 60;
 export async function POST(req: Request) {
   const auth = await requireWorkspace();
   if (auth.error) return auth.error;
+  // El LLM cuesta por token: frenar abuso por IP además de exigir sesión.
+  const limited = rateLimit(req, { limit: 15, windowMs: 60_000, keyPrefix: 'chat' });
+  if (limited) return limited;
   const { messages, currentPath } = await req.json();
   const session = await getServerSession(authOptions);
 

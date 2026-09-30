@@ -24,6 +24,8 @@ async function resolveWorkspaceId(supabase: any): Promise<string | null> {
  */
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const workspaceId = await resolveWorkspaceId(supabase);

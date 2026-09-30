@@ -83,6 +83,8 @@ async function displayName(supabase: any, email: string): Promise<string> {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const type = params.get('type') || 'all';

@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     // location_id = ref de ubicación (LOC-00004); branch = sucursal. 'all' = todo.
     const filter = normalizeLocationFilter(

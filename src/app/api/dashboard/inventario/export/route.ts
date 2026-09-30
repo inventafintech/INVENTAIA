@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { normalizeLocationFilter } from '@/services/LocationsService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search') || '';
     const category = searchParams.get('category') || 'all';

@@ -32,6 +32,8 @@ async function readSettings(supabase: any, workspaceId: string): Promise<any> {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const rawLocation = params.get('location_id') || params.get('locationId') || params.get('location') || '';
     const rawBranch = params.get('branch') || '';

@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { searchParams } = new URL(req.url);
     const limit = parseInt(searchParams.get('limit') || '100', 10);
     const provider = searchParams.get('provider');

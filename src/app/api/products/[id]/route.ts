@@ -20,6 +20,8 @@ async function findProduct(supabase: any, idOrSku: string) {
  */
 export async function GET(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();

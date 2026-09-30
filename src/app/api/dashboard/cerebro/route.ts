@@ -5,10 +5,13 @@ import { SessionManager } from '@/lib/session';
 import { DashboardService } from '@/services/DashboardService';
 import { normalizeLocationFilter } from '@/services/LocationsService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const filter = normalizeLocationFilter(
       params.get('location_id') || params.get('locationId') || params.get('location'),

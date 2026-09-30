@@ -3,29 +3,30 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { WorkspaceService } from '@/services/WorkspaceService';
 import { SessionManager } from '@/lib/session';
-
 import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = await requireWorkspace();
-    if (auth.error) return auth.error;
+    // Sin guard global: esta ruta CREA el workspace y ya devuelve 401
+    // cuando no hay email/id de sesión (ver abajo).
     // 1. Obtener sesión de NextAuth o de SessionManager institucional
     const nextAuthSession = await getServerSession(authOptions);
     const customSession = await SessionManager.getSession();
 
     const body = await req.json().catch(() => ({}));
-    const { name, slug, userEmail: bodyEmail, userName: bodyName, userAvatar: bodyAvatar, userId: bodyUserId } = body;
+    const { name, slug } = body;
 
+    // Identidad SOLO desde la sesión verificada (nunca del body: evita
+    // suplantación anónima en la creación del workspace).
     const authenticatedEmail =
-      nextAuthSession?.user?.email || customSession?.email || bodyEmail;
+      nextAuthSession?.user?.email || customSession?.email;
     const authenticatedName =
-      nextAuthSession?.user?.name || customSession?.name || bodyName || 'Usuario';
+      nextAuthSession?.user?.name || customSession?.name || 'Usuario';
     const authenticatedAvatar =
-      nextAuthSession?.user?.image || customSession?.avatarUrl || bodyAvatar;
+      nextAuthSession?.user?.image || customSession?.avatarUrl;
     const authenticatedId =
-      (nextAuthSession?.user as any)?.id || customSession?.userId || bodyUserId;
+      (nextAuthSession?.user as any)?.id || customSession?.userId;
 
     if (!authenticatedEmail && !authenticatedId) {
       return NextResponse.json(

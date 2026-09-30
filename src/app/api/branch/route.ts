@@ -83,6 +83,8 @@ function readBranch(settings: any): BranchProfile {
  */
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const ws = await resolveWorkspace(supabase);

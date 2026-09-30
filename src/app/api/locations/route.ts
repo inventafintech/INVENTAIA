@@ -21,6 +21,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const status = params.get('status') || 'all';

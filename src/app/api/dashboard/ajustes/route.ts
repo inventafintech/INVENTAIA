@@ -8,6 +8,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const customSession = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 

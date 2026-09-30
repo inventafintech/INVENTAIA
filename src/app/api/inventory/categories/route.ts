@@ -57,6 +57,8 @@ async function writeMeta(supabase: any, workspaceId: string, meta: Record<string
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const page = Math.max(1, Number(params.get('page')) || 1);

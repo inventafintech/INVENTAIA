@@ -5,6 +5,7 @@ import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
 import { verifyTotpToken } from '@/lib/totp';
 import { readTwoFactorState, writeTwoFactorState } from '@/lib/twoFactorStore';
+import { rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +23,9 @@ function safeRedirect(path: unknown): string {
  */
 export async function POST(req: NextRequest) {
   try {
+    // TOTP de 6 dígitos: frenar fuerza bruta por IP.
+    const limited = rateLimit(req, { limit: 10, windowMs: 60_000, keyPrefix: '2fa' });
+    if (limited) return limited;
     const body = await req.json().catch(() => null);
     const token = typeof body?.token === 'string' ? body.token.trim() : '';
     const backupCode = typeof body?.backupCode === 'string' ? body.backupCode.trim().toUpperCase() : '';

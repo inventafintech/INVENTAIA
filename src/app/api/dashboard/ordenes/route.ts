@@ -7,6 +7,8 @@ export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const orders = await PurchaseOrderService.getAllOrders();
     const metrics = await PurchaseOrderService.getMetrics();
     

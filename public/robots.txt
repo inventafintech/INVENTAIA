@@ -1,3 +1,20 @@
 User-agent: *
-Allow: /
-Sitemap: https://inventa.ai/sitemap.xml
+Allow: /$
+Allow: /login$
+Allow: /plans$
+Allow: /addons$
+Allow: /ayuda/
+Allow: /help/
+Disallow: /dashboard/
+Disallow: /overview
+Disallow: /panel/
+Disallow: /inventory/
+Disallow: /inventario/
+Disallow: /entidades/
+Disallow: /api/
+Disallow: /users/
+Disallow: /settings/
+Disallow: /onboarding
+Disallow: /chat
+
+Sitemap: https://inventa-ia.vercel.app/sitemap.xml
