@@ -24,7 +24,7 @@ function safeRedirect(path: unknown): string {
 export async function POST(req: NextRequest) {
   try {
     // TOTP de 6 dígitos: frenar fuerza bruta por IP.
-    const limited = rateLimit(req, { limit: 10, windowMs: 60_000, keyPrefix: '2fa' });
+    const limited = await rateLimit(req, { limit: 10, windowMs: 60_000, keyPrefix: '2fa' });
     if (limited) return limited;
     const body = await req.json().catch(() => null);
     const token = typeof body?.token === 'string' ? body.token.trim() : '';

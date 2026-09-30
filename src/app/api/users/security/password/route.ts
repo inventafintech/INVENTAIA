@@ -18,7 +18,7 @@ function passwordPolicyError(password: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
-    const limited = rateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'pwd' });
+    const limited = await rateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'pwd' });
     if (limited) return limited;
     const { userId, email } = await resolveAuthIdentity();
     if (!userId && !email) {

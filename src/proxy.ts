@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { requiredSecret } from '@/lib/secret';
 
 /**
  * Verifica la firma HMAC-SHA256 de la cookie institucional en el edge
@@ -14,10 +15,7 @@ async function verifyInventaCookie(raw: string): Promise<string | null> {
     const payload = raw.substring(0, lastDot);
     const signature = raw.substring(lastDot + 1);
     if (!/^[0-9a-f]{64}$/.test(signature)) return null;
-    const secret =
-      process.env.JWT_SECRET ||
-      process.env.SESSION_SECRET ||
-      'inventa-b2b-enterprise-session-secret-token-key-2026';
+    const secret = requiredSecret('JWT_SECRET', 'SESSION_SECRET');
     const key = await crypto.subtle.importKey(
       'raw',
       new TextEncoder().encode(secret),
@@ -78,10 +76,7 @@ export async function proxy(req: NextRequest) {
   // 1. Verificar token de sesión de NextAuth.js
   const nextAuthToken = await getToken({
     req,
-    secret:
-      process.env.NEXTAUTH_SECRET ||
-      process.env.JWT_SECRET ||
-      'inventa-enterprise-nextauth-secret-key-2026',
+    secret: requiredSecret('NEXTAUTH_SECRET', 'JWT_SECRET'),
   });
 
   // 2. Verificar la cookie de sesión institucional (firma HMAC obligatoria).

@@ -20,6 +20,8 @@
     "@ai-sdk/react": "^4.0.119",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
     "ai": "^7.0.116",
     "bcryptjs": "^3.0.3",
     "framer-motion": "^13.4.4",

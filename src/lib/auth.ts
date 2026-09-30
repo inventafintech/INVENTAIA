@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import { db } from '@/lib/db';
 import { readTwoFactorState } from '@/lib/twoFactorStore';
+import { requiredSecret } from '@/lib/secret';
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -190,8 +191,5 @@ export const authOptions: NextAuthOptions = {
       return `${baseUrl}/dashboard`;
     },
   },
-  secret:
-    process.env.NEXTAUTH_SECRET ||
-    process.env.JWT_SECRET ||
-    'inventa-enterprise-nextauth-secret-key-2026',
+  secret: requiredSecret('NEXTAUTH_SECRET', 'JWT_SECRET'),
 };

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
   const auth = await requireWorkspace();
   if (auth.error) return auth.error;
   // El LLM cuesta por token: frenar abuso por IP además de exigir sesión.
-  const limited = rateLimit(req, { limit: 15, windowMs: 60_000, keyPrefix: 'chat' });
+  const limited = await rateLimit(req, { limit: 15, windowMs: 60_000, keyPrefix: 'chat' });
   if (limited) return limited;
   const { messages, currentPath } = await req.json();
   const session = await getServerSession(authOptions);

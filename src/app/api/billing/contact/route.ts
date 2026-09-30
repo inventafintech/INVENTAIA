@@ -28,7 +28,7 @@ async function resolveWorkspaceId(supabase: any): Promise<string | null> {
 export async function POST(req: NextRequest) {
   try {
     // Formulario público: frenar spam de leads por IP (5/min).
-    const limited = rateLimit(req, { limit: 5, windowMs: 60_000, keyPrefix: 'lead' });
+    const limited = await rateLimit(req, { limit: 5, windowMs: 60_000, keyPrefix: 'lead' });
     if (limited) return limited;
     const body = await req.json().catch(() => null);
     const addonId = typeof body?.addonId === 'string' ? body.addonId.trim() : '';
