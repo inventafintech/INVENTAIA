@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import {
   Building2,
   Sliders,
@@ -31,7 +32,7 @@ export default function CompanySettingsForm() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch('/api/workspaces/settings');
+        const res = await apiFetch('/api/workspaces/settings');
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -53,7 +54,7 @@ export default function CompanySettingsForm() {
     e.preventDefault();
     setSaving(true);
     try {
-      await fetch('/api/workspaces/settings', {
+      await apiFetch('/api/workspaces/settings', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface CreditLine {
   id: string;
   partner_bank_name: string;
@@ -44,7 +45,7 @@ export default function FinanciamientoPage() {
   useEffect(() => {
     async function loadFinancing() {
       try {
-        const res = await fetch('/api/dashboard/financiamiento', { cache: 'no-store' });
+        const res = await apiFetch('/api/dashboard/financiamiento', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.creditLine) {
@@ -77,7 +78,7 @@ export default function FinanciamientoPage() {
   const handleRequestDisbursement = async () => {
     try {
       setSubmitting(true);
-      const res = await fetch('/api/dashboard/financiamiento/desembolso', {
+      const res = await apiFetch('/api/dashboard/financiamiento/desembolso', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

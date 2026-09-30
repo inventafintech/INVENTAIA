@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+import { apiFetch } from '@/lib/apiFetch';
 export interface LocationOption {
   ref: string;
   name: string;
@@ -33,7 +34,7 @@ export default function LocationSelector({ value, onChange, id = 'location-selec
     (async () => {
       try {
         setLoading(true);
-        const res = await fetch('/api/locations?pageSize=100&order=asc', { cache: 'no-store' });
+        const res = await apiFetch('/api/locations?pageSize=100&order=asc', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (!cancelled) setOptions((data.items || []).map((l: any) => ({ ref: l.ref, name: l.name, branch: l.branch, status: l.status })));

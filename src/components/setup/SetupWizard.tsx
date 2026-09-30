@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import styles from './SetupWizard.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface IndustryOption {
   id: string;
   name: string;
@@ -155,7 +156,7 @@ export function SetupWizard() {
   const handleFinish = async () => {
     setSaving(true);
     try {
-      await fetch('/api/setup/wizard', {
+      await apiFetch('/api/setup/wizard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface ReceiptLine {
   productId: string;
   sku: string;
@@ -86,7 +87,7 @@ export default function IncomingView() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/inventory/receipts?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/inventory/receipts?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -118,8 +119,8 @@ export default function IncomingView() {
     setFLines([{ productId: '', qty: '' }]);
     try {
       const [prodRes, supRes] = await Promise.all([
-        fetch('/api/products?pageSize=100', { cache: 'no-store' }),
-        fetch('/api/suppliers?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/products?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/suppliers?pageSize=100', { cache: 'no-store' }),
       ]);
       if (prodRes.ok) {
         const pj = await prodRes.json();
@@ -145,7 +146,7 @@ export default function IncomingView() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/inventory/receipts', {
+      const res = await apiFetch('/api/inventory/receipts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -172,7 +173,7 @@ export default function IncomingView() {
     setCancelling(item.id);
     setBanner(null);
     try {
-      const res = await fetch('/api/inventory/receipts', {
+      const res = await apiFetch('/api/inventory/receipts', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: [item.id] }),

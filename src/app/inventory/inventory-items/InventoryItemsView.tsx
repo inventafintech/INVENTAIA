@@ -17,6 +17,7 @@ import { triggerNotificationRefresh } from '@/context/NotificationContext';
 import LocationSelector from '@/components/inventory/LocationSelector';
 import AdvancedFiltersDrawer from '@/components/inventory/AdvancedFiltersDrawer';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface InventoryRow {
   id: string;
   sku: string;
@@ -78,7 +79,7 @@ export default function InventoryItemsView() {
       });
       // Verdad de BD: la ubicación filtra stock, valor y rotación en el backend.
       if (selectedLocation !== 'all') params.set('location_id', selectedLocation);
-      const res = await fetch(`/api/inventory/items?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/inventory/items?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -115,8 +116,8 @@ export default function InventoryItemsView() {
     setFLocation('LOC-00004');
     try {
       const [prodRes, locRes] = await Promise.all([
-        fetch('/api/products?pageSize=100', { cache: 'no-store' }),
-        fetch('/api/locations?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/products?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/locations?pageSize=100', { cache: 'no-store' }),
       ]);
       if (prodRes.ok) {
         const pj = await prodRes.json();
@@ -140,7 +141,7 @@ export default function InventoryItemsView() {
     setFormError(null);
     setSaving(true);
     try {
-      const res = await fetch('/api/inventory/items', {
+      const res = await apiFetch('/api/inventory/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -167,7 +168,7 @@ export default function InventoryItemsView() {
     if (selected.length === 0) return;
     setBanner(null);
     try {
-      const res = await fetch('/api/inventory/items', {
+      const res = await apiFetch('/api/inventory/items', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selected }),

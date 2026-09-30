@@ -6,6 +6,7 @@ import { Search, Loader2, Tag, Store, User, Building2, MapPin, SearchX } from 'l
 import { useDebounce } from '@/hooks/useDebounce';
 import styles from './GlobalSearch.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface SearchHit {
   id: string;
   name: string;
@@ -73,7 +74,7 @@ export function GlobalSearch() {
     setLoading(true);
     const controller = new AbortController();
     abortRef.current = controller;
-    fetch(`/api/search?q=${encodeURIComponent(trimmed)}`, { cache: 'no-store', signal: controller.signal })
+    apiFetch(`/api/search?q=${encodeURIComponent(trimmed)}`, { cache: 'no-store', signal: controller.signal })
       .then((res) => (res.ok ? res.json() : Promise.reject(new Error('search failed'))))
       .then((data) => {
         setGroups({

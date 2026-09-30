@@ -6,6 +6,7 @@ import { useSearchQuery } from '@/hooks/useSearchQuery';
 import LocationSelector from '@/components/inventory/LocationSelector';
 import AdvancedFiltersDrawer from '@/components/inventory/AdvancedFiltersDrawer';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface InventoryItem {
   id: string;
   sku: string;
@@ -160,7 +161,7 @@ export function InventarioContent() {
   const handleCreateSku = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/dashboard/inventario', {
+      const res = await apiFetch('/api/dashboard/inventario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

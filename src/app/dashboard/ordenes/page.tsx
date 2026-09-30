@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface Order {
   id: string;
   order_number: string;
@@ -69,7 +70,7 @@ export default function OrdenesPage() {
   const loadOrders = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/dashboard/ordenes', { cache: 'no-store' });
+      const res = await apiFetch('/api/dashboard/ordenes', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.orders) setOrders(data.orders);
@@ -91,7 +92,7 @@ export default function OrdenesPage() {
   const handleApprove = async (order: Order) => {
     try {
       setActionLoadingId(order.id);
-      const res = await fetch(`/api/dashboard/ordenes/${order.id}/approve`, {
+      const res = await apiFetch(`/api/dashboard/ordenes/${order.id}/approve`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userEmail: 'operaciones@distribuidorasanmartin.pe' }),
@@ -139,7 +140,7 @@ export default function OrdenesPage() {
         ],
       };
 
-      const res = await fetch('/api/dashboard/ordenes', {
+      const res = await apiFetch('/api/dashboard/ordenes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

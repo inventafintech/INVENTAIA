@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface IntegrationData {
   id: string;
   provider: string;
@@ -199,9 +200,9 @@ export default function IntegracionesPage() {
     try {
       setLoading(true);
       const [resInt, resLogs, resStats] = await Promise.all([
-        fetch('/api/integraciones', { cache: 'no-store' }),
-        fetch('/api/integraciones/logs', { cache: 'no-store' }),
-        fetch('/api/integraciones/stats', { cache: 'no-store' })
+        apiFetch('/api/integraciones', { cache: 'no-store' }),
+        apiFetch('/api/integraciones/logs', { cache: 'no-store' }),
+        apiFetch('/api/integraciones/stats', { cache: 'no-store' })
       ]);
 
       if (resInt.ok) {
@@ -243,7 +244,7 @@ export default function IntegracionesPage() {
     try {
       let res: Response;
       if (connector.id === 'whatsapp') {
-        res = await fetch('/api/integraciones/whatsapp/send', {
+        res = await apiFetch('/api/integraciones/whatsapp/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -294,7 +295,7 @@ export default function IntegracionesPage() {
     setWaResult(null);
 
     try {
-      const res = await fetch('/api/integraciones/whatsapp/send', {
+      const res = await apiFetch('/api/integraciones/whatsapp/send', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -332,7 +333,7 @@ export default function IntegracionesPage() {
     setSaveStatus('Guardando...');
 
     try {
-      const res = await fetch('/api/integraciones', {
+      const res = await apiFetch('/api/integraciones', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -366,7 +367,7 @@ export default function IntegracionesPage() {
     setDisconnectConfirm(null);
     setDisconnecting(true);
     try {
-      const res = await fetch(`/api/integraciones/${encodeURIComponent(connectorId)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/integraciones/${encodeURIComponent(connectorId)}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'No se pudo desconectar.');
       setSyncState(prev => ({
@@ -406,7 +407,7 @@ export default function IntegracionesPage() {
     setCredError(null);
     setCredOk(null);
     try {
-      const res = await fetch('/api/integraciones/credentials', {
+      const res = await apiFetch('/api/integraciones/credentials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: credProvider, credentials: credValues })

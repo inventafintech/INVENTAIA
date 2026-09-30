@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { Dropdown } from '@/components/ui/Dropdown';
 
+import { apiFetch } from '@/lib/apiFetch';
 type TabKey = 'stock' | 'ventas';
 
 interface ImportError {
@@ -75,7 +76,7 @@ export default function ImportsView() {
   useEffect(() => {
     let cancelled = false;
     setLocationsLoading(true);
-    fetch('/api/locations?grouped=1&pageSize=100', { cache: 'no-store' })
+    apiFetch('/api/locations?grouped=1&pageSize=100', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (cancelled) return;
@@ -142,7 +143,7 @@ export default function ImportsView() {
 
   const handleTemplate = async () => {
     try {
-      const res = await fetch('/api/products?pageSize=100', { cache: 'no-store' });
+      const res = await apiFetch('/api/products?pageSize=100', { cache: 'no-store' });
       const data = res.ok ? await res.json() : { items: [] };
       const skus = (data.items || []).map((p: any) => p.sku);
       const header = tab === 'stock' ? 'ProductSKU,Quantity' : 'ProductSKU,Quantity,Date,Type';
@@ -160,8 +161,8 @@ export default function ImportsView() {
     if (!locationRef) return;
     try {
       const [prodRes, itemRes] = await Promise.all([
-        fetch('/api/products?pageSize=500', { cache: 'no-store' }),
-        fetch('/api/inventory/items?pageSize=500', { cache: 'no-store' }),
+        apiFetch('/api/products?pageSize=500', { cache: 'no-store' }),
+        apiFetch('/api/inventory/items?pageSize=500', { cache: 'no-store' }),
       ]);
       const pj = prodRes.ok ? await prodRes.json() : { items: [] };
       const ij = itemRes.ok ? await itemRes.json() : { items: [] };
@@ -190,7 +191,7 @@ export default function ImportsView() {
       form.append('file', file);
       form.append('locationRef', locationRef);
       form.append('mode', tab === 'stock' ? 'stock' : 'ventas');
-      const res = await fetch('/api/inventory/import', { method: 'POST', body: form });
+      const res = await apiFetch('/api/inventory/import', { method: 'POST', body: form });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         setResult({

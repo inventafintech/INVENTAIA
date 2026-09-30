@@ -16,6 +16,7 @@ import {
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
 import { AppShell } from '@/components/layout/AppShell';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface DetailData {
   item: {
     id: string;
@@ -93,7 +94,7 @@ function ProductDetailContent() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/products/${encodeURIComponent(id)}`, { cache: 'no-store' });
       if (res.status === 404) {
         setNotFound(true);
         return;
@@ -130,7 +131,7 @@ function ProductDetailContent() {
     setFormError(null);
     setSaving(true);
     try {
-      const res = await fetch(`/api/products/${encodeURIComponent(id)}`, {
+      const res = await apiFetch(`/api/products/${encodeURIComponent(id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -159,7 +160,7 @@ function ProductDetailContent() {
     setGenerating(true);
     setBanner(null);
     try {
-      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+      const res = await apiFetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemIds: [data.item.sku] }),

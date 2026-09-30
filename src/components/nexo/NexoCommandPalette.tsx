@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 
+import { apiFetch } from '@/lib/apiFetch';
 // ─── Interfaces ───────────────────────────────────────────────────────
 interface NexoAction {
   type: string;
@@ -410,7 +411,7 @@ export function NexoCommandPalette() {
     setChatMessages(newHistory);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await apiFetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -479,7 +480,7 @@ export function NexoCommandPalette() {
 
     setExecutingActionId(card.id);
     try {
-      const res = await fetch('/api/nexo/execute', {
+      const res = await apiFetch('/api/nexo/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

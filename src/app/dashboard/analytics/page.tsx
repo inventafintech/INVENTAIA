@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface OperationalKPIData {
   algorithmPrecision: {
     value: string;
@@ -59,7 +60,7 @@ export default function AnalyticsPage() {
   useEffect(() => {
     async function fetchAnalytics() {
       try {
-        const res = await fetch('/api/dashboard/analytics', { cache: 'no-store' });
+        const res = await apiFetch('/api/dashboard/analytics', { cache: 'no-store' });
         if (res.ok) {
           const json = await res.json();
           if (json.success) {

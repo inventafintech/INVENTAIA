@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { NotificationSummary } from '@/services/NotificationService';
 
+import { apiFetch } from '@/lib/apiFetch';
 export interface NotificationStoreState {
   counts: NotificationSummary;
   loading: boolean;
@@ -46,7 +47,7 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
 
   const fetchSummary = useCallback(async () => {
     try {
-      const res = await fetch('/api/notifications/summary', { cache: 'no-store' });
+      const res = await apiFetch('/api/notifications/summary', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.counts) {

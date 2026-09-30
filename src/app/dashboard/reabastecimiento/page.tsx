@@ -6,6 +6,7 @@ import { BatchApprovalModal } from '@/components/forms/BatchApprovalModal';
 import { BatchItemExecutionResult } from '@/services/BatchOrderApprovalService';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface RestockItem {
   id: string;
   sku: string;
@@ -47,7 +48,7 @@ export default function ReabastecimientoPage() {
   const fetchRestockData = async () => {
     try {
       setLoading(true);
-      const res = await fetch('/api/dashboard/reabastecimiento', { cache: 'no-store' });
+      const res = await apiFetch('/api/dashboard/reabastecimiento', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         if (data.items) {
@@ -64,7 +65,7 @@ export default function ReabastecimientoPage() {
   useEffect(() => {
     fetchRestockData();
     // Estado real de conectores (regla del core: mostrar "Pendiente de configuración")
-    fetch('/api/integraciones', { cache: 'no-store' })
+    apiFetch('/api/integraciones', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         const list: Array<{ provider: string; status: string }> = data?.integrations || [];
@@ -104,7 +105,7 @@ export default function ReabastecimientoPage() {
     try {
       setProcessingId(item.id);
       setErrorMessage(null);
-      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+      const res = await apiFetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId: item.id }),
@@ -136,7 +137,7 @@ export default function ReabastecimientoPage() {
     try {
       setApprovingAll(true);
       setErrorMessage(null);
-      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+      const res = await apiFetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ approveAll: true }),

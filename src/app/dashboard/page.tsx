@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface ExecutiveData {
   summary: {
     totalSkus: number;
@@ -121,7 +122,7 @@ function DashboardContent() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/dashboard/cerebro', { cache: 'no-store' });
+      const res = await apiFetch('/api/dashboard/cerebro', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         if (json.success && json.summary) {
@@ -148,7 +149,7 @@ function DashboardContent() {
     setSyncing(true);
     setSyncFeedback(null);
     try {
-      const res = await fetch('/api/integraciones/shopify/sync', { method: 'POST' });
+      const res = await apiFetch('/api/integraciones/shopify/sync', { method: 'POST' });
       const resData = await res.json().catch(() => ({}));
 
       if (!res.ok) {
