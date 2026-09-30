@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
 import { db } from '@/lib/db';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
@@ -97,6 +98,8 @@ export async function GET() {
 
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const customSession = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 

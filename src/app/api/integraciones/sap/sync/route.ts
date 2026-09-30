@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { db } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
+  const auth = await requireWorkspace();
+  if (auth.error) return auth.error;
   const integration = db.getIntegration('sap');
   const sapHost = process.env.SAP_HOST || integration?.config?.host;
   const sapUser = process.env.SAP_USERNAME || integration?.config?.username;

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export interface CategoryMeta {
@@ -144,6 +145,8 @@ function bad(msg: string, status = 400) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const name = typeof body?.name === 'string' ? body.name.trim() : '';
     if (!name) return bad('El nombre es obligatorio.');

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SessionManager } from '@/lib/session';
 import { NexoEngineService, NexoAction } from '@/services/NexoEngineService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 /**
@@ -12,6 +13,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const action = body?.action as NexoAction | undefined;
     const confirm = body?.confirm === true;

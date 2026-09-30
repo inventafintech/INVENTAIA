@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { toDTO } from '@/lib/suppliers';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== 'object') {
@@ -86,6 +89,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
  */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const key = decodeURIComponent(id);
 

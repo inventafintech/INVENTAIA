@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IntegrationService } from '@/services/IntegrationService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -128,6 +129,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const productId = typeof body?.productId === 'string' ? body.productId : '';
     const qty = body?.qty === undefined || body?.qty === '' ? NaN : Math.floor(Number(body.qty));
@@ -197,6 +200,8 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const ids = Array.isArray(body?.ids) ? body.ids.filter((x: unknown) => typeof x === 'string') : [];
     if (ids.length === 0) {

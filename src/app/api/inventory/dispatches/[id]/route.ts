@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IntegrationService } from '@/services/IntegrationService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { resolveAuthIdentity } from '@/lib/currentUser';
 import { resolveWorkspaceId } from '@/lib/locationsStore';
 
@@ -16,6 +17,8 @@ async function readDispatches(supabase: any, workspaceId: string): Promise<any[]
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const key = decodeURIComponent(id).toUpperCase();
     const body = await req.json().catch(() => ({}));

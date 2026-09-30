@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { computeRestockItem } from '@/services/RestockCalculatorService';
 
 export const dynamic = 'force-dynamic';
@@ -131,6 +132,8 @@ export async function GET(_req: NextRequest, context: { params: Promise<{ id: st
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();

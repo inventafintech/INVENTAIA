@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { parseCSV } from '@/lib/csv';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5 MB
@@ -49,6 +50,8 @@ export interface ImportRowError {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const form = await req.formData().catch(() => null);
     const file = form?.get('file');
     const mode = form?.get('mode') === 'ventas' ? 'ventas' : 'stock';

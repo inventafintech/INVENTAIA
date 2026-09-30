@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
 
@@ -10,6 +11,8 @@ export const dynamic = 'force-dynamic';
  * productos + stock en Supabase. Sin credenciales → 400 honesto.
  */
 export async function POST() {
+  const gate = await requireWorkspace();
+  if (gate.error) return gate.error;
   const session = await SessionManager.getSession().catch(() => null);
   const workspaceId = session?.workspaceId && session.workspaceId !== 'ws-default' ? session.workspaceId : null;
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEffectiveClients, saveClients } from '@/lib/clientsStore';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { resolveWorkspaceId } from '@/lib/locationsStore';
 
 export const dynamic = 'force-dynamic';
@@ -11,6 +12,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ ref: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { ref } = await context.params;
     const key = decodeURIComponent(ref).toUpperCase();
     const body = await req.json().catch(() => null);
@@ -75,6 +78,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ ref: st
  */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ ref: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { ref } = await context.params;
     const key = decodeURIComponent(ref).toUpperCase();
 

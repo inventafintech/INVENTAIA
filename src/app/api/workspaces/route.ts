@@ -4,10 +4,13 @@ import { authOptions } from '@/lib/auth';
 import { WorkspaceService } from '@/services/WorkspaceService';
 import { SessionManager } from '@/lib/session';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     // 1. Obtener sesión de NextAuth o de SessionManager institucional
     const nextAuthSession = await getServerSession(authOptions);
     const customSession = await SessionManager.getSession();
@@ -131,6 +134,8 @@ export async function POST(req: NextRequest) {
 
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const nextAuthSession = await getServerSession(authOptions);
     const customSession = await SessionManager.getSession();
 

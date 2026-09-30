@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEffectiveClients, saveClients, nextClientRef, StoredClient } from '@/lib/clientsStore';
 import { resolveWorkspaceId } from '@/lib/locationsStore';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 /**
@@ -100,6 +101,8 @@ function validate(body: any, isCreate: boolean): { clean?: any; error?: string }
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Payload inválido.' }, { status: 400 });

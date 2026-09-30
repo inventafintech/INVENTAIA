@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEffectiveLocations, saveLocations, resolveWorkspaceId, LOCATION_STATUSES } from '@/lib/locationsStore';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,6 +9,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ ref: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { ref } = await context.params;
     const key = decodeURIComponent(ref).toUpperCase();
     const body = await req.json().catch(() => null);
@@ -67,6 +70,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ ref: st
  */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ ref: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { ref } = await context.params;
     const key = decodeURIComponent(ref).toUpperCase();
 

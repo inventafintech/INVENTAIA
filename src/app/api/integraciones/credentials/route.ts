@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 const PROVIDERS: Record<string, { fields: string[]; labels: Record<string, string> }> = {
@@ -88,6 +89,8 @@ async function liveVerify(
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const provider = typeof body?.provider === 'string' ? body.provider : '';
     const credentials = body?.credentials && typeof body.credentials === 'object' ? body.credentials : {};

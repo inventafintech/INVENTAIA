@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
 
@@ -11,6 +12,8 @@ export const dynamic = 'force-dynamic';
  * Sin token OAuth: 400 honesto con estado Pendiente de configuración.
  */
 export async function POST() {
+  const gate = await requireWorkspace();
+  if (gate.error) return gate.error;
   const session = await SessionManager.getSession().catch(() => null);
   const workspaceId = session?.workspaceId || 'ws-default';
   const userEmail = session?.email || 'sistema@inventa.ai';

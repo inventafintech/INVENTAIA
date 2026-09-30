@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { db } from '@/lib/db';
 
 export async function POST() {
+  const auth = await requireWorkspace();
+  if (auth.error) return auth.error;
   const tokenRecord = db.getOAuthToken('shopify');
   const integration = db.getIntegration('shopify');
 
