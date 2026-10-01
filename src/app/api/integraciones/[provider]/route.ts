@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
 
@@ -10,6 +11,8 @@ export const dynamic = 'force-dynamic';
  */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ provider: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { provider } = await context.params;
     const key = decodeURIComponent(provider).toLowerCase();
     if (!key) {

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { getInitials } from '@/components/layout/UserDropdown';
 
+import { apiFetch } from '@/lib/apiFetch';
 type TabKey = 'profile' | 'security' | 'roles';
 
 function UserProfileContent() {
@@ -122,7 +123,7 @@ function UserProfileContent() {
     let isMounted = true;
     async function loadUserData() {
       try {
-        const res = await fetch('/api/session', { cache: 'no-store' });
+        const res = await apiFetch('/api/session', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data?.authenticated && data?.user && isMounted) {
@@ -228,7 +229,7 @@ function UserProfileContent() {
         }
         avatar = dataUrl;
       }
-      const res = await fetch('/api/users/profile', {
+      const res = await apiFetch('/api/users/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -283,7 +284,7 @@ function UserProfileContent() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/users/security/password', {
+      const res = await apiFetch('/api/users/security/password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ currentPassword, newPassword }),
@@ -309,7 +310,7 @@ function UserProfileContent() {
     if (signingOut) return;
     setSigningOut(true);
     try {
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await apiFetch('/api/auth/logout', { method: 'POST' });
     } catch {
       // continuar con el cierre de NextAuth
     }
@@ -325,7 +326,7 @@ function UserProfileContent() {
     setSuccessMessage(null);
     setTwoFactorLoading(true);
     try {
-      const res = await fetch('/api/users/security/2fa/setup', { method: 'POST' });
+      const res = await apiFetch('/api/users/security/2fa/setup', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
         throw new Error(data?.error || 'No se pudo iniciar la configuración 2FA.');
@@ -348,7 +349,7 @@ function UserProfileContent() {
     setSuccessMessage(null);
     setTwoFactorLoading(true);
     try {
-      const res = await fetch('/api/users/security/2fa/verify-setup', {
+      const res = await apiFetch('/api/users/security/2fa/verify-setup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: setupToken.trim() }),
@@ -373,7 +374,7 @@ function UserProfileContent() {
     setSuccessMessage(null);
     setTwoFactorLoading(true);
     try {
-      const res = await fetch('/api/users/security/2fa/disable', {
+      const res = await apiFetch('/api/users/security/2fa/disable', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token: disableToken.trim() }),

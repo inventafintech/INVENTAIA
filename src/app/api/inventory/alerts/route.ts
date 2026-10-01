@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 async function resolveWorkspaceId(supabase: any): Promise<string | null> {
@@ -31,6 +32,8 @@ async function readSettings(supabase: any, workspaceId: string): Promise<any> {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const rawLocation = params.get('location_id') || params.get('locationId') || params.get('location') || '';
     const rawBranch = params.get('branch') || '';
@@ -130,6 +133,8 @@ export async function GET(req: NextRequest) {
  */
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Payload inválido.' }, { status: 400 });

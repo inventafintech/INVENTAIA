@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface AdjustmentItem {
   id: string;
   productId: string;
@@ -86,7 +87,7 @@ export default function StockAdjustmentsView() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/inventory/adjustments?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/inventory/adjustments?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -124,9 +125,9 @@ export default function StockAdjustmentsView() {
     setFReason('');
     try {
       const [prodRes, itemRes, locRes] = await Promise.all([
-        fetch('/api/products?pageSize=100', { cache: 'no-store' }),
-        fetch('/api/inventory/items?pageSize=100', { cache: 'no-store' }),
-        fetch('/api/locations?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/products?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/inventory/items?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/locations?pageSize=100', { cache: 'no-store' }),
       ]);
       const stockById = new Map<string, number>();
       if (itemRes.ok) {
@@ -159,7 +160,7 @@ export default function StockAdjustmentsView() {
     setFormError(null);
     setSaving(true);
     try {
-      const res = await fetch('/api/inventory/adjustments', {
+      const res = await apiFetch('/api/inventory/adjustments', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -186,7 +187,7 @@ export default function StockAdjustmentsView() {
     if (selected.length === 0) return;
     setBanner(null);
     try {
-      const res = await fetch('/api/inventory/adjustments', {
+      const res = await apiFetch('/api/inventory/adjustments', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: selected }),

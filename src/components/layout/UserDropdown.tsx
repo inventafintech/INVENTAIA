@@ -14,6 +14,7 @@ import {
 import styles from './UserDropdown.module.css';
 import { subscribeProfileUpdates } from '@/lib/profileEvents';
 
+import { apiFetch } from '@/lib/apiFetch';
 /**
  * Función robusta para calcular iniciales:
  * - Para 1 palabra ("Admin") => "AD"
@@ -67,7 +68,7 @@ export function UserDropdown() {
 
     async function loadRealSession() {
       try {
-        const res = await fetch('/api/session', { cache: 'no-store' });
+        const res = await apiFetch('/api/session', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data?.authenticated && data?.user && isMounted) {
@@ -146,7 +147,7 @@ export function UserDropdown() {
 
     try {
       // 1. Destruir sesión en el backend (cookies seguras HTTP-only)
-      await fetch('/api/auth/logout', { method: 'POST' });
+      await apiFetch('/api/auth/logout', { method: 'POST' });
     } catch (err) {
       console.error('Error al destruir sesión backend:', err);
     }

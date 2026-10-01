@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Search, Loader2, CornerDownLeft, ArrowUp, ArrowDown,
@@ -13,6 +14,7 @@ import {
 } from 'lucide-react';
 import { NAVIGATION_CONFIG } from '@/config/navigationConfig';
 
+import { apiFetch } from '@/lib/apiFetch';
 // ─── Interfaces ───────────────────────────────────────────────────────
 interface NexoAction {
   type: string;
@@ -95,7 +97,7 @@ function norm(s: string): string {
 function buildLocalNav(): FlatItem[] {
   const items: FlatItem[] = [];
   const SEMANTIC: Record<string, string[]> = {
-    '/overview': ['inicio', 'home', 'resumen', 'panel', 'tablero', 'dashboard'],
+    '/panel/resumen': ['inicio', 'home', 'resumen', 'panel', 'tablero', 'dashboard'],
     '/stock-alerts': ['alerta', 'alertas', 'riesgo', 'quiebre', 'critico'],
     '/activity-log': ['actividad', 'historial', 'log', 'bitacora', 'registro'],
     '/products/products': ['producto', 'productos', 'catalogo', 'articulo', 'items', 'produc'],
@@ -410,7 +412,7 @@ export function NexoCommandPalette() {
     setChatMessages(newHistory);
 
     try {
-      const response = await fetch('/api/chat', {
+      const response = await apiFetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -479,7 +481,7 @@ export function NexoCommandPalette() {
 
     setExecutingActionId(card.id);
     try {
-      const res = await fetch('/api/nexo/execute', {
+      const res = await apiFetch('/api/nexo/execute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -596,9 +598,8 @@ export function NexoCommandPalette() {
           filter: 'drop-shadow(0 8px 24px rgba(37, 99, 235, 0.4)) drop-shadow(0 0 10px rgba(56, 189, 248, 0.3))',
         }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/nexo-orb.png"
+        <Image
+          src="/nexo-orb.webp"
           alt="Nexo AI"
           width={56}
           height={56}
@@ -806,9 +807,8 @@ export function NexoCommandPalette() {
             {/* Estado inicial de bienvenida si no hay mensajes */}
             {chatMessages.length === 0 && (
               <div className="text-center py-6 px-3">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/nexo-orb.png"
+                <Image
+                  src="/nexo-orb.webp"
                   alt="Nexo"
                   width={44}
                   height={44}
@@ -865,9 +865,8 @@ export function NexoCommandPalette() {
                 >
                   {/* Header de la burbuja Nexo */}
                   <div className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src="/nexo-orb.png"
+                    <Image
+                      src="/nexo-orb.webp"
                       alt=""
                       width={18}
                       height={18}
@@ -970,7 +969,7 @@ export function NexoCommandPalette() {
             {isLoading && (
               <div className="self-start flex items-center gap-2 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-blue-600 mr-auto">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/nexo-orb.png" alt="" width={15} height={15} className="rounded-full object-contain" />
+                <Image src="/nexo-orb.webp" alt="" width={15} height={15} className="rounded-full object-contain" />
                 <span>{loadingText}</span>
               </div>
             )}
@@ -1019,9 +1018,8 @@ export function NexoCommandPalette() {
 
           {/* Right Brand Badge: Orb + Nexo */}
           <div className="flex items-center gap-1.5 ml-auto">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/nexo-orb.png"
+            <Image
+              src="/nexo-orb.webp"
               alt="Nexo"
               width={16}
               height={16}

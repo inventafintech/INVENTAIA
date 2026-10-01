@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { SessionManager } from '@/lib/session';
 import { LOCATIONS } from '@/data/businessDirectory';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export interface BranchProfile {
@@ -82,6 +83,8 @@ function readBranch(settings: any): BranchProfile {
  */
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const ws = await resolveWorkspace(supabase);
@@ -109,6 +112,8 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
  */
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { createClient } = await import('@/utils/supabase/server');
     const supabase = await createClient();
     const ws = await resolveWorkspace(supabase);

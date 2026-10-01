@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface LocationItem {
   ref: string;
   name: string;
@@ -81,7 +82,7 @@ export default function LocationsIndex() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/locations?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/locations?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -162,14 +163,14 @@ export default function LocationsIndex() {
       };
       let res: Response;
       if (editing) {
-        res = await fetch(`/api/locations/${encodeURIComponent(editing.ref)}`, {
+        res = await apiFetch(`/api/locations/${encodeURIComponent(editing.ref)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
         if (fRef.trim()) payload.ref = fRef;
-        res = await fetch('/api/locations', {
+        res = await apiFetch('/api/locations', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -189,7 +190,7 @@ export default function LocationsIndex() {
 
   const handleDelete = async (ref: string) => {
     try {
-      const res = await fetch(`/api/locations/${encodeURIComponent(ref)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/locations/${encodeURIComponent(ref)}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'No se pudo eliminar.');
       setBanner({ type: 'success', text: `Ubicación ${ref} eliminada.` });
@@ -209,7 +210,7 @@ export default function LocationsIndex() {
     let ok = 0;
     for (const ref of selected) {
       try {
-        const res = await fetch(`/api/locations/${encodeURIComponent(ref)}`, { method: 'DELETE' });
+        const res = await apiFetch(`/api/locations/${encodeURIComponent(ref)}`, { method: 'DELETE' });
         if (res.ok) ok++;
       } catch {
         // continuar con el resto

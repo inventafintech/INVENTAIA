@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 const PLAN_LIMIT = 500;
@@ -17,6 +18,8 @@ function cleanPattern(q: string): string {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ') || '';
     const category = params.get('category') || 'all';
@@ -118,6 +121,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const sku = typeof body?.sku === 'string' ? body.sku.trim() : '';
     const name = typeof body?.name === 'string' ? body.name.trim() : '';

@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface DispatchLine {
   productId: string;
   sku: string;
@@ -90,7 +91,7 @@ export default function OutgoingView() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/inventory/dispatches?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/inventory/dispatches?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -124,8 +125,8 @@ export default function OutgoingView() {
     setFLines([{ productId: '', qty: '' }]);
     try {
       const [prodRes, cliRes] = await Promise.all([
-        fetch('/api/products?pageSize=100', { cache: 'no-store' }),
-        fetch('/api/clients?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/products?pageSize=100', { cache: 'no-store' }),
+        apiFetch('/api/clients?pageSize=100', { cache: 'no-store' }),
       ]);
       if (prodRes.ok) {
         const pj = await prodRes.json();
@@ -151,7 +152,7 @@ export default function OutgoingView() {
     }
     setSaving(true);
     try {
-      const res = await fetch('/api/inventory/dispatches', {
+      const res = await apiFetch('/api/inventory/dispatches', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -179,7 +180,7 @@ export default function OutgoingView() {
     setCompleting(item.id);
     setBanner(null);
     try {
-      const res = await fetch(`/api/inventory/dispatches/${encodeURIComponent(item.id)}`, {
+      const res = await apiFetch(`/api/inventory/dispatches/${encodeURIComponent(item.id)}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: 'terminado' }),
@@ -203,7 +204,7 @@ export default function OutgoingView() {
     }
     setBanner(null);
     try {
-      const res = await fetch('/api/inventory/dispatches', {
+      const res = await apiFetch('/api/inventory/dispatches', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids }),

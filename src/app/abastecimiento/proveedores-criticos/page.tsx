@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { ShieldAlert, Phone, Clock, ArrowRight, CheckCircle2, MessageSquare } from 'lucide-react';
 import { RestockItem } from '@/services/RestockCalculatorService';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface CriticalSupplier {
   provider: string;
   providerType: 'corporate' | 'traditional';
@@ -23,7 +24,7 @@ export default function ProveedoresCriticosPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/dashboard/reabastecimiento');
+        const res = await apiFetch('/api/dashboard/reabastecimiento');
         if (res.ok) {
           const data = await res.json();
           if (data.items) {

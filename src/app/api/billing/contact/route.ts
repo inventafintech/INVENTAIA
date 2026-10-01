@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resolveAuthIdentity } from '@/lib/currentUser';
+import { rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,9 @@ async function resolveWorkspaceId(supabase: any): Promise<string | null> {
  */
 export async function POST(req: NextRequest) {
   try {
+    // Formulario público: frenar spam de leads por IP (5/min).
+    const limited = await rateLimit(req, { limit: 5, windowMs: 60_000, keyPrefix: 'lead' });
+    if (limited) return limited;
     const body = await req.json().catch(() => null);
     const addonId = typeof body?.addonId === 'string' ? body.addonId.trim() : '';
     const name = typeof body?.name === 'string' ? body.name.trim() : '';

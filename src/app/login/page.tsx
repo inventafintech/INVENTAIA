@@ -115,11 +115,11 @@ function LoginContent() {
       footerNote={
         <>
           Al continuar, aceptas nuestros{' '}
-          <Link href="#" className={landingStyles.asideLink}>
+          <Link href="/terms" className={landingStyles.asideLink}>
             Términos de Servicio
           </Link>{' '}
           y{' '}
-          <Link href="#" className={landingStyles.asideLink}>
+          <Link href="/privacy" className={landingStyles.asideLink}>
             Política de Privacidad
           </Link>
           .

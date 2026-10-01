@@ -3,6 +3,7 @@ import { SUPPLIERS_DIRECTORY, BRANCHES } from '@/data/businessDirectory';
 import { getEffectiveLocations, resolveWorkspaceId } from '@/lib/locationsStore';
 import { getEffectiveClients } from '@/lib/clientsStore';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 const MAX_PER_GROUP = 5;
@@ -142,6 +143,8 @@ function searchLocationsSync(list: Array<{ ref: string; name: string; code?: str
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const q = normalize(req.nextUrl.searchParams.get('q') || '');
     const empty = { q, products: [], suppliers: [], clients: [], branches: [], locations: [] };
     if (q.length < MIN_QUERY_LENGTH) {

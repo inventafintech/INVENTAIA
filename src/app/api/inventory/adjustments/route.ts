@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { IntegrationService } from '@/services/IntegrationService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { resolveAuthIdentity } from '@/lib/currentUser';
 
 export const dynamic = 'force-dynamic';
@@ -82,6 +83,8 @@ async function displayName(supabase: any, email: string): Promise<string> {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const type = params.get('type') || 'all';
@@ -166,6 +169,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const productId = typeof body?.productId === 'string' ? body.productId : '';
     const type = body?.type as AdjustmentType;
@@ -295,6 +300,8 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const ids = Array.isArray(body?.ids) ? body.ids.filter((x: unknown) => typeof x === 'string') : [];
     if (ids.length === 0) {

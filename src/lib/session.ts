@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import crypto from 'crypto';
+import { requiredSecret } from '@/lib/secret';
 
 export interface SessionData {
   userId: string;
@@ -27,13 +28,10 @@ export interface SessionData {
 export const SESSION_COOKIE_NAME = 'inventa_session';
 export const PENDING_2FA_COOKIE_NAME = 'inventa_2fa_pending';
 const PENDING_2FA_TTL_MS = 10 * 60 * 1000; // 10 minutos
-const SESSION_SECRET =
-  process.env.JWT_SECRET ||
-  process.env.SESSION_SECRET ||
-  'inventa-b2b-enterprise-session-secret-token-key-2026';
+const SESSION_SECRET = () => requiredSecret('JWT_SECRET', 'SESSION_SECRET');
 
 function signData(payload: string): string {
-  const hmac = crypto.createHmac('sha256', SESSION_SECRET);
+  const hmac = crypto.createHmac('sha256', SESSION_SECRET());
   hmac.update(payload);
   return `${payload}.${hmac.digest('hex')}`;
 }
@@ -44,7 +42,7 @@ function verifyData(signedValue: string): string | null {
     if (lastDot === -1) return null;
     const payload = signedValue.substring(0, lastDot);
     const signature = signedValue.substring(lastDot + 1);
-    const hmac = crypto.createHmac('sha256', SESSION_SECRET);
+    const hmac = crypto.createHmac('sha256', SESSION_SECRET());
     hmac.update(payload);
     const expected = hmac.digest('hex');
     if (signature.length === expected.length && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {

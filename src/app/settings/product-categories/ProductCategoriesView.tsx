@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface CategoryItem {
   id: string;
   name: string;
@@ -67,7 +68,7 @@ export default function ProductCategoriesView() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/inventory/categories?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/inventory/categories?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -75,7 +76,7 @@ export default function ProductCategoriesView() {
         setKpis(data.kpis || { total: 0, subcategories: 0, avgSubs: 0, withTax: 0, withTaxTotal: 0 });
         setSelected((prev) => prev.filter((id) => (data.items || []).some((i: CategoryItem) => i.id === id)));
       }
-      const allRes = await fetch('/api/inventory/categories?pageSize=100', { cache: 'no-store' });
+      const allRes = await apiFetch('/api/inventory/categories?pageSize=100', { cache: 'no-store' });
       if (allRes.ok) {
         const allData = await allRes.json();
         setAllCategories((allData.items || []).map((i: CategoryItem) => ({ id: i.id, name: i.name })));
@@ -136,13 +137,13 @@ export default function ProductCategoriesView() {
       };
       let res: Response;
       if (editing) {
-        res = await fetch(`/api/inventory/categories/${encodeURIComponent(editing.id)}`, {
+        res = await apiFetch(`/api/inventory/categories/${encodeURIComponent(editing.id)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
-        res = await fetch('/api/inventory/categories', {
+        res = await apiFetch('/api/inventory/categories', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -165,7 +166,7 @@ export default function ProductCategoriesView() {
     setFormError(null);
     setDeleting(true);
     try {
-      const res = await fetch(`/api/inventory/categories/${encodeURIComponent(editing.id)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/inventory/categories/${encodeURIComponent(editing.id)}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'No se pudo eliminar.');
       setShowModal(false);
@@ -185,7 +186,7 @@ export default function ProductCategoriesView() {
     let blocked = 0;
     for (const id of selected) {
       try {
-        const res = await fetch(`/api/inventory/categories/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        const res = await apiFetch(`/api/inventory/categories/${encodeURIComponent(id)}`, { method: 'DELETE' });
         if (res.ok) ok++;
         else if (res.status === 409) blocked++;
       } catch {

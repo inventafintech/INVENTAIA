@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Search, SlidersHorizontal, Calendar, ChevronDown, ChevronRight } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 type ActionFilter = 'all' | 'creado' | 'modificado' | 'eliminado';
 
 interface ActivityEvent {
@@ -98,7 +99,7 @@ export default function ActividadPage() {
       setLoading(true);
       try {
         const params = new URLSearchParams({ days, action: filter, q: debouncedQuery.trim() });
-        const res = await fetch(`/api/actividad?${params.toString()}`, { cache: 'no-store' });
+        const res = await apiFetch(`/api/actividad?${params.toString()}`, { cache: 'no-store' });
         if (res.ok && !cancelled) {
           const data = await res.json();
           setEvents(data.events || []);

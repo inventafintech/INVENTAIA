@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface ClientItem {
   ref: string;
   name: string;
@@ -91,7 +92,7 @@ export default function ClientsIndex() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/clients?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/clients?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -170,13 +171,13 @@ export default function ClientsIndex() {
       };
       let res: Response;
       if (editing) {
-        res = await fetch(`/api/clients/${encodeURIComponent(editing.ref)}`, {
+        res = await apiFetch(`/api/clients/${encodeURIComponent(editing.ref)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
-        res = await fetch('/api/clients', {
+        res = await apiFetch('/api/clients', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -199,7 +200,7 @@ export default function ClientsIndex() {
     setFormError(null);
     setDeleting(true);
     try {
-      const res = await fetch(`/api/clients/${encodeURIComponent(editing.ref)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/clients/${encodeURIComponent(editing.ref)}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'No se pudo eliminar.');
       setShowModal(false);
@@ -218,7 +219,7 @@ export default function ClientsIndex() {
     let ok = 0;
     for (const ref of selected) {
       try {
-        const res = await fetch(`/api/clients/${encodeURIComponent(ref)}`, { method: 'DELETE' });
+        const res = await apiFetch(`/api/clients/${encodeURIComponent(ref)}`, { method: 'DELETE' });
         if (res.ok) ok++;
       } catch {
         // continuar con el resto

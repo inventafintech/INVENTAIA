@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { Coins, ArrowRight } from 'lucide-react';
 import { RestockItem } from '@/services/RestockCalculatorService';
 
+import { apiFetch } from '@/lib/apiFetch';
 export default function CapitalRequeridoPage() {
   const [items, setItems] = useState<RestockItem[]>([]);
   const [totalCapital, setTotalCapital] = useState(0);
@@ -14,7 +15,7 @@ export default function CapitalRequeridoPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/dashboard/reabastecimiento');
+        const res = await apiFetch('/api/dashboard/reabastecimiento');
         if (res.ok) {
           const data = await res.json();
           if (data.items) {

@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { InventoryMasterService } from '@/services/InventoryMasterService';
 import { normalizeLocationFilter } from '@/services/LocationsService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { createClient } from '@/utils/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     // location_id = ref de ubicación (LOC-00004); branch = sucursal. 'all' = todo.
     const filter = normalizeLocationFilter(
@@ -37,6 +40,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json();
     const { skuCode, name, categoryName, unitCost, unitPrice, physicalStock, safetyStock } = body;
     const rawLoc = typeof body?.locationRef === 'string' ? body.locationRef.trim().toUpperCase()

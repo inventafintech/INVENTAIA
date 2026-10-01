@@ -5,6 +5,7 @@ import Link from 'next/link';
 import LocationSelector from '@/components/inventory/LocationSelector';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface OverviewPayload {
   success: boolean;
   kpis: {
@@ -71,7 +72,7 @@ export default function DashboardOverview() {
       setLoading(true);
       setError(null);
       const q = loc !== 'all' ? `?location_id=${encodeURIComponent(loc)}` : '';
-      const res = await fetch(`/api/dashboard/overview${q}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/dashboard/overview${q}`, { cache: 'no-store' });
       const json = await res.json();
       if (!res.ok || !json.success) throw new Error(json.error || `HTTP ${res.status}`);
       setData(json);
@@ -117,7 +118,7 @@ export default function DashboardOverview() {
     try {
       setGeneratingId(itemId);
       setFeedback(null);
-      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+      const res = await apiFetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemId }),

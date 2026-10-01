@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { resolveAuthIdentity, loadUserRow, isMissingColumnError } from '@/lib/currentUser';
+import { rateLimit } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,6 +18,8 @@ function passwordPolicyError(password: string): string | null {
 
 export async function POST(req: NextRequest) {
   try {
+    const limited = await rateLimit(req, { limit: 30, windowMs: 60_000, keyPrefix: 'pwd' });
+    if (limited) return limited;
     const { userId, email } = await resolveAuthIdentity();
     if (!userId && !email) {
       return NextResponse.json({ error: 'No autenticado. Inicia sesión nuevamente.' }, { status: 401 });

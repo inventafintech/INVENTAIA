@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export type ActivityAction = 'creado' | 'modificado' | 'eliminado' | 'fallido';
@@ -43,6 +44,8 @@ function shortTitle(errores: string, integracion: string): string {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const days = Math.min(Math.max(Number(params.get('days')) || 30, 1), 365);
     const q = (params.get('q') || '').trim().toLowerCase();

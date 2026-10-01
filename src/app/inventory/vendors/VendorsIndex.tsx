@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useDebounce } from '@/hooks/useDebounce';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface SupplierItem {
   id: string;
   ref: string;
@@ -91,7 +92,7 @@ export default function VendorsIndex() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/suppliers?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/suppliers?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -171,13 +172,13 @@ export default function VendorsIndex() {
       };
       let res: Response;
       if (editing) {
-        res = await fetch(`/api/suppliers/${encodeURIComponent(editing.id)}`, {
+        res = await apiFetch(`/api/suppliers/${encodeURIComponent(editing.id)}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
         });
       } else {
-        res = await fetch('/api/suppliers', {
+        res = await apiFetch('/api/suppliers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -200,7 +201,7 @@ export default function VendorsIndex() {
     setFormError(null);
     setDeleting(true);
     try {
-      const res = await fetch(`/api/suppliers/${encodeURIComponent(editing.id)}`, { method: 'DELETE' });
+      const res = await apiFetch(`/api/suppliers/${encodeURIComponent(editing.id)}`, { method: 'DELETE' });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data?.error || 'No se pudo eliminar.');
       setShowModal(false);
@@ -222,7 +223,7 @@ export default function VendorsIndex() {
     let blocked = 0;
     for (const id of selected) {
       try {
-        const res = await fetch(`/api/suppliers/${encodeURIComponent(id)}`, { method: 'DELETE' });
+        const res = await apiFetch(`/api/suppliers/${encodeURIComponent(id)}`, { method: 'DELETE' });
         if (res.ok) ok++;
         else if (res.status === 409) blocked++;
       } catch {

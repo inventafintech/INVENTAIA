@@ -2,10 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import { PurchaseOrderService } from '@/services/PurchaseOrderService';
 import { createClient } from '@/utils/supabase/server';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const orders = await PurchaseOrderService.getAllOrders();
     const metrics = await PurchaseOrderService.getMetrics();
     
@@ -29,6 +32,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json();
     const { supplierId, condition, estimatedArrival, lines } = body;
 

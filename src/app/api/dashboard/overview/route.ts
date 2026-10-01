@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { OverviewService } from '@/services/OverviewService';
 import { LocationsService, normalizeLocationFilter } from '@/services/LocationsService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 /**
@@ -12,6 +13,8 @@ export const dynamic = 'force-dynamic';
  * Incluye durationMs para auditar el TTFB (<200ms con índices y selects mínimos).
  */
 export async function GET(req: NextRequest) {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
   const started = Date.now();
   try {
     const params = req.nextUrl.searchParams;

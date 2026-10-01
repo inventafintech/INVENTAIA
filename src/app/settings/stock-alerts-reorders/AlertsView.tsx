@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { apiFetch } from '@/lib/apiFetch';
 import {
   BellPlus,
   BellRing,
@@ -41,7 +42,7 @@ export default function AlertsSettingsView() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/inventory/alerts', { cache: 'no-store' });
+      const res = await apiFetch('/api/inventory/alerts', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -76,7 +77,7 @@ export default function AlertsSettingsView() {
 
   const savePrefs = async (payload: Record<string, unknown>, label: string) => {
     try {
-      const res = await fetch('/api/inventory/alerts', {
+      const res = await apiFetch('/api/inventory/alerts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -110,7 +111,7 @@ export default function AlertsSettingsView() {
       const safety = Math.floor(Number(draft.safety));
       if (!Number.isInteger(low) || low < 0) throw new Error('Umbral inválido (≥ 0).');
       if (!Number.isInteger(safety) || safety < 0) throw new Error('Safety inválido (≥ 0).');
-      const res = await fetch('/api/inventory/alerts', {
+      const res = await apiFetch('/api/inventory/alerts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ products: { [item.id]: { low, safety, alerts: draft.alerts } } }),

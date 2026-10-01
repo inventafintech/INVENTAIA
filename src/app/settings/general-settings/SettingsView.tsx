@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { useTheme } from '@/hooks/useTheme';
 import CompanySettingsForm from './CompanySettingsForm';
+import { apiFetch } from '@/lib/apiFetch';
 import {
   LANGUAGES,
   CURRENCIES,
@@ -119,9 +120,9 @@ export default function SettingsView() {
     setLoading(true);
     try {
       const [prefRes, subRes, billRes] = await Promise.all([
-        fetch('/api/workspace/preferences', { cache: 'no-store' }),
-        fetch('/api/billing/subscription', { cache: 'no-store' }),
-        fetch('/api/billing/addons', { cache: 'no-store' }),
+        apiFetch('/api/workspace/preferences', { cache: 'no-store' }),
+        apiFetch('/api/billing/subscription', { cache: 'no-store' }),
+        apiFetch('/api/billing/addons', { cache: 'no-store' }),
       ]);
       if (prefRes.ok) {
         const data = await prefRes.json();
@@ -160,7 +161,7 @@ export default function SettingsView() {
   const savePrefs = async (key: string, payload: Record<string, unknown>) => {
     setSavingKey(key);
     try {
-      const res = await fetch('/api/workspace/preferences', {
+      const res = await apiFetch('/api/workspace/preferences', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
@@ -190,7 +191,7 @@ export default function SettingsView() {
     if (next === cycle) return;
     setCycle(next);
     try {
-      await fetch('/api/billing/preferences', {
+      await apiFetch('/api/billing/preferences', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cycle: next }),
@@ -203,7 +204,7 @@ export default function SettingsView() {
   const handleTrial = async () => {
     setSubLoading(true);
     try {
-      const res = await fetch('/api/billing/subscription', {
+      const res = await apiFetch('/api/billing/subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'start-trial' }),
@@ -222,7 +223,7 @@ export default function SettingsView() {
   const handleCancelTrial = async () => {
     setSubLoading(true);
     try {
-      const res = await fetch('/api/billing/subscription', {
+      const res = await apiFetch('/api/billing/subscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'cancel' }),

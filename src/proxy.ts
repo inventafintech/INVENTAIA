@@ -1,5 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { requiredSecret } from '@/lib/secret';
+
+/**
+ * Verifica la firma HMAC-SHA256 de la cookie institucional en el edge
+ * (WebCrypto, sin dependencias Node). Formato: base64(payload).hex(hmac).
+ * Cierra el bypass por mera presencia de la cookie: un valor inventado
+ * ya no abre el shell de páginas protegidas.
+ */
+async function verifyInventaCookie(raw: string): Promise<string | null> {
+  try {
+    const lastDot = raw.lastIndexOf('.');
+    if (lastDot === -1) return null;
+    const payload = raw.substring(0, lastDot);
+    const signature = raw.substring(lastDot + 1);
+    if (!/^[0-9a-f]{64}$/.test(signature)) return null;
+    const secret = requiredSecret('JWT_SECRET', 'SESSION_SECRET');
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(secret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['verify']
+    );
+    const sigBytes = new Uint8Array(signature.length / 2);
+    for (let i = 0; i < sigBytes.length; i++) {
+      sigBytes[i] = parseInt(signature.substring(i * 2, i * 2 + 2), 16);
+    }
+    const ok = await crypto.subtle.verify(
+      'HMAC',
+      key,
+      sigBytes,
+      new TextEncoder().encode(payload)
+    );
+    if (!ok) return null;
+    const bin = atob(payload);
+    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+    const decoded = JSON.parse(new TextDecoder().decode(bytes));
+    return (decoded?.workspaceId as string) || null;
+  } catch {
+    return null;
+  }
+}
 
 export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -10,7 +52,6 @@ export async function proxy(req: NextRequest) {
   const isProtected =
     pathname.startsWith('/onboarding') ||
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/overview') ||
     pathname.startsWith('/stock-alerts') ||
     pathname.startsWith('/activity-log') ||
     pathname.startsWith('/products') ||
@@ -34,26 +75,16 @@ export async function proxy(req: NextRequest) {
   // 1. Verificar token de sesión de NextAuth.js
   const nextAuthToken = await getToken({
     req,
-    secret:
-      process.env.NEXTAUTH_SECRET ||
-      process.env.JWT_SECRET ||
-      'inventa-enterprise-nextauth-secret-key-2026',
+    secret: requiredSecret('NEXTAUTH_SECRET', 'JWT_SECRET'),
   });
 
-  // 2. Verificar cookie de sesión institucional (inventa_session)
+  // 2. Verificar la cookie de sesión institucional (firma HMAC obligatoria).
   const inventaSessionCookie = req.cookies.get('inventa_session')?.value;
-  let inventaWorkspaceId: string | null = null;
-  if (inventaSessionCookie) {
-    try {
-      const parts = inventaSessionCookie.split('.');
-      if (parts[0]) {
-        const decoded = JSON.parse(Buffer.from(parts[0], 'base64').toString('utf-8'));
-        inventaWorkspaceId = decoded.workspaceId || null;
-      }
-    } catch {}
-  }
+  const inventaWorkspaceId = inventaSessionCookie
+    ? await verifyInventaCookie(inventaSessionCookie)
+    : null;
 
-  const isAuthenticated = Boolean(nextAuthToken || inventaSessionCookie);
+  const isAuthenticated = Boolean(nextAuthToken || inventaWorkspaceId);
 
   if (!isAuthenticated) {
     const loginUrl = new URL('/login', req.url);
@@ -104,7 +135,6 @@ export const config = {
   matcher: [
     '/onboarding',
     '/dashboard/:path*',
-    '/overview',
     '/stock-alerts',
     '/activity-log',
     '/products/:path*',

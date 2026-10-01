@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Star, Check, X as XIcon, ExternalLink } from 'lucide-react';
 import { PLANS, MATRIX, formatPlanPrice, CellValue, PlanId } from '@/lib/plans';
 
+import { apiFetch } from '@/lib/apiFetch';
 const CURRENT_PLAN: PlanId = 'light';
 
 function MatrixCell({ value }: { value: CellValue }) {
@@ -36,7 +37,7 @@ export default function PlansView() {
   const [cycle, setCycle] = useState<'mensual' | 'anual'>('anual');
 
   useEffect(() => {
-    fetch('/api/billing/addons', { cache: 'no-store' })
+    apiFetch('/api/billing/addons', { cache: 'no-store' })
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.billing?.billingCycle) setCycle(data.billing.billingCycle);
@@ -48,7 +49,7 @@ export default function PlansView() {
     if (next === cycle) return;
     setCycle(next);
     try {
-      await fetch('/api/billing/preferences', {
+      await apiFetch('/api/billing/preferences', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cycle: next }),

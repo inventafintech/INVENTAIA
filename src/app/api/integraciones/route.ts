@@ -4,10 +4,13 @@ import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
 import { IntegrationService } from '@/services/IntegrationService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const customSession = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 
@@ -33,6 +36,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const customSession = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 

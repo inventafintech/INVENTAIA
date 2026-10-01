@@ -4,6 +4,7 @@ import { resolveAuthIdentity } from '@/lib/currentUser';
 import { resolveWorkspaceId } from '@/lib/locationsStore';
 import type { DispatchType, DispatchRecord, DispatchLine } from '@/lib/dispatches';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 async function readDispatches(supabase: any, workspaceId: string): Promise<DispatchRecord[]> {
@@ -40,6 +41,8 @@ async function displayName(supabase: any, email: string): Promise<string> {
  */
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const params = req.nextUrl.searchParams;
     const q = params.get('q')?.trim().replace(/\s+/g, ' ').toLowerCase() || '';
     const status = params.get('status') || 'all';
@@ -114,6 +117,8 @@ export async function GET(req: NextRequest) {
  */
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const type = body?.type as DispatchType;
     const destination = typeof body?.destination === 'string' ? body.destination.trim().slice(0, 160) : '';
@@ -228,6 +233,8 @@ export async function POST(req: NextRequest) {
  */
 export async function DELETE(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => null);
     const ids = Array.isArray(body?.ids) ? body.ids.filter((x: unknown) => typeof x === 'string') : [];
     if (ids.length === 0) {

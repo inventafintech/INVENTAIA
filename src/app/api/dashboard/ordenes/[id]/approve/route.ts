@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { PurchaseOrderService } from '@/services/PurchaseOrderService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,11 +9,12 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await params;
-    const body = await req.json().catch(() => ({}));
-    const userEmail = body?.userEmail || 'operaciones@distribuidorasanmartin.pe';
+    const userEmail = auth.ctx.email;
 
-    const result = await PurchaseOrderService.approveOrder('ws-default', id, userEmail);
+    const result = await PurchaseOrderService.approveOrder(auth.ctx.workspaceId, id, userEmail);
 
     return NextResponse.json(result);
   } catch (error: any) {

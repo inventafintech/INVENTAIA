@@ -6,6 +6,7 @@ import { AppShell } from '@/components/layout/AppShell';
 import { Boxes, ArrowRight } from 'lucide-react';
 import { InventoryMasterItem } from '@/services/InventoryMasterService';
 
+import { apiFetch } from '@/lib/apiFetch';
 export default function InventarioInmovilizadoPage() {
   const [items, setItems] = useState<InventoryMasterItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +14,7 @@ export default function InventarioInmovilizadoPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch('/api/dashboard/inventario');
+        const res = await apiFetch('/api/dashboard/inventario');
         if (res.ok) {
           const data = await res.json();
           if (data.items) {

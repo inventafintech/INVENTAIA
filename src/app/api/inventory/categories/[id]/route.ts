@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 
 export const dynamic = 'force-dynamic';
 
@@ -43,6 +44,8 @@ function createsCycle(meta: Record<string, any>, categoryId: string, assignedId:
  */
 export async function PUT(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const key = decodeURIComponent(id);
     const body = await req.json().catch(() => null);
@@ -139,6 +142,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
  */
 export async function DELETE(_req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { id } = await context.params;
     const key = decodeURIComponent(id);
 

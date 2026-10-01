@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useWorkspaceStore, WorkspaceSettings } from '@/hooks/useWorkspaceStore';
 import styles from './page.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 export default function AjustesPage() {
   const router = useRouter();
   const { settings, updateWorkspaceSettings } = useWorkspaceStore();
@@ -19,7 +20,7 @@ export default function AjustesPage() {
   useEffect(() => {
     async function loadSettings() {
       try {
-        const res = await fetch('/api/dashboard/ajustes', { cache: 'no-store' });
+        const res = await apiFetch('/api/dashboard/ajustes', { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
           if (data.settings) {
@@ -87,7 +88,7 @@ export default function AjustesPage() {
 
     try {
       // 2. Realizar un único llamado PUT a la API real
-      const res = await fetch('/api/dashboard/ajustes', {
+      const res = await apiFetch('/api/dashboard/ajustes', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),

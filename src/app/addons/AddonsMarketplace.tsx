@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiFetch } from '@/lib/apiFetch';
 import {
   CreditCard,
   ShoppingBag,
@@ -85,7 +86,7 @@ export default function AddonsMarketplace() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/billing/addons', { cache: 'no-store' });
+      const res = await apiFetch('/api/billing/addons', { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setAddons(data.addons || []);
@@ -106,7 +107,7 @@ export default function AddonsMarketplace() {
     if (next === cycle) return;
     setCycle(next);
     try {
-      const res = await fetch('/api/billing/preferences', {
+      const res = await apiFetch('/api/billing/preferences', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ cycle: next }),
@@ -135,7 +136,7 @@ export default function AddonsMarketplace() {
     setFormError(null);
     setSending(true);
     try {
-      const res = await fetch('/api/billing/contact', {
+      const res = await apiFetch('/api/billing/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -162,7 +163,7 @@ export default function AddonsMarketplace() {
     setBuying(addon.id);
     setBanner(null);
     try {
-      const res = await fetch('/api/billing/checkout', {
+      const res = await apiFetch('/api/billing/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ addonId: addon.id, cycle }),

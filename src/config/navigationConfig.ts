@@ -62,7 +62,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
       {
         id: 'resumen',
         label: 'Resumen',
-        href: '/overview',
+        href: '/panel/resumen',
         aliases: ['/panel/resumen', '/dashboard', '/'],
         icon: LayoutDashboard,
       },
@@ -92,7 +92,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         id: 'inventario-actual',
         label: 'Inventario actual',
         href: '/inventory/inventory-items',
-        aliases: ['/inventario/actual', '/inventario', '/dashboard/inventario', '/inventory'],
+        aliases: ['/dashboard/inventario', '/inventory'],
         icon: Boxes,
         badgeKey: 'inventarioInmovilizado',
         badgeType: 'warning',
@@ -108,7 +108,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         id: 'recibos',
         label: 'Recibos',
         href: '/inventory/incoming',
-        aliases: ['/inventario/recibos', '/ordenes'],
+        aliases: ['/inventario/recibos'],
         icon: ArrowDownLeft,
       },
       {
@@ -216,7 +216,7 @@ export const NAVIGATION_CONFIG: NavGroupConfig[] = [
         id: 'config-general',
         label: 'Configuración general',
         href: '/settings/general-settings',
-        aliases: ['/configuracion/general', '/ajustes', '/dashboard/ajustes', '/settings'],
+        aliases: ['/configuracion/general', '/dashboard/ajustes', '/settings'],
         icon: Settings,
       },
       {

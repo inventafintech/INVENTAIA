@@ -1,12 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FinancingService } from '@/services/FinancingService';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json();
-    const { amount, termDays, userEmail = 'operaciones@distribuidorasanmartin.pe' } = body;
+    const { amount, termDays } = body;
+    const userEmail = auth.ctx.email;
 
     if (!amount || !termDays) {
       return NextResponse.json(

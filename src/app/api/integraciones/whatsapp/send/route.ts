@@ -2,8 +2,11 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { resolveWhatsAppCredentials, sendWhatsAppCloudMessage } from '@/lib/dispatchers';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export async function POST(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const body = await req.json().catch(() => ({}));
     const { to, message, templateName } = body;
 

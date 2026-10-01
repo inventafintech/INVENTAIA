@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import styles from './SetupWizard.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface IndustryOption {
   id: string;
   name: string;
@@ -155,7 +156,7 @@ export function SetupWizard() {
   const handleFinish = async () => {
     setSaving(true);
     try {
-      await fetch('/api/setup/wizard', {
+      await apiFetch('/api/setup/wizard', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -175,10 +176,10 @@ export function SetupWizard() {
       });
 
       // Redirigir al Resumen del PANEL
-      router.push('/overview');
+      router.push('/panel/resumen');
     } catch (err) {
       console.error('Error guardando configuración:', err);
-      router.push('/overview');
+      router.push('/panel/resumen');
     } finally {
       setSaving(false);
     }
@@ -200,7 +201,7 @@ export function SetupWizard() {
           <Logo height={24} tone="light" />
           <span className={styles.brandTag}>Asistente de Configuración</span>
         </div>
-        <Link href="/overview" className={styles.exitLink}>
+        <Link href="/panel/resumen" className={styles.exitLink}>
           Omitir e ir al Panel →
         </Link>
       </header>

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import styles from './BranchDetails.module.css';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface BranchProfile {
   code: string;
   name: string;
@@ -70,7 +71,7 @@ export default function BranchDetailsView() {
   const load = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/branch', { cache: 'no-store' });
+      const res = await apiFetch('/api/branch', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setData(json);
@@ -82,7 +83,7 @@ export default function BranchDetailsView() {
       setLoading(false);
     }
     try {
-      const res = await fetch('/api/locations?pageSize=50', { cache: 'no-store' });
+      const res = await apiFetch('/api/locations?pageSize=50', { cache: 'no-store' });
       if (res.ok) {
         const json = await res.json();
         setLocations(json.items || []);
@@ -119,7 +120,7 @@ export default function BranchDetailsView() {
     setBanner(null);
     setSaving(true);
     try {
-      const res = await fetch('/api/branch', {
+      const res = await apiFetch('/api/branch', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

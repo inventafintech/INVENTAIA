@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { FinancingService } from '@/services/FinancingService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const { searchParams } = new URL(req.url);
     const amount = Number(searchParams.get('amount')) || 45000;
     const termDays = Number(searchParams.get('days')) || 30;

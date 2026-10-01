@@ -19,6 +19,7 @@ import { useSearchQuery } from '@/hooks/useSearchQuery';
 import { triggerNotificationRefresh } from '@/context/NotificationContext';
 import { AppShell } from '@/components/layout/AppShell';
 
+import { apiFetch } from '@/lib/apiFetch';
 interface ProductItem {
   id: string;
   sku: string;
@@ -108,7 +109,7 @@ function ProductsIndex() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
       });
-      const res = await fetch(`/api/products?${params.toString()}`, { cache: 'no-store' });
+      const res = await apiFetch(`/api/products?${params.toString()}`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
         setItems(data.items || []);
@@ -149,7 +150,7 @@ function ProductsIndex() {
     setBulkLoading(true);
     setBanner(null);
     try {
-      const res = await fetch('/api/dashboard/reabastecimiento/oc', {
+      const res = await apiFetch('/api/dashboard/reabastecimiento/oc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ itemIds: selected }),
@@ -186,7 +187,7 @@ function ProductsIndex() {
     setFormError(null);
     setSaving(true);
     try {
-      const res = await fetch('/api/products', {
+      const res = await apiFetch('/api/products', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

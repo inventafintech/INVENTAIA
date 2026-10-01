@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireWorkspace } from '@/lib/requireWorkspace';
 import { db } from '@/lib/db';
 
 export async function POST(req: NextRequest) {
+  const auth = await requireWorkspace();
+  if (auth.error) return auth.error;
   const integration = db.getIntegration('sunat');
   const ruc = process.env.SUNAT_RUC || integration?.config?.ruc;
   const solUser = process.env.SUNAT_USUARIO_SOL || integration?.config?.usuario_sol;

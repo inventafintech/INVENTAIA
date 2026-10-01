@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { SessionManager } from '@/lib/session';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2 MB
@@ -46,6 +47,8 @@ function avatarBytes(dataUrl: string): number {
  */
 export async function PUT(req: NextRequest) {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const session = await SessionManager.getSession();
     const nextAuthSession = await getServerSession(authOptions);
 

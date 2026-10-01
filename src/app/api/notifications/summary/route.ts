@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import { NotificationService } from '@/services/NotificationService';
 
+import { requireWorkspace } from '@/lib/requireWorkspace';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    const auth = await requireWorkspace();
+    if (auth.error) return auth.error;
     const counts = await NotificationService.getAlertSummary();
 
     return NextResponse.json({
