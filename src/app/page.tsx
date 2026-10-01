@@ -224,8 +224,8 @@ export default function LandingPage() {
               <div className={styles.kpis}>
                 <div className={styles.kpi}>
                   <div className={styles.kpiLabel}>{t.mockup_kpi1}</div>
-                  <div className={styles.kpiValue}>S/ 1.3M</div>
-                  <div className={styles.kpiDelta}>+12.4%</div>
+                  <div className={styles.kpiValue}>S/ 1.5M</div>
+                  <div className={styles.kpiDelta}>+13.4%</div>
                 </div>
                 <div className={styles.kpi}>
                   <div className={styles.kpiLabel}>{t.mockup_kpi2}</div>
