@@ -17,7 +17,7 @@
     "@ai-sdk/google": "^4.0.82",
     "@ai-sdk/groq": "^4.0.50",
     "@ai-sdk/openai": "^4.0.78",
-    "@ai-sdk/react": "^4.0.119",
+    "@ai-sdk/react": "^4.0.125",
     "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.116.0",
     "@upstash/ratelimit": "^2.2.0",
