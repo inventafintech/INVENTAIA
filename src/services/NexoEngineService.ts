@@ -215,7 +215,7 @@ const NAV_VERBS = [
 ];
 
 const NAV_EXTRA_KEYS: Record<string, string[]> = {
-  '/overview': ['resumen', 'panel', 'inicio', 'tablero'],
+  '/panel/resumen': ['resumen', 'panel', 'inicio', 'tablero'],
   '/stock-alerts': ['alerta', 'riesgo', 'quiebre'],
   '/activity-log': ['actividad', 'historial', 'bitacora', 'auditoria'],
   '/products/products': ['producto', 'catalogo'],

@@ -11,7 +11,7 @@ export const dynamic = 'force-dynamic';
 
 function safeRedirect(path: unknown): string {
   if (typeof path === 'string' && path.startsWith('/') && !path.startsWith('//')) return path;
-  return '/overview';
+  return '/panel/resumen';
 }
 
 /**

@@ -52,7 +52,6 @@ export async function proxy(req: NextRequest) {
   const isProtected =
     pathname.startsWith('/onboarding') ||
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/overview') ||
     pathname.startsWith('/stock-alerts') ||
     pathname.startsWith('/activity-log') ||
     pathname.startsWith('/products') ||
@@ -136,7 +135,6 @@ export const config = {
   matcher: [
     '/onboarding',
     '/dashboard/:path*',
-    '/overview',
     '/stock-alerts',
     '/activity-log',
     '/products/:path*',

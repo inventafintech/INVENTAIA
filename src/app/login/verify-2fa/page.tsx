@@ -22,7 +22,7 @@ function VerifyContent() {
   const router = useRouter();
   const { update: updateSession } = useSession();
 
-  const callbackUrl = searchParams?.get('callbackUrl') || '/overview';
+  const callbackUrl = searchParams?.get('callbackUrl') || '/panel/resumen';
   const flow = searchParams?.get('flow') || 'nextauth';
 
   const [code, setCode] = useState('');

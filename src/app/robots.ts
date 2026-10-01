@@ -15,7 +15,6 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         allow: ['/$', '/login$', '/plans$', '/addons$', '/ayuda/', '/help/'],
         disallow: [
           '/dashboard/',
-          '/overview',
           '/panel/',
           '/inventory/',
           '/inventario/',

@@ -97,7 +97,7 @@ function norm(s: string): string {
 function buildLocalNav(): FlatItem[] {
   const items: FlatItem[] = [];
   const SEMANTIC: Record<string, string[]> = {
-    '/overview': ['inicio', 'home', 'resumen', 'panel', 'tablero', 'dashboard'],
+    '/panel/resumen': ['inicio', 'home', 'resumen', 'panel', 'tablero', 'dashboard'],
     '/stock-alerts': ['alerta', 'alertas', 'riesgo', 'quiebre', 'critico'],
     '/activity-log': ['actividad', 'historial', 'log', 'bitacora', 'registro'],
     '/products/products': ['producto', 'productos', 'catalogo', 'articulo', 'items', 'produc'],
