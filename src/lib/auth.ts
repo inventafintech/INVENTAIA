@@ -191,5 +191,9 @@ export const authOptions: NextAuthOptions = {
       return `${baseUrl}/dashboard`;
     },
   },
-  secret: requiredSecret('NEXTAUTH_SECRET', 'JWT_SECRET'),
+  // Getter perezoso: el secreto solo se exige en runtime (petición real),
+  // nunca durante el build. En producción sin env, falla cerrado y ruidoso.
+  get secret(): string {
+    return requiredSecret('NEXTAUTH_SECRET', 'JWT_SECRET');
+  },
 };
