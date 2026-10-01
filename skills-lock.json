@@ -122,6 +122,12 @@
       "skillPath": "skills/okx-defi/SKILL.md",
       "computedHash": "ed103ccd11709267756408da970a6e299b7c58850cbb1d93cd8545a28a1515bb"
     },
+    "ponytail": {
+      "source": "dietrichgebert/ponytail",
+      "sourceType": "github",
+      "skillPath": "skills/ponytail/SKILL.md",
+      "computedHash": "9e8d05cbbaf6dc38f0cffc924c09b3cbe76d94ba4ba0d09bde803da2f8c6b5a0"
+    },
     "remotion-create": {
       "source": "remotion-dev/skills",
       "sourceType": "github",

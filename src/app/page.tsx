@@ -85,7 +85,7 @@ export default function LandingPage() {
     try {
       window.localStorage.setItem(LANDING_LANG_KEY, lang);
       document.documentElement.lang = lang;
-    } catch {}
+    } catch { }
   };
 
   const handleGoogleLogin = async () => {
@@ -224,7 +224,7 @@ export default function LandingPage() {
               <div className={styles.kpis}>
                 <div className={styles.kpi}>
                   <div className={styles.kpiLabel}>{t.mockup_kpi1}</div>
-                  <div className={styles.kpiValue}>S/ 1.2M</div>
+                  <div className={styles.kpiValue}>S/ 1.3M</div>
                   <div className={styles.kpiDelta}>+12.4%</div>
                 </div>
                 <div className={styles.kpi}>
