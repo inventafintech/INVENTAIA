@@ -56,5 +56,8 @@ docs/*.visual-check.*.png
 
 .v
 
+# GitHub profile assets (banner/snake locales, no van al repo del proyecto)
+github-profile-juzakito/
+
 .vercel
 .env*
